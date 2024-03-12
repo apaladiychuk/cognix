@@ -1,0 +1,3 @@
+onnxruntime==1.17.1  
+# pip install onnxruntime-silicon #mac
+'unstructured[all-docs]'

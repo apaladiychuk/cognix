@@ -1,0 +1,3281 @@
+[
+    {
+        "element_id": "675edd423a52405b82a3b97712c1bded",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        1058.3,
+                        190.4
+                    ],
+                    [
+                        1058.3,
+                        304.3
+                    ],
+                    [
+                        1575.0,
+                        304.3
+                    ],
+                    [
+                        1575.0,
+                        190.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1
+        },
+        "text": "@ NVIDIA.",
+        "type": "Image"
+    },
+    {
+        "element_id": "4916b5ec8555709b4a31296b1dde2d4e",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        330.6,
+                        343.6
+                    ],
+                    [
+                        330.6,
+                        386.9
+                    ],
+                    [
+                        1368.1,
+                        386.9
+                    ],
+                    [
+                        1368.1,
+                        343.6
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.6262,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1
+        },
+        "text": "CFO Commentary on Third Quarter Fiscal 2024 Results",
+        "type": "Title"
+    },
+    {
+        "element_id": "619a8414f256311f985950ff4598ec0e",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        425.4
+                    ],
+                    [
+                        125.0,
+                        458.7
+                    ],
+                    [
+                        488.8,
+                        458.7
+                    ],
+                    [
+                        488.8,
+                        425.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.80986,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1
+        },
+        "text": "Q3 Fiscal 2024 Summary",
+        "type": "Title"
+    },
+    {
+        "element_id": "f277484faa5812d84c173f6c815d9b4f",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        807.7,
+                        491.1
+                    ],
+                    [
+                        807.7,
+                        523.3
+                    ],
+                    [
+                        893.9,
+                        523.3
+                    ],
+                    [
+                        893.9,
+                        491.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.32296,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1,
+            "parent_id": "619a8414f256311f985950ff4598ec0e"
+        },
+        "text": "GAAP",
+        "type": "FigureCaption"
+    },
+    {
+        "element_id": "d62da554b08fad6b364e6915ad5a79b4",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        128.6,
+                        501.3
+                    ],
+                    [
+                        128.6,
+                        850.0
+                    ],
+                    [
+                        1581.4,
+                        850.0
+                    ],
+                    [
+                        1581.4,
+                        501.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.91759,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1,
+            "parent_id": "619a8414f256311f985950ff4598ec0e",
+            "text_as_html": "<table><tr><td>fin millions, except earnings per</td><td>Q3 FY24</td><td>Q2 FY24</td><td>Q3 FY23</td><td>a/a</td><td>YIY</td></tr><tr><td>Revenue</td><td>$18,120</td><td>$13,507</td><td>$5,931</td><td>Up 34%</td><td>Up 206%</td></tr><tr><td>Gross margin</td><td>740%</td><td>70.1%</td><td>53.6 %</td><td>Up 3.9 pts</td><td>Up 20.4 pts</td></tr><tr><td>Operating expenses</td><td>$2,983</td><td>$2,662</td><td>$2,576</td><td>Up 12%</td><td>Up 16%</td></tr><tr><td>Operating income</td><td>$10,417</td><td>$6,800</td><td>$601</td><td>Up 53%</td><td>Up 1,633%</td></tr><tr><td>Net income</td><td>$9,243</td><td>$6,188</td><td>$680</td><td>Up 49%</td><td>Up 1,259%</td></tr><tr><td>Diluted earnings per share</td><td>$3.71</td><td>$2.48</td><td>$0.27</td><td>Up 50%</td><td>Up 1,274%</td></tr></table>"
+        },
+        "text": "($ in millions, except earnings per share) Q3 FY24 Q2 FY24 Q3 FY23 Q/Q Y/Y Revenue $18,120 $13,507 $5,931 Up 34% Up 206% Gross margin 74.0 % 70.1 % 53.6 % Up 3.9 pts Up 20.4 pts Operating expenses $2,983 $2,662 $2,576 Up 12% Up 16% Operating income $10,417 $6,800 $601 Up 53% Up 1,633% Net income $9,243 $6,188 $680 Up 49% Up 1,259% Diluted earnings per share $3.71 $2.48 $0.27 Up 50% Up 1,274%",
+        "type": "Table"
+    },
+    {
+        "element_id": "a51db9aef3cea51a9267b55669589b44",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        771.1,
+                        900.2
+                    ],
+                    [
+                        771.1,
+                        933.0
+                    ],
+                    [
+                        930.2,
+                        933.0
+                    ],
+                    [
+                        930.2,
+                        900.2
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.45468,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1,
+            "parent_id": "619a8414f256311f985950ff4598ec0e"
+        },
+        "text": "Non-GAAP",
+        "type": "FigureCaption"
+    },
+    {
+        "element_id": "6628a726ae4af2b69e6310f0ccededd0",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        126.5,
+                        914.3
+                    ],
+                    [
+                        126.5,
+                        1255.6
+                    ],
+                    [
+                        1584.2,
+                        1255.6
+                    ],
+                    [
+                        1584.2,
+                        914.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.9252,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1,
+            "parent_id": "619a8414f256311f985950ff4598ec0e",
+            "text_as_html": "<table><tr><td>in millions, except earnings per</td><td>Q3 FY24</td><td>Q2 FY24</td><td>Q3 FY23</td><td>a/a</td><td>YIY</td></tr><tr><td>Revenue</td><td>$18,120</td><td>$13,507</td><td>$5,931</td><td>Up 34%</td><td>Up 206%</td></tr><tr><td>Gross margin</td><td>75.0%</td><td>71.2%</td><td>56.1%</td><td>Up 3.8 pts</td><td>Up 18.9 pts</td></tr><tr><td>Operating expenses</td><td>$2,026</td><td>$1,838</td><td>$1,793</td><td>Up 10%</td><td>Up 13%</td></tr><tr><td>Operating income</td><td>$11,557</td><td>$7,776</td><td>$1,536</td><td>Up 49%</td><td>Up 652%</td></tr><tr><td>Net income</td><td>$10,020</td><td>$6,740</td><td>$1,456</td><td>Up 49%</td><td>Up 588%</td></tr><tr><td>Diluted earnings per share</td><td>$4.02</td><td>$2.70</td><td>$0.58</td><td>Up 49%</td><td>Up 593%</td></tr></table>"
+        },
+        "text": "($ in millions, except earnings per share) Q3 FY24 Q2 FY24 Q3 FY23 Q/Q Y/Y Revenue $18,120 $13,507 $5,931 Up 34% Up 206% Gross margin 75.0 % 71.2 % 56.1 % Up 3.8 pts Up 18.9 pts Operating expenses $2,026 $1,838 $1,793 Up 10% Up 13% Operating income $11,557 $7,776 $1,536 Up 49% Up 652% Net income $10,020 $6,740 $1,456 Up 49% Up 588% Diluted earnings per share $4.02 $2.70 $0.58 Up 49% Up 593%",
+        "type": "Table"
+    },
+    {
+        "element_id": "5c254415713b25430c3f69ce7dd8d165",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        604.5,
+                        1317.9
+                    ],
+                    [
+                        604.5,
+                        1351.1
+                    ],
+                    [
+                        1095.7,
+                        1351.1
+                    ],
+                    [
+                        1095.7,
+                        1317.9
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.30233,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1
+        },
+        "text": "Revenue by Reportable Segments",
+        "type": "Title"
+    },
+    {
+        "element_id": "714117df3565872e02c4a4e58cb3fd46",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.1,
+                        1337.3
+                    ],
+                    [
+                        125.1,
+                        1523.2
+                    ],
+                    [
+                        1560.1,
+                        1523.2
+                    ],
+                    [
+                        1560.1,
+                        1337.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.89404,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1,
+            "parent_id": "5c254415713b25430c3f69ce7dd8d165",
+            "text_as_html": "<table><tr><td>($ in millions)</td><td>Q3 FY24</td><td>Q2 FY24</td><td>Q3 FY23</td><td>a/a</td><td>7</td></tr><tr><td>Compute &amp; Networking</td><td>$14,645</td><td>$10,402</td><td>$3,816</td><td>Up 41%</td><td>Up 284%</td></tr><tr><td>Graphics</td><td>3,475</td><td>3,105</td><td>2,115</td><td>Up 12%</td><td>Up 649</td></tr><tr><td>Total</td><td>$18,120</td><td>$13,507</td><td>$5,931</td><td>Up 34%</td><td>Up 206%</td></tr></table>"
+        },
+        "text": "($ in millions) Q3 FY24 Q2 FY24 Q3 FY23 Q/Q Compute & Networking $14,645 $10,402 $3,816 Up 41% Graphics 3,475 3,105 2,115 Up 12% Total $18,120 $13,507 $5,931 Up 34%",
+        "type": "Table"
+    },
+    {
+        "element_id": "16bb55bb7ed91deb6715ab7e4542505f",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        640.3,
+                        1586.5
+                    ],
+                    [
+                        640.3,
+                        1617.1
+                    ],
+                    [
+                        1059.8,
+                        1617.1
+                    ],
+                    [
+                        1059.8,
+                        1586.5
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1
+        },
+        "text": "Revenue by Market Platform",
+        "type": "Title"
+    },
+    {
+        "element_id": "1fc5e68e4074570ccdeed79feabd3066",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        122.1,
+                        1604.5
+                    ],
+                    [
+                        122.1,
+                        1921.3
+                    ],
+                    [
+                        1584.6,
+                        1921.3
+                    ],
+                    [
+                        1584.6,
+                        1604.5
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.91732,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 1,
+            "parent_id": "16bb55bb7ed91deb6715ab7e4542505f",
+            "text_as_html": "<table><tr><td>($ in millions)</td><td>Q3 FY24</td><td>Q2 FY24</td><td>Q3 FY23</td><td>Q/Q</td><td>YIY</td></tr><tr><td>Data Center</td><td>$14,514</td><td>$10,323</td><td>$3,833</td><td>Up 41%</td><td>Up 279%</td></tr><tr><td>Gaming</td><td>2,856</td><td>2,486</td><td>1,574</td><td>Up 15%</td><td>Up 81%</td></tr><tr><td>Professional Visualization</td><td>416</td><td>379</td><td>200</td><td>Up 10%</td><td>Up 108%</td></tr><tr><td>Automotive</td><td>261</td><td>253</td><td>251</td><td>Up 3%</td><td>Up 4%</td></tr><tr><td>OEM and Other</td><td>73</td><td>66</td><td>73</td><td>Up 11%</td><td></td></tr><tr><td>Total</td><td>$18,120</td><td>$13,507</td><td>$5,931</td><td>Up 34%</td><td>Up 206%</td></tr></table>"
+        },
+        "text": "($ in millions) Q3 FY24 Q2 FY24 Q3 FY23 Q/Q Y/Y Data Center $14,514 $10,323 $3,833 Up 41% Up 279% Gaming 2,856 2,486 1,574 Up 15% Up 81% Professional Visualization 416 379 200 Up 10% Up 108% Automotive 261 253 251 Up 3% Up 4% OEM and Other 73 66 73 Up 11% \u2014 Total $18,120 $13,507 $5,931 Up 34% Up 206%",
+        "type": "Table"
+    },
+    {
+        "element_id": "bf9686f2a80878612a7114472b3057e3",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        113.1
+                    ],
+                    [
+                        125.0,
+                        258.7
+                    ],
+                    [
+                        1584.1,
+                        258.7
+                    ],
+                    [
+                        1584.1,
+                        113.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.92924,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 2,
+            "parent_id": "16bb55bb7ed91deb6715ab7e4542505f"
+        },
+        "text": "We specialize in markets where our computing platforms can provide tremendous acceleration for applications. These platforms incorporate processors, interconnects, software, algorithms, systems, and services to deliver unique value. Our platforms address four large markets where our expertise is critical: Data Center, Gaming, Professional Visualization, and Automotive.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "17502cc50796af37e87747a7cd3be0f6",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        292.6
+                    ],
+                    [
+                        125.0,
+                        328.7
+                    ],
+                    [
+                        251.4,
+                        328.7
+                    ],
+                    [
+                        251.4,
+                        292.6
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.85985,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 2
+        },
+        "text": "Revenue",
+        "type": "Title"
+    },
+    {
+        "element_id": "9942a0e639b78611c590997aab546998",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        344.6
+                    ],
+                    [
+                        125.0,
+                        382.0
+                    ],
+                    [
+                        1248.2,
+                        382.0
+                    ],
+                    [
+                        1248.2,
+                        344.6
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.86451,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 2,
+            "parent_id": "17502cc50796af37e87747a7cd3be0f6"
+        },
+        "text": "Revenue was $18.12 billion, up 206% from a year ago and up 34% sequentially.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "e3677bc0f19cf915e44c3d382f5ec139",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        408.0
+                    ],
+                    [
+                        125.0,
+                        847.0
+                    ],
+                    [
+                        1584.0,
+                        847.0
+                    ],
+                    [
+                        1584.0,
+                        408.0
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.95417,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 2,
+            "parent_id": "17502cc50796af37e87747a7cd3be0f6"
+        },
+        "text": "Data Center revenue was a record, up 279% from a year ago and up 41% sequentially. Strong sales of the NVIDIA HGX platform were driven by global demand for the training and inferencing of large language models, recommendation engines, and generative AI applications. Data Center compute grew 324% from a year ago and 38% sequentially, largely reflecting the strong ramp of our Hopper GPU architecture-based HGX platform from cloud service providers (CSPs), including GPU-specialized CSPs; consumer internet companies; and enterprises. Our sales of Ampere GPU architecture-based Data Center products were significant but declined sequentially, as we approach the tail end of this architecture. We recognized initial revenue on the ramp of our L40S GPU and the GH200 Grace Hopper Superchip for a broad range of customers. CSPs drove roughly half of Data Center revenue, while consumer internet companies and enterprises comprised approximately the other half. Networking was up 155% from a year ago and up 52% sequentially, almost entirely due to strong growth in InfiniBand infrastructure to support our HGX platform.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "b13f1242eca9b658a5a007fd23b57d23",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        873.3
+                    ],
+                    [
+                        125.0,
+                        1458.7
+                    ],
+                    [
+                        1583.7,
+                        1458.7
+                    ],
+                    [
+                        1583.7,
+                        873.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.94955,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 2,
+            "parent_id": "17502cc50796af37e87747a7cd3be0f6"
+        },
+        "text": "On October 17, 2023, the U.S. government (USG) announced new and updated licensing requirements effective in our fourth quarter of fiscal 2024 for exports to China and Country Groups D1, D4, and D5 (including but not limited to Saudi Arabia, the United Arab Emirates, and Vietnam, but excluding Israel) of our products exceeding certain performance thresholds, including A100, A800, H100, H800, L4, L40, L40S and RTX 4090. The licensing requirements also apply to the export of products exceeding certain performance thresholds to a party headquartered in, or with an ultimate parent headquartered in, Country Group D5, including China. On October 23, 2023, the USG informed us the licensing requirements were effective immediately for shipments of our A100, A800, H100, H800, and L40S products. These licensing requirements did not have a meaningful impact on our revenue in the third quarter of fiscal 2024 as they were announced near the end of the fiscal quarter and we had additional demand from customers outside of the named country groups. Our sales to China and other affected destinations, derived from products that are now subject to licensing requirements, have consistently contributed approximately 20-25% of Data Center revenue over the past few quarters. We expect that our sales to these destinations will decline significantly in the fourth quarter of fiscal 2024, though we believe the decline will be more than offset by strong growth in other regions.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "1ef84c7baf2eca389f729c81c69bc546",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1483.4
+                    ],
+                    [
+                        125.0,
+                        1630.4
+                    ],
+                    [
+                        1583.5,
+                        1630.4
+                    ],
+                    [
+                        1583.5,
+                        1483.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93921,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 2,
+            "parent_id": "17502cc50796af37e87747a7cd3be0f6"
+        },
+        "text": "Gaming revenue was up 81% from a year ago and up 15% sequentially. Strong year-on-year growth reflects higher sell-in to partners following normalization of channel inventory levels. Sequential growth reflects strong demand for our GeForce RTX 40 Series GPUs for back-to-school and the start of the holiday season.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "ef2482b6c447d5ce8cacc70e4e3d3e5b",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1653.5
+                    ],
+                    [
+                        125.0,
+                        1802.0
+                    ],
+                    [
+                        1583.7,
+                        1802.0
+                    ],
+                    [
+                        1583.7,
+                        1653.5
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93474,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 2,
+            "parent_id": "17502cc50796af37e87747a7cd3be0f6"
+        },
+        "text": "Professional Visualization revenue was up 108% from a year ago and up 10% sequentially. The year- on-year increase reflects higher sell-in to partners following normalization of channel inventory levels. The sequential increase was primarily due to stronger enterprise workstation demand and the ramp of notebook workstations based on the Ada Lovelace GPU architecture.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "d6752e52bd0233af9390d17486d720f1",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1826.9
+                    ],
+                    [
+                        125.0,
+                        1937.0
+                    ],
+                    [
+                        1583.5,
+                        1937.0
+                    ],
+                    [
+                        1583.5,
+                        1826.9
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93027,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 2,
+            "parent_id": "17502cc50796af37e87747a7cd3be0f6"
+        },
+        "text": "Automotive revenue was up 4% from a year ago and up 3% sequentially. The year-on-year increase primarily reflects growth in sales of auto cockpit solutions and self-driving platforms. The sequential increase was driven by sales of self-driving platforms.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "79ab79e53d786ebe19292e87d9ba5dab",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        111.3
+                    ],
+                    [
+                        125.0,
+                        148.7
+                    ],
+                    [
+                        323.1,
+                        148.7
+                    ],
+                    [
+                        323.1,
+                        111.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.83452,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3
+        },
+        "text": "Gross Margin",
+        "type": "Title"
+    },
+    {
+        "element_id": "4d4f80213b4deba3bbaccbd19cad448f",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        165.5
+                    ],
+                    [
+                        125.0,
+                        275.4
+                    ],
+                    [
+                        1583.7,
+                        275.4
+                    ],
+                    [
+                        1583.7,
+                        165.5
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93085,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "79ab79e53d786ebe19292e87d9ba5dab"
+        },
+        "text": "GAAP and non-GAAP gross margins increased significantly from a year ago and sequentially, driven by improved product mix from Data Center revenue growth and lower net inventory provisions and related charges.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "b9c21f568324c9bb4a1ff9696a934b4f",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        124.3,
+                        300.3
+                    ],
+                    [
+                        124.3,
+                        483.7
+                    ],
+                    [
+                        1583.8,
+                        483.7
+                    ],
+                    [
+                        1583.8,
+                        300.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.95197,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "79ab79e53d786ebe19292e87d9ba5dab"
+        },
+        "text": "In the third quarter of fiscal 2024, provisions for inventory and related charges were $681 million. Sales of previously reserved inventory or settlements of excess inventory purchase obligations resulted in a provision release of $239 million, primarily from Ampere GPU architecture products. The net inventory provisions were $442 million and the unfavorable effect on our gross margin was 2.4 percentage points.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "917df0aa364e8e60a5edbc232d1b6ab3",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        507.7
+                    ],
+                    [
+                        125.0,
+                        655.4
+                    ],
+                    [
+                        1583.8,
+                        655.4
+                    ],
+                    [
+                        1583.8,
+                        507.7
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93372,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "79ab79e53d786ebe19292e87d9ba5dab"
+        },
+        "text": "In the third quarter of fiscal 2023, provisions for inventory and related charges were $702 million. Sales of previously reserved inventory or settlements of excess inventory purchase obligations resulted in a provision release of $21 million. The net inventory provisions were $681 million and the unfavorable effect on our gross margin was 11.5 percentage points.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "1c177f0d722399625a214b0ea22234d2",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        689.1
+                    ],
+                    [
+                        125.0,
+                        725.4
+                    ],
+                    [
+                        264.4,
+                        725.4
+                    ],
+                    [
+                        264.4,
+                        689.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.85319,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3
+        },
+        "text": "Expenses",
+        "type": "Title"
+    },
+    {
+        "element_id": "73ff5795a6652a88e276709c08b41179",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        744.8
+                    ],
+                    [
+                        125.0,
+                        852.0
+                    ],
+                    [
+                        1583.8,
+                        852.0
+                    ],
+                    [
+                        1583.8,
+                        744.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93156,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "1c177f0d722399625a214b0ea22234d2"
+        },
+        "text": "GAAP operating expenses were up 16% from a year ago and up 12% sequentially, driven by compensation and benefits, including stock-based compensation, primarily reflecting growth in employees and compensation increases.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "3799bb18ce79109d818d867f9938bd47",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        876.4
+                    ],
+                    [
+                        125.0,
+                        950.4
+                    ],
+                    [
+                        1583.3,
+                        950.4
+                    ],
+                    [
+                        1583.3,
+                        876.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.919,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "1c177f0d722399625a214b0ea22234d2"
+        },
+        "text": "Non-GAAP operating expenses were up 13% from a year ago and up 10% sequentially, primarily reflecting growth in employees and compensation increases.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "041b18573cc53e79d793fc35298751f8",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        974.8
+                    ],
+                    [
+                        125.0,
+                        1158.7
+                    ],
+                    [
+                        1586.5,
+                        1158.7
+                    ],
+                    [
+                        1586.5,
+                        974.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.95214,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "1c177f0d722399625a214b0ea22234d2"
+        },
+        "text": "We are monitoring the impact of the geopolitical conflict in and around Israel on our operations, including the health and safety of our approximately 3,400 employees in the region who primarily support the research and development, operations, and sales and marketing of our networking products. Our operating expenses in the third quarter of fiscal 2024 include expenses for financial support to impacted employees and charitable activity.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "6afb65f33972f4388006fc009b0dd18b",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1190.8
+                    ],
+                    [
+                        125.0,
+                        1228.7
+                    ],
+                    [
+                        728.2,
+                        1228.7
+                    ],
+                    [
+                        728.2,
+                        1190.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.85672,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3
+        },
+        "text": "Other Income & Expense and Income Tax",
+        "type": "Title"
+    },
+    {
+        "element_id": "8849587f38b8996182b353174421d14f",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1245.5
+                    ],
+                    [
+                        125.0,
+                        1392.0
+                    ],
+                    [
+                        1583.5,
+                        1392.0
+                    ],
+                    [
+                        1583.5,
+                        1245.5
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93117,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "6afb65f33972f4388006fc009b0dd18b"
+        },
+        "text": "GAAP other income and expense (OI&E) includes interest income, interest expense, gains and losses from non-affiliated investments and other. Non-GAAP OI&E excludes the gains or losses from non- affiliated investments and the portion of interest expense from the amortization of the debt discount.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "7dcbd5b6c704bc2a5478a88f2517f102",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        124.9,
+                        1417.1
+                    ],
+                    [
+                        124.9,
+                        1527.0
+                    ],
+                    [
+                        1583.6,
+                        1527.0
+                    ],
+                    [
+                        1583.6,
+                        1417.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93013,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "6afb65f33972f4388006fc009b0dd18b"
+        },
+        "text": "Interest income was $234 million, up from a year ago and sequentially, reflecting higher cash and investments and higher yields. Net losses from non-affiliated investments were $69 million, driven predominantly by mark-to-market losses from publicly traded equity investments.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "a7362a7d8a33a5640f433e45a6fc1e51",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1550.0
+                    ],
+                    [
+                        125.0,
+                        1662.0
+                    ],
+                    [
+                        1583.7,
+                        1662.0
+                    ],
+                    [
+                        1583.7,
+                        1550.0
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.92833,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "6afb65f33972f4388006fc009b0dd18b"
+        },
+        "text": "GAAP effective tax rate was 12.2%, which reflects tax benefits from the foreign-derived intangible income deduction, stock-based compensation, a resolution of an Internal Revenue Service audit, and the U.S. federal research tax credit. Non-GAAP effective tax rate was 14.6%.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "394f6209c2db2e403549ec0f89ed3e81",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1695.7
+                    ],
+                    [
+                        125.0,
+                        1732.0
+                    ],
+                    [
+                        556.2,
+                        1732.0
+                    ],
+                    [
+                        556.2,
+                        1695.7
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.84736,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3
+        },
+        "text": "Balance Sheet and Cash Flow",
+        "type": "Title"
+    },
+    {
+        "element_id": "9243f3f636e1972828261243fb753b61",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1747.5
+                    ],
+                    [
+                        125.0,
+                        1858.7
+                    ],
+                    [
+                        1583.4,
+                        1858.7
+                    ],
+                    [
+                        1583.4,
+                        1747.5
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.92926,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "394f6209c2db2e403549ec0f89ed3e81"
+        },
+        "text": "Cash, cash equivalents and marketable securities were $18.28 billion, up from $13.14 billion a year ago and $16.02 billion a quarter ago. The increases primarily reflect higher revenue partially offset by taxes paid and stock repurchases.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "178ec45ebfce8c3da6c1062d358daa27",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1882.6
+                    ],
+                    [
+                        125.0,
+                        1993.7
+                    ],
+                    [
+                        1583.6,
+                        1993.7
+                    ],
+                    [
+                        1583.6,
+                        1882.6
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93651,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 3,
+            "parent_id": "394f6209c2db2e403549ec0f89ed3e81"
+        },
+        "text": "Accounts receivable was $8.31 billion with days sales outstanding (DSO) of 42, with the DSO decline from prior periods due to the linearity of shipments. Accounts receivable was reduced by approximately $570 million from customer payments received prior to the invoice due date.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "63e04b114d623c7d522807d7c97df0f9",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        112.3
+                    ],
+                    [
+                        125.0,
+                        295.4
+                    ],
+                    [
+                        1583.8,
+                        295.4
+                    ],
+                    [
+                        1583.8,
+                        112.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.95131,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "394f6209c2db2e403549ec0f89ed3e81"
+        },
+        "text": "Inventory was $4.78 billion with days sales of inventory (DSI) of 92. Purchase commitments and obligations for inventory and manufacturing capacity were $17.11 billion and prepaid supply agreements were $3.67 billion. Other non-inventory purchase obligations were $4.43 billion which includes $3.60 billion of multi-year cloud service agreements, primarily to support our research and development efforts.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "8b2f19d854889a1c11982c798cf0e618",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        320.8
+                    ],
+                    [
+                        125.0,
+                        503.7
+                    ],
+                    [
+                        1584.0,
+                        503.7
+                    ],
+                    [
+                        1584.0,
+                        320.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.94916,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "394f6209c2db2e403549ec0f89ed3e81"
+        },
+        "text": "Cash flow from operating activities was $7.33 billion, up from $392 million a year ago and $6.35 billion a quarter ago, driven by higher revenue partially offset by higher cash tax payments. We paid $4.35 billion in cash taxes in the third quarter of fiscal 2024, largely for previously deferred federal income tax payments related to the disaster relief made available by the IRS for certain California taxpayers.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "fea95d23b2866333212f12145299210c",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        528.6
+                    ],
+                    [
+                        125.0,
+                        712.0
+                    ],
+                    [
+                        1587.5,
+                        712.0
+                    ],
+                    [
+                        1587.5,
+                        528.6
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.94912,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "394f6209c2db2e403549ec0f89ed3e81"
+        },
+        "text": "Depreciation and amortization expense was $372 million, including amortization of acquisition- related intangible assets. Starting in fiscal 2024, we extended the useful lives of most of our servers, storage, and network equipment from three years to a range of four to five years, and assembly and test equipment from five to seven years. This change in useful lives drove a favorable impact to operating expenses of $24 million and to cost of revenue of $17 million in the third quarter.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "ae31b058636a3429172bb5f7d04b6994",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        736.1
+                    ],
+                    [
+                        125.0,
+                        810.4
+                    ],
+                    [
+                        1583.8,
+                        810.4
+                    ],
+                    [
+                        1583.8,
+                        736.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.92356,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "394f6209c2db2e403549ec0f89ed3e81"
+        },
+        "text": "During the third quarter, we utilized cash of $3.91 billion towards shareholder returns, including $3.81 billion in share repurchases and $99 million in cash dividends.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "ef18c360ab3527463119dbbfcb40d10d",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        843.5
+                    ],
+                    [
+                        125.0,
+                        880.4
+                    ],
+                    [
+                        686.6,
+                        880.4
+                    ],
+                    [
+                        686.6,
+                        843.5
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.86763,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4
+        },
+        "text": "Fourth Quarter of Fiscal 2024 Outlook",
+        "type": "Title"
+    },
+    {
+        "element_id": "94e99fb912999331c5ea7b9441fb4f3c",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        898.0
+                    ],
+                    [
+                        125.0,
+                        933.7
+                    ],
+                    [
+                        954.3,
+                        933.7
+                    ],
+                    [
+                        954.3,
+                        898.0
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.89886,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "Outlook for the fourth quarter of fiscal 2024 is as follows:",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "bc0dfa854deb9e28c003030084d57022",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        163.6,
+                        957.7
+                    ],
+                    [
+                        163.6,
+                        995.4
+                    ],
+                    [
+                        1062.0,
+                        995.4
+                    ],
+                    [
+                        1062.0,
+                        957.7
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.87022,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "\u2022 Revenue is expected to be $20.00 billion, plus or minus 2%.",
+        "type": "ListItem"
+    },
+    {
+        "element_id": "06dbb5e86e0d4d40e2ff867be61039aa",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        175.0,
+                        1021.8
+                    ],
+                    [
+                        175.0,
+                        1093.7
+                    ],
+                    [
+                        1583.5,
+                        1093.7
+                    ],
+                    [
+                        1583.5,
+                        1021.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.90768,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "\u2022 GAAP and non-GAAP gross margins are expected to be 74.5% and 75.5%, respectively, plus or minus 50 basis points.",
+        "type": "ListItem"
+    },
+    {
+        "element_id": "f91783657578e903a6c97aac6c1aa534",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        175.0,
+                        1120.4
+                    ],
+                    [
+                        175.0,
+                        1192.0
+                    ],
+                    [
+                        1583.2,
+                        1192.0
+                    ],
+                    [
+                        1583.2,
+                        1120.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.9157,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "\u2022 GAAP and non-GAAP operating expenses are expected to be approximately $3.17 billion and $2.20 billion, respectively.",
+        "type": "ListItem"
+    },
+    {
+        "element_id": "55ee9102bab04ab83c39afff4517d207",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        164.6,
+                        1218.9
+                    ],
+                    [
+                        164.6,
+                        1290.4
+                    ],
+                    [
+                        1584.5,
+                        1290.4
+                    ],
+                    [
+                        1584.5,
+                        1218.9
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.91806,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "\u2022 GAAP and non-GAAP other income and expense are expected to be an income of approximately $200 million, excluding gains and losses from non-affiliated investments.",
+        "type": "ListItem"
+    },
+    {
+        "element_id": "d01addbf3544810c17fe7ae74072fb8e",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        169.9,
+                        1317.8
+                    ],
+                    [
+                        169.9,
+                        1388.7
+                    ],
+                    [
+                        1583.2,
+                        1388.7
+                    ],
+                    [
+                        1583.2,
+                        1317.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.89944,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "\u2022 GAAP and non-GAAP tax rates are expected to be 15.0%, plus or minus 1%, excluding any discrete items.",
+        "type": "ListItem"
+    },
+    {
+        "element_id": "a41a7645d53669c00eaa0aa82c5a47d5",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        643.8,
+                        1428.1
+                    ],
+                    [
+                        643.8,
+                        1458.7
+                    ],
+                    [
+                        1056.2,
+                        1458.7
+                    ],
+                    [
+                        1056.2,
+                        1428.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "___________________________",
+        "type": "UncategorizedText"
+    },
+    {
+        "element_id": "fa34b61741befd32abfed221b767005f",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        124.2,
+                        1474.4
+                    ],
+                    [
+                        124.2,
+                        1512.0
+                    ],
+                    [
+                        597.0,
+                        1512.0
+                    ],
+                    [
+                        597.0,
+                        1474.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.7648,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "For further information, contact:",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "2894446a4d067434bdce81bf5985c1a8",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        132.3,
+                        1545.4
+                    ],
+                    [
+                        132.3,
+                        1716.2
+                    ],
+                    [
+                        469.8,
+                        1716.2
+                    ],
+                    [
+                        469.8,
+                        1545.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.59045,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "Simona Jankowski Investor Relations NVIDIA Corporation sjankowski@nvidia.com",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "4dc2539954386714beb57c60755c493f",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        1045.9,
+                        1546.8
+                    ],
+                    [
+                        1045.9,
+                        1716.2
+                    ],
+                    [
+                        1447.9,
+                        1716.2
+                    ],
+                    [
+                        1447.9,
+                        1546.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.628,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ef18c360ab3527463119dbbfcb40d10d"
+        },
+        "text": "Robert Sherbin Corporate Communications NVIDIA Corporation rsherbin@nvidia.com",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "ca68708d8fe697270b9863b374801fcc",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        1760.1
+                    ],
+                    [
+                        125.0,
+                        1795.9
+                    ],
+                    [
+                        433.8,
+                        1795.9
+                    ],
+                    [
+                        433.8,
+                        1760.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.82878,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4
+        },
+        "text": "Non-GAAP Measures",
+        "type": "Title"
+    },
+    {
+        "element_id": "37f8f523b79f467e9388bdf38a5d62b4",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        122.3,
+                        1811.0
+                    ],
+                    [
+                        122.3,
+                        2069.2
+                    ],
+                    [
+                        1583.8,
+                        2069.2
+                    ],
+                    [
+                        1583.8,
+                        1811.0
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.94971,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 4,
+            "parent_id": "ca68708d8fe697270b9863b374801fcc"
+        },
+        "text": "To supplement NVIDIA\u2019s condensed consolidated financial statements presented in accordance with GAAP, the company uses non-GAAP measures of certain components of financial performance. These non-GAAP measures include non-GAAP gross profit, non-GAAP gross margin, non-GAAP operating expenses, non-GAAP income from operations, non-GAAP other income (expense), net, non- GAAP net income, non-GAAP net income, or earnings, per diluted share, and free cash flow. In order for NVIDIA\u2019s investors to be better able to compare its current results with those of previous periods, the company has shown a reconciliation of GAAP to non-GAAP financial measures. These",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "b74cb143ad418ca83ec86bd90f228311",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        113.0
+                    ],
+                    [
+                        125.0,
+                        515.4
+                    ],
+                    [
+                        1584.0,
+                        515.4
+                    ],
+                    [
+                        1584.0,
+                        113.0
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.95632,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 5,
+            "parent_id": "ca68708d8fe697270b9863b374801fcc"
+        },
+        "text": "reconciliations adjust the related GAAP financial measures to exclude acquisition termination costs, stock-based compensation expense, acquisition-related and other costs, IP-related costs, other, gains and losses from non-affiliated investments, interest expense related to amortization of debt discount, and the associated tax impact of these items where applicable. Free cash flow is calculated as GAAP net cash provided by operating activities less both purchases of property and equipment and intangible assets and principal payments on property and equipment and intangible assets. NVIDIA believes the presentation of its non-GAAP financial measures enhances the user's overall understanding of the company\u2019s historical financial performance. The presentation of the company\u2019s non-GAAP financial measures is not meant to be considered in isolation or as a substitute for the company\u2019s financial results prepared in accordance with GAAP, and the company\u2019s non-GAAP measures may be different from non-GAAP measures used by other companies.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "c85c4cd05f2b93e91b40c7b32bfdb052",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        125.0,
+                        541.4
+                    ],
+                    [
+                        125.0,
+                        1051.6
+                    ],
+                    [
+                        1582.5,
+                        1051.6
+                    ],
+                    [
+                        1582.5,
+                        541.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.95266,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 5,
+            "parent_id": "ca68708d8fe697270b9863b374801fcc"
+        },
+        "text": "Certain statements in this CFO Commentary including, but not limited to, statements as to: our computing platforms providing tremendous acceleration for applications and delivering unique value; markets where our expertise is critical; our expected sales to China and other affected destinations declining significantly in the fourth quarter, and our belief that the decline will be more than offset by strong growth in other regions; and our financial outlook and expected tax rates for the fourth quarter of fiscal 2024 are forward-looking statements that are subject to risks and uncertainties that could cause results to be materially different than expectations. Important factors that could cause actual results to differ materially include: global economic conditions; our reliance on third parties to manufacture, assemble, package and test our products; impact of technological development and competition; development of new products and technologies or the enhancements to our existing product and technologies; market acceptance of our products or our partners\u2019 products; design, manufacturing or software defects; changes in consumer preferences or demands; changes in industry standards and interfaces; and unexpected loss of performance of our products or technologies when integrated into systems; as well as other factors detailed from time to time in the most recent reports NVIDIA files with the Securities and Exchange Commission, or SEC, including, but not limited to, its annual report on Form 10-K and quarterly reports on Form 10-Q. Copies of reports filed with the SEC are posted on the company\u2019s website and are available from NVIDIA without charge. These forward-looking statements are not guarantees of future performance and speak only as of the date hereof, and, except as required by law, NVIDIA disclaims any obligation to update these forward-looking statements to reflect future events or circumstances.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "af59e130a13cad5b2a53fa888a807881",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        821.1,
+                        1078.7
+                    ],
+                    [
+                        821.1,
+                        1106.6
+                    ],
+                    [
+                        881.1,
+                        1106.6
+                    ],
+                    [
+                        881.1,
+                        1078.7
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.75073,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 5
+        },
+        "text": "# # #",
+        "type": "Title"
+    },
+    {
+        "element_id": "b1c081d01de327b70ec3ac0794df8621",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        122.1,
+                        1133.2
+                    ],
+                    [
+                        122.1,
+                        1251.6
+                    ],
+                    [
+                        1583.7,
+                        1251.6
+                    ],
+                    [
+                        1583.7,
+                        1133.2
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93629,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 5,
+            "parent_id": "af59e130a13cad5b2a53fa888a807881"
+        },
+        "text": "\u00a9 2023 NVIDIA Corporation. All rights reserved. NVIDIA and the NVIDIA logo are trademarks and/or registered trademarks of NVIDIA Corporation in the U.S. and/or other countries. Other company and product names may be trademarks of the respective companies with which they are associated. Features, pricing, availability, and specifications are subject to change without notice.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "c7b1511a5d0aa8423f5809015d82184b",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        370.4,
+                        129.4
+                    ],
+                    [
+                        370.4,
+                        244.9
+                    ],
+                    [
+                        1354.4,
+                        244.9
+                    ],
+                    [
+                        1354.4,
+                        129.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6,
+            "parent_id": "af59e130a13cad5b2a53fa888a807881"
+        },
+        "text": "NVIDIA CORPORATION RECONCILIATION OF GAAP TO NON-GAAP FINANCIAL MEASURES (In millions, except per share data)",
+        "type": "UncategorizedText"
+    },
+    {
+        "element_id": "f9aa17ccb15e3a675fca6f8c1e57bf3d",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        779.1,
+                        258.8
+                    ],
+                    [
+                        779.1,
+                        286.6
+                    ],
+                    [
+                        944.7,
+                        286.6
+                    ],
+                    [
+                        944.7,
+                        258.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6
+        },
+        "text": "(Unaudited)",
+        "type": "Title"
+    },
+    {
+        "element_id": "0033c52bd2baffc7b374715cc58fdb6c",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        149.9,
+                        348.7
+                    ],
+                    [
+                        149.9,
+                        1815.5
+                    ],
+                    [
+                        1567.3,
+                        1815.5
+                    ],
+                    [
+                        1567.3,
+                        348.7
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.92683,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6,
+            "parent_id": "f9aa17ccb15e3a675fca6f8c1e57bf3d",
+            "text_as_html": "<table><thead><th></th><th colspan=\"3\" rowspan=\"2\">October 29, 2023</th><th colspan=\"3\" rowspan=\"2\">July 30, 2023</th><th colspan=\"2\" rowspan=\"2\">October 30, 2022</th><th colspan=\"2\" rowspan=\"2\">October 29, 2023</th><th rowspan=\"2\">October 30, 2022</th></thead><thead><th></th><th colspan=\"3\"></th><th colspan=\"3\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th></th></thead><tr><td>AAP gross profit</td><td>$</td><td>13,400</td><td>$</td><td>9,462</td><td></td><td>$ 3,177</td><td>$</td><td>27,510</td><td>$</td><td>11,523</td></tr><tr><td>GAAP gross margin</td><td></td><td>74.0 %</td><td></td><td>70.1</td><td>%</td><td>53.6</td><td>%</td><td>70.9</td><td>%</td><td>55.1</td></tr><tr><td>Acquisition-related and other costs (A)</td><td></td><td>119</td><td></td><td>119</td><td></td><td>120</td><td></td><td>358</td><td></td><td>335</td></tr><tr><td>Stock-based compensation expense (B)</td><td></td><td>38</td><td></td><td>31</td><td></td><td>32</td><td></td><td>96</td><td></td><td>108</td></tr><tr><td>IP-related costs</td><td colspan=\"3\">26</td><td>2</td><td></td><td>_</td><td></td><td>36</td><td></td><td>=</td></tr><tr><td>jon-GAAP gross profit</td><td>$</td><td>13,583</td><td>$</td><td>9,614</td><td></td><td>$ 3,329</td><td>$</td><td>28,000</td><td>$</td><td>11,966</td></tr><tr><td>Non-GAAP gross margin</td><td colspan=\"3\">75.0 %</td><td>71.2</td><td>%</td><td>56.1</td><td>%</td><td>72.1</td><td>%</td><td>57.2</td></tr><tr><td>AAP operating expenses</td><td>$</td><td>2,983</td><td>$</td><td>2,662</td><td></td><td>$ 2,576</td><td>$</td><td>8,152</td><td>$</td><td>8,555</td></tr><tr><td>Stock-based compensation expense (B)</td><td></td><td>(941)</td><td></td><td>(811)</td><td></td><td>(713)</td><td></td><td>(2,459)</td><td></td><td>(1,863)</td></tr><tr><td>Acquisition-related and other costs (A)</td><td></td><td>(16)</td><td></td><td>(18)</td><td></td><td>(54)</td><td></td><td>(88)</td><td></td><td>(164)</td></tr><tr><td>Acquisition termination cost</td><td></td><td>\u2014</td><td></td><td>\u2014</td><td></td><td>_\u2014</td><td></td><td>\u2014</td><td></td><td>(1,353)</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>Other (C)</td><td></td><td>_</td><td></td><td>5</td><td></td><td>(16)</td><td></td><td>10</td><td></td><td>(25)</td></tr><tr><td>lon-GAAP operating expenses</td><td>$</td><td>2,026</td><td>$</td><td>1,838</td><td></td><td>$ 1,793</td><td>$</td><td>5615</td><td>$</td><td>5,150</td></tr><tr><td colspan=\"11\">AAP operating income $ 10,417 $ 6,800 $ 601 $ 19,358 $ 2,968</td></tr><tr><td>Total impact of non-GAAP adjustments to operating income</td><td></td><td>1,140</td><td></td><td>976</td><td></td><td>935</td><td></td><td>3,027</td><td></td><td>3,848</td></tr><tr><td>ljon-GAAP operating income</td><td colspan=\"3\">$11,557 $</td><td>7,776</td><td></td><td>$ 1,536</td><td>$</td><td>22,385</td><td>$</td><td>6,816</td></tr><tr><td>AAP other income (expense), net</td><td>$</td><td>105</td><td>$</td><td>181</td><td></td><td>$ 12</td><td>$</td><td>354</td><td>$</td><td>(75)</td></tr><tr><td>(Gains) losses from non-affiliated investments</td><td></td><td>69</td><td></td><td>(62)</td><td></td><td>11</td><td></td><td>23</td><td></td><td>36</td></tr><tr><td>Interest expense related to amortization of debt discount</td><td></td><td>1</td><td></td><td>1</td><td></td><td></td><td></td><td>3</td><td></td><td>3</td></tr><tr><td>jon-GAAP other income (expense), net</td><td>$</td><td>175</td><td>$</td><td>120</td><td></td><td>$ 24</td><td>$</td><td>380</td><td>$</td><td>(36)</td></tr><tr><td>AAP net income</td><td>$</td><td>9,243</td><td>$</td><td>6,188</td><td></td><td>$ 680</td><td></td><td>$17,475</td><td>$</td><td>2,954</td></tr><tr><td>Total pre-tax impact of non-GAAP adjustments</td><td></td><td>1,210</td><td></td><td>915</td><td></td><td>947</td><td></td><td>3,053</td><td></td><td>3,887</td></tr><tr><td>Income tax impact of non-GAAP adjustments (D)</td><td></td><td>(433)</td><td></td><td>(363)</td><td></td><td>(171)</td><td></td><td>(1,055)</td><td></td><td>(649)</td></tr></table>"
+        },
+        "text": "Three Months Ended Nine Months Ended October 29, July 30, October 30, October 29, October 30, 2023 2023 2022 2023 2022 $ 13,400 $ 9,462 $ 3,177 $ 27,510 $ 11,523 GAAP gross margin 74.0 % 70.1 % 53.6 % 70.9 % 55.1 % Acquisition-related and other costs (A) 119 119 120 358 335 Stock-based compensation expense (B) 38 31 32 96 108 IP-related costs 26 2 \u2014 36 \u2014 $ 13,583 $ 9,614 $ 3,329 $ 28,000 $ 11,966 Non-GAAP gross margin 75.0 % 71.2 % 56.1 % 72.1 % 57.2 % $ 2,983 $ 2,662 $ 2,576 $ 8,152 $ 8,555 Stock-based compensation expense (B) (941) (811) (713) (2,459) (1,863) Acquisition-related and other costs (A) (16) (18) (54) (88) (164) Acquisition termination cost \u2014 \u2014 \u2014 \u2014 (1,353) Other (C) \u2014 5 (16) 10 (25) $ 2,026 $ 1,838 $ 1,793 $ 5,615 $ 5,150 $ 10,417 $ 6,800 $ 601 $ 19,358 $ 2,968 1,140 $ 11,557 976 $ 7,776 935 $ 1,536 3,027 $ 22,385 3,848 $ 6,816 $ 105 $ 181 $ 12 $ 354 $ (75) (Gains) losses from non-affiliated investments Interest expense related to amortization of debt discount 69 1 (62) 1 11 1 23 3 36 3 $ 175 $ 120 $ 24 $ 380 $ (36) $ 9,243 $ 6,188 $ 680 $ 17,475 $ 2,954 1,210 (433) $ 10,020 915 (363) $ 6,740 947 (171) $ 1,456 3,053 (1,055) $ 19,473 3,887 (649) $ 6,192",
+        "type": "Table"
+    },
+    {
+        "element_id": "4cfb97b0be47ed78dac17cd115423802",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        510.9
+                    ],
+                    [
+                        134.4,
+                        538.7
+                    ],
+                    [
+                        369.5,
+                        538.7
+                    ],
+                    [
+                        369.5,
+                        510.9
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6
+        },
+        "text": "GAAP gross profit",
+        "type": "Title"
+    },
+    {
+        "element_id": "1e819b2510cb7b8c38e1f169eb02fd20",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        719.2
+                    ],
+                    [
+                        134.4,
+                        747.0
+                    ],
+                    [
+                        441.3,
+                        747.0
+                    ],
+                    [
+                        441.3,
+                        719.2
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6
+        },
+        "text": "Non-GAAP gross profit",
+        "type": "Title"
+    },
+    {
+        "element_id": "54fc36f10b5c2bccfd7b9273a5157b02",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        846.3
+                    ],
+                    [
+                        134.4,
+                        874.1
+                    ],
+                    [
+                        471.6,
+                        874.1
+                    ],
+                    [
+                        471.6,
+                        846.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6
+        },
+        "text": "GAAP operating expenses",
+        "type": "Title"
+    },
+    {
+        "element_id": "0135a874c74306e23e4bcc104567ab08",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        1054.6
+                    ],
+                    [
+                        134.4,
+                        1082.4
+                    ],
+                    [
+                        545.4,
+                        1082.4
+                    ],
+                    [
+                        545.4,
+                        1054.6
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6
+        },
+        "text": "Non-GAAP operating expenses",
+        "type": "Title"
+    },
+    {
+        "element_id": "98dd97d50bcdddb9f0019553868b2bca",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        1140.1
+                    ],
+                    [
+                        134.4,
+                        1167.8
+                    ],
+                    [
+                        444.0,
+                        1167.8
+                    ],
+                    [
+                        444.0,
+                        1140.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6,
+            "parent_id": "0135a874c74306e23e4bcc104567ab08"
+        },
+        "text": "GAAP operating income",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "bfb58716b955e6d33be79b424ab1765f",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        1181.4
+                    ],
+                    [
+                        134.4,
+                        1278.2
+                    ],
+                    [
+                        699.6,
+                        1278.2
+                    ],
+                    [
+                        699.6,
+                        1181.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6,
+            "parent_id": "0135a874c74306e23e4bcc104567ab08"
+        },
+        "text": "Total impact of non-GAAP adjustments to operating income Non-GAAP operating income",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "49c0d0e87bb238c063ffece360749d23",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        1335.9
+                    ],
+                    [
+                        134.4,
+                        1363.7
+                    ],
+                    [
+                        577.9,
+                        1363.7
+                    ],
+                    [
+                        577.9,
+                        1335.9
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6
+        },
+        "text": "GAAP other income (expense), net",
+        "type": "Title"
+    },
+    {
+        "element_id": "240ccd0fb7f0b39954532a1a68dcd5e8",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        1515.1
+                    ],
+                    [
+                        134.4,
+                        1542.8
+                    ],
+                    [
+                        655.2,
+                        1542.8
+                    ],
+                    [
+                        655.2,
+                        1515.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6
+        },
+        "text": "Non-GAAP other income (expense), net",
+        "type": "Title"
+    },
+    {
+        "element_id": "2554fe507d5c95f8685182472cdd6269",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        1600.5
+                    ],
+                    [
+                        134.4,
+                        1628.3
+                    ],
+                    [
+                        361.7,
+                        1628.3
+                    ],
+                    [
+                        361.7,
+                        1600.5
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6
+        },
+        "text": "GAAP net income",
+        "type": "Title"
+    },
+    {
+        "element_id": "19b35703f247cd78b12b5f3ceb4aecd0",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        134.4,
+                        1641.8
+                    ],
+                    [
+                        134.4,
+                        1807.4
+                    ],
+                    [
+                        630.2,
+                        1807.4
+                    ],
+                    [
+                        630.2,
+                        1641.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 6,
+            "parent_id": "2554fe507d5c95f8685182472cdd6269"
+        },
+        "text": "Total pre-tax impact of non-GAAP adjustments Income tax impact of non-GAAP adjustments (D) Non-GAAP net income",
+        "type": "UncategorizedText"
+    },
+    {
+        "element_id": "015136f3b935a011bf55bd3b42d71980",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        854.0,
+                        129.6
+                    ],
+                    [
+                        854.0,
+                        157.4
+                    ],
+                    [
+                        1129.3,
+                        157.4
+                    ],
+                    [
+                        1129.3,
+                        129.6
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 7
+        },
+        "text": "Three Months Ended",
+        "type": "Title"
+    },
+    {
+        "element_id": "11000b8d3b30a3734bbc727c9e1b0c0a",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        1282.4,
+                        130.7
+                    ],
+                    [
+                        1282.4,
+                        158.5
+                    ],
+                    [
+                        1542.5,
+                        158.5
+                    ],
+                    [
+                        1542.5,
+                        130.7
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 7
+        },
+        "text": "Nine Months Ended",
+        "type": "Title"
+    },
+    {
+        "element_id": "efc80d9ee0b636bd8a2a4e9b93775ea3",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        139.3,
+                        151.3
+                    ],
+                    [
+                        139.3,
+                        769.7
+                    ],
+                    [
+                        1564.0,
+                        769.7
+                    ],
+                    [
+                        1564.0,
+                        151.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93295,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 7,
+            "parent_id": "11000b8d3b30a3734bbc727c9e1b0c0a",
+            "text_as_html": "<table><thead><th rowspan=\"3\">Jiluted net income per share</th><th colspan=\"2\" rowspan=\"2\">October 29, 2023</th><th colspan=\"2\" rowspan=\"2\">July 30, 2023</th><th colspan=\"2\" rowspan=\"2\">October 30, 2022</th><th colspan=\"2\" rowspan=\"2\">October 29, 2023</th><th colspan=\"2\" rowspan=\"2\">October 30, 2022</th></thead><thead><th></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th></thead><thead><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></thead><tr><td>GAAP</td><td>$</td><td>3.71</td><td>$</td><td>2.48</td><td>$</td><td>0.27</td><td>$</td><td>7.01</td><td>$</td><td>1.17</td></tr><tr><td>Non-GAAP</td><td>$</td><td>402</td><td>$</td><td>2.70</td><td>$</td><td>058</td><td>$</td><td>7.81</td><td>$</td><td>2.46</td></tr><tr><td>Weighted average shares used in diluted net ncome per share computation</td><td></td><td>2,494</td><td></td><td>2,499</td><td></td><td>2,499</td><td></td><td>2,494</td><td></td><td>2,517</td></tr><tr><td>SAAP net cash provided by operating activities</td><td>$</td><td>7,333</td><td>$</td><td>6,348</td><td>$</td><td>392</td><td>$</td><td>16591</td><td>$</td><td>3,393</td></tr><tr><td>Purchases related to property and equipment and intangible assets</td><td></td><td>(278)</td><td></td><td>(289)</td><td></td><td>(530)</td><td></td><td>(815)</td><td></td><td>(1,324</td></tr><tr><td>Principal payments on property and equipment and intangible assets Free cash flow</td><td>$</td><td>(13)</td><td>$</td><td>(11)</td><td>$</td><td>(18) (156)</td><td>$</td><td>(44)</td><td>$</td><td>(54</td></tr></table>"
+        },
+        "text": "October 29, July 30, October 30, October 29, October 30, 2023 2023 2022 2023 2022 GAAP $ 3.71 $ 2.48 $ 0.27 $ 7.01 $ Non-GAAP $ 4.02 $ 2.70 $ 0.58 $ 7.81 $ 2,494 2,499 2,499 2,494 $ 7,333 $ 6,348 $ 392 $ 16,591 $ Purchases related to property and equipment and intangible assets Principal payments on property and equipment and intangible assets (278) (13) (289) (11) (530) (18) (815) (44) $ 7,042 $ 6,048 $ (156) $ 15,732 $",
+        "type": "Table"
+    },
+    {
+        "element_id": "7b940d330e6358c81641354dbd434f4b",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        132.3,
+                        876.2
+                    ],
+                    [
+                        132.3,
+                        936.1
+                    ],
+                    [
+                        1514.9,
+                        936.1
+                    ],
+                    [
+                        1514.9,
+                        876.2
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.90828,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 7,
+            "parent_id": "11000b8d3b30a3734bbc727c9e1b0c0a"
+        },
+        "text": "(A) Acquisition-related and other costs are comprised of amortization of intangible assets and transaction costs, and are included in the following line items:",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "c1fea800bd77ed251229f288d88d3dae",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        158.7,
+                        943.1
+                    ],
+                    [
+                        158.7,
+                        1182.1
+                    ],
+                    [
+                        1563.6,
+                        1182.1
+                    ],
+                    [
+                        1563.6,
+                        943.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.93058,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 7,
+            "parent_id": "11000b8d3b30a3734bbc727c9e1b0c0a",
+            "text_as_html": "<table><thead><th rowspan=\"3\">Cost of revenue</th><th colspan=\"2\" rowspan=\"2\">October 29, 2023</th><th colspan=\"2\" rowspan=\"2\">July 30, 2023</th><th colspan=\"2\" rowspan=\"2\">October 30, 2022</th><th colspan=\"2\" rowspan=\"2\">October 29, 2023</th><th colspan=\"2\" rowspan=\"2\">October 30, 2022</th></thead><thead><th></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th></thead><thead><th></th><th>$</th><th>119</th><th>$\u00a2$</th><th>119</th><th>$\u00a2$</th><th>120</th><th>$</th><th>358</th><th>$</th><th>335</th></thead><tr><td>Research and development</td><td>$</td><td>12</td><td>$</td><td>12</td><td>$</td><td>10</td><td>$</td><td>37</td><td>$</td><td>29</td></tr><tr><td>Sales, general and administrative</td><td>$</td><td>4</td><td>$</td><td>6</td><td>$</td><td>44</td><td>$</td><td>51</td><td>$</td><td>135</td></tr></table>"
+        },
+        "text": "Three Months Ended Nine Months Ended October 29, July 30, October 30, October 29, October 30, 2023 2023 2022 2023 2022 Cost of revenue $ 119 $ 119 $ 120 $ 358 $ Research and development $ 12 $ 12 $ 10 $ 37 $ Sales, general and administrative $ 4 $ 6 $ 44 $ 51 $",
+        "type": "Table"
+    },
+    {
+        "element_id": "744a9ac2599b8e647e2b5d61995d5c22",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        132.3,
+                        1236.4
+                    ],
+                    [
+                        132.3,
+                        1268.4
+                    ],
+                    [
+                        871.6,
+                        1268.4
+                    ],
+                    [
+                        871.6,
+                        1236.4
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.79911,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 7,
+            "parent_id": "11000b8d3b30a3734bbc727c9e1b0c0a"
+        },
+        "text": "(B) Stock-based compensation consists of the following:",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "6cdfc5498142ccc289fc01c7c7ca1500",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        153.5,
+                        1275.0
+                    ],
+                    [
+                        153.5,
+                        1513.8
+                    ],
+                    [
+                        1577.0,
+                        1513.8
+                    ],
+                    [
+                        1577.0,
+                        1275.0
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.92861,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 7,
+            "parent_id": "11000b8d3b30a3734bbc727c9e1b0c0a",
+            "text_as_html": "<table><thead><th rowspan=\"3\">Cost of revenue</th><th colspan=\"2\" rowspan=\"2\">October 29, 2023</th><th colspan=\"2\" rowspan=\"2\">July 30, 2023</th><th colspan=\"2\" rowspan=\"2\">October 30, 2022</th><th colspan=\"2\" rowspan=\"2\">October 29, 2023</th><th colspan=\"2\" rowspan=\"2\">October 30, 2022</th></thead><thead><th></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th><th colspan=\"2\"></th></thead><thead><th></th><th>$</th><th>38</th><th>\u00a2</th><th>31</th><th>$</th><th>32</th><th>$</th><th>96</th><th>$</th><th>108</th></thead><tr><td>Research and development</td><td>$</td><td>701</td><td>$</td><td>600</td><td>$</td><td>530</td><td>$</td><td>1,826</td><td>$</td><td>1,365</td></tr><tr><td>Sales, general and administrative</td><td>$</td><td>240</td><td>$</td><td>211</td><td>$</td><td>183</td><td>$</td><td>633</td><td>$</td><td>498</td></tr></table>"
+        },
+        "text": "Three Months Ended Nine Months Ended October 29, July 30, October 30, October 29, October 30, 2023 2023 2022 2023 2022 Cost of revenue $ 38 $ 31 $ 32 $ 96 $ 108 Research and development Sales, general and administrative $ $ 701 $ 240 $ 600 $ 211 $ 530 $ 183 $ 1,826 $ 633 $ 1,365 498",
+        "type": "Table"
+    },
+    {
+        "element_id": "c90a0fa8e85b5761f64ab374f7b79fb6",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        130.6,
+                        1565.6
+                    ],
+                    [
+                        130.6,
+                        1627.1
+                    ],
+                    [
+                        1574.6,
+                        1627.1
+                    ],
+                    [
+                        1574.6,
+                        1565.6
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.89978,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 7,
+            "parent_id": "11000b8d3b30a3734bbc727c9e1b0c0a"
+        },
+        "text": "(C) Other consists of costs related to Russia branch office closure, assets held for sale related adjustments, legal settlement costs, and contributions.",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "f1cc6704887462625bebb4bb41e10cb5",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        131.4,
+                        1679.3
+                    ],
+                    [
+                        131.4,
+                        1740.3
+                    ],
+                    [
+                        1438.0,
+                        1740.3
+                    ],
+                    [
+                        1438.0,
+                        1679.3
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.91453,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 7,
+            "parent_id": "11000b8d3b30a3734bbc727c9e1b0c0a"
+        },
+        "text": "(D) Income tax impact of non-GAAP adjustments, including the recognition of excess tax benefits or deficiencies related to stock-based compensation under GAAP accounting standard (ASU 2016-09).",
+        "type": "NarrativeText"
+    },
+    {
+        "element_id": "8b5b5fddb31f1e31acb109a562757d69",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        453.7,
+                        191.1
+                    ],
+                    [
+                        453.7,
+                        265.4
+                    ],
+                    [
+                        1248.0,
+                        265.4
+                    ],
+                    [
+                        1248.0,
+                        191.1
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 8
+        },
+        "text": "NVIDIA CORPORATION RECONCILIATION OF GAAP TO NON-GAAP OUTLOOK",
+        "type": "Title"
+    },
+    {
+        "element_id": "2b2bd347cd867fbd42691ca431db8836",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        163.0,
+                        314.7
+                    ],
+                    [
+                        163.0,
+                        758.8
+                    ],
+                    [
+                        1560.9,
+                        758.8
+                    ],
+                    [
+                        1560.9,
+                        314.7
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "detection_class_prob": 0.7238,
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 8,
+            "parent_id": "8b5b5fddb31f1e31acb109a562757d69",
+            "text_as_html": "<table><thead><th rowspan=\"4\">\\AP gross margin Impact of stock-based compensation expense, acquisition-related costs, and other costs</th><th rowspan=\"4\">Outlook ($ in millions) 74.5 Y 1.0 \u00a5 .</th></thead><thead><th></th><th></th></thead><thead><th></th><th></th></thead><thead><th></th><th></th></thead><tr><td>n-GAAP gross margin</td><td>75.5 Y</td></tr><tr><td>\\AP operating expenses</td><td>3,165</td></tr><tr><td>Stock-based compensation expense, acquisition-related costs, and other costs</td><td>(965)</td></tr></table>"
+        },
+        "text": "Impact of stock-based compensation expense, acquisition-related costs, and other costs Stock-based compensation expense, acquisition-related costs, and other costs $ $ Q4 FY2024 Outlook ($ in millions) 3,165 (965) 2,200",
+        "type": "Table"
+    },
+    {
+        "element_id": "1700f5fbf0ac80bab248c4be060ddb66",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        132.3,
+                        452.8
+                    ],
+                    [
+                        132.3,
+                        480.6
+                    ],
+                    [
+                        384.7,
+                        480.6
+                    ],
+                    [
+                        384.7,
+                        452.8
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 8
+        },
+        "text": "GAAP gross margin",
+        "type": "Title"
+    },
+    {
+        "element_id": "1d619233a36dacbc9ff3b591ef405fbe",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        132.3,
+                        563.2
+                    ],
+                    [
+                        132.3,
+                        591.0
+                    ],
+                    [
+                        456.4,
+                        591.0
+                    ],
+                    [
+                        456.4,
+                        563.2
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 8
+        },
+        "text": "Non-GAAP gross margin",
+        "type": "Title"
+    },
+    {
+        "element_id": "54fc36f10b5c2bccfd7b9273a5157b02",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        132.3,
+                        648.6
+                    ],
+                    [
+                        132.3,
+                        676.4
+                    ],
+                    [
+                        469.5,
+                        676.4
+                    ],
+                    [
+                        469.5,
+                        648.6
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 8
+        },
+        "text": "GAAP operating expenses",
+        "type": "Title"
+    },
+    {
+        "element_id": "0135a874c74306e23e4bcc104567ab08",
+        "metadata": {
+            "coordinates": {
+                "layout_height": 2200,
+                "layout_width": 1700,
+                "points": [
+                    [
+                        132.3,
+                        731.9
+                    ],
+                    [
+                        132.3,
+                        759.7
+                    ],
+                    [
+                        543.3,
+                        759.7
+                    ],
+                    [
+                        543.3,
+                        731.9
+                    ]
+                ],
+                "system": "PixelSpace"
+            },
+            "file_directory": "pdf",
+            "filename": "Q3FY24-CFO-Commentary.pdf",
+            "filetype": "application/pdf",
+            "languages": [
+                "eng"
+            ],
+            "last_modified": "2024-02-18T21:23:20",
+            "page_number": 8
+        },
+        "text": "Non-GAAP operating expenses",
+        "type": "Title"
+    }
+]

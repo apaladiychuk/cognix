@@ -1,0 +1,20 @@
+name: testenv
+channels:
+  - conda-forge
+dependencies:
+  - bzip2=1.0.8
+  - ca-certificates=2024.2.2
+  - libexpat=2.6.1
+  - libffi=3.4.2
+  - libsqlite=3.45.1
+  - libzlib=1.2.13
+  - ncurses=6.4
+  - openssl=3.2.1
+  - pip=24.0
+  - python=3.12.2
+  - readline=8.2
+  - setuptools=69.1.1
+  - tk=8.6.13
+  - tzdata=2024a
+  - wheel=0.42.0
+  - xz=5.2.6

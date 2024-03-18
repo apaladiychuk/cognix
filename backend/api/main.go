@@ -1,9 +1,9 @@
 package main
 
 import (
+	"cognix.ch/api/v2/api/handler"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/utils"
-	"cognix.ch/api/v2/handler"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

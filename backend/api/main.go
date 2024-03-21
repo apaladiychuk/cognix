@@ -2,6 +2,7 @@ package main
 
 import (
 	"cognix.ch/api/v2/api/handler"
+	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/utils"
 	"fmt"
@@ -24,15 +25,18 @@ func main() {
 		utils.Logger.Errorf("Init database connection: %s", err.Error())
 		return
 	}
+	oauthProxy := oauth.NewGoogleProvider(cfg.OAuth, cfg.RedirectURL)
 	// repositories
 	connectorRepo := repository.NewConnectorRepository(db)
 
 	// handlers
+	authHandler := handler.NewAuthHandler(oauthProxy)
 	connectorHandler := handler.NewCollectorHandler(connectorRepo)
 
 	router := NewRouter()
 
 	connectorHandler.Mount(router, nil)
+	authHandler.Mount(router)
 	RunServer(cfg, router)
 }
 

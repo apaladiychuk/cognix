@@ -94,7 +94,7 @@ create type recencybiassetting as enum ('FAVOR_RECENT', 'BASE_DECAY', 'NO_DECAY'
 create table personas
 (
     id                         serial       primary key,
-    name                       varchar            not null unique,
+    name                       varchar            not null,
     llm_id                     integer references llm(id) ,
     default_persona            boolean            not null,
     description                varchar            not null,

@@ -1,0 +1,24 @@
+version: '3'
+services:
+  api:
+    image: cognix:api
+    build:
+      context: ./backend
+      args:
+        service: api
+      dockerfile: Dockerfile
+    env_file:
+      - config/.env
+    volumes:
+      - ./backend:/backend
+  cockroach:
+    image: cockroachdb/cockroach:latest-v23.2
+    ports:
+      - "26257:26257"
+      - "18080:8080"
+    command: start-single-node --insecure
+    volumes:
+      - "db_volume:/cockroach/cockroach-data"
+
+volumes:
+  db_volume:

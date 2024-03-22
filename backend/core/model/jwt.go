@@ -1,8 +1,7 @@
 package model
 
-type JwtClaim struct {
+type LoginResponse struct {
 	AccessToken  string
 	RefreshToken string
-	UserName     string
-	TenantID     string
+	User         *User
 }

@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-pg/pg/v10 v10.12.0
 	github.com/go-resty/resty/v2 v2.12.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	go.uber.org/zap v1.27.0

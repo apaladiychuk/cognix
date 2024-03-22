@@ -7,11 +7,13 @@ import (
 )
 
 type Config struct {
-	DB          *repository.Config
-	OAuth       *oauth.Config
-	Debug       bool   `env:"DEBUG" envDefault:"false"`
-	Port        int    `env:"PORT" envDefault:"8080"`
-	RedirectURL string `env:"REDIRECT_URL"`
+	DB             *repository.Config
+	OAuth          *oauth.Config
+	Debug          bool   `env:"DEBUG" envDefault:"false"`
+	Port           int    `env:"PORT" envDefault:"8080"`
+	RedirectURL    string `env:"REDIRECT_URL"`
+	JWTSecret      string `env:"JWT_SECRET" envDefault:"secret"`
+	JWTExpiredTime int    `env:"JWT_EXPIRED_TIME"`
 }
 
 func ReadConfig() (*Config, error) {

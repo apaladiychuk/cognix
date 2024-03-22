@@ -4,6 +4,7 @@ import (
 	"cognix.ch/api/v2/api/handler"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
+	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/utils"
 	"fmt"
 	"github.com/gin-contrib/cors"
@@ -26,11 +27,12 @@ func main() {
 		return
 	}
 	oauthProxy := oauth.NewGoogleProvider(cfg.OAuth, cfg.RedirectURL)
+	jwtService := security.NewJWTService(cfg.JWTSecret, cfg.JWTExpiredTime)
 	// repositories
 	connectorRepo := repository.NewConnectorRepository(db)
-
+	userRepo := repository.NewUserRepository(db)
 	// handlers
-	authHandler := handler.NewAuthHandler(oauthProxy)
+	authHandler := handler.NewAuthHandler(oauthProxy, jwtService, userRepo)
 	connectorHandler := handler.NewCollectorHandler(connectorRepo)
 
 	router := NewRouter()

@@ -37,14 +37,14 @@ CREATE TABLE "credentials" (
 );
 
 CREATE TABLE "connector_credential_pairs" (
-                                              "connector_id" integer NOT NULL,
-                                              "credential_id" integer NOT NULL,
-                                              "last_successful_index_time" timestamp,
-                                              "last_attempt_status" varchar,
-                                              "total_docs_indexed" integer NOT NULL,
-                                              "name" varchar NOT NULL,
-                                              "is_public" boolean NOT NULL,
-                                              PRIMARY KEY ("connector_id", "credential_id")
+        "connector_id" integer NOT NULL,
+        "credential_id" integer NOT NULL,
+        "last_successful_index_time" timestamp,
+        "last_attempt_status" varchar,
+        "total_docs_indexed" integer NOT NULL,
+        "name" varchar NOT NULL,
+        "is_public" boolean NOT NULL,
+        PRIMARY KEY ("connector_id", "credential_id")
 );
 
 CREATE TABLE "embedding_models" (
@@ -97,18 +97,18 @@ CREATE TABLE "personas" (
 );
 
 CREATE TABLE "prompts" (
-                           "id" SERIAL PRIMARY KEY,
-                           "user_id" uuid NOT NULL,
-                           "name" varchar NOT NULL,
-                           "description" varchar NOT NULL,
-                           "system_prompt" text NOT NULL,
-                           "task_prompt" text NOT NULL,
-                           "include_citations" boolean NOT NULL,
-                           "datetime_aware" boolean NOT NULL,
-                           "default_prompt" boolean NOT NULL,
-                           "created_date" timestamp NOT NULL DEFAULT (now()),
-                           "deleted_date" timestamp
-);
+        "id" SERIAL PRIMARY KEY,
+        "user_id" uuid NOT NULL,
+        "name" varchar NOT NULL,
+        "description" varchar NOT NULL,
+        "system_prompt" text NOT NULL,
+        "task_prompt" text NOT NULL,
+        "include_citations" boolean NOT NULL,
+        "datetime_aware" boolean NOT NULL,
+        "default_prompt" boolean NOT NULL,
+        "created_date" timestamp NOT NULL DEFAULT (now()),
+        "deleted_date" timestamp
+        );
 
 CREATE TABLE "chat_sessions" (
                                  "id" SERIAL PRIMARY KEY,

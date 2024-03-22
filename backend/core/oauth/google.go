@@ -4,11 +4,8 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/utils"
 	"context"
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"github.com/go-resty/resty/v2"
-	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"time"
@@ -21,9 +18,13 @@ const (
 )
 
 type GoogleLoginResponse struct {
-	ID    string `json:"id"`
-	Email string `json:"email"`
+	ID         string `json:"id"`
+	Email      string `json:"email"`
+	Name       string `json:"name"`
+	GivenName  string `json:"given_name"`
+	FamilyName string `json:"family_name"`
 }
+
 type googleProvider struct {
 	config     *oauth2.Config
 	httpClient *resty.Client
@@ -38,18 +39,13 @@ func NewGoogleProvider(cfg *Config, redirectURL string) Proxy {
 			ClientSecret: cfg.GoogleSecret,
 			Endpoint:     google.Endpoint,
 			RedirectURL:  redirectURL,
-			Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email"},
+			Scopes: []string{"https://www.googleapis.com/auth/userinfo.email",
+				"https://www.googleapis.com/auth/userinfo.profile"},
 		},
 	}
 }
 
-func (g *googleProvider) Login(ctx context.Context) (*SignInConfig, error) {
-	b := make([]byte, 16)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, utils.Internal.Wrap(err, "can not generate state")
-	}
-	state := base64.URLEncoding.EncodeToString(b)
+func (g *googleProvider) Login(ctx context.Context, state string) (*SignInConfig, error) {
 	config := &SignInConfig{
 		State:           state,
 		StateCookieName: CodeNameGoogle,
@@ -58,7 +54,7 @@ func (g *googleProvider) Login(ctx context.Context) (*SignInConfig, error) {
 	return config, nil
 }
 
-func (g *googleProvider) Callback(ctx context.Context, code string) (*model.JwtClaim, error) {
+func (g *googleProvider) Callback(ctx context.Context, code string) (*model.LoginResponse, error) {
 	token, err := g.config.Exchange(ctx, code)
 	if err != nil {
 		return nil, utils.Internal.Wrapf(err, "code exchange wrong: %s", err.Error())
@@ -74,12 +70,21 @@ func (g *googleProvider) Callback(ctx context.Context, code string) (*model.JwtC
 	if err = json.Unmarshal(contents, &data); err != nil {
 		return nil, utils.Internal.Wrapf(err, "can not marshal google response")
 	}
-	return &model.JwtClaim{
+	loginResponse := &model.LoginResponse{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
-		UserName:     data.Email,
-		TenantID:     uuid.New().String(),
-	}, nil
+		User: &model.User{
+			UserName:   data.Email,
+			FirstName:  data.GivenName,
+			LastName:   data.FamilyName,
+			ExternalID: data.ID,
+			Roles:      nil,
+		},
+	}
+	if loginResponse.User.FirstName == "" {
+		loginResponse.User.FirstName = data.Name
+	}
+	return loginResponse, nil
 }
 
 func (g *googleProvider) RefreshToken(token *oauth2.Token) (*oauth2.Token, error) {

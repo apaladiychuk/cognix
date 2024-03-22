@@ -18,8 +18,8 @@ type (
 		GoogleSecret   string `env:"GOOGLE_SECRET"`
 	}
 	Proxy interface {
-		Login(ctx context.Context) (*SignInConfig, error)
-		Callback(ctx context.Context, code string) (*model.JwtClaim, error)
+		Login(ctx context.Context, state string) (*SignInConfig, error)
+		Callback(ctx context.Context, code string) (*model.LoginResponse, error)
 		RefreshToken(token *oauth2.Token) (*oauth2.Token, error)
 	}
 )

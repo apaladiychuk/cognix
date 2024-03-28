@@ -1,12 +1,11 @@
 package utils
 
 import (
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
 )
-
-var Logger *zap.SugaredLogger
 
 func InitLogger(debug bool) {
 
@@ -24,7 +23,7 @@ func InitLogger(debug bool) {
 		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level),
 	)
 
-	l := zap.New(core)
+	l := otelzap.New(zap.New(core))
+	otelzap.ReplaceGlobals(l)
 
-	Logger = l.Sugar()
 }

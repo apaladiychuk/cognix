@@ -88,10 +88,12 @@ CREATE TABLE IF NOT EXISTS connectors (
     user_id uuid NOT NULL references users(id),
     tenant_id uuid NOT NULL references tenants(id),
     shared boolean NOT NULL,
+    disabled boolean NOT NULL,
     last_successful_index_time timestamp,
     last_attempt_status varchar,
     total_docs_indexed integer NOT NULL,
     created_date timestamp NOT NULL DEFAULT (now()),
+    updated_date timestamp,
     deleted_date timestamp
 );
 

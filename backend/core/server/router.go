@@ -26,7 +26,7 @@ func HandlerErrorFunc(f HandlerFunc) gin.HandlerFunc {
 				ew.Code = http.StatusInternalServerError
 				ew.Message = err.Error()
 			}
-			otelzap.S().Error(ew.Original.Error())
+			otelzap.S().Errorf("[%s] %v", ew.Message, ew.Original)
 			c.JSON(int(ew.Code), JsonResponse{
 				Status: int(ew.Code),
 				Error:  ew.Message,

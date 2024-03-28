@@ -1,10 +1,24 @@
 package main
 
 import (
+	"cognix.ch/api/v2/api/handler"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
+	"cognix.ch/api/v2/core/server"
 	"github.com/caarlos0/env/v10"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/fx"
 )
+
+type MountParams struct {
+	fx.In
+	Router            *gin.Engine
+	AuthMiddleware    *server.AuthMiddleware
+	AutHandler        *handler.AuthHandler
+	SwaggerHandler    *handler.SwaggerHandler
+	ConnectorHandler  *handler.ConnectorHandler
+	CredentialHandler *handler.CredentialHandler
+}
 
 type Config struct {
 	DB             *repository.Config

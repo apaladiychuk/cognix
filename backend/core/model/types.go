@@ -12,9 +12,10 @@ type JSONMap map[string]interface{}
 
 func (j JSONMap) Value() (driver.Value, error) {
 	if j == nil {
-		return json.Marshal(make(JSONMap))
+		return "{}", nil
 	}
-	return json.Marshal(j)
+	buf, err := json.Marshal(j)
+	return string(buf), err
 }
 
 func (j *JSONMap) Scan(src interface{}) error {

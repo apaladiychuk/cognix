@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"cognix.ch/api/v2/core/model"
+	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"encoding/json"
@@ -54,7 +55,7 @@ func (g *googleProvider) Login(ctx context.Context, state string) (*SignInConfig
 	return config, nil
 }
 
-func (g *googleProvider) Callback(ctx context.Context, code string) (*model.LoginResponse, error) {
+func (g *googleProvider) Callback(ctx context.Context, code string) (*security.Identity, error) {
 	token, err := g.config.Exchange(ctx, code)
 	if err != nil {
 		return nil, utils.Internal.Wrapf(err, "code exchange wrong: %s", err.Error())
@@ -70,7 +71,7 @@ func (g *googleProvider) Callback(ctx context.Context, code string) (*model.Logi
 	if err = json.Unmarshal(contents, &data); err != nil {
 		return nil, utils.Internal.Wrapf(err, "can not marshal google response")
 	}
-	loginResponse := &model.LoginResponse{
+	loginResponse := &security.Identity{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 		User: &model.User{

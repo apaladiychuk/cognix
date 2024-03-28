@@ -1,7 +1,7 @@
 package oauth
 
 import (
-	"cognix.ch/api/v2/core/model"
+	"cognix.ch/api/v2/core/security"
 	"context"
 	"golang.org/x/oauth2"
 )
@@ -19,7 +19,7 @@ type (
 	}
 	Proxy interface {
 		Login(ctx context.Context, state string) (*SignInConfig, error)
-		Callback(ctx context.Context, code string) (*model.LoginResponse, error)
+		Callback(ctx context.Context, code string) (*security.Identity, error)
 		RefreshToken(token *oauth2.Token) (*oauth2.Token, error)
 	}
 )

@@ -6,8 +6,13 @@ services:
       args:
         service: api
       dockerfile: Dockerfile
+    environment:
+      PORT: 8080
+    ports:
+      - "8080:8080"
     env_file:
       - config/.env
+      - config/cocroach.env
     volumes:
       - ./backend:/backend
     networks:

@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/go-pg/pg/v10"
 	_ "github.com/lib/pq"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
 type Config struct {
@@ -32,9 +32,9 @@ func (d dbLogger) BeforeQuery(c context.Context, q *pg.QueryEvent) (context.Cont
 
 func (d dbLogger) AfterQuery(c context.Context, q *pg.QueryEvent) error {
 	if query, err := q.FormattedQuery(); err != nil {
-		utils.Logger.Debugf("[SQL]: %s", err.Error())
+		otelzap.S().Debugf("[SQL]: %s", err.Error())
 	} else {
-		utils.Logger.Debugf("[SQL]: ", string(query))
+		otelzap.S().Debugf("[SQL]: ", string(query))
 	}
 
 	return nil

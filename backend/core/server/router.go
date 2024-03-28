@@ -2,6 +2,7 @@ package server
 
 import (
 	"cognix.ch/api/v2/core/utils"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func HandlerErrorFunc(f HandlerFunc) gin.HandlerFunc {
 				ew.Code = http.StatusInternalServerError
 				ew.Message = err.Error()
 			}
-			utils.Logger.Error(ew.Original.Error())
+			otelzap.S().Error(ew.Original.Error())
 			c.JSON(int(ew.Code), JsonResponse{
 				Status: int(ew.Code),
 				Error:  ew.Message,

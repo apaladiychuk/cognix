@@ -1,0 +1,306 @@
+basePath: /
+definitions:
+  handler.CreateConnectorParam:
+    properties:
+      connector_specific_config:
+        $ref: '#/definitions/model.JSONMap'
+      credential_id:
+        type: integer
+      disabled:
+        type: boolean
+      input_type:
+        type: string
+      name:
+        type: string
+      refresh_freq:
+        type: integer
+      shared:
+        type: boolean
+      source:
+        type: string
+    type: object
+  handler.CreateCredentialParam:
+    properties:
+      credential_json:
+        $ref: '#/definitions/model.JSONMap'
+      shared:
+        type: boolean
+      source:
+        type: string
+    type: object
+  handler.UpdateConnectorParam:
+    properties:
+      connector_specific_config:
+        $ref: '#/definitions/model.JSONMap'
+      credential_id:
+        type: integer
+      disabled:
+        type: boolean
+      input_type:
+        type: string
+      name:
+        type: string
+      refresh_freq:
+        type: integer
+      shared:
+        type: boolean
+    type: object
+  handler.UpdateCredentialParam:
+    properties:
+      credential_json:
+        $ref: '#/definitions/model.JSONMap'
+      shared:
+        type: boolean
+    type: object
+  model.Connector:
+    properties:
+      connector_specific_config:
+        $ref: '#/definitions/model.JSONMap'
+      created_date:
+        type: string
+      credential_id:
+        type: integer
+      deleted_date:
+        type: string
+      disabled:
+        type: boolean
+      id:
+        type: integer
+      input_type:
+        type: string
+      last_attempt_status:
+        type: string
+      last_successful_index_time:
+        type: string
+      name:
+        type: string
+      refresh_freq:
+        type: integer
+      shared:
+        type: boolean
+      source:
+        type: string
+      tenant_id:
+        type: string
+      total_docs_indexed:
+        type: integer
+      updated_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  model.Credential:
+    properties:
+      created_date:
+        type: string
+      credential_json:
+        $ref: '#/definitions/model.JSONMap'
+      deleted_date:
+        type: string
+      id:
+        type: integer
+      shared:
+        type: boolean
+      source:
+        type: string
+      tenant_id:
+        type: string
+      updated_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  model.JSONMap:
+    additionalProperties: true
+    type: object
+info:
+  contact:
+    name: API Support
+  description: This is Cognix Golang API Documentation
+  title: Cognix API
+  version: "1.0"
+paths:
+  /manage/connector:
+    get:
+      description: return list of allowed connectors
+      operationId: connectors_get_all
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Connector'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: return list of allowed connectors
+      tags:
+      - Connectors
+  /manage/connector/:
+    post:
+      description: creates connector
+      operationId: connectors_create
+      parameters:
+      - description: connector create parameter
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateConnectorParam'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Connector'
+      security:
+      - ApiKeyAuth: []
+      summary: creates connector
+      tags:
+      - Connectors
+  /manage/connector/{id}:
+    get:
+      description: return list of allowed connectors
+      operationId: connectors_get_by_id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Connector'
+      security:
+      - ApiKeyAuth: []
+      summary: return list of allowed connectors
+      tags:
+      - Connectors
+    put:
+      description: updates connector
+      operationId: connectors_update
+      parameters:
+      - description: connector id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: connector update parameter
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateConnectorParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Connector'
+      security:
+      - ApiKeyAuth: []
+      summary: updates connector
+      tags:
+      - Connectors
+  /manage/credential:
+    get:
+      description: return list of allowed credentials
+      operationId: credentials_get_all
+      parameters:
+      - description: source of credentials
+        in: query
+        name: source
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Credential'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: return list of allowed credentials
+      tags:
+      - Credentials
+    post:
+      description: creates new credential
+      operationId: credentials_create
+      parameters:
+      - description: credential create parameter
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateCredentialParam'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Credential'
+      security:
+      - ApiKeyAuth: []
+      summary: creates new credential
+      tags:
+      - Credentials
+  /manage/credential/{id}:
+    get:
+      description: return list of allowed credentials
+      operationId: credentials_get_by_id
+      parameters:
+      - description: credential id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Credential'
+      security:
+      - ApiKeyAuth: []
+      summary: return list of allowed credentials
+      tags:
+      - Credentials
+    put:
+      description: updates credential
+      operationId: credentials_update
+      parameters:
+      - description: credential id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: credential update parameter
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateCredentialParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Credential'
+      security:
+      - ApiKeyAuth: []
+      summary: updates credential
+      tags:
+      - Credentials
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -29,7 +29,6 @@ func NewAuthHandler(oauthClient oauth.Proxy,
 func (h *AuthHandler) Mount(route *gin.Engine) {
 	handler := route.Group("/auth")
 	handler.GET("/google/login", server.HandlerErrorFunc(h.SignIn))
-	handler.GET("/google/login", server.HandlerErrorFunc(h.SignUp))
 	handler.GET("/google/callback", server.HandlerErrorFunc(h.Callback))
 }
 

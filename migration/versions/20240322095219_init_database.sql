@@ -121,19 +121,20 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     error text
 );
 
-CREATE TABLE IF NOT EXISTS document (
-    id varchar PRIMARY KEY NOT NULL,
+CREATE TABLE IF NOT EXISTS documents (
+    id serial PRIMARY KEY NOT NULL,
+    document_id varchar NOT NULL ,
     connector_id integer NOT NULL references connectors(id),
     boost integer NOT NULL,
     hidden boolean NOT NULL,
     semantic_id varchar NOT NULL,
     link varchar,
-    doc_updated_at timestamp,
+    updated_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     from_ingestion_api boolean,
     signature text
 );
 
-CREATE TABLE IF NOT EXISTS document_set (
+CREATE TABLE IF NOT EXISTS document_sets (
     id SERIAL PRIMARY KEY,
     user_id uuid references users(id),
     name varchar NOT NULL,
@@ -141,9 +142,9 @@ CREATE TABLE IF NOT EXISTS document_set (
     is_up_to_date boolean NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS document_set_connector_pair (
+CREATE TABLE IF NOT EXISTS document_set_connector_pairs (
     id SERIAL PRIMARY KEY,
-    document_set_id integer NOT NULL references document_set(id),
+    document_set_id integer NOT NULL references document_sets(id),
     connector_id integer NOT NULL references connectors(id),
     is_current boolean NOT NULL
 );
@@ -158,9 +159,9 @@ DROP TABLE IF EXISTS chat_sessions;
 DROP TABLE IF EXISTS prompts;
 DROP TABLE IF EXISTS personas;
 DROP TABLE IF EXISTS llm;
-DROP TABLE IF EXISTS document;
-DROP TABLE IF EXISTS document_set_connector_pair ;
-DROP TABLE IF EXISTS document_set;
+DROP TABLE IF EXISTS documents;
+DROP TABLE IF EXISTS document_set_connector_pairs ;
+DROP TABLE IF EXISTS document_sets;
 DROP TABLE IF EXISTS connectors;
 DROP TABLE IF EXISTS credentials;
 DROP TABLE IF EXISTS users;

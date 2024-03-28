@@ -56,8 +56,17 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
+	claims := &security.Identity{
+		AccessToken:  response.AccessToken,
+		RefreshToken: response.RefreshToken,
+		User:         user,
+	}
+	token, err := h.jwtService.Create(claims)
+	if err != nil {
+		return err
+	}
 
-	return server.JsonResult(c, http.StatusOK, user)
+	return server.JsonResult(c, http.StatusOK, token)
 }
 
 func (h *AuthHandler) SignUp(c *gin.Context) error {

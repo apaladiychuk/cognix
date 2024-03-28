@@ -23,7 +23,8 @@ func InitLogger(debug bool) {
 		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level),
 	)
 
-	l := otelzap.New(zap.New(core))
-	otelzap.ReplaceGlobals(l)
+	l := zap.New(core)
+	zap.ReplaceGlobals(l)
+	otelzap.ReplaceGlobals(otelzap.New(l))
 
 }

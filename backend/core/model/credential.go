@@ -16,5 +16,5 @@ type Credential struct {
 	UpdatedDate    null.Time `json:"updated_date" pg:",use_zero"`
 	DeletedDate    null.Time `json:"deleted_date" pg:",use_zero"`
 	Shared         bool      `json:"shared" pg:",use_zero"`
-	CredentialJson JSONMap   `json:"credential_json"`
+	CredentialJson JSONMap   `json:"credential_json" pg:"type:jsonb"`
 }

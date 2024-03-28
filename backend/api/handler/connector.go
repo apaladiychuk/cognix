@@ -1,27 +1,24 @@
 package handler
 
 import (
-	"cognix.ch/api/v2/core/model"
+	"cognix.ch/api/v2/bll"
+	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/server"
 	"cognix.ch/api/v2/core/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"gopkg.in/guregu/null.v4"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type ConnectorHandler struct {
-	connectorRepo  repository.ConnectorRepository
-	credentialRepo repository.CredentialRepository
+	connectorBL bll.ConnectorBL
 }
 
 func NewCollectorHandler(connectorRepo repository.ConnectorRepository,
-	credentialRepo repository.CredentialRepository) *ConnectorHandler {
-	return &ConnectorHandler{connectorRepo: connectorRepo,
-		credentialRepo: credentialRepo,
+	connectorBL bll.ConnectorBL) *ConnectorHandler {
+	return &ConnectorHandler{
+		connectorBL: connectorBL,
 	}
 }
 func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
@@ -43,11 +40,11 @@ func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFu
 // @Success 200 {array} model.Connector
 // @Router /manage/connector [get]
 func (h *ConnectorHandler) GetAll(c *gin.Context) error {
-	claims, err := server.GetContextClaims(c)
+	claims, err := server.GetContextIdentity(c)
 	if err != nil {
 		return err
 	}
-	connectors, err := h.connectorRepo.GetAll(c.Request.Context(), claims.TenantID, claims.UserID)
+	connectors, err := h.connectorBL.GetAll(c.Request.Context(), claims.User)
 	if err != nil {
 		return err
 	}
@@ -64,11 +61,16 @@ func (h *ConnectorHandler) GetAll(c *gin.Context) error {
 // @Success 200 {object} model.Connector
 // @Router /manage/connector/{id} [get]
 func (h *ConnectorHandler) GetById(c *gin.Context) error {
-	claims, err := server.GetContextClaims(c)
+	identity, err := server.GetContextIdentity(c)
 	if err != nil {
 		return err
 	}
-	connectors, err := h.connectorRepo.GetAll(c.Request.Context(), claims.TenantID, claims.UserID)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id == 0 {
+		return utils.InvalidInput.New("id should be presented")
+	}
+
+	connectors, err := h.connectorBL.GetByID(c.Request.Context(), identity.User, id)
 	if err != nil {
 		return err
 	}
@@ -86,35 +88,16 @@ func (h *ConnectorHandler) GetById(c *gin.Context) error {
 // @Success 201 {object} model.Connector
 // @Router /manage/connector/ [post]
 func (h *ConnectorHandler) Create(c *gin.Context) error {
-	claims, err := server.GetContextClaims(c)
+	identity, err := server.GetContextIdentity(c)
 	if err != nil {
 		return err
 	}
-	var param CreateConnectorParam
+	var param parameters.CreateConnectorParam
 	if err = c.BindJSON(&param); err != nil {
 		return utils.InvalidInput.Wrap(err, "wrong payload")
 	}
-	cred, err := h.credentialRepo.GetByID(c.Request.Context(), param.CredentialID, claims.TenantID, claims.UserID)
+	connector, err := h.connectorBL.Create(c.Request.Context(), identity.User, &param)
 	if err != nil {
-		return err
-	}
-	if cred.Source != param.Source {
-		return utils.InvalidInput.New("wrong credential source")
-	}
-	connector := model.Connector{
-		CredentialID:            param.CredentialID,
-		Name:                    param.Name,
-		Source:                  param.Source,
-		InputType:               param.InputType,
-		ConnectorSpecificConfig: param.ConnectorSpecificConfig,
-		RefreshFreq:             param.RefreshFreq,
-		UserID:                  uuid.MustParse(claims.UserID),
-		TenantID:                uuid.MustParse(claims.TenantID),
-		Shared:                  param.Shared,
-		Disabled:                param.Disabled,
-		CreatedDate:             time.Now().UTC(),
-	}
-	if err = h.connectorRepo.Create(c, &connector); err != nil {
 		return err
 	}
 	return server.JsonResult(c, http.StatusCreated, connector)
@@ -132,7 +115,7 @@ func (h *ConnectorHandler) Create(c *gin.Context) error {
 // @Success 200 {object} model.Connector
 // @Router /manage/connector/{id} [put]
 func (h *ConnectorHandler) Update(c *gin.Context) error {
-	claims, err := server.GetContextClaims(c)
+	identity, err := server.GetContextIdentity(c)
 	if err != nil {
 		return err
 	}
@@ -140,31 +123,12 @@ func (h *ConnectorHandler) Update(c *gin.Context) error {
 	if err != nil || id == 0 {
 		return utils.InvalidInput.New("id should be presented")
 	}
-	var param UpdateConnectorParam
+	var param parameters.UpdateConnectorParam
 	if err = c.BindJSON(&param); err != nil {
 		return utils.InvalidInput.Wrap(err, "wrong payload")
 	}
-
-	connector, err := h.connectorRepo.GetByID(c.Request.Context(), id, claims.TenantID, claims.UserID)
+	connector, err := h.connectorBL.Update(c.Request.Context(), id, identity.User, &param)
 	if err != nil {
-		return err
-	}
-	cred, err := h.credentialRepo.GetByID(c.Request.Context(), param.CredentialID, claims.TenantID, claims.UserID)
-	if err != nil {
-		return err
-	}
-	if cred.Source != connector.Source {
-		return utils.InvalidInput.New("wrong credential source")
-	}
-	connector.ConnectorSpecificConfig = param.ConnectorSpecificConfig
-	connector.CredentialID = param.CredentialID
-	connector.Name = param.Name
-	connector.InputType = param.InputType
-	connector.RefreshFreq = param.RefreshFreq
-	connector.Shared = param.Shared
-	connector.Disabled = param.Disabled
-	connector.UpdatedDate = null.TimeFrom(time.Now().UTC())
-	if err = h.connectorRepo.Update(c.Request.Context(), connector); err != nil {
 		return err
 	}
 	return server.JsonResult(c, http.StatusOK, connector)

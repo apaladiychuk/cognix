@@ -15,5 +15,7 @@ var DatabaseModule = fx.Options(
 		NewUserRepository,
 		NewCredentialRepository,
 		NewConnectorRepository,
+		NewLLMRepository,
+		NewPersonaRepository,
 	),
 )

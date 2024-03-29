@@ -8,7 +8,7 @@ import (
 
 type Credential struct {
 	tableName      struct{}    `pg:"credentials"`
-	ID             int64       `json:"id" pg:",type=bigint"`
+	ID             int64       `json:"id"`
 	UserID         uuid.UUID   `json:"user_id"`
 	TenantID       uuid.UUID   `json:"tenant_id"`
 	Source         string      `json:"source"`

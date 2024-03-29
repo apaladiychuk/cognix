@@ -10,6 +10,32 @@
     },
     "basePath": "/",
     "paths": {
+        "/auth/google/login": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "register new user and tenant using google auth",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "register new user and tenant using google auth",
+                "operationId": "auth_login",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/manage/connector": {
             "get": {
                 "security": [
@@ -62,7 +88,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateConnectorParam"
+                            "$ref": "#/definitions/parameters.CreateConnectorParam"
                         }
                     }
                 ],
@@ -130,7 +156,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateConnectorParam"
+                            "$ref": "#/definitions/parameters.UpdateConnectorParam"
                         }
                     }
                 ],
@@ -202,7 +228,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.CreateCredentialParam"
+                            "$ref": "#/definitions/parameters.CreateCredentialParam"
                         }
                     }
                 ],
@@ -279,7 +305,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.UpdateCredentialParam"
+                            "$ref": "#/definitions/parameters.UpdateCredentialParam"
                         }
                     }
                 ],
@@ -295,86 +321,6 @@
         }
     },
     "definitions": {
-        "handler.CreateConnectorParam": {
-            "type": "object",
-            "properties": {
-                "connector_specific_config": {
-                    "$ref": "#/definitions/model.JSONMap"
-                },
-                "credential_id": {
-                    "type": "integer"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "input_type": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "refresh_freq": {
-                    "type": "integer"
-                },
-                "shared": {
-                    "type": "boolean"
-                },
-                "source": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.CreateCredentialParam": {
-            "type": "object",
-            "properties": {
-                "credential_json": {
-                    "$ref": "#/definitions/model.JSONMap"
-                },
-                "shared": {
-                    "type": "boolean"
-                },
-                "source": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.UpdateConnectorParam": {
-            "type": "object",
-            "properties": {
-                "connector_specific_config": {
-                    "$ref": "#/definitions/model.JSONMap"
-                },
-                "credential_id": {
-                    "type": "integer"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "input_type": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "refresh_freq": {
-                    "type": "integer"
-                },
-                "shared": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handler.UpdateCredentialParam": {
-            "type": "object",
-            "properties": {
-                "credential_json": {
-                    "$ref": "#/definitions/model.JSONMap"
-                },
-                "shared": {
-                    "type": "boolean"
-                }
-            }
-        },
         "model.Connector": {
             "type": "object",
             "properties": {
@@ -388,7 +334,7 @@
                     "type": "integer"
                 },
                 "deleted_date": {
-                    "type": "string"
+                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "disabled": {
                     "type": "boolean"
@@ -403,7 +349,7 @@
                     "type": "string"
                 },
                 "last_successful_index_time": {
-                    "type": "string"
+                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "name": {
                     "type": "string"
@@ -424,7 +370,7 @@
                     "type": "integer"
                 },
                 "updated_date": {
-                    "type": "string"
+                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "user_id": {
                     "type": "string"
@@ -441,7 +387,7 @@
                     "$ref": "#/definitions/model.JSONMap"
                 },
                 "deleted_date": {
-                    "type": "string"
+                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "id": {
                     "type": "integer"
@@ -456,7 +402,7 @@
                     "type": "string"
                 },
                 "updated_date": {
-                    "type": "string"
+                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "user_id": {
                     "type": "string"
@@ -466,6 +412,94 @@
         "model.JSONMap": {
             "type": "object",
             "additionalProperties": true
+        },
+        "parameters.CreateConnectorParam": {
+            "type": "object",
+            "properties": {
+                "connector_specific_config": {
+                    "$ref": "#/definitions/model.JSONMap"
+                },
+                "credential_id": {
+                    "type": "integer"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "input_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "refresh_freq": {
+                    "type": "integer"
+                },
+                "shared": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "parameters.CreateCredentialParam": {
+            "type": "object",
+            "properties": {
+                "credential_json": {
+                    "$ref": "#/definitions/model.JSONMap"
+                },
+                "shared": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "parameters.UpdateConnectorParam": {
+            "type": "object",
+            "properties": {
+                "connector_specific_config": {
+                    "$ref": "#/definitions/model.JSONMap"
+                },
+                "credential_id": {
+                    "type": "integer"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "input_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "refresh_freq": {
+                    "type": "integer"
+                },
+                "shared": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "parameters.UpdateCredentialParam": {
+            "type": "object",
+            "properties": {
+                "credential_json": {
+                    "$ref": "#/definitions/model.JSONMap"
+                },
+                "shared": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "pg.NullTime": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {

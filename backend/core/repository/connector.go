@@ -11,7 +11,7 @@ import (
 type (
 	ConnectorRepository interface {
 		GetAll(c context.Context, tenantID, userID string) ([]*model.Connector, error)
-		GetByID(c context.Context, id int, tenantID, userID string) (*model.Connector, error)
+		GetByID(c context.Context, id int64, tenantID, userID string) (*model.Connector, error)
 		Create(c context.Context, connector *model.Connector) error
 		Update(c context.Context, connector *model.Connector) error
 	}
@@ -37,7 +37,7 @@ func (r *connectorRepository) GetAll(c context.Context, tenantID, userID string)
 	return connectors, nil
 }
 
-func (r *connectorRepository) GetByID(c context.Context, id int, tenantID, userID string) (*model.Connector, error) {
+func (r *connectorRepository) GetByID(c context.Context, id int64, tenantID, userID string) (*model.Connector, error) {
 	var connector model.Connector
 	if err := r.db.WithContext(c).Model(&connector).
 		Where("tenant_id = ?", tenantID).
@@ -52,11 +52,15 @@ func (r *connectorRepository) GetByID(c context.Context, id int, tenantID, userI
 }
 
 func (r *connectorRepository) Create(c context.Context, connector *model.Connector) error {
-	//TODO implement me
-	panic("implement me")
+	if _, err := r.db.WithContext(c).Model(connector).Insert(); err != nil {
+		return utils.Internal.Wrap(err, "can not create connector")
+	}
+	return nil
 }
 
 func (r *connectorRepository) Update(c context.Context, connector *model.Connector) error {
-	//TODO implement me
-	panic("implement me")
+	if _, err := r.db.WithContext(c).Model(connector).Where("id = ?", connector.ID).Update(); err != nil {
+		return utils.Internal.Wrap(err, "can not update connector")
+	}
+	return nil
 }

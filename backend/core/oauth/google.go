@@ -1,8 +1,6 @@
 package oauth
 
 import (
-	"cognix.ch/api/v2/core/model"
-	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"encoding/json"
@@ -18,12 +16,14 @@ const (
 	oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 )
 
-type GoogleLoginResponse struct {
-	ID         string `json:"id"`
-	Email      string `json:"email"`
-	Name       string `json:"name"`
-	GivenName  string `json:"given_name"`
-	FamilyName string `json:"family_name"`
+type IdentityResponse struct {
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	Name         string `json:"name"`
+	GivenName    string `json:"given_name"`
+	FamilyName   string `json:"family_name"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type googleProvider struct {
@@ -55,7 +55,7 @@ func (g *googleProvider) Login(ctx context.Context, state string) (*SignInConfig
 	return config, nil
 }
 
-func (g *googleProvider) Callback(ctx context.Context, code string) (*security.Identity, error) {
+func (g *googleProvider) Callback(ctx context.Context, code string) (*IdentityResponse, error) {
 	token, err := g.config.Exchange(ctx, code)
 	if err != nil {
 		return nil, utils.Internal.Wrapf(err, "code exchange wrong: %s", err.Error())
@@ -67,25 +67,14 @@ func (g *googleProvider) Callback(ctx context.Context, code string) (*security.I
 
 	contents := response.Body()
 
-	var data GoogleLoginResponse
+	var data IdentityResponse
 	if err = json.Unmarshal(contents, &data); err != nil {
 		return nil, utils.Internal.Wrapf(err, "can not marshal google response")
 	}
-	loginResponse := &security.Identity{
-		AccessToken:  token.AccessToken,
-		RefreshToken: token.RefreshToken,
-		User: &model.User{
-			UserName:   data.Email,
-			FirstName:  data.GivenName,
-			LastName:   data.FamilyName,
-			ExternalID: data.ID,
-			Roles:      nil,
-		},
-	}
-	if loginResponse.User.FirstName == "" {
-		loginResponse.User.FirstName = data.Name
-	}
-	return loginResponse, nil
+	data.AccessToken = token.AccessToken
+	data.RefreshToken = token.RefreshToken
+
+	return &data, nil
 }
 
 func (g *googleProvider) RefreshToken(token *oauth2.Token) (*oauth2.Token, error) {

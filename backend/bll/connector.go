@@ -6,16 +6,16 @@ import (
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/utils"
 	"context"
-	"gopkg.in/guregu/null.v4"
+	"github.com/go-pg/pg/v10"
 	"time"
 )
 
 type (
 	ConnectorBL interface {
 		GetAll(ctx context.Context, user *model.User) ([]*model.Connector, error)
-		GetByID(ctx context.Context, user *model.User, id int) (*model.Connector, error)
+		GetByID(ctx context.Context, user *model.User, id int64) (*model.Connector, error)
 		Create(ctx context.Context, user *model.User, param *parameters.CreateConnectorParam) (*model.Connector, error)
-		Update(ctx context.Context, id int, user *model.User, param *parameters.UpdateConnectorParam) (*model.Connector, error)
+		Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateConnectorParam) (*model.Connector, error)
 	}
 	connectorBL struct {
 		connectorRepo  repository.ConnectorRepository
@@ -57,7 +57,7 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 	return &connector, nil
 }
 
-func (c *connectorBL) Update(ctx context.Context, id int, user *model.User, param *parameters.UpdateConnectorParam) (*model.Connector, error) {
+func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateConnectorParam) (*model.Connector, error) {
 	connector, err := c.connectorRepo.GetByID(ctx, id, user.TenantID.String(), user.ID.String())
 	if err != nil {
 		return nil, err
@@ -76,7 +76,12 @@ func (c *connectorBL) Update(ctx context.Context, id int, user *model.User, para
 	connector.RefreshFreq = param.RefreshFreq
 	connector.Shared = param.Shared
 	connector.Disabled = param.Disabled
-	connector.UpdatedDate = null.TimeFrom(time.Now().UTC())
+	connector.UpdatedDate = pg.NullTime{time.Now().UTC()}
+
+	//	sql.NullTime{
+	//Time:  time.Now().UTC(),
+	//Valid: true,
+	//	} //  null.TimeFrom(time.Now().UTC())
 	if err = c.connectorRepo.Update(ctx, connector); err != nil {
 		return nil, err
 	}
@@ -87,6 +92,6 @@ func (c *connectorBL) GetAll(ctx context.Context, user *model.User) ([]*model.Co
 	return c.connectorRepo.GetAll(ctx, user.TenantID.String(), user.ID.String())
 }
 
-func (c *connectorBL) GetByID(ctx context.Context, user *model.User, id int) (*model.Connector, error) {
+func (c *connectorBL) GetByID(ctx context.Context, user *model.User, id int64) (*model.Connector, error) {
 	return c.connectorRepo.GetByID(ctx, id, user.TenantID.String(), user.ID.String())
 }

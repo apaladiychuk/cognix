@@ -64,7 +64,7 @@ func (h *CredentialHandler) GetByID(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return utils.InvalidInput.New("id should be presented")
 	}
@@ -81,7 +81,7 @@ func (h *CredentialHandler) GetByID(c *gin.Context) error {
 // @Description creates new credential
 // @Tags Credentials
 // @ID credentials_create
-// @Param params body CreateCredentialParam true "credential create parameter"
+// @Param params body parameters.CreateCredentialParam true "credential create parameter"
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 201 {object} model.Credential
@@ -108,7 +108,7 @@ func (h *CredentialHandler) Create(c *gin.Context) error {
 // @Tags Credentials
 // @ID credentials_update
 // @Param id path int true "credential id"
-// @Param params body UpdateCredentialParam true "credential update parameter"
+// @Param params body parameters.UpdateCredentialParam true "credential update parameter"
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 200 {object} model.Credential
@@ -118,7 +118,7 @@ func (h *CredentialHandler) Update(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return utils.InvalidInput.New("id should be presented")
 	}

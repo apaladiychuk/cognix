@@ -65,7 +65,7 @@ func (h *ConnectorHandler) GetById(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return utils.InvalidInput.New("id should be presented")
 	}
@@ -82,7 +82,7 @@ func (h *ConnectorHandler) GetById(c *gin.Context) error {
 // @Description creates connector
 // @Tags Connectors
 // @ID connectors_create
-// @Param params body CreateConnectorParam true "connector create parameter"
+// @Param params body parameters.CreateConnectorParam true "connector create parameter"
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 201 {object} model.Connector
@@ -109,7 +109,7 @@ func (h *ConnectorHandler) Create(c *gin.Context) error {
 // @Tags Connectors
 // @ID connectors_update
 // @Param id path int true "connector id"
-// @Param params body UpdateConnectorParam true "connector update parameter"
+// @Param params body parameters.UpdateConnectorParam true "connector update parameter"
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 200 {object} model.Connector
@@ -119,7 +119,7 @@ func (h *ConnectorHandler) Update(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return utils.InvalidInput.New("id should be presented")
 	}

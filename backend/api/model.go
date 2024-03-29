@@ -27,7 +27,7 @@ type Config struct {
 	Port           int    `env:"PORT" envDefault:"8080"`
 	RedirectURL    string `env:"REDIRECT_URL"`
 	JWTSecret      string `env:"JWT_SECRET" envDefault:"secret"`
-	JWTExpiredTime int    `env:"JWT_EXPIRED_TIME"`
+	JWTExpiredTime int    `env:"JWT_EXPIRED_TIME" envDefault:"60"`
 }
 
 func ReadConfig() (*Config, error) {

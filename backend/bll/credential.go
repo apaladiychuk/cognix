@@ -6,16 +6,16 @@ import (
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/utils"
 	"context"
-	"gopkg.in/guregu/null.v4"
+	"github.com/go-pg/pg/v10"
 	"time"
 )
 
 type (
 	CredentialBL interface {
 		GetAll(ctx context.Context, user *model.User, source string) ([]*model.Credential, error)
-		GetByID(ctx context.Context, user *model.User, id int) (*model.Credential, error)
+		GetByID(ctx context.Context, user *model.User, id int64) (*model.Credential, error)
 		Create(ctx context.Context, user *model.User, param *parameters.CreateCredentialParam) (*model.Credential, error)
-		Update(ctx context.Context, id int, user *model.User, param *parameters.UpdateCredentialParam) (*model.Credential, error)
+		Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateCredentialParam) (*model.Credential, error)
 	}
 	credentialBL struct {
 		credentialRepo repository.CredentialRepository
@@ -32,7 +32,7 @@ func (c *credentialBL) GetAll(ctx context.Context, user *model.User, source stri
 	return c.credentialRepo.GetAll(ctx, user.TenantID.String(), user.ID.String(), source)
 }
 
-func (c *credentialBL) GetByID(ctx context.Context, user *model.User, id int) (*model.Credential, error) {
+func (c *credentialBL) GetByID(ctx context.Context, user *model.User, id int64) (*model.Credential, error) {
 	return c.credentialRepo.GetByID(ctx, id, user.TenantID.String(), user.ID.String())
 }
 
@@ -51,7 +51,7 @@ func (c *credentialBL) Create(ctx context.Context, user *model.User, param *para
 	return &credential, nil
 }
 
-func (c *credentialBL) Update(ctx context.Context, id int, user *model.User, param *parameters.UpdateCredentialParam) (*model.Credential, error) {
+func (c *credentialBL) Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateCredentialParam) (*model.Credential, error) {
 	credential, err := c.credentialRepo.GetByID(ctx, id, user.TenantID.String(), user.ID.String())
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (c *credentialBL) Update(ctx context.Context, id int, user *model.User, par
 	}
 	credential.CredentialJson = param.CredentialJson
 	credential.Shared = param.Shared
-	credential.UpdatedDate = null.TimeFrom(time.Now().UTC())
+	credential.UpdatedDate = pg.NullTime{time.Now().UTC()}
 	if err = c.credentialRepo.Update(ctx, credential); err != nil {
 		return nil, err
 	}

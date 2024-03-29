@@ -27,13 +27,13 @@ type (
 
 func NewJWTService(jwtSecret string, jwtExpiredTime int) JWTService {
 	return &jwtService{jwtSecret: jwtSecret,
-		jwtExpiredTime: jwtExpiredTime}
+		jwtExpiredTime: jwtExpiredTime * int(time.Minute)}
 }
 
 func (j *jwtService) Create(identity *Identity) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, identity)
 	identity.ExpiresAt = time.Now().Add(time.Duration(j.jwtExpiredTime)).Unix()
-	tokenString, err := token.SignedString(j.jwtSecret)
+	tokenString, err := token.SignedString([]byte(j.jwtSecret))
 	if err != nil {
 		return "", err
 	}
@@ -44,7 +44,7 @@ func (j *jwtService) Create(identity *Identity) (string, error) {
 func (j *jwtService) ParseAndValidate(tokenString string) (*Identity, error) {
 	var identity Identity
 	token, err := jwt.ParseWithClaims(tokenString, &identity, func(token *jwt.Token) (interface{}, error) {
-		return j.jwtSecret, nil
+		return []byte(j.jwtSecret), nil
 	})
 	if err != nil {
 		return nil, err

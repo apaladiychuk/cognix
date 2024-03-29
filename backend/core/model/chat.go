@@ -1,28 +1,28 @@
 package model
 
 import (
+	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
-	"gopkg.in/guregu/null.v4"
 	"time"
 )
 
 type (
 	ChatSession struct {
 		tableName   struct{}       `pg:"chat_sessions"`
-		ID          int            `json:"id,omitempty"`
+		ID          int64          `json:"id,omitempty"`
 		UserID      uuid.UUID      `json:"user_id,omitempty"`
 		Description string         `json:"description,omitempty"`
 		CreatedDate time.Time      `json:"created_date,omitempty"`
-		DeletedDate null.Time      `json:"deleted_date,omitempty"`
-		PersonaID   int            `json:"persona_id,omitempty"`
+		DeletedDate pg.NullTime    `json:"deleted_date,omitempty"`
+		PersonaID   int64          `json:"persona_id,omitempty"`
 		OneShot     bool           `json:"one_shot,omitempty"`
 		Messages    []*ChatMessage `json:"messages,omitempty" pg:"rel:has-many"`
 	}
 
 	ChatMessage struct {
 		tableName          struct{}  `pg:"chat_messages"`
-		ID                 int       `json:"id,omitempty"`
-		ChatSessionID      int       `json:"chat_session_id,omitempty"`
+		ID                 int64     `json:"id,omitempty"`
+		ChatSessionID      int64     `json:"chat_session_id,omitempty"`
 		Message            string    `json:"message,omitempty"`
 		MessageType        string    `json:"message_type,omitempty"`
 		TimeSent           time.Time `json:"time_sent,omitempty"`

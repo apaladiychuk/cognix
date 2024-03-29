@@ -16,4 +16,5 @@ type User struct {
 	LastName   string      `json:"last_name"`
 	ExternalID string      `json:"external_id"`
 	Roles      StringSlice `json:"roles" pg:",array"`
+	Tenant     *Tenant     `json:"tenant,omitempty" pg:"rel:has-one"`
 }

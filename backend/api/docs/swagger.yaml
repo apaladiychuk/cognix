@@ -1,57 +1,5 @@
 basePath: /
 definitions:
-  handler.CreateConnectorParam:
-    properties:
-      connector_specific_config:
-        $ref: '#/definitions/model.JSONMap'
-      credential_id:
-        type: integer
-      disabled:
-        type: boolean
-      input_type:
-        type: string
-      name:
-        type: string
-      refresh_freq:
-        type: integer
-      shared:
-        type: boolean
-      source:
-        type: string
-    type: object
-  handler.CreateCredentialParam:
-    properties:
-      credential_json:
-        $ref: '#/definitions/model.JSONMap'
-      shared:
-        type: boolean
-      source:
-        type: string
-    type: object
-  handler.UpdateConnectorParam:
-    properties:
-      connector_specific_config:
-        $ref: '#/definitions/model.JSONMap'
-      credential_id:
-        type: integer
-      disabled:
-        type: boolean
-      input_type:
-        type: string
-      name:
-        type: string
-      refresh_freq:
-        type: integer
-      shared:
-        type: boolean
-    type: object
-  handler.UpdateCredentialParam:
-    properties:
-      credential_json:
-        $ref: '#/definitions/model.JSONMap'
-      shared:
-        type: boolean
-    type: object
   model.Connector:
     properties:
       connector_specific_config:
@@ -61,7 +9,7 @@ definitions:
       credential_id:
         type: integer
       deleted_date:
-        type: string
+        $ref: '#/definitions/pg.NullTime'
       disabled:
         type: boolean
       id:
@@ -71,7 +19,7 @@ definitions:
       last_attempt_status:
         type: string
       last_successful_index_time:
-        type: string
+        $ref: '#/definitions/pg.NullTime'
       name:
         type: string
       refresh_freq:
@@ -85,7 +33,7 @@ definitions:
       total_docs_indexed:
         type: integer
       updated_date:
-        type: string
+        $ref: '#/definitions/pg.NullTime'
       user_id:
         type: string
     type: object
@@ -96,7 +44,7 @@ definitions:
       credential_json:
         $ref: '#/definitions/model.JSONMap'
       deleted_date:
-        type: string
+        $ref: '#/definitions/pg.NullTime'
       id:
         type: integer
       shared:
@@ -106,12 +54,69 @@ definitions:
       tenant_id:
         type: string
       updated_date:
-        type: string
+        $ref: '#/definitions/pg.NullTime'
       user_id:
         type: string
     type: object
   model.JSONMap:
     additionalProperties: true
+    type: object
+  parameters.CreateConnectorParam:
+    properties:
+      connector_specific_config:
+        $ref: '#/definitions/model.JSONMap'
+      credential_id:
+        type: integer
+      disabled:
+        type: boolean
+      input_type:
+        type: string
+      name:
+        type: string
+      refresh_freq:
+        type: integer
+      shared:
+        type: boolean
+      source:
+        type: string
+    type: object
+  parameters.CreateCredentialParam:
+    properties:
+      credential_json:
+        $ref: '#/definitions/model.JSONMap'
+      shared:
+        type: boolean
+      source:
+        type: string
+    type: object
+  parameters.UpdateConnectorParam:
+    properties:
+      connector_specific_config:
+        $ref: '#/definitions/model.JSONMap'
+      credential_id:
+        type: integer
+      disabled:
+        type: boolean
+      input_type:
+        type: string
+      name:
+        type: string
+      refresh_freq:
+        type: integer
+      shared:
+        type: boolean
+    type: object
+  parameters.UpdateCredentialParam:
+    properties:
+      credential_json:
+        $ref: '#/definitions/model.JSONMap'
+      shared:
+        type: boolean
+    type: object
+  pg.NullTime:
+    properties:
+      time.Time:
+        type: string
     type: object
 info:
   contact:
@@ -120,6 +125,22 @@ info:
   title: Cognix API
   version: "1.0"
 paths:
+  /auth/google/login:
+    get:
+      description: register new user and tenant using google auth
+      operationId: auth_login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: register new user and tenant using google auth
+      tags:
+      - Auth
   /manage/connector:
     get:
       description: return list of allowed connectors
@@ -148,7 +169,7 @@ paths:
         name: params
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateConnectorParam'
+          $ref: '#/definitions/parameters.CreateConnectorParam'
       produces:
       - application/json
       responses:
@@ -191,7 +212,7 @@ paths:
         name: params
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateConnectorParam'
+          $ref: '#/definitions/parameters.UpdateConnectorParam'
       produces:
       - application/json
       responses:
@@ -236,7 +257,7 @@ paths:
         name: params
         required: true
         schema:
-          $ref: '#/definitions/handler.CreateCredentialParam'
+          $ref: '#/definitions/parameters.CreateCredentialParam'
       produces:
       - application/json
       responses:
@@ -285,7 +306,7 @@ paths:
         name: params
         required: true
         schema:
-          $ref: '#/definitions/handler.UpdateCredentialParam'
+          $ref: '#/definitions/parameters.UpdateCredentialParam'
       produces:
       - application/json
       responses:

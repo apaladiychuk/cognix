@@ -11,7 +11,7 @@ import (
 type (
 	CredentialRepository interface {
 		GetAll(c context.Context, tenantID, userID, source string) ([]*model.Credential, error)
-		GetByID(c context.Context, id int, tenantID, userID string) (*model.Credential, error)
+		GetByID(c context.Context, id int64, tenantID, userID string) (*model.Credential, error)
 		Create(c context.Context, cred *model.Credential) error
 		Update(c context.Context, cred *model.Credential) error
 	}
@@ -56,7 +56,7 @@ func (r *credentialRepository) Update(c context.Context, cred *model.Credential)
 	return nil
 }
 
-func (r *credentialRepository) GetByID(c context.Context, id int, tenantID, userID string) (*model.Credential, error) {
+func (r *credentialRepository) GetByID(c context.Context, id int64, tenantID, userID string) (*model.Credential, error) {
 	var credential model.Credential
 	if err := r.db.WithContext(c).Model(&credential).
 		Where("id = ?", id).

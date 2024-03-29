@@ -6,7 +6,7 @@ type Persona struct {
 	tableName       struct{}  `pg:"personas"`
 	ID              int64     `json:"id,omitempty"`
 	Name            string    `json:"name,omitempty"`
-	LlmID           int       `json:"llm_id,omitempty"`
+	LlmID           int64     `json:"llm_id,omitempty"`
 	DefaultPersona  bool      `json:"default_persona,omitempty" pg:",use_zero"`
 	Description     string    `json:"description,omitempty"`
 	TenantID        uuid.UUID `json:"tenant_id,omitempty"`

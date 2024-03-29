@@ -1,12 +1,10 @@
 package server
 
 import (
-	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"strings"
 	"time"
@@ -24,19 +22,19 @@ func NewAuthMiddleware(jwtService security.JWTService) *AuthMiddleware {
 
 func (m *AuthMiddleware) RequireAuth(c *gin.Context) {
 
-	testClaim := security.Identity{
-		AccessToken:  "",
-		RefreshToken: "",
-		User: &model.User{
-			ID:       uuid.MustParse("9b63b4ec-20dc-4b10-8597-5b8d9039403e"),
-			TenantID: uuid.MustParse("c810016b-9506-4db2-ad40-a8e3aa517108"),
-		},
-	}
-	c.Request = c.Request.WithContext(context.WithValue(
-		c.Request.Context(), ContextParamUser, &testClaim))
-	c.Next()
-
-	return
+	//testClaim := security.Identity{
+	//	AccessToken:  "",
+	//	RefreshToken: "",
+	//	User: &model.User{
+	//		ID:       uuid.MustParse("9b63b4ec-20dc-4b10-8597-5b8d9039403e"),
+	//		TenantID: uuid.MustParse("c810016b-9506-4db2-ad40-a8e3aa517108"),
+	//	},
+	//}
+	//c.Request = c.Request.WithContext(context.WithValue(
+	//	c.Request.Context(), ContextParamUser, &testClaim))
+	//c.Next()
+	//
+	//return
 
 	//Get the  bearer Token
 	tokenString := c.GetHeader("Authorization")

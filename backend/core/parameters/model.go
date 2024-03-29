@@ -20,7 +20,7 @@ type UpdateCredentialParam struct {
 }
 
 type CreateConnectorParam struct {
-	CredentialID            int           `json:"credential_id,omitempty"`
+	CredentialID            int64         `json:"credential_id,omitempty"`
 	Name                    string        `json:"name,omitempty"`
 	Source                  string        `json:"source,omitempty"`
 	InputType               string        `json:"input_type,omitempty"`
@@ -31,7 +31,7 @@ type CreateConnectorParam struct {
 }
 
 type UpdateConnectorParam struct {
-	CredentialID            int           `json:"credential_id,omitempty"`
+	CredentialID            int64         `json:"credential_id,omitempty"`
 	Name                    string        `json:"name,omitempty"`
 	InputType               string        `json:"input_type,omitempty"`
 	ConnectorSpecificConfig model.JSONMap `json:"connector_specific_config,omitempty"`

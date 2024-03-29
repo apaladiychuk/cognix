@@ -6,9 +6,9 @@ import (
 
 type Document struct {
 	tableName        struct{}  `pg:"documents"`
-	Id               int       `json:"id,omitempty"`
+	ID               int64     `json:"id,omitempty"`
 	DocumentID       string    `json:"document_id,omitempty"`
-	ConnectorID      int       `json:"connector_id,omitempty"`
+	ConnectorID      int64     `json:"connector_id,omitempty"`
 	Boost            int       `json:"boost,omitempty"`
 	Hidden           bool      `json:"hidden,omitempty"`
 	SemanticID       string    `json:"semantic_id,omitempty"`

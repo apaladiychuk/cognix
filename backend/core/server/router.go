@@ -10,6 +10,12 @@ import (
 
 type HandlerFunc func(c *gin.Context) error
 
+type JsonErrorResponse struct {
+	Status        int    `json:"status,omitempty"`
+	Error         string `json:"error,omitempty"`
+	OriginalError string `json:"original_error,omitempty"`
+}
+
 type JsonResponse struct {
 	Status int         `json:"status,omitempty"`
 	Error  string      `json:"error,omitempty"`
@@ -27,10 +33,14 @@ func HandlerErrorFunc(f HandlerFunc) gin.HandlerFunc {
 				ew.Message = err.Error()
 			}
 			otelzap.S().Errorf("[%s] %v", ew.Message, ew.Original)
-			c.JSON(int(ew.Code), JsonResponse{
+			errResp := JsonErrorResponse{
 				Status: int(ew.Code),
 				Error:  ew.Message,
-			})
+			}
+			if ew.Original != nil {
+				errResp.OriginalError = ew.Original.Error()
+			}
+			c.JSON(int(ew.Code), errResp)
 
 		}
 	}

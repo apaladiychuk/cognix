@@ -6,6 +6,6 @@ type LLM struct {
 	Name      string   `json:"name,omitempty"`
 	ModelID   string   `json:"model_id,omitempty"`
 	Url       string   `json:"url,omitempty"`
-	ApiKey    string   `json:"api_key,omitempty"`
+	ApiKey    string   `json:"-"`
 	Endpoint  string   `json:"endpoint,omitempty"`
 }

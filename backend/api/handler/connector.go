@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"cognix.ch/api/v2/bll"
+	"cognix.ch/api/v2/core/bll"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/server"
@@ -40,11 +40,11 @@ func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFu
 // @Success 200 {array} model.Connector
 // @Router /manage/connector [get]
 func (h *ConnectorHandler) GetAll(c *gin.Context) error {
-	claims, err := server.GetContextIdentity(c)
+	identity, err := server.GetContextIdentity(c)
 	if err != nil {
 		return err
 	}
-	connectors, err := h.connectorBL.GetAll(c.Request.Context(), claims.User)
+	connectors, err := h.connectorBL.GetAll(c.Request.Context(), identity.User)
 	if err != nil {
 		return err
 	}

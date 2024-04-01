@@ -48,7 +48,7 @@ func (a *authBL) SignUp(ctx context.Context, identity *oauth.IdentityResponse) (
 		FirstName:  identity.GivenName,
 		LastName:   identity.FamilyName,
 		ExternalID: identity.ID,
-		Roles:      nil,
+		Roles:      model.StringSlice{model.RoleSuperAdmin},
 	}
 	if user.FirstName == "" {
 		user.FirstName = identity.Name

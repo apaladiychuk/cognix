@@ -9,5 +9,6 @@ var BLLModule = fx.Options(
 		NewConnectorBL,
 		NewCredentialBL,
 		NewAuthBL,
+		NewPersonaBL,
 	),
 )

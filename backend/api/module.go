@@ -2,11 +2,12 @@ package main
 
 import (
 	"cognix.ch/api/v2/api/handler"
-	"cognix.ch/api/v2/bll"
+	"cognix.ch/api/v2/core/bll"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
+	"cognix.ch/api/v2/core/storage"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -23,11 +24,13 @@ var Module = fx.Options(
 		NewRouter,
 		newGoogleOauthProvider,
 		newJWTService,
+		newStorage,
 		server.NewAuthMiddleware,
 		handler.NewAuthHandler,
 		handler.NewCollectorHandler,
 		handler.NewSwaggerHandler,
 		handler.NewCredentialHandler,
+		handler.NewPersonaHandler,
 	),
 	fx.Invoke(
 		MountRoute,
@@ -36,7 +39,7 @@ var Module = fx.Options(
 )
 
 func MountRoute(param MountParams) error {
-	param.AutHandler.Mount(param.Router)
+	param.AutHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.SwaggerHandler.Mount(param.Router)
 	param.CredentialHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.ConnectorHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
@@ -48,6 +51,10 @@ func newGoogleOauthProvider(cfg *Config) oauth.Proxy {
 }
 func newJWTService(cfg *Config) security.JWTService {
 	return security.NewJWTService(cfg.JWTSecret, cfg.JWTExpiredTime)
+}
+
+func newStorage(cfg *Config) (storage.Storage, error) {
+	return storage.NewNutsDbStorage(cfg.StoragePath)
 }
 
 func NewRouter() *gin.Engine {

@@ -25,6 +25,7 @@ type Config struct {
 	OAuth          *oauth.Config
 	Debug          bool   `env:"DEBUG" envDefault:"false"`
 	Port           int    `env:"PORT" envDefault:"8080"`
+	StoragePath    string `env:"STORAGE_PATH"`
 	RedirectURL    string `env:"REDIRECT_URL"`
 	JWTSecret      string `env:"JWT_SECRET" envDefault:"secret"`
 	JWTExpiredTime int    `env:"JWT_EXPIRED_TIME" envDefault:"60"`

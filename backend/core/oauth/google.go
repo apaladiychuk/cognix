@@ -46,13 +46,8 @@ func NewGoogleProvider(cfg *Config, redirectURL string) Proxy {
 	}
 }
 
-func (g *googleProvider) Login(ctx context.Context, state string) (*SignInConfig, error) {
-	config := &SignInConfig{
-		State:           state,
-		StateCookieName: CodeNameGoogle,
-		URL:             g.config.AuthCodeURL(state),
-	}
-	return config, nil
+func (g *googleProvider) Login(ctx context.Context, state string) (string, error) {
+	return g.config.AuthCodeURL(state), nil
 }
 
 func (g *googleProvider) Callback(ctx context.Context, code string) (*IdentityResponse, error) {

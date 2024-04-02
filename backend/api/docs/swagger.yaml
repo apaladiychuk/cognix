@@ -1,5 +1,53 @@
 basePath: /
 definitions:
+  model.ChatMessage:
+    properties:
+      chat_session_id:
+        type: integer
+      citations:
+        items:
+          type: integer
+        type: array
+      error:
+        type: string
+      id:
+        type: integer
+      latest_child_message:
+        type: integer
+      message:
+        type: string
+      message_type:
+        type: string
+      parent_message:
+        type: integer
+      rephrased_query:
+        type: string
+      time_sent:
+        type: string
+      token_count:
+        type: integer
+    type: object
+  model.ChatSession:
+    properties:
+      created_date:
+        type: string
+      deleted_date:
+        $ref: '#/definitions/pg.NullTime'
+      description:
+        type: string
+      id:
+        type: integer
+      messages:
+        items:
+          $ref: '#/definitions/model.ChatMessage'
+        type: array
+      one_shot:
+        type: boolean
+      persona_id:
+        type: integer
+      user_id:
+        type: string
+    type: object
   model.Connector:
     properties:
       connector_specific_config:
@@ -61,6 +109,38 @@ definitions:
   model.JSONMap:
     additionalProperties: true
     type: object
+  model.Persona:
+    properties:
+      default_persona:
+        type: boolean
+      description:
+        type: string
+      display_priority:
+        type: integer
+      id:
+        type: integer
+      is_visible:
+        type: boolean
+      llm_id:
+        type: integer
+      name:
+        type: string
+      starter_messages:
+        items:
+          type: integer
+        type: array
+      tenant_id:
+        type: string
+    type: object
+  parameters.CreateChatSession:
+    properties:
+      description:
+        type: string
+      one_shot:
+        type: boolean
+      persona_id:
+        type: integer
+    type: object
   parameters.CreateConnectorParam:
     properties:
       connector_specific_config:
@@ -87,6 +167,13 @@ definitions:
       shared:
         type: boolean
       source:
+        type: string
+    type: object
+  parameters.InviteParam:
+    properties:
+      email:
+        type: string
+      role:
         type: string
     type: object
   parameters.UpdateConnectorParam:
@@ -125,6 +212,42 @@ info:
   title: Cognix API
   version: "1.0"
 paths:
+  /auth/google/invite:
+    get:
+      description: join user to tenant using invitation link
+      operationId: auth_join_to_team
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: join user to tenant using invitation link
+      tags:
+      - Auth
+    post:
+      description: create invitation for user
+      operationId: auth_invitation
+      parameters:
+      - description: invitation  parameter
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/parameters.InviteParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: create invitation for user
+      tags:
+      - Auth
   /auth/google/login:
     get:
       description: register new user and tenant using google auth
@@ -136,11 +259,72 @@ paths:
           description: OK
           schema:
             type: string
-      security:
-      - ApiKeyAuth: []
       summary: register new user and tenant using google auth
       tags:
       - Auth
+  /chats/create-chat-session:
+    post:
+      description: creates new chat session
+      operationId: chat_create_session
+      parameters:
+      - description: create session parameters
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/parameters.CreateChatSession'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChatSession'
+      security:
+      - ApiKeyAuth: []
+      summary: creates new chat session
+      tags:
+      - Chat
+  /chats/get-chat-session/{id}:
+    get:
+      description: return chat session with messages by given id
+      operationId: chat_get_by_id
+      parameters:
+      - description: session id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChatSession'
+      security:
+      - ApiKeyAuth: []
+      summary: return chat session with messages by given id
+      tags:
+      - Chat
+  /chats/get-user-chat-sessions:
+    get:
+      description: return list of chat sessions for current user
+      operationId: chat_get_sessions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ChatSession'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: return list of chat sessions for current user
+      tags:
+      - Chat
   /manage/connector:
     get:
       description: return list of allowed connectors
@@ -319,6 +503,24 @@ paths:
       summary: updates credential
       tags:
       - Credentials
+  /manage/persona:
+    get:
+      description: return list of allowed personas
+      operationId: personas_get_all
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Persona'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: return list of allowed personas
+      tags:
+      - Connectors
 securityDefinitions:
   ApiKeyAuth:
     in: header

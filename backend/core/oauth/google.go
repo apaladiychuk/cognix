@@ -4,6 +4,7 @@ import (
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -39,7 +40,7 @@ func NewGoogleProvider(cfg *Config, redirectURL string) Proxy {
 			ClientID:     cfg.GoogleClientID,
 			ClientSecret: cfg.GoogleSecret,
 			Endpoint:     google.Endpoint,
-			RedirectURL:  redirectURL,
+			RedirectURL:  fmt.Sprintf("%s/auth/google/callback", redirectURL),
 			Scopes: []string{"https://www.googleapis.com/auth/userinfo.email",
 				"https://www.googleapis.com/auth/userinfo.profile"},
 		},

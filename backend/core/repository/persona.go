@@ -14,11 +14,22 @@ type (
 		GetByID(ctx context.Context, id int64, tenantID uuid.UUID) (*model.Persona, error)
 		Create(ctx context.Context, connector *model.Persona) error
 		Update(ctx context.Context, connector *model.Persona) error
+		IsExists(ctx context.Context, id int64, tenantID uuid.UUID) (bool, error)
 	}
 	personaRepository struct {
 		db *pg.DB
 	}
 )
+
+func (r *personaRepository) IsExists(ctx context.Context, id int64, tenantID uuid.UUID) (bool, error) {
+	exist, err := r.db.WithContext(ctx).Model(&model.Persona{}).
+		Where("id = ?", id).Where("tenant_id = ?", tenantID).
+		Exists()
+	if err != nil {
+		return false, utils.NotFound.Wrap(err, "can not find persona")
+	}
+	return exist, nil
+}
 
 func NewPersonaRepository(db *pg.DB) PersonaRepository {
 	return &personaRepository{db: db}

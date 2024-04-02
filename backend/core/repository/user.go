@@ -12,6 +12,7 @@ type (
 		GetByUserName(c context.Context, username string) (*model.User, error)
 		IsUserExists(c context.Context, username string) (bool, error)
 		RegisterUser(c context.Context, user *model.User) error
+		Create(c context.Context, user *model.User) error
 	}
 	// UserRepository provides database operations with User model
 	userRepository struct {
@@ -39,6 +40,13 @@ func (u *userRepository) IsUserExists(c context.Context, username string) (bool,
 	return exists, err
 }
 
+func (u *userRepository) Create(c context.Context, user *model.User) error {
+	if _, err := u.db.WithContext(c).Model(user).Insert(); err != nil {
+		return utils.Internal.Wrap(err, "can not create user")
+	}
+	return nil
+
+}
 func (u *userRepository) RegisterUser(c context.Context, user *model.User) error {
 	return u.db.RunInTransaction(c, func(tx *pg.Tx) error {
 		tenant := model.Tenant{

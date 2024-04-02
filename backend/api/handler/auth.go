@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 )
 
@@ -29,6 +28,7 @@ func NewAuthHandler(oauthClient oauth.Proxy,
 	jwtService security.JWTService,
 	authBL bll.AuthBL,
 	storage storage.Storage,
+
 ) *AuthHandler {
 	return &AuthHandler{oauthClient: oauthClient,
 		jwtService: jwtService,
@@ -54,7 +54,6 @@ func (h *AuthHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 // @Tags Auth
 // @ID auth_login
 // @Produce  json
-// @Security ApiKeyAuth
 // @Success 200 {object} string
 // @Router /auth/google/login [get]
 func (h *AuthHandler) SignIn(c *gin.Context) error {
@@ -93,6 +92,8 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 		user, err = h.authBL.Login(c.Request.Context(), response.Email)
 	case oauth.SignUpState:
 		user, err = h.authBL.SignUp(c.Request.Context(), response)
+	case oauth.InviteState:
+		user, err = h.authBL.JoinToTenant(c.Request.Context(), &state, response)
 	default:
 		err = fmt.Errorf("unknown state %s ", state.Action)
 	}
@@ -117,7 +118,6 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 // @Tags Auth
 // @ID auth_login
 // @Produce  json
-// @Security ApiKeyAuth
 // @Success 200 {object} string
 // @Router /auth/google/login [get]
 func (h *AuthHandler) SignUp(c *gin.Context) error {
@@ -135,6 +135,16 @@ func (h *AuthHandler) SignUp(c *gin.Context) error {
 	return nil
 }
 
+// Invite create invitation for user
+// @Summary create invitation for user
+// @Description create invitation for user
+// @Tags Auth
+// @ID auth_invitation
+// @Param params body parameters.InviteParam true "invitation  parameter"
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} string
+// @Router /auth/google/invite [post]
 func (h *AuthHandler) Invite(c *gin.Context, identity *security.Identity) error {
 	var param parameters.InviteParam
 	if err := c.BindJSON(&param); err != nil {
@@ -143,23 +153,22 @@ func (h *AuthHandler) Invite(c *gin.Context, identity *security.Identity) error 
 	if err := param.Validate(); err != nil {
 		return utils.InvalidInput.Wrap(err, err.Error())
 	}
-	buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.InviteState,
-		Role:     param.Role,
-		Email:    param.Email,
-		TenantID: identity.User.TenantID.String(),
-	})
+
+	url, err := h.authBL.Invite(c.Request.Context(), identity, &param)
 	if err != nil {
-		return utils.Internal.Wrap(err, "can not marshal payload")
-	}
-	key := uuid.New()
-	if err = h.storage.Save(key.String(), buf); err != nil {
 		return err
 	}
-	state := base64.URLEncoding.EncodeToString([]byte(key.String()))
-
-	return server.JsonResult(c, http.StatusOK, fmt.Sprintf("%s?state=%s", param.BaseURL, state))
+	return server.JsonResult(c, http.StatusOK, url)
 }
 
+// JoinToTenant join user to tenant using invitation link
+// @Summary join user to tenant using invitation link
+// @Description join user to tenant using invitation link
+// @Tags Auth
+// @ID auth_join_to_team
+// @Produce  json
+// @Success 200 {object} string
+// @Router /auth/google/invite [get]
 func (h *AuthHandler) JoinToTenant(c *gin.Context) error {
 	param := c.Query("state")
 
@@ -167,7 +176,7 @@ func (h *AuthHandler) JoinToTenant(c *gin.Context) error {
 	if err != nil {
 		return utils.InvalidInput.Wrap(err, "wrong state")
 	}
-	value, err := h.storage.GetValue(string(key))
+	value, err := h.storage.Pull(string(key))
 
 	state := base64.URLEncoding.EncodeToString(value)
 

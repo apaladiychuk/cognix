@@ -31,6 +31,7 @@ var Module = fx.Options(
 		handler.NewSwaggerHandler,
 		handler.NewCredentialHandler,
 		handler.NewPersonaHandler,
+		handler.NewChatHandler,
 	),
 	fx.Invoke(
 		MountRoute,
@@ -43,6 +44,8 @@ func MountRoute(param MountParams) error {
 	param.SwaggerHandler.Mount(param.Router)
 	param.CredentialHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.ConnectorHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
+	param.ChatHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
+	param.PersonaHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	return nil
 }
 

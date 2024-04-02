@@ -18,6 +18,8 @@ type MountParams struct {
 	SwaggerHandler    *handler.SwaggerHandler
 	ConnectorHandler  *handler.ConnectorHandler
 	CredentialHandler *handler.CredentialHandler
+	ChatHandler       *handler.ChatHandler
+	PersonaHandler    *handler.PersonaHandler
 }
 
 type Config struct {
@@ -41,4 +43,5 @@ func ReadConfig() (*Config, error) {
 		return nil, err
 	}
 	return cfg, nil
+
 }

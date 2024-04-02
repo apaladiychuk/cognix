@@ -15,7 +15,7 @@ type (
 		CreatedDate time.Time      `json:"created_date,omitempty"`
 		DeletedDate pg.NullTime    `json:"deleted_date,omitempty"`
 		PersonaID   int64          `json:"persona_id,omitempty"`
-		OneShot     bool           `json:"one_shot,omitempty"`
+		OneShot     bool           `json:"one_shot,omitempty" pg:",use_zero"`
 		Messages    []*ChatMessage `json:"messages,omitempty" pg:"rel:has-many"`
 	}
 

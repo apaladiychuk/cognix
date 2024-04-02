@@ -30,11 +30,11 @@ func NewNutsDbStorage(dbPath string) (Storage, error) {
 	return &nutsDbStorage{db: db}, nil
 }
 
-func (s *nutsDbStorage) GetValue(id string) ([]byte, error) {
+func (s *nutsDbStorage) GetValue(key string) ([]byte, error) {
 	var value []byte
 	var err error
 	if err = s.db.View(func(tx *nutsdb.Tx) error {
-		value, err = tx.Get(bucket, []byte(id))
+		value, err = tx.Get(bucket, []byte(key))
 		if err != nil {
 			return err
 		}
@@ -61,4 +61,19 @@ func (s *nutsDbStorage) Delete(key string) error {
 		return utils.Internal.Wrap(err, "can not delete value")
 	}
 	return nil
+}
+
+func (s *nutsDbStorage) Pull(key string) ([]byte, error) {
+	var value []byte
+	var err error
+	if err = s.db.Update(func(tx *nutsdb.Tx) error {
+		value, err = tx.Get(bucket, []byte(key))
+		if err != nil {
+			return err
+		}
+		return tx.Delete(bucket, []byte(key))
+	}); err != nil {
+		return nil, utils.Internal.Wrap(err, "can not save value")
+	}
+	return value, nil
 }

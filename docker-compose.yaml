@@ -9,6 +9,7 @@ services:
     environment:
       PORT: 8080
       STORAGE_PATH: /storage_volume/data
+      UI_URL: http://localhost:8080/
     ports:
       - "8080:8080"
     env_file:
@@ -64,7 +65,7 @@ services:
     volumes:
       - ./migration/versions:/versions
     env_file:
-      - config/.env
+      - config/cocroach.env
     networks:
       - dev-network
 

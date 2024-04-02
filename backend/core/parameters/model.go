@@ -14,15 +14,13 @@ type OAuthParam struct {
 }
 
 type InviteParam struct {
-	Email   string `json:"email"`
-	Role    string `json:"role"`
-	BaseURL string `json:"base_url"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
 }
 
 func (v InviteParam) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Email, validation.Required, is.Email),
-		validation.Field(&v.BaseURL, validation.Required),
 		validation.Field(&v.Role, validation.Required, validation.In(model.RoleSuperAdmin, model.RoleAdmin, model.RoleUser)),
 	)
 }

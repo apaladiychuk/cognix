@@ -370,6 +370,12 @@ paths:
     get:
       description: return list of allowed connectors
       operationId: connectors_get_by_id
+      parameters:
+      - description: connector id
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -520,7 +526,7 @@ paths:
       - ApiKeyAuth: []
       summary: return list of allowed personas
       tags:
-      - Connectors
+      - Persona
 securityDefinitions:
   ApiKeyAuth:
     in: header

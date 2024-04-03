@@ -2,6 +2,7 @@ package main
 
 import (
 	"cognix.ch/api/v2/api/handler"
+	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/bll"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
@@ -25,6 +26,7 @@ var Module = fx.Options(
 		newGoogleOauthProvider,
 		newJWTService,
 		newStorage,
+		ai.NewBuilder,
 		server.NewAuthMiddleware,
 		handler.NewAuthHandler,
 		handler.NewCollectorHandler,

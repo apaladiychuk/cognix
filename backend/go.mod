@@ -13,6 +13,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/nutsdb/nutsdb v1.0.4
+	github.com/sashabaranov/go-openai v1.20.4
 	github.com/stretchr/testify v1.8.4
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0

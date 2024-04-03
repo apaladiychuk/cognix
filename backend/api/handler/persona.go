@@ -26,7 +26,7 @@ func (h *PersonaHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc
 // GetAll return list of allowed personas
 // @Summary return list of allowed personas
 // @Description return list of allowed personas
-// @Tags Connectors
+// @Tags Persona
 // @ID personas_get_all
 // @Produce  json
 // @Security ApiKeyAuth

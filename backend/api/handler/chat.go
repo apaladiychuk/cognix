@@ -3,10 +3,12 @@ package handler
 import (
 	"cognix.ch/api/v2/core/bll"
 	"cognix.ch/api/v2/core/parameters"
+	"cognix.ch/api/v2/core/responder"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
 	"cognix.ch/api/v2/core/utils"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -26,6 +28,7 @@ func (h *ChatHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler.GET("/get-user-chat-sessions", server.HandlerErrorFuncAuth(h.GetSessions))
 	handler.GET("/get-chat-session/:id", server.HandlerErrorFuncAuth(h.GetByID))
 	handler.POST("/create-chat-session", server.HandlerErrorFuncAuth(h.CreateSession))
+	handler.POST("/send-message", server.HandlerErrorFuncAuth(h.SendMessage))
 }
 
 // GetSessions return list of chat sessions for current user
@@ -90,4 +93,21 @@ func (h *ChatHandler) CreateSession(c *gin.Context, identity *security.Identity)
 		return err
 	}
 	return server.JsonResult(c, http.StatusCreated, session)
+}
+
+func (h *ChatHandler) SendMessage(c *gin.Context, identity *security.Identity) error {
+	var param parameters.CreateChatMessageRequest
+	if err := c.BindJSON(&param); err != nil {
+		return utils.InvalidInput.Wrap(err, "wrong payload")
+	}
+	assistant, err := h.chatBL.SendMessage(c, identity.User, &param)
+	if err != nil {
+		return err
+	}
+	c.Stream(func(w io.Writer) bool {
+		response, ok := assistant.Receive()
+		c.SSEvent(responder.ResponseMessage, response.Message)
+		return ok
+	})
+	return nil
 }

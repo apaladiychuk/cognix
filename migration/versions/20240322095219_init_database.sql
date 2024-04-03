@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     parent_message integer,
     latest_child_message integer,
     rephrased_query text,
-    citations jsonb,
+    citations jsonb NOT NULL default '{}'::jsonb,
     error text
 );
 

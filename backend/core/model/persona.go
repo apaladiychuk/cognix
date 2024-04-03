@@ -13,4 +13,5 @@ type Persona struct {
 	IsVisible       bool      `json:"is_visible,omitempty" pg:",use_zero"`
 	DisplayPriority int       `json:"display_priority,omitempty"`
 	StarterMessages JSON      `json:"starter_messages,omitempty" pg:",use_zero"`
+	LLM             *LLM      `json:"llm,omitempty" pg:"rel:has-one"`
 }

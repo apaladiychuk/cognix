@@ -12,10 +12,18 @@ type ChatRepository interface {
 	GetSessions(ctx context.Context, userID uuid.UUID) ([]*model.ChatSession, error)
 	GetSessionByID(ctx context.Context, userID uuid.UUID, id int64) (*model.ChatSession, error)
 	CreateSession(ctx context.Context, session *model.ChatSession) error
+	SendMessage(ctx context.Context, message *model.ChatMessage) error
 }
 
 type chatRepository struct {
 	db *pg.DB
+}
+
+func (r *chatRepository) SendMessage(ctx context.Context, message *model.ChatMessage) error {
+	if _, err := r.db.WithContext(ctx).Model(message).Insert(); err != nil {
+		return utils.Internal.Wrap(err, "can not save message")
+	}
+	return nil
 }
 
 func NewChatRepository(db *pg.DB) ChatRepository {
@@ -34,8 +42,10 @@ func (r *chatRepository) GetSessions(ctx context.Context, userID uuid.UUID) ([]*
 func (r *chatRepository) GetSessionByID(ctx context.Context, userID uuid.UUID, id int64) (*model.ChatSession, error) {
 	var session model.ChatSession
 	if err := r.db.WithContext(ctx).Model(&session).
-		Where("user_id = ?", userID).
-		Where("id = ?", id).
+		Where("chat_session.user_id = ?", userID).
+		Where("chat_session.id = ?", id).
+		Relation("Persona").
+		Relation("Persona.LLM").
 		Relation("Messages").First(); err != nil {
 		return nil, utils.NotFound.Wrapf(err, "can not find session")
 	}

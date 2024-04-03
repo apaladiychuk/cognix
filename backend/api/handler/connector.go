@@ -57,6 +57,7 @@ func (h *ConnectorHandler) GetAll(c *gin.Context) error {
 // @Tags Connectors
 // @ID connectors_get_by_id
 // @Produce  json
+// @Param id path int true "connector id"
 // @Security ApiKeyAuth
 // @Success 200 {object} model.Connector
 // @Router /manage/connector/{id} [get]

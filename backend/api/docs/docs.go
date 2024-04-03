@@ -278,6 +278,15 @@ const docTemplate = `{
                 ],
                 "summary": "return list of allowed connectors",
                 "operationId": "connectors_get_by_id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "connector id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -491,7 +500,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Connectors"
+                    "Persona"
                 ],
                 "summary": "return list of allowed personas",
                 "operationId": "personas_get_all",

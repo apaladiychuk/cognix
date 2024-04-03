@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+const (
+	MessageTypeUser      = "user"
+	MessageTypeAssistant = "assistant"
+	MessageTypeSystem    = "system"
+)
+
 type (
 	ChatSession struct {
 		tableName   struct{}       `pg:"chat_sessions"`
@@ -17,6 +23,7 @@ type (
 		PersonaID   int64          `json:"persona_id,omitempty"`
 		OneShot     bool           `json:"one_shot,omitempty" pg:",use_zero"`
 		Messages    []*ChatMessage `json:"messages,omitempty" pg:"rel:has-many"`
+		Persona     *Persona       `json:"persona,omitempty" pg:"rel:has-one"`
 	}
 
 	ChatMessage struct {
@@ -26,11 +33,11 @@ type (
 		Message            string    `json:"message,omitempty"`
 		MessageType        string    `json:"message_type,omitempty"`
 		TimeSent           time.Time `json:"time_sent,omitempty"`
-		TokenCount         int       `json:"token_count,omitempty"`
-		ParentMessage      int       `json:"parent_message,omitempty"`
-		LatestChildMessage int       `json:"latest_child_message,omitempty"`
-		RephrasedQuery     string    `json:"rephrased_query,omitempty"`
+		TokenCount         int       `json:"token_count,omitempty" pg:",use_zero"`
+		ParentMessage      int64     `json:"parent_message,omitempty" pg:",use_zero"`
+		LatestChildMessage int       `json:"latest_child_message,omitempty" pg:",use_zero"`
+		RephrasedQuery     string    `json:"rephrased_query,omitempty" pg:",use_zero"`
 		Citations          JSON      `json:"citations,omitempty"`
-		Error              string    `json:"error,omitempty"`
+		Error              string    `json:"error,omitempty" pg:",use_zero"`
 	}
 )

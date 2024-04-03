@@ -19,6 +19,7 @@ func (r *aiResponder) Send(ctx context.Context, parentMessage *model.ChatMessage
 
 	message := model.ChatMessage{
 		ChatSessionID: parentMessage.ChatSessionID,
+		ParentMessage: parentMessage.ID,
 		MessageType:   model.MessageTypeAssistant,
 		TimeSent:      time.Now().UTC(),
 	}

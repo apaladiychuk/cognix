@@ -60,8 +60,8 @@ CREATE TABLE IF NOT EXISTS prompts (
     include_citations boolean NOT NULL,
     datetime_aware boolean NOT NULL,
     default_prompt boolean NOT NULL,
-    created_date timestamp NOT NULL DEFAULT (now()),
-    deleted_date timestamp
+    created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT (now()),
+    deleted_date timestamp WITHOUT TIME ZONE
 );
 
 CREATE TABLE IF NOT EXISTS credentials (
@@ -70,9 +70,9 @@ CREATE TABLE IF NOT EXISTS credentials (
     user_id uuid NOT NULL references users(id),
     tenant_id uuid NOT NULL references tenants(id),
     source varchar(50) NOT NULL,
-    created_date timestamp NOT NULL DEFAULT (now()),
-    updated_date timestamp,
-    deleted_date timestamp,
+    created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT (now()),
+    updated_date timestamp WITHOUT TIME ZONE,
+    deleted_date timestamp WITHOUT TIME ZONE,
     shared boolean NOT NULL
 );
 
@@ -89,20 +89,20 @@ CREATE TABLE IF NOT EXISTS connectors (
     tenant_id uuid NOT NULL references tenants(id),
     shared boolean NOT NULL,
     disabled boolean NOT NULL,
-    last_successful_index_time timestamp,
+    last_successful_index_time timestamp WITHOUT TIME ZONE,
     last_attempt_status varchar,
     total_docs_indexed integer NOT NULL,
-    created_date timestamp NOT NULL DEFAULT (now()),
-    updated_date timestamp,
-    deleted_date timestamp
+    created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT (now()),
+    updated_date timestamp WITHOUT TIME ZONE,
+    deleted_date timestamp WITHOUT TIME ZONE
 );
 
 CREATE TABLE IF NOT EXISTS chat_sessions (
     id SERIAL PRIMARY KEY,
     user_id uuid NOT NULL references users(id),
     description text NOT NULL,
-    created_date timestamp NOT NULL DEFAULT (now()),
-    deleted_date timestamp,
+    created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT (now()),
+    deleted_date timestamp WITHOUT TIME ZONE,
     persona_id integer NOT NULL references personas(id),
     one_shot boolean NOT NULL
 );
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     chat_session_id integer NOT NULL references chat_sessions(id),
     message text NOT NULL,
     message_type varchar(9) NOT NULL,
-    time_sent timestamp NOT NULL DEFAULT (now()),
+    time_sent timestamp WITHOUT TIME ZONE NOT NULL DEFAULT (now()),
     token_count integer NOT NULL,
     parent_message integer,
     latest_child_message integer,
@@ -129,9 +129,11 @@ CREATE TABLE IF NOT EXISTS documents (
     hidden boolean NOT NULL,
     semantic_id varchar NOT NULL,
     link varchar,
-    updated_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     from_ingestion_api boolean,
-    signature text
+    signature text,
+    created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    updated_date timestamp WITHOUT TIME ZONE,
+    deleted_date timestamp WITHOUT TIME ZONE
 );
 
 CREATE TABLE IF NOT EXISTS document_sets (
@@ -139,7 +141,10 @@ CREATE TABLE IF NOT EXISTS document_sets (
     user_id uuid references users(id),
     name varchar NOT NULL,
     description varchar NOT NULL,
-    is_up_to_date boolean NOT NULL
+    is_up_to_date boolean NOT NULL,
+    created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT (now()),
+    updated_date timestamp WITHOUT TIME ZONE,
+    deleted_date timestamp WITHOUT TIME ZONE
 );
 
 CREATE TABLE IF NOT EXISTS document_set_connector_pairs (

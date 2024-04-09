@@ -361,6 +361,12 @@ const docTemplate = `{
                         "description": "source of credentials",
                         "name": "source",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "true for include deleted credentials",
+                        "name": "archived",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -488,6 +494,195 @@ const docTemplate = `{
                 }
             }
         },
+        "/manage/embedding_models": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "return list of embedding models",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EmbeddingModel"
+                ],
+                "summary": "return list of embedding models",
+                "operationId": "embedding_model_get_all",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "true for include deleted embedding models",
+                        "name": "archived",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.EmbeddingModel"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "creates embedding models",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EmbeddingModel"
+                ],
+                "summary": "creates embedding models",
+                "operationId": "embedding_model_create",
+                "parameters": [
+                    {
+                        "description": "embedding model parameter",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.EmbeddingModelParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.EmbeddingModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/manage/embedding_models/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "return embedding model by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EmbeddingModel"
+                ],
+                "summary": "return embedding model by id",
+                "operationId": "embedding_model_get_by_id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "embedding model id",
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.EmbeddingModel"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "updates embedding model",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EmbeddingModel"
+                ],
+                "summary": "updates embedding model",
+                "operationId": "embedding_model_update",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "embedding model id",
+                        "name": "id",
+                        "in": "path"
+                    },
+                    {
+                        "description": "embedding model parameter",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.EmbeddingModelParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.EmbeddingModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/manage/embedding_models/{id}/{action}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete or restore embedding model",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "EmbeddingModel"
+                ],
+                "summary": "delete or restore embedding model",
+                "operationId": "embedding_model_delete",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "embedding model id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "action : delete | restore ",
+                        "name": "action",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.EmbeddingModel"
+                        }
+                    }
+                }
+            }
+        },
         "/manage/persona": {
             "get": {
                 "security": [
@@ -583,6 +778,9 @@ const docTemplate = `{
                 },
                 "one_shot": {
                     "type": "boolean"
+                },
+                "persona": {
+                    "$ref": "#/definitions/model.Persona"
                 },
                 "persona_id": {
                     "type": "integer"
@@ -680,9 +878,76 @@ const docTemplate = `{
                 }
             }
         },
+        "model.EmbeddingModel": {
+            "type": "object",
+            "properties": {
+                "created_date": {
+                    "type": "string"
+                },
+                "deleted_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "index_name": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "model_dim": {
+                    "type": "integer"
+                },
+                "model_id": {
+                    "type": "string"
+                },
+                "model_name": {
+                    "type": "string"
+                },
+                "normalize": {
+                    "type": "boolean"
+                },
+                "passage_prefix": {
+                    "type": "string"
+                },
+                "query_prefix": {
+                    "type": "string"
+                },
+                "tenant_id": {
+                    "type": "string"
+                },
+                "updated_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "model.JSONMap": {
             "type": "object",
             "additionalProperties": true
+        },
+        "model.LLM": {
+            "type": "object",
+            "properties": {
+                "endpoint": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "model_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
         },
         "model.Persona": {
             "type": "object",
@@ -701,6 +966,9 @@ const docTemplate = `{
                 },
                 "is_visible": {
                     "type": "boolean"
+                },
+                "llm": {
+                    "$ref": "#/definitions/model.LLM"
                 },
                 "llm_id": {
                     "type": "integer"
@@ -772,6 +1040,38 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "parameters.EmbeddingModelParam": {
+            "type": "object",
+            "properties": {
+                "index_name": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "model_dim": {
+                    "type": "integer"
+                },
+                "model_id": {
+                    "type": "string"
+                },
+                "model_name": {
+                    "type": "string"
+                },
+                "normalize": {
+                    "type": "boolean"
+                },
+                "passage_prefix": {
+                    "type": "string"
+                },
+                "query_prefix": {
+                    "type": "string"
+                },
+                "url": {
                     "type": "string"
                 }
             }

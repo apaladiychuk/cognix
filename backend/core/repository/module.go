@@ -20,5 +20,6 @@ var DatabaseModule = fx.Options(
 		NewChatRepository,
 		NewDocumentRepository,
 		NewDocumentSetRepository,
+		NewEmbeddingModelRepository,
 	),
 )

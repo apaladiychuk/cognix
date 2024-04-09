@@ -25,7 +25,11 @@ func (v InviteParam) Validate() error {
 	)
 }
 
+type ArchivedParam struct {
+	Archived bool `query:"archived"`
+}
 type GetAllCredentialsParam struct {
+	ArchivedParam
 	Source string `query:"source"`
 }
 

@@ -12,14 +12,15 @@ import (
 
 type MountParams struct {
 	fx.In
-	Router            *gin.Engine
-	AuthMiddleware    *server.AuthMiddleware
-	AutHandler        *handler.AuthHandler
-	SwaggerHandler    *handler.SwaggerHandler
-	ConnectorHandler  *handler.ConnectorHandler
-	CredentialHandler *handler.CredentialHandler
-	ChatHandler       *handler.ChatHandler
-	PersonaHandler    *handler.PersonaHandler
+	Router                *gin.Engine
+	AuthMiddleware        *server.AuthMiddleware
+	AutHandler            *handler.AuthHandler
+	SwaggerHandler        *handler.SwaggerHandler
+	ConnectorHandler      *handler.ConnectorHandler
+	CredentialHandler     *handler.CredentialHandler
+	ChatHandler           *handler.ChatHandler
+	PersonaHandler        *handler.PersonaHandler
+	EmbeddingModelHandler *handler.EmbeddingModelHandler
 }
 
 type Config struct {

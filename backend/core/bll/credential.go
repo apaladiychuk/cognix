@@ -12,7 +12,7 @@ import (
 
 type (
 	CredentialBL interface {
-		GetAll(ctx context.Context, user *model.User, source string) ([]*model.Credential, error)
+		GetAll(ctx context.Context, user *model.User, param *parameters.GetAllCredentialsParam) ([]*model.Credential, error)
 		GetByID(ctx context.Context, user *model.User, id int64) (*model.Credential, error)
 		Create(ctx context.Context, user *model.User, param *parameters.CreateCredentialParam) (*model.Credential, error)
 		Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateCredentialParam) (*model.Credential, error)
@@ -28,12 +28,12 @@ func NewCredentialBL(credentialRepo repository.CredentialRepository) CredentialB
 	}
 }
 
-func (c *credentialBL) GetAll(ctx context.Context, user *model.User, source string) ([]*model.Credential, error) {
-	return c.credentialRepo.GetAll(ctx, user.TenantID.String(), user.ID.String(), source)
+func (c *credentialBL) GetAll(ctx context.Context, user *model.User, param *parameters.GetAllCredentialsParam) ([]*model.Credential, error) {
+	return c.credentialRepo.GetAll(ctx, user.TenantID, user.ID, param)
 }
 
 func (c *credentialBL) GetByID(ctx context.Context, user *model.User, id int64) (*model.Credential, error) {
-	return c.credentialRepo.GetByID(ctx, id, user.TenantID.String(), user.ID.String())
+	return c.credentialRepo.GetByID(ctx, id, user.TenantID, user.ID)
 }
 
 func (c *credentialBL) Create(ctx context.Context, user *model.User, param *parameters.CreateCredentialParam) (*model.Credential, error) {
@@ -52,7 +52,7 @@ func (c *credentialBL) Create(ctx context.Context, user *model.User, param *para
 }
 
 func (c *credentialBL) Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateCredentialParam) (*model.Credential, error) {
-	credential, err := c.credentialRepo.GetByID(ctx, id, user.TenantID.String(), user.ID.String())
+	credential, err := c.credentialRepo.GetByID(ctx, id, user.TenantID, user.ID)
 	if err != nil {
 		return nil, err
 	}

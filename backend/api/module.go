@@ -34,6 +34,7 @@ var Module = fx.Options(
 		handler.NewCredentialHandler,
 		handler.NewPersonaHandler,
 		handler.NewChatHandler,
+		handler.NewEmbeddingModelHandler,
 	),
 	fx.Invoke(
 		MountRoute,
@@ -48,6 +49,7 @@ func MountRoute(param MountParams) error {
 	param.ConnectorHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.ChatHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.PersonaHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
+	param.EmbeddingModelHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	return nil
 }
 

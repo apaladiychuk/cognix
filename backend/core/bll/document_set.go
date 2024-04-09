@@ -59,6 +59,7 @@ func (b *documentSetBL) Update(ctx context.Context, user *model.User, id int64, 
 	return documentSet, nil
 }
 
+// AddConnector
 func (b *documentSetBL) AddConnector(ctx context.Context, user *model.User, documentSetID int64, connectorIDs ...int64) ([]*model.DocumentSetConnectorPair, error) {
 	documentSet, err := b.documentSetRepo.FindByIDWithConnectors(ctx, user.ID, documentSetID)
 	if err != nil {

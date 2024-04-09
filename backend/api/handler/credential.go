@@ -32,6 +32,7 @@ func (h *CredentialHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerF
 // @Tags Credentials
 // @ID credentials_get_all
 // @param source query string false "source of credentials"
+// @param archived query bool false "true for include deleted credentials"
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 200 {array} model.Credential
@@ -41,8 +42,11 @@ func (h *CredentialHandler) GetAll(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	source := c.Query("source")
-	credentials, err := h.credentialBl.GetAll(c.Request.Context(), ident.User, source)
+	var param parameters.GetAllCredentialsParam
+	if err = c.BindQuery(&param); err != nil {
+		return utils.InvalidInput.Wrap(err, "wrong parameters")
+	}
+	credentials, err := h.credentialBl.GetAll(c.Request.Context(), ident.User, &param)
 	if err != nil {
 		return err
 	}

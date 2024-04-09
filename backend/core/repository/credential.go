@@ -2,16 +2,18 @@ package repository
 
 import (
 	"cognix.ch/api/v2/core/model"
+	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
+	"github.com/google/uuid"
 )
 
 type (
 	CredentialRepository interface {
-		GetAll(c context.Context, tenantID, userID, source string) ([]*model.Credential, error)
-		GetByID(c context.Context, id int64, tenantID, userID string) (*model.Credential, error)
+		GetAll(c context.Context, tenantID, userID uuid.UUID, param *parameters.GetAllCredentialsParam) ([]*model.Credential, error)
+		GetByID(c context.Context, id int64, tenantID, userID uuid.UUID) (*model.Credential, error)
 		Create(c context.Context, cred *model.Credential) error
 		Update(c context.Context, cred *model.Credential) error
 	}
@@ -24,7 +26,7 @@ func NewCredentialRepository(db *pg.DB) CredentialRepository {
 	return &credentialRepository{db: db}
 }
 
-func (r *credentialRepository) GetAll(c context.Context, tenantID, userID, source string) ([]*model.Credential, error) {
+func (r *credentialRepository) GetAll(c context.Context, tenantID, userID uuid.UUID, param *parameters.GetAllCredentialsParam) ([]*model.Credential, error) {
 	credentials := make([]*model.Credential, 0)
 	stm := r.db.WithContext(c).Model(&credentials).
 		Where("tenant_id = ?", tenantID).
@@ -32,8 +34,11 @@ func (r *credentialRepository) GetAll(c context.Context, tenantID, userID, sourc
 			return query.WhereOr("user_id = ?", userID).
 				WhereOr("shared = ?", true), nil
 		})
-	if source != "" {
-		stm = stm.Where("source = ?", source)
+	if param.Source != "" {
+		stm = stm.Where("source = ?", param.Source)
+	}
+	if !param.Archived {
+		stm = stm.Where("deleted_date is null")
 	}
 
 	if err := stm.Select(); err != nil {
@@ -56,7 +61,7 @@ func (r *credentialRepository) Update(c context.Context, cred *model.Credential)
 	return nil
 }
 
-func (r *credentialRepository) GetByID(c context.Context, id int64, tenantID, userID string) (*model.Credential, error) {
+func (r *credentialRepository) GetByID(c context.Context, id int64, tenantID, userID uuid.UUID) (*model.Credential, error) {
 	var credential model.Credential
 	if err := r.db.WithContext(c).Model(&credential).
 		Where("id = ?", id).

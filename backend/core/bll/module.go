@@ -21,5 +21,8 @@ var BLLModule = fx.Options(
 		NewAuthBL,
 		NewPersonaBL,
 		NewChatBL,
+		NewDocumentBL,
+		NewDocumentSetBL,
+		NewEmbeddingModelBL,
 	),
 )

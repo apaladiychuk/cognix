@@ -34,7 +34,10 @@ CREATE TABLE IF NOT EXISTS embedding_models (
     passage_prefix varchar NOT NULL,
     index_name varchar NOT NULL,
     "url" varchar,
-    is_active boolean NOT NULL DEFAULT false
+    is_active boolean NOT NULL DEFAULT false,
+    created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    updated_date timestamp WITHOUT TIME ZONE,
+    deleted_date timestamp WITHOUT TIME ZONE
 );
 
 CREATE TABLE IF NOT EXISTS personas (

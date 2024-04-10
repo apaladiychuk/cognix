@@ -1,34 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-// import "@/global.css";
+import "@/global.css";
 // import "@fontsource-variable/inter";
 
 const router = createBrowserRouter([
   {
     path: "/",
     children: [
-      // {
-      //   path: "login",
-      //   children: [
-      //     {
-      //       path: "sign-in",
-      //       lazy: () => import("@/pages/login/sign-in"),
-      //     },
-      //     {
-      //       path: "sign-up",
-      //       lazy: () => import("@/pages/login/sign-up"),
-      //     },
-      //     {
-      //       path: "onboarding",
-      //       lazy: () => import("@/pages/login/onboarding"),
-      //     },
-      //     {
-      //       path: "user",
-      //       lazy: () => import("@/pages/login/user"),
-      //     },
-      //   ],
-      // },
+      {
+        path: "login",
+        lazy: () => import("@/pages/login"),
+      },
       {
         path: "chat",
         lazy: () => import("@/pages/chat"),

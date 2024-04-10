@@ -180,6 +180,98 @@ definitions:
       tenant_id:
         type: string
     type: object
+  model.SourceType:
+    enum:
+    - ingestion_api
+    - slack
+    - web
+    - google_drive
+    - gmail
+    - requesttracker
+    - github
+    - gitlab
+    - guru
+    - bookstack
+    - confluence
+    - slab
+    - jira
+    - productboard
+    - file
+    - notion
+    - zulip
+    - linear
+    - hubspot
+    - document360
+    - gong
+    - google_sites
+    - zendesk
+    - loopio
+    - sharepoint
+    type: string
+    x-enum-varnames:
+    - IngestionApi
+    - Slack
+    - WEB
+    - GoogleDrive
+    - GMAIL
+    - Requesttracker
+    - Github
+    - Gitlab
+    - Guru
+    - Bookstack
+    - Confluence
+    - Slab
+    - Jira
+    - Productboard
+    - File
+    - Notion
+    - Zulip
+    - Linear
+    - Hubspot
+    - Document360
+    - Gong
+    - GoogleSites
+    - Zendesk
+    - Loopio
+    - Sharepoint
+  parameters.BaseFilters:
+    properties:
+      document_set:
+        items:
+          type: string
+        type: array
+      source_type:
+        items:
+          $ref: '#/definitions/model.SourceType'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      time_cutoff:
+        type: string
+    type: object
+  parameters.CreateChatMessageRequest:
+    properties:
+      chat_session_id:
+        type: integer
+      message:
+        type: string
+      no_ai_answer:
+        type: boolean
+      parent_message_id:
+        type: integer
+      prompt_id:
+        type: integer
+      query_override:
+        type: string
+      retrieval_options:
+        $ref: '#/definitions/parameters.RetrievalDetails'
+      search_doc_ids:
+        items:
+          type: integer
+        type: array
+    type: object
   parameters.CreateChatSession:
     properties:
       description:
@@ -243,6 +335,21 @@ definitions:
       email:
         type: string
       role:
+        type: string
+    type: object
+  parameters.RetrievalDetails:
+    properties:
+      enable_auto_detect_filters:
+        type: boolean
+      filters:
+        $ref: '#/definitions/parameters.BaseFilters'
+      limit:
+        type: integer
+      offset:
+        type: integer
+      real_time:
+        type: boolean
+      run_search:
         type: string
     type: object
   parameters.UpdateConnectorParam:
@@ -319,8 +426,22 @@ paths:
       - Auth
   /auth/google/login:
     get:
-      description: register new user and tenant using google auth
+      description: login using google auth
       operationId: auth_login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: login using google auth
+      tags:
+      - Auth
+  /auth/google/signup:
+    get:
+      description: register new user and tenant using google auth
+      operationId: auth_signup
       produces:
       - application/json
       responses:
@@ -333,25 +454,25 @@ paths:
       - Auth
   /chats/create-chat-session:
     post:
-      description: creates new chat session
-      operationId: chat_create_session
+      description: send message and wait stream response
+      operationId: chat_send_message
       parameters:
-      - description: create session parameters
+      - description: send message parameters
         in: body
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/parameters.CreateChatSession'
+          $ref: '#/definitions/parameters.CreateChatMessageRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.ChatSession'
+            $ref: '#/definitions/model.ChatMessage'
       security:
       - ApiKeyAuth: []
-      summary: creates new chat session
+      summary: send message and wait stream response
       tags:
       - Chat
   /chats/get-chat-session/{id}:
@@ -635,6 +756,7 @@ paths:
       - description: embedding model id
         in: path
         name: id
+        required: true
         type: integer
       produces:
       - application/json
@@ -655,6 +777,7 @@ paths:
       - description: embedding model id
         in: path
         name: id
+        required: true
         type: integer
       - description: embedding model parameter
         in: body

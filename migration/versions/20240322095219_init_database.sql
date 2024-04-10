@@ -16,11 +16,15 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE TABLE IF NOT EXISTS llm (
     id SERIAL PRIMARY KEY,
+    tenant_id uuid NOT NULL REFERENCES tenants(id),
     name varchar(255) NOT NULL,
     model_id varchar(255) NOT NULL,
     url varchar NOT NULL,
     api_key varchar,
-    endpoint varchar
+    endpoint varchar,
+    created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    updated_date timestamp WITHOUT TIME ZONE,
+    deleted_date timestamp WITHOUT TIME ZONE
 );
 
 CREATE TABLE IF NOT EXISTS embedding_models (
@@ -43,18 +47,21 @@ CREATE TABLE IF NOT EXISTS embedding_models (
 CREATE TABLE IF NOT EXISTS personas (
     id SERIAL PRIMARY KEY,
     name varchar NOT NULL,
-    llm_id integer references llm(id),
+    llm_id bigint references llm(id),
     default_persona boolean NOT NULL,
     description varchar NOT NULL,
     tenant_id uuid NOT NULL references tenants(id),
     is_visible boolean NOT NULL,
     display_priority integer,
-    starter_messages jsonb NOT NULL DEFAULT '{}'::jsonb
+    starter_messages jsonb NOT NULL DEFAULT '{}'::jsonb,
+    created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    updated_date timestamp WITHOUT TIME ZONE,
+    deleted_date timestamp WITHOUT TIME ZONE
 );
 
 CREATE TABLE IF NOT EXISTS prompts (
     id SERIAL PRIMARY KEY,
-    persona_id integer NOT NULL REFERENCES personas(id),
+    persona_id bigint NOT NULL REFERENCES personas(id),
     user_id uuid NOT NULL references users(id),
     name varchar NOT NULL,
     description varchar NOT NULL,
@@ -64,6 +71,7 @@ CREATE TABLE IF NOT EXISTS prompts (
     datetime_aware boolean NOT NULL,
     default_prompt boolean NOT NULL,
     created_date timestamp WITHOUT TIME ZONE NOT NULL DEFAULT (now()),
+    updated_date timestamp WITHOUT TIME ZONE,
     deleted_date timestamp WITHOUT TIME ZONE
 );
 
@@ -82,7 +90,7 @@ CREATE TABLE IF NOT EXISTS credentials (
 
 CREATE TABLE IF NOT EXISTS connectors (
     id SERIAL PRIMARY KEY,
-    credential_id integer NOT NULL references credentials(id),
+    credential_id bigint NULL references credentials(id),
     name varchar NOT NULL,
     source varchar(50) NOT NULL,
     input_type varchar(10),
@@ -112,7 +120,7 @@ CREATE TABLE IF NOT EXISTS chat_sessions (
 
 CREATE TABLE IF NOT EXISTS chat_messages (
     id SERIAL PRIMARY KEY,
-    chat_session_id integer NOT NULL references chat_sessions(id),
+    chat_session_id bigint NOT NULL references chat_sessions(id),
     message text NOT NULL,
     message_type varchar(9) NOT NULL,
     time_sent timestamp WITHOUT TIME ZONE NOT NULL DEFAULT (now()),
@@ -127,7 +135,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 CREATE TABLE IF NOT EXISTS documents (
     id serial PRIMARY KEY NOT NULL,
     document_id varchar NOT NULL ,
-    connector_id integer NOT NULL references connectors(id),
+    connector_id bigint NOT NULL references connectors(id),
     boost integer NOT NULL,
     hidden boolean NOT NULL,
     semantic_id varchar NOT NULL,
@@ -138,6 +146,16 @@ CREATE TABLE IF NOT EXISTS documents (
     updated_date timestamp WITHOUT TIME ZONE,
     deleted_date timestamp WITHOUT TIME ZONE
 );
+
+create table document_feedbacks(
+    id              serial        primary key,
+    document_id     bigint  references documents(id) ,
+    user_id         uuid references users(id),
+    document_rank   integer not null,
+    up_votes        boolean not null,
+    feedback        varchar not null default ''
+);
+
 
 CREATE TABLE IF NOT EXISTS document_sets (
     id SERIAL PRIMARY KEY,
@@ -151,10 +169,10 @@ CREATE TABLE IF NOT EXISTS document_sets (
 );
 
 CREATE TABLE IF NOT EXISTS document_set_connector_pairs (
-    id SERIAL PRIMARY KEY,
     document_set_id integer NOT NULL references document_sets(id),
     connector_id integer NOT NULL references connectors(id),
-    is_current boolean NOT NULL
+    is_current boolean NOT NULL,
+    primary key (document_set_id,connector_id)
 );
 
 -- +goose StatementEnd
@@ -167,6 +185,7 @@ DROP TABLE IF EXISTS chat_sessions;
 DROP TABLE IF EXISTS prompts;
 DROP TABLE IF EXISTS personas;
 DROP TABLE IF EXISTS llm;
+DROP TABLE IF EXISTS document_feedbacks;
 DROP TABLE IF EXISTS documents;
 DROP TABLE IF EXISTS document_set_connector_pairs ;
 DROP TABLE IF EXISTS document_sets;

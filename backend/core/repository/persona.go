@@ -12,8 +12,8 @@ type (
 	PersonaRepository interface {
 		GetAll(ctx context.Context, tenantID uuid.UUID) ([]*model.Persona, error)
 		GetByID(ctx context.Context, id int64, tenantID uuid.UUID) (*model.Persona, error)
-		Create(ctx context.Context, connector *model.Persona) error
-		Update(ctx context.Context, connector *model.Persona) error
+		Create(ctx context.Context, persona *model.Persona) error
+		Update(ctx context.Context, persona *model.Persona) error
 		IsExists(ctx context.Context, id int64, tenantID uuid.UUID) (bool, error)
 	}
 	personaRepository struct {
@@ -47,6 +47,8 @@ func (r *personaRepository) GetAll(ctx context.Context, tenantID uuid.UUID) ([]*
 func (r *personaRepository) GetByID(ctx context.Context, id int64, tenantID uuid.UUID) (*model.Persona, error) {
 	var persona model.Persona
 	if err := r.db.WithContext(ctx).Model(&persona).
+		Relation("LLM").
+		Relation("Prompt").
 		Where("id = ?", id).
 		Where("tenant_id = ?", tenantID).First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "persona not found")
@@ -54,12 +56,36 @@ func (r *personaRepository) GetByID(ctx context.Context, id int64, tenantID uuid
 	return &persona, nil
 }
 
-func (r *personaRepository) Create(ctx context.Context, connector *model.Persona) error {
-	//TODO implement me
-	panic("implement me")
+func (r *personaRepository) Create(ctx context.Context, persona *model.Persona) error {
+	return r.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
+		if _, err := tx.Model(persona.LLM).Insert(); err != nil {
+			return utils.Internal.Wrap(err, "can not insert LLM")
+		}
+		persona.LlmID = persona.LLM.ID
+		if _, err := tx.Model(persona).Insert(); err != nil {
+			return utils.Internal.Wrap(err, "can not insert persona")
+		}
+		persona.Prompt.PersonaID = persona.ID
+		if _, err := tx.Model(persona.Prompt).Insert(); err != nil {
+			return utils.Internal.Wrap(err, "can not insert prompt")
+		}
+		return nil
+	})
 }
 
-func (r *personaRepository) Update(ctx context.Context, connector *model.Persona) error {
-	//TODO implement me
-	panic("implement me")
+func (r *personaRepository) Update(ctx context.Context, persona *model.Persona) error {
+	return r.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
+		if _, err := tx.Model(persona.LLM).Where("id = ?", persona.LLM.ID).Update(); err != nil {
+			return utils.Internal.Wrap(err, "can not update LLM")
+		}
+		persona.LlmID = persona.LLM.ID
+		if _, err := tx.Model(persona).Where("id = ?", persona.ID).Update(); err != nil {
+			return utils.Internal.Wrap(err, "can not update persona")
+		}
+		persona.Prompt.PersonaID = persona.ID
+		if _, err := tx.Model(persona.Prompt).Where("id = ?", persona.Prompt.ID).Update(); err != nil {
+			return utils.Internal.Wrap(err, "can not update prompt")
+		}
+		return nil
+	})
 }

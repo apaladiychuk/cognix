@@ -40,7 +40,7 @@ func (c *credentialBL) Create(ctx context.Context, user *model.User, param *para
 	credential := model.Credential{
 		UserID:         user.ID,
 		TenantID:       user.TenantID,
-		Source:         param.Source,
+		Source:         model.SourceType(param.Source),
 		CreatedDate:    time.Now().UTC(),
 		Shared:         param.Shared,
 		CredentialJson: param.CredentialJson,

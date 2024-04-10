@@ -2,38 +2,9 @@ package model
 
 import (
 	"github.com/go-pg/pg/v10"
+	"github.com/google/uuid"
 	"time"
 )
-
-const (
-	IngestionApi   SourceType = "ingestion_api"
-	Slack          SourceType = "slack"
-	WEB            SourceType = "web"
-	GoogleDrive    SourceType = "google_drive"
-	GMAIL          SourceType = "gmail"
-	Requesttracker SourceType = "requesttracker"
-	Github         SourceType = "github"
-	Gitlab         SourceType = "gitlab"
-	Guru           SourceType = "guru"
-	Bookstack      SourceType = "bookstack"
-	Confluence     SourceType = "confluence"
-	Slab           SourceType = "slab"
-	Jira           SourceType = "jira"
-	Productboard   SourceType = "productboard"
-	File           SourceType = "file"
-	Notion         SourceType = "notion"
-	Zulip          SourceType = "zulip"
-	Linear         SourceType = "linear"
-	Hubspot        SourceType = "hubspot"
-	Document360    SourceType = "document360"
-	Gong           SourceType = "gong"
-	GoogleSites    SourceType = "google_sites"
-	Zendesk        SourceType = "zendesk"
-	Loopio         SourceType = "loopio"
-	Sharepoint     SourceType = "sharepoint"
-)
-
-type SourceType string
 
 type Document struct {
 	tableName        struct{}    `pg:"documents"`
@@ -49,4 +20,14 @@ type Document struct {
 	CreatedDate      time.Time   `json:"created_date,omitempty"`
 	UpdatedDate      pg.NullTime `json:"updated_date,omitempty" pg:",use_zero"`
 	DeletedDate      pg.NullTime `json:"deleted_date,omitempty" pg:",use_zero"`
+}
+
+type DocumentFeedback struct {
+	tableName    struct{}  `pg:"document_feedbacks"`
+	ID           int64     `json:"id,omitempty"`
+	DocumentID   int64     `json:"document_id,omitempty"`
+	UserID       uuid.UUID `json:"user_id,omitempty"`
+	DocumentRank int       `json:"document_rank,omitempty" pg:",use_zero"`
+	UpVotes      bool      `json:"up_votes,omitempty" pg:",use_zero"`
+	Feedback     string    `json:"feedback,omitempty" pg:",use_zero"`
 }

@@ -76,6 +76,27 @@ const docTemplate = `{
         },
         "/auth/google/login": {
             "get": {
+                "description": "login using google auth",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "login using google auth",
+                "operationId": "auth_login",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google/signup": {
+            "get": {
                 "description": "register new user and tenant using google auth",
                 "produces": [
                     "application/json"
@@ -84,7 +105,7 @@ const docTemplate = `{
                     "Auth"
                 ],
                 "summary": "register new user and tenant using google auth",
-                "operationId": "auth_login",
+                "operationId": "auth_signup",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -102,23 +123,23 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "creates new chat session",
+                "description": "send message and wait stream response",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Chat"
                 ],
-                "summary": "creates new chat session",
-                "operationId": "chat_create_session",
+                "summary": "send message and wait stream response",
+                "operationId": "chat_send_message",
                 "parameters": [
                     {
-                        "description": "create session parameters",
+                        "description": "send message parameters",
                         "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/parameters.CreateChatSession"
+                            "$ref": "#/definitions/parameters.CreateChatMessageRequest"
                         }
                     }
                 ],
@@ -126,7 +147,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.ChatSession"
+                            "$ref": "#/definitions/model.ChatMessage"
                         }
                     }
                 }
@@ -587,7 +608,8 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "embedding model id",
                         "name": "id",
-                        "in": "path"
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -619,7 +641,8 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "embedding model id",
                         "name": "id",
-                        "in": "path"
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "description": "embedding model parameter",
@@ -987,6 +1010,121 @@ const docTemplate = `{
                 }
             }
         },
+        "model.SourceType": {
+            "type": "string",
+            "enum": [
+                "ingestion_api",
+                "slack",
+                "web",
+                "google_drive",
+                "gmail",
+                "requesttracker",
+                "github",
+                "gitlab",
+                "guru",
+                "bookstack",
+                "confluence",
+                "slab",
+                "jira",
+                "productboard",
+                "file",
+                "notion",
+                "zulip",
+                "linear",
+                "hubspot",
+                "document360",
+                "gong",
+                "google_sites",
+                "zendesk",
+                "loopio",
+                "sharepoint"
+            ],
+            "x-enum-varnames": [
+                "IngestionApi",
+                "Slack",
+                "WEB",
+                "GoogleDrive",
+                "GMAIL",
+                "Requesttracker",
+                "Github",
+                "Gitlab",
+                "Guru",
+                "Bookstack",
+                "Confluence",
+                "Slab",
+                "Jira",
+                "Productboard",
+                "File",
+                "Notion",
+                "Zulip",
+                "Linear",
+                "Hubspot",
+                "Document360",
+                "Gong",
+                "GoogleSites",
+                "Zendesk",
+                "Loopio",
+                "Sharepoint"
+            ]
+        },
+        "parameters.BaseFilters": {
+            "type": "object",
+            "properties": {
+                "document_set": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "source_type": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.SourceType"
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "time_cutoff": {
+                    "type": "string"
+                }
+            }
+        },
+        "parameters.CreateChatMessageRequest": {
+            "type": "object",
+            "properties": {
+                "chat_session_id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "no_ai_answer": {
+                    "type": "boolean"
+                },
+                "parent_message_id": {
+                    "type": "integer"
+                },
+                "prompt_id": {
+                    "type": "integer"
+                },
+                "query_override": {
+                    "type": "string"
+                },
+                "retrieval_options": {
+                    "$ref": "#/definitions/parameters.RetrievalDetails"
+                },
+                "search_doc_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "parameters.CreateChatSession": {
             "type": "object",
             "properties": {
@@ -1083,6 +1221,29 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "parameters.RetrievalDetails": {
+            "type": "object",
+            "properties": {
+                "enable_auto_detect_filters": {
+                    "type": "boolean"
+                },
+                "filters": {
+                    "$ref": "#/definitions/parameters.BaseFilters"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "real_time": {
+                    "type": "boolean"
+                },
+                "run_search": {
                     "type": "string"
                 }
             }

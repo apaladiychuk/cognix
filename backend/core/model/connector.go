@@ -6,12 +6,42 @@ import (
 	"time"
 )
 
+const (
+	IngestionApi   SourceType = "ingestion_api"
+	Slack          SourceType = "slack"
+	WEB            SourceType = "web"
+	GoogleDrive    SourceType = "google_drive"
+	GMAIL          SourceType = "gmail"
+	Requesttracker SourceType = "requesttracker"
+	Github         SourceType = "github"
+	Gitlab         SourceType = "gitlab"
+	Guru           SourceType = "guru"
+	Bookstack      SourceType = "bookstack"
+	Confluence     SourceType = "confluence"
+	Slab           SourceType = "slab"
+	Jira           SourceType = "jira"
+	Productboard   SourceType = "productboard"
+	File           SourceType = "file"
+	Notion         SourceType = "notion"
+	Zulip          SourceType = "zulip"
+	Linear         SourceType = "linear"
+	Hubspot        SourceType = "hubspot"
+	Document360    SourceType = "document360"
+	Gong           SourceType = "gong"
+	GoogleSites    SourceType = "google_sites"
+	Zendesk        SourceType = "zendesk"
+	Loopio         SourceType = "loopio"
+	Sharepoint     SourceType = "sharepoint"
+)
+
+type SourceType string
+
 type Connector struct {
 	tableName               struct{}    `pg:"connectors,omitempty"`
 	ID                      int64       `json:"id,omitempty"`
 	CredentialID            int64       `json:"credential_id,omitempty" pg:",use_zero"`
 	Name                    string      `json:"name,omitempty"`
-	Source                  string      `json:"source,omitempty"`
+	Source                  SourceType  `json:"source,omitempty"`
 	InputType               string      `json:"input_type,omitempty"`
 	ConnectorSpecificConfig JSONMap     `json:"connector_specific_config,omitempty"`
 	RefreshFreq             int         `json:"refresh_freq,omitempty"`

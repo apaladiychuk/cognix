@@ -116,10 +116,10 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 // @Summary register new user and tenant using google auth
 // @Description register new user and tenant using google auth
 // @Tags Auth
-// @ID auth_login
+// @ID auth_signup
 // @Produce  json
 // @Success 200 {object} string
-// @Router /auth/google/login [get]
+// @Router /auth/google/signup [get]
 func (h *AuthHandler) SignUp(c *gin.Context) error {
 	buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.SignUpState})
 	if err != nil {

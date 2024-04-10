@@ -57,7 +57,7 @@ func (h *EmbeddingModelHandler) GetAll(c *gin.Context, identity *security.Identi
 // @Description return embedding model by id
 // @Tags EmbeddingModel
 // @ID embedding_model_get_by_id
-// @Param id path int false "embedding model id"
+// @Param id path int true "embedding model id"
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 200 {object} model.EmbeddingModel
@@ -101,7 +101,7 @@ func (h *EmbeddingModelHandler) Create(c *gin.Context, identity *security.Identi
 // @Description updates embedding model
 // @Tags EmbeddingModel
 // @ID embedding_model_update
-// @Param id path int false "embedding model id"
+// @Param id path int true "embedding model id"
 // @Param params body parameters.EmbeddingModelParam true "embedding model parameter"
 // @Produce  json
 // @Security ApiKeyAuth

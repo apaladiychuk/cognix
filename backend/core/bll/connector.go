@@ -35,13 +35,13 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 	if err != nil {
 		return nil, err
 	}
-	if cred.Source != param.Source {
+	if cred.Source != model.SourceType(param.Source) {
 		return nil, utils.InvalidInput.New("wrong credential source")
 	}
 	connector := model.Connector{
 		CredentialID:            param.CredentialID,
 		Name:                    param.Name,
-		Source:                  param.Source,
+		Source:                  model.SourceType(param.Source),
 		InputType:               param.InputType,
 		ConnectorSpecificConfig: param.ConnectorSpecificConfig,
 		RefreshFreq:             param.RefreshFreq,

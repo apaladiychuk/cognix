@@ -22,9 +22,8 @@ type (
 
 	DocumentSetConnectorPair struct {
 		tableName     struct{} `pg:"document_set_connector_pairs"`
-		ID            int64    `json:"id,omitempty"`
 		DocumentSetID int64    `json:"document_set_id,omitempty"`
 		ConnectorID   int64    `json:"connector_id,omitempty"`
-		IsCurrent     bool     `json:"is_current,omitempty"`
+		IsCurrent     bool     `json:"is_current,omitempty" pg:",use_zero"`
 	}
 )

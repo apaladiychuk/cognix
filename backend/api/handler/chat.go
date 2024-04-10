@@ -95,6 +95,16 @@ func (h *ChatHandler) CreateSession(c *gin.Context, identity *security.Identity)
 	return server.JsonResult(c, http.StatusCreated, session)
 }
 
+// SendMessage send message and wait stream response
+// @Summary send message and wait stream response
+// @Description send message and wait stream response
+// @Tags Chat
+// @ID chat_send_message
+// @Param payload body parameters.CreateChatMessageRequest true "send message parameters"
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} model.ChatMessage
+// @Router /chats/create-chat-session [post]
 func (h *ChatHandler) SendMessage(c *gin.Context, identity *security.Identity) error {
 	var param parameters.CreateChatMessageRequest
 	if err := c.BindJSON(&param); err != nil {

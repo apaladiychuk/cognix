@@ -4,42 +4,42 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: #FAFAFA;
     /* #ffffff */
-    --foreground: 240 10% 3.9%;
+    --foreground: #0A090B;
     /* #09090b */
-    --card: 0 0% 100%;
+    --card: #ffffff;
     /* #ffffff */
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: #09090b;
     /* #09090b */
-    --popover: 0 0% 100%;
+    --popover: #ffffff;
     /* #ffffff */
     --popover-foreground: 240 10% 3.9%;
     /* #09090b */
-    --primary: 240 5.9% 10%;
+    --primary: #F7894C;
     /* #18181b */
-    --primary-foreground: 0 0% 98%;
+    --primary-foreground: #fafafa;
     /* #fafafa */
-    --secondary: 240 4.8% 95.9%;
+    --secondary: #1751D0;
     /* #f4f4f5 */
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary-foreground: #18181b;
     /* #18181b */
-    --muted: 240 4.8% 95.9%;
+    --muted: #f4f4f5;
     /* #f4f4f5 */
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted-foreground: #71717a;
     /* #71717a */
-    --accent: 240 4.8% 95.9%;
+    --accent: #f4f4f5;
     /* #f4f4f5 */
-    --accent-foreground: 240 5.9% 10%;
+    --accent-foreground: #18181b;
     /* #18181b */
     /* --destructive: 0 84.2% 60.2%; #ef4444 */
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: #fafafa;
     /* #fafafa */
-    --border: 240 5.9% 90%;
+    --border: #e4e4e7;
     /* #e4e4e7 */
-    --input: 240 5.9% 90%;
+    --input: #e4e4e7;
     /* #e4e4e7 */
-    --ring: 240 5.9% 10%;
+    --ring: #18181b;
     /* #18181b */
 
     --success-lighter: 140 80% 90%;
@@ -63,17 +63,6 @@
     /* #B42318 */
     --destructive-darker: 8 65% 29%;
     /* #7A271A */
-
-    --conversation-status-open: 217 91% 60%;
-    /* #3B82F6 */
-    --conversation-status-pending: 38 92% 50%;
-    /* #F59E0B */
-    --conversation-status-overdue: 0 84% 60%;
-    /* #EF4444 */
-    --conversation-status-resolved: 142 71% 45%;
-    /* #22C55E */
-    --conversation-status-sneakpeek: 173 80% 40%;
-    /* #14B8A6 */
 
     --radius: 0.5rem;
     --font-sans: 'Inter Variable', sans-serif;

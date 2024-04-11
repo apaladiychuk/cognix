@@ -70,6 +70,20 @@ func (h *AuthHandler) SignIn(c *gin.Context) error {
 	return nil
 }
 
+func (h *AuthHandler) RefreshToken(c *gin.Context) error {
+	//buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.LoginState})
+	//if err != nil {
+	//	return utils.Internal.Wrap(err, "can not marshal payload")
+	//}
+	//state := base64.URLEncoding.EncodeToString(buf)
+	//url, err := h.oauthClient.RefreshToken(c.Request.Context(), state)
+	//if err != nil {
+	//	return err
+	//}
+	//c.Redirect(http.StatusFound, url)
+	return nil
+}
+
 func (h *AuthHandler) Callback(c *gin.Context) error {
 	code := c.Query(oauth.CodeNameGoogle)
 

@@ -79,10 +79,8 @@ func (j *JSON) Scan(value interface{}) error {
 		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", value))
 	}
 
-	result := json.RawMessage{}
-	err := json.Unmarshal(bytes, &result)
-	*j = JSON(result)
-	return err
+	*j = bytes
+	return nil
 }
 
 // Value return json value, implement driver.Valuer interface
@@ -90,5 +88,5 @@ func (j JSON) Value() (driver.Value, error) {
 	if len(j) == 0 {
 		return nil, nil
 	}
-	return json.RawMessage(j).MarshalJSON()
+	return j, nil
 }

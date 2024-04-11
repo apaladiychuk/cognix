@@ -21,6 +21,9 @@ type MountParams struct {
 	ChatHandler           *handler.ChatHandler
 	PersonaHandler        *handler.PersonaHandler
 	EmbeddingModelHandler *handler.EmbeddingModelHandler
+	TenantHandler         *handler.TenantHandler
+	DocumentHandler       *handler.DocumentHandler
+	DocumentSetHandler    *handler.DocumentSetHandler
 }
 
 type Config struct {

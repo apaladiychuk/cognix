@@ -49,8 +49,8 @@ func (r *personaRepository) GetByID(ctx context.Context, id int64, tenantID uuid
 	if err := r.db.WithContext(ctx).Model(&persona).
 		Relation("LLM").
 		Relation("Prompt").
-		Where("id = ?", id).
-		Where("tenant_id = ?", tenantID).First(); err != nil {
+		Where("persona.id = ?", id).
+		Where("persona.tenant_id = ?", tenantID).First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "persona not found")
 	}
 	return &persona, nil

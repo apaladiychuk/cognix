@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/go-pg/pg/v10"
+	"time"
 )
 
 type (
@@ -59,6 +60,19 @@ func (u *userRepository) RegisterUser(c context.Context, user *model.User) error
 		}
 		if _, err := tx.Model(user).Insert(); err != nil {
 			return utils.Internal.Wrap(err, "can not create user")
+		}
+
+		fileConnector := model.Connector{
+			Name:                    "file connector",
+			Source:                  model.SourceTypeFile,
+			UserID:                  user.ID,
+			TenantID:                user.TenantID,
+			Shared:                  true,
+			ConnectorSpecificConfig: make(model.JSONMap),
+			CreatedDate:             time.Now().UTC(),
+		}
+		if _, err := tx.Model(&fileConnector).Insert(); err != nil {
+			return utils.Internal.Wrap(err, "can not create file connector")
 		}
 		return nil
 	})

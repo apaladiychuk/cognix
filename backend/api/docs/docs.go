@@ -515,6 +515,197 @@ const docTemplate = `{
                 }
             }
         },
+        "/manage/document_sets": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "return list of document sets for current user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Set"
+                ],
+                "summary": "return list of document sets for current user",
+                "operationId": "document_set_get_by_user",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "true for include deleted document sets",
+                        "name": "archived",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.DocumentSet"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "creates document sets",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Set"
+                ],
+                "summary": "creates document sets",
+                "operationId": "document_set_create",
+                "parameters": [
+                    {
+                        "description": "document set parameter",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.DocumentSetParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.DocumentSet"
+                        }
+                    }
+                }
+            }
+        },
+        "/manage/document_sets/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "return document set with connector list by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Set"
+                ],
+                "summary": "return document set with connector list by id",
+                "operationId": "document_set_get_by_id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "document set id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DocumentSet"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "updates document sets",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Set"
+                ],
+                "summary": "updates document sets",
+                "operationId": "document_set_update",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "document set id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "document set parameter",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.DocumentSetParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.DocumentSet"
+                        }
+                    }
+                }
+            }
+        },
+        "/manage/document_sets/{id}/{action}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete or restore document sets",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Document Set"
+                ],
+                "summary": "delete or restore document sets",
+                "operationId": "document_set_delete",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "document set id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "action : delete | restore ",
+                        "name": "action",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.DocumentSet"
+                        }
+                    }
+                }
+            }
+        },
         "/manage/embedding_models": {
             "get": {
                 "security": [
@@ -706,7 +897,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/manage/persona": {
+        "/manage/personas": {
             "get": {
                 "security": [
                     {
@@ -729,6 +920,147 @@ const docTemplate = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/model.Persona"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "create persona",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Persona"
+                ],
+                "summary": "create persona",
+                "operationId": "persona_create",
+                "parameters": [
+                    {
+                        "description": "persona payload",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.PersonaParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Persona"
+                        }
+                    }
+                }
+            }
+        },
+        "/manage/personas/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "return persona by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Persona"
+                ],
+                "summary": "return persona by id",
+                "operationId": "persona_get_by_id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "persona id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Persona"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "update persona",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Persona"
+                ],
+                "summary": "update persona",
+                "operationId": "persona_update",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "persona id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "persona payload",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.PersonaParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Persona"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenant/users": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "return list of users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenant"
+                ],
+                "summary": "return list of users",
+                "operationId": "tenant_get_users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.User"
                             }
                         }
                     }
@@ -853,7 +1185,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "source": {
-                    "type": "string"
+                    "$ref": "#/definitions/model.SourceType"
                 },
                 "tenant_id": {
                     "type": "string"
@@ -888,7 +1220,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "source": {
-                    "type": "string"
+                    "$ref": "#/definitions/model.SourceType"
                 },
                 "tenant_id": {
                     "type": "string"
@@ -898,6 +1230,55 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "model.DocumentSet": {
+            "type": "object",
+            "properties": {
+                "created_date": {
+                    "type": "string"
+                },
+                "deleted_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_up_to_date": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pairs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.DocumentSetConnectorPair"
+                    }
+                },
+                "updated_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DocumentSetConnectorPair": {
+            "type": "object",
+            "properties": {
+                "connector_id": {
+                    "type": "integer"
+                },
+                "document_set_id": {
+                    "type": "integer"
+                },
+                "is_current": {
+                    "type": "boolean"
                 }
             }
         },
@@ -955,6 +1336,12 @@ const docTemplate = `{
         "model.LLM": {
             "type": "object",
             "properties": {
+                "created_date": {
+                    "type": "string"
+                },
+                "deleted_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
                 "endpoint": {
                     "type": "string"
                 },
@@ -967,6 +1354,12 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "tenant_id": {
+                    "type": "string"
+                },
+                "updated_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
                 "url": {
                     "type": "string"
                 }
@@ -975,8 +1368,14 @@ const docTemplate = `{
         "model.Persona": {
             "type": "object",
             "properties": {
+                "created_date": {
+                    "type": "string"
+                },
                 "default_persona": {
                     "type": "boolean"
+                },
+                "deleted_date": {
+                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "description": {
                     "type": "string"
@@ -999,6 +1398,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "prompt": {
+                    "$ref": "#/definitions/model.Prompt"
+                },
                 "starter_messages": {
                     "type": "array",
                     "items": {
@@ -1006,6 +1408,53 @@ const docTemplate = `{
                     }
                 },
                 "tenant_id": {
+                    "type": "string"
+                },
+                "updated_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                }
+            }
+        },
+        "model.Prompt": {
+            "type": "object",
+            "properties": {
+                "created_date": {
+                    "type": "string"
+                },
+                "datetime_aware": {
+                    "type": "boolean"
+                },
+                "default_prompt": {
+                    "type": "boolean"
+                },
+                "deleted_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "include_citations": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "persona_id": {
+                    "type": "integer"
+                },
+                "system_prompt": {
+                    "type": "string"
+                },
+                "task_prompt": {
+                    "type": "string"
+                },
+                "updated_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }
@@ -1040,32 +1489,75 @@ const docTemplate = `{
                 "sharepoint"
             ],
             "x-enum-varnames": [
-                "IngestionApi",
-                "Slack",
-                "WEB",
-                "GoogleDrive",
-                "GMAIL",
-                "Requesttracker",
-                "Github",
-                "Gitlab",
-                "Guru",
-                "Bookstack",
-                "Confluence",
-                "Slab",
-                "Jira",
-                "Productboard",
-                "File",
-                "Notion",
-                "Zulip",
-                "Linear",
-                "Hubspot",
-                "Document360",
-                "Gong",
-                "GoogleSites",
-                "Zendesk",
-                "Loopio",
-                "Sharepoint"
+                "SourceTypeIngestionApi",
+                "SourceTypeSlack",
+                "SourceTypeWEB",
+                "SourceTypeGoogleDrive",
+                "SourceTypeGMAIL",
+                "SourceTypeRequesttracker",
+                "SourceTypeGithub",
+                "SourceTypeGitlab",
+                "SourceTypeGuru",
+                "SourceTypeBookstack",
+                "SourceTypeConfluence",
+                "SourceTypeSlab",
+                "SourceTypeJira",
+                "SourceTypeProductboard",
+                "SourceTypeFile",
+                "SourceTypeNotion",
+                "SourceTypeZulip",
+                "SourceTypeLinear",
+                "SourceTypeHubspot",
+                "SourceTypeDocument360",
+                "SourceTypeGong",
+                "SourceTypeGoogleSites",
+                "SourceTypeZendesk",
+                "SourceTypeLoopio",
+                "SourceTypeSharepoint"
             ]
+        },
+        "model.Tenant": {
+            "type": "object",
+            "properties": {
+                "configuration": {
+                    "$ref": "#/definitions/model.JSONMap"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tenant": {
+                    "$ref": "#/definitions/model.Tenant"
+                },
+                "tenant_id": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
+                }
+            }
         },
         "parameters.BaseFilters": {
             "type": "object",
@@ -1182,6 +1674,17 @@ const docTemplate = `{
                 }
             }
         },
+        "parameters.DocumentSetParam": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "parameters.EmbeddingModelParam": {
             "type": "object",
             "properties": {
@@ -1225,6 +1728,41 @@ const docTemplate = `{
                 }
             }
         },
+        "parameters.PersonaParam": {
+            "type": "object",
+            "properties": {
+                "api_key": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endpoint": {
+                    "type": "string"
+                },
+                "model_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "starter_messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/parameters.StarterMessage"
+                    }
+                },
+                "system_prompt": {
+                    "type": "string"
+                },
+                "task_prompt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "parameters.RetrievalDetails": {
             "type": "object",
             "properties": {
@@ -1244,6 +1782,20 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "run_search": {
+                    "type": "string"
+                }
+            }
+        },
+        "parameters.StarterMessage": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }

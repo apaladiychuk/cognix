@@ -13,11 +13,12 @@ type Prompt struct {
 	UserID           uuid.UUID   `json:"user_id,omitempty"`
 	Name             string      `json:"name,omitempty"`
 	Description      string      `json:"description,omitempty"`
-	SystemPrompt     string      `json:"system_prompt,omitempty"`
-	TaskPrompt       string      `json:"task_prompt,omitempty"`
-	IncludeCitations bool        `json:"include_citations,omitempty"`
-	DatetimeAware    bool        `json:"datetime_aware,omitempty"`
-	DefaultPrompt    bool        `json:"default_prompt,omitempty"`
+	SystemPrompt     string      `json:"system_prompt,omitempty" pg:",use_zero"`
+	TaskPrompt       string      `json:"task_prompt,omitempty" pg:",use_zero"`
+	IncludeCitations bool        `json:"include_citations,omitempty" pg:",use_zero"`
+	DatetimeAware    bool        `json:"datetime_aware,omitempty" pg:",use_zero"`
+	DefaultPrompt    bool        `json:"default_prompt,omitempty"  pg:",use_zero"`
 	CreatedDate      time.Time   `json:"created_date,omitempty"`
-	DeletedDate      pg.NullTime `json:"deleted_date,omitempty"`
+	UpdatedDate      pg.NullTime `json:"updated_date,omitempty" pg:",use_zero"`
+	DeletedDate      pg.NullTime `json:"deleted_date,omitempty" pg:",use_zero"`
 }

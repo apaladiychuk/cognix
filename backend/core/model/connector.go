@@ -7,31 +7,31 @@ import (
 )
 
 const (
-	IngestionApi   SourceType = "ingestion_api"
-	Slack          SourceType = "slack"
-	WEB            SourceType = "web"
-	GoogleDrive    SourceType = "google_drive"
-	GMAIL          SourceType = "gmail"
-	Requesttracker SourceType = "requesttracker"
-	Github         SourceType = "github"
-	Gitlab         SourceType = "gitlab"
-	Guru           SourceType = "guru"
-	Bookstack      SourceType = "bookstack"
-	Confluence     SourceType = "confluence"
-	Slab           SourceType = "slab"
-	Jira           SourceType = "jira"
-	Productboard   SourceType = "productboard"
-	File           SourceType = "file"
-	Notion         SourceType = "notion"
-	Zulip          SourceType = "zulip"
-	Linear         SourceType = "linear"
-	Hubspot        SourceType = "hubspot"
-	Document360    SourceType = "document360"
-	Gong           SourceType = "gong"
-	GoogleSites    SourceType = "google_sites"
-	Zendesk        SourceType = "zendesk"
-	Loopio         SourceType = "loopio"
-	Sharepoint     SourceType = "sharepoint"
+	SourceTypeIngestionApi   SourceType = "ingestion_api"
+	SourceTypeSlack          SourceType = "slack"
+	SourceTypeWEB            SourceType = "web"
+	SourceTypeGoogleDrive    SourceType = "google_drive"
+	SourceTypeGMAIL          SourceType = "gmail"
+	SourceTypeRequesttracker SourceType = "requesttracker"
+	SourceTypeGithub         SourceType = "github"
+	SourceTypeGitlab         SourceType = "gitlab"
+	SourceTypeGuru           SourceType = "guru"
+	SourceTypeBookstack      SourceType = "bookstack"
+	SourceTypeConfluence     SourceType = "confluence"
+	SourceTypeSlab           SourceType = "slab"
+	SourceTypeJira           SourceType = "jira"
+	SourceTypeProductboard   SourceType = "productboard"
+	SourceTypeFile           SourceType = "file"
+	SourceTypeNotion         SourceType = "notion"
+	SourceTypeZulip          SourceType = "zulip"
+	SourceTypeLinear         SourceType = "linear"
+	SourceTypeHubspot        SourceType = "hubspot"
+	SourceTypeDocument360    SourceType = "document360"
+	SourceTypeGong           SourceType = "gong"
+	SourceTypeGoogleSites    SourceType = "google_sites"
+	SourceTypeZendesk        SourceType = "zendesk"
+	SourceTypeLoopio         SourceType = "loopio"
+	SourceTypeSharepoint     SourceType = "sharepoint"
 )
 
 type SourceType string
@@ -39,7 +39,7 @@ type SourceType string
 type Connector struct {
 	tableName               struct{}    `pg:"connectors,omitempty"`
 	ID                      int64       `json:"id,omitempty"`
-	CredentialID            int64       `json:"credential_id,omitempty" pg:",use_zero"`
+	CredentialID            int64       `json:"credential_id,omitempty"`
 	Name                    string      `json:"name,omitempty"`
 	Source                  SourceType  `json:"source,omitempty"`
 	InputType               string      `json:"input_type,omitempty"`

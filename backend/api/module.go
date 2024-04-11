@@ -21,6 +21,7 @@ import (
 var Module = fx.Options(
 	repository.DatabaseModule,
 	bll.BLLModule,
+	storage.MinioModule,
 	fx.Provide(ReadConfig,
 		NewRouter,
 		newGoogleOauthProvider,
@@ -35,6 +36,9 @@ var Module = fx.Options(
 		handler.NewPersonaHandler,
 		handler.NewChatHandler,
 		handler.NewEmbeddingModelHandler,
+		handler.NewTenantHandler,
+		handler.NewDocumentHandler,
+		handler.NewDocumentSetHandler,
 	),
 	fx.Invoke(
 		MountRoute,
@@ -50,6 +54,9 @@ func MountRoute(param MountParams) error {
 	param.ChatHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.PersonaHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.EmbeddingModelHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
+	param.TenantHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
+	param.DocumentHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
+	param.DocumentSetHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	return nil
 }
 

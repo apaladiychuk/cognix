@@ -13,8 +13,7 @@ export interface SideBarProps {
   setIsSideBarOpen: (isSideBarOpen: boolean) => void;
 }
 
-const SideBar = React.forwardRef<HTMLDivElement, SideBarProps>(
-  ({ isSideBarOpen, setIsSideBarOpen }, ref) => {
+const SideBar: React.FC<SideBarProps> = ({ isSideBarOpen, setIsSideBarOpen }) => {
     const chats = [
       {
         id: 1,
@@ -202,6 +201,5 @@ const SideBar = React.forwardRef<HTMLDivElement, SideBarProps>(
   </div>
     );
   }
-);
 
 export { SideBar };

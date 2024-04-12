@@ -37,10 +37,11 @@ func (h *DocumentHandler) Upload(c *gin.Context, identity *security.Identity) er
 	wg := sync.WaitGroup{}
 	result := make([]*parameters.DocumentUploadResponse, len(files))
 	for i, f := range files {
-		go func(idx int, file *multipart.FileHeader) {
-			wg.Add(1)
+		wg.Add(1)
+		go func(idx int, file multipart.FileHeader) {
 			defer wg.Done()
 			fileReader, err := file.Open()
+			contentType := file.Header.Get("Content-Type")
 			if err != nil {
 				result[idx] = &parameters.DocumentUploadResponse{
 					FileName: file.Filename,
@@ -50,7 +51,7 @@ func (h *DocumentHandler) Upload(c *gin.Context, identity *security.Identity) er
 				return
 			}
 			defer fileReader.Close()
-			document, err := h.documentBL.UploadDocument(c.Request.Context(), identity.User, file.Filename, fileReader)
+			document, err := h.documentBL.UploadDocument(c.Request.Context(), identity.User, file.Filename, contentType, fileReader)
 			if err != nil {
 				result[idx] = &parameters.DocumentUploadResponse{
 					FileName: file.Filename,
@@ -64,8 +65,7 @@ func (h *DocumentHandler) Upload(c *gin.Context, identity *security.Identity) er
 				Error:    "",
 				Document: document,
 			}
-
-		}(i, f)
+		}(i, *f)
 	}
 	wg.Wait()
 	return server.JsonResult(c, http.StatusOK, result)

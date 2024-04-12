@@ -11,12 +11,12 @@ type Document struct {
 	ID               int64       `json:"id,omitempty"`
 	DocumentID       string      `json:"document_id,omitempty"`
 	ConnectorID      int64       `json:"connector_id,omitempty"`
-	Boost            int         `json:"boost,omitempty"`
-	Hidden           bool        `json:"hidden,omitempty"`
-	SemanticID       string      `json:"semantic_id,omitempty"`
-	Link             string      `json:"link,omitempty"`
-	FromIngestionAPI bool        `json:"from_ingestion_api,omitempty"`
-	Signature        string      `json:"signature,omitempty"`
+	Boost            int         `json:"boost,omitempty" pg:",use_zero"`
+	Hidden           bool        `json:"hidden,omitempty" pg:",use_zero"`
+	SemanticID       string      `json:"semantic_id,omitempty" pg:",use_zero"`
+	Link             string      `json:"link,omitempty" json:"link"`
+	FromIngestionAPI bool        `json:"from_ingestion_api,omitempty" pg:",use_zero"`
+	Signature        string      `json:"signature,omitempty" pg:",use_zero"`
 	CreatedDate      time.Time   `json:"created_date,omitempty"`
 	UpdatedDate      pg.NullTime `json:"updated_date,omitempty" pg:",use_zero"`
 	DeletedDate      pg.NullTime `json:"deleted_date,omitempty" pg:",use_zero"`

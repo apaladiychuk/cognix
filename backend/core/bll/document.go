@@ -11,7 +11,7 @@ import (
 
 type (
 	DocumentBL interface {
-		UploadDocument(ctx context.Context, user *model.User, fileName string, file io.Reader) (*model.Document, error)
+		UploadDocument(ctx context.Context, user *model.User, fileName, contentType string, file io.Reader) (*model.Document, error)
 	}
 	documentBL struct {
 		documentRepo  repository.DocumentRepository
@@ -20,8 +20,8 @@ type (
 	}
 )
 
-func (b *documentBL) UploadDocument(ctx context.Context, user *model.User, fileName string, file io.Reader) (*model.Document, error) {
-	fileURL, signature, err := b.minioClient.Upload(ctx, fileName, file)
+func (b *documentBL) UploadDocument(ctx context.Context, user *model.User, fileName, contentType string, file io.Reader) (*model.Document, error) {
+	fileURL, signature, err := b.minioClient.Upload(ctx, fileName, contentType, file)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +43,10 @@ func (b *documentBL) UploadDocument(ctx context.Context, user *model.User, fileN
 }
 
 func NewDocumentBL(documentRepo repository.DocumentRepository,
+	connectorRepo repository.ConnectorRepository,
 	minioClient storage.MinIOClient) DocumentBL {
 	return &documentBL{documentRepo: documentRepo,
-		minioClient: minioClient,
+		connectorRepo: connectorRepo,
+		minioClient:   minioClient,
 	}
 }

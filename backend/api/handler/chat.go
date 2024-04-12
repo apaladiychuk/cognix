@@ -29,6 +29,7 @@ func (h *ChatHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler.GET("/get-chat-session/:id", server.HandlerErrorFuncAuth(h.GetByID))
 	handler.POST("/create-chat-session", server.HandlerErrorFuncAuth(h.CreateSession))
 	handler.POST("/send-message", server.HandlerErrorFuncAuth(h.SendMessage))
+	handler.POST("/message/feedback", server.HandlerErrorFuncAuth(h.MessageFeedback))
 }
 
 // GetSessions return list of chat sessions for current user
@@ -120,4 +121,29 @@ func (h *ChatHandler) SendMessage(c *gin.Context, identity *security.Identity) e
 		return ok
 	})
 	return nil
+}
+
+// MessageFeedback add  feedback to message
+// @Summary add  feedback to message
+// @Description add  feedback to message
+// @Tags Chat
+// @ID chat_message_feedback
+// @Param payload body parameters.MessageFeedbackParam true "send message parameters"
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} model.ChatMessageFeedback
+// @Router /chats/message/feedback [post]
+func (h *ChatHandler) MessageFeedback(c *gin.Context, identity *security.Identity) error {
+	var param parameters.MessageFeedbackParam
+	if err := c.BindJSON(&param); err != nil {
+		return utils.InvalidInput.Wrap(err, "wrong payload")
+	}
+	if err := param.Validate(); err != nil {
+		return utils.InvalidInput.Wrap(err, err.Error())
+	}
+	feedback, err := h.chatBL.FeedbackMessage(c, identity.User, param.ID, param.Vote == parameters.MessageFeedbackUpvote)
+	if err != nil {
+		return err
+	}
+	return server.JsonResult(c, http.StatusOK, feedback)
 }

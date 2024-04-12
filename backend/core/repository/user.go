@@ -5,15 +5,18 @@ import (
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/go-pg/pg/v10"
+	"github.com/google/uuid"
 	"time"
 )
 
 type (
 	UserRepository interface {
 		GetByUserName(c context.Context, username string) (*model.User, error)
+		GetByIDAndTenantID(c context.Context, id, tenantID uuid.UUID) (*model.User, error)
 		IsUserExists(c context.Context, username string) (bool, error)
 		RegisterUser(c context.Context, user *model.User) error
 		Create(c context.Context, user *model.User) error
+		Update(c context.Context, user *model.User) error
 	}
 	// UserRepository provides database operations with User model
 	userRepository struct {
@@ -33,6 +36,16 @@ func (u *userRepository) GetByUserName(c context.Context, username string) (*mod
 	return &user, nil
 }
 
+func (u *userRepository) GetByIDAndTenantID(c context.Context, id, tenantID uuid.UUID) (*model.User, error) {
+	var user model.User
+	if err := u.db.WithContext(c).Model(&user).
+		Where("id = ?", id).
+		Where("tenant_id = ?", tenantID).
+		First(); err != nil {
+		return nil, utils.NotFound.Wrap(err, "can not find user")
+	}
+	return &user, nil
+}
 func (u *userRepository) IsUserExists(c context.Context, username string) (bool, error) {
 	exists, err := u.db.WithContext(c).Model(&model.User{}).Where("user_name = ?", username).Exists()
 	if err != nil {
@@ -46,7 +59,12 @@ func (u *userRepository) Create(c context.Context, user *model.User) error {
 		return utils.Internal.Wrap(err, "can not create user")
 	}
 	return nil
-
+}
+func (u *userRepository) Update(c context.Context, user *model.User) error {
+	if _, err := u.db.WithContext(c).Model(user).Where("id = ?", user.ID).Update(); err != nil {
+		return utils.Internal.Wrap(err, "can not update user")
+	}
+	return nil
 }
 func (u *userRepository) RegisterUser(c context.Context, user *model.User) error {
 	return u.db.RunInTransaction(c, func(tx *pg.Tx) error {

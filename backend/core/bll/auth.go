@@ -21,6 +21,7 @@ type (
 		SignUp(ctx context.Context, identity *oauth.IdentityResponse) (*model.User, error)
 		Invite(ctx context.Context, identity *security.Identity, param *parameters.InviteParam) (string, error)
 		JoinToTenant(ctx context.Context, state *parameters.OAuthParam, response *oauth.IdentityResponse) (*model.User, error)
+		QuickLogin(ctx context.Context, identity *oauth.IdentityResponse) (*model.User, error)
 	}
 	authBL struct {
 		userRepo    repository.UserRepository
@@ -117,4 +118,31 @@ func (a *authBL) JoinToTenant(ctx context.Context, state *parameters.OAuthParam,
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (a *authBL) QuickLogin(ctx context.Context, identity *oauth.IdentityResponse) (*model.User, error) {
+	exists, err := a.userRepo.IsUserExists(ctx, identity.Email)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return a.SignUp(ctx, identity)
+	}
+	user, err := a.userRepo.GetByUserName(ctx, identity.Email)
+	if err != nil {
+		return nil, err
+	}
+	if user.ExternalID == "" {
+		if identity.GivenName == "" {
+			user.FirstName = identity.Name
+		} else {
+			user.FirstName = identity.GivenName
+		}
+		user.LastName = identity.FamilyName
+		user.ExternalID = identity.ID
+	}
+	if err = a.userRepo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+	return user, nil
 }

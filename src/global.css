@@ -189,23 +189,12 @@ em-emoji-picker {
   @apply text-muted-foreground bg-muted-foreground;
 }
 
-@keyframes dot-flashing {
-  0% {
-    background-color: hsl(var(--muted-foreground));
-  }
-
-  50%,
-  100% {
-    background-color: hsl(var(--muted));
-  }
-}
-
 .message-content a {
   color: revert;
   text-decoration: revert;
 }
 
-@keyframes fadeInLeft {
+/* @keyframes fadeInLeft {
   0% {
     opacity: 0;
     transform: translateX(-20px);
@@ -215,7 +204,7 @@ em-emoji-picker {
     opacity: 1;
     transform: translateX(0);
   }
-}
+} */
 
 .break-overflow-word {
   overflow-wrap: break-word;

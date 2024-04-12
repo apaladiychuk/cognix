@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { SideBar } from "./sidebar";
 import SendIcon from "@/assets/svgs/send-icon.svg?react";
-import FileIcon from "@/assets/svgs/file-icon.svg?react"
+import FileIcon from "@/assets/svgs/file-icon.svg?react";
 import { Card } from "../ui/card";
 
 export function ChatComponent() {
@@ -37,19 +37,19 @@ export function ChatComponent() {
             </span>
           </div>
           <div className="flex pt-10 mx-20 space-x-5">
-          <div className="flex-1">
-            <Card
-              title="CogniX"
-              text="Assistant with access to documents
+            <div className="flex-1">
+              <Card
+                title="CogniX"
+                text="Assistant with access to documents
               from your Connected Sources"
-            />
-          </div>
-          <div className="flex-1">
-            <Card
-              title="Paraphrase"
-              text="Assistant that is heavily constrained and only provides exact quotes from Connected Sources."
-            />
-          </div>
+              />
+            </div>
+            <div className="flex-1">
+              <Card
+                title="Paraphrase"
+                text="Assistant that is heavily constrained and only provides exact quotes from Connected Sources."
+              />
+            </div>
           </div>
           <div className="flex-grow p-4">{/* Content here */}</div>
           <div className="flex items-center justify-between space-x-3 p-4 ml-12 mr-12">
@@ -78,17 +78,21 @@ export function ChatComponent() {
         <div className="flex ml-0 m-5 w-1/5 flex-col bg-white rounded-md rounded-l-none">
           <div className="content-start space-x-2 pl-4">
             <div className="flex content-start space-x-2 pt-5 pl-3">
-              <FileIcon/>
+              <FileIcon />
               <span className="font-bold">Retrieved Knowledge</span>
-              </div>
-              <div className="flex pt-5">
-              <span className="font-thin text-sm text-muted">When you run ask a question, the</span>
-              </div>
-              <div className="flex pt-1">
-                <span className="font-thin text-sm text-muted">retrieved knowledge will show up here</span>
-              </div>
+            </div>
+            <div className="flex pt-5">
+              <span className="font-thin text-sm text-muted">
+                When you run ask a question, the
+              </span>
+            </div>
+            <div className="flex pt-1">
+              <span className="font-thin text-sm text-muted">
+                retrieved knowledge will show up here
+              </span>
             </div>
           </div>
+        </div>
       </div>
     </div>
   );

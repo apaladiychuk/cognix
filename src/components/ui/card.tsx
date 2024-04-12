@@ -1,6 +1,5 @@
 import React from "react";
 
-// Define props interface
 interface CardProps {
   title: string;
   text: string;

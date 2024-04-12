@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --background: #FAFAFA;
+    --background: #F4F4F4;
     /* #ffffff */
-    --foreground: #0A090B;
+    --foreground: #1E1E2A;
     /* #09090b */
     --card: #ffffff;
     /* #ffffff */
@@ -16,7 +16,7 @@
     /* #ffffff */
     --popover-foreground: 240 10% 3.9%;
     /* #09090b */
-    --primary: #F7894C;
+    --primary: #F0681C;
     /* #18181b */
     --primary-foreground: #fafafa;
     /* #fafafa */
@@ -24,11 +24,11 @@
     /* #f4f4f5 */
     --secondary-foreground: #18181b;
     /* #18181b */
-    --muted: #f4f4f5;
+    --muted: #aaaaae;
     /* #f4f4f5 */
     --muted-foreground: #71717a;
     /* #71717a */
-    --accent: #f4f4f5;
+    --accent: #F0681C;
     /* #f4f4f5 */
     --accent-foreground: #18181b;
     /* #18181b */
@@ -42,27 +42,6 @@
     --ring: #18181b;
     /* #18181b */
 
-    --success-lighter: 140 80% 90%;
-    /* #D1FADF */
-    --success-light: 148 74% 67%;
-    /* #6CE9A6 */
-    --success: 152 82% 39%;
-    /* #12B76A */
-    --success-dark: 155 97% 24%;
-    /* #027A48 */
-    --success-darker: 156 88% 16%;
-    /* #054F31 */
-
-    --destructive-lighter: 4 93% 94%;
-    /* #FEE4E2 */
-    --destructive-light: 4 96% 80%;
-    /* #FDA29B */
-    --destructive: 4 86% 58%;
-    /* #F04438 */
-    --destructive-dark: 4 76% 40%;
-    /* #B42318 */
-    --destructive-darker: 8 65% 29%;
-    /* #7A271A */
 
     --radius: 0.5rem;
     --font-sans: 'Inter Variable', sans-serif;

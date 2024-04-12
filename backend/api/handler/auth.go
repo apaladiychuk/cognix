@@ -103,7 +103,7 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 	var user *model.User
 	switch state.Action {
 	case oauth.LoginState:
-		user, err = h.authBL.Login(c.Request.Context(), response.Email)
+		user, err = h.authBL.QuickLogin(c.Request.Context(), response)
 	case oauth.SignUpState:
 		user, err = h.authBL.SignUp(c.Request.Context(), response)
 	case oauth.InviteState:

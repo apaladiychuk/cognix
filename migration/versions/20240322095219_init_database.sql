@@ -132,6 +132,14 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     error text
 );
 
+CREATE TABLE chat_message_feedbacks (
+    id              SERIAL NOT NULL PRIMARY KEY,
+    chat_message_id BIGINT NOT NULL REFERENCES chat_messages,
+    user_id         UUID NOT NULL REFERENCES users,
+    up_votes        BOOLEAN NOT NULL,
+    feedback        VARCHAR NOT NULL DEFAULT ''
+);
+
 CREATE TABLE IF NOT EXISTS documents (
     id serial PRIMARY KEY NOT NULL,
     document_id varchar NOT NULL ,
@@ -180,6 +188,7 @@ CREATE TABLE IF NOT EXISTS document_set_connector_pairs (
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS embedding_models;
+DROP TABLE IF EXISTS chat_message_feedback;
 DROP TABLE IF EXISTS chat_messages;
 DROP TABLE IF EXISTS chat_sessions;
 DROP TABLE IF EXISTS prompts;

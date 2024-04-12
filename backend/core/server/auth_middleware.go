@@ -22,20 +22,6 @@ func NewAuthMiddleware(jwtService security.JWTService) *AuthMiddleware {
 
 func (m *AuthMiddleware) RequireAuth(c *gin.Context) {
 
-	//testClaim := security.Identity{
-	//	AccessToken:  "",
-	//	RefreshToken: "",
-	//	User: &model.User{
-	//		ID:       uuid.MustParse("9b63b4ec-20dc-4b10-8597-5b8d9039403e"),
-	//		TenantID: uuid.MustParse("c810016b-9506-4db2-ad40-a8e3aa517108"),
-	//	},
-	//}
-	//c.Request = c.Request.WithContext(context.WithValue(
-	//	c.Request.Context(), ContextParamUser, &testClaim))
-	//c.Next()
-	//
-	//return
-
 	//Get the  bearer Token
 	tokenString := c.GetHeader("Authorization")
 	if tokenString == "" {
@@ -59,7 +45,7 @@ func (m *AuthMiddleware) RequireAuth(c *gin.Context) {
 		return
 	}
 
-	if time.Now().Unix() > claims.ExpiresAt {
+	if claims.ExpiresAt != 0 && time.Now().Unix() > claims.ExpiresAt {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		c.Abort()
 		return

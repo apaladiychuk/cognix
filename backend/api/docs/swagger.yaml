@@ -10,6 +10,8 @@ definitions:
         type: array
       error:
         type: string
+      feedback:
+        $ref: '#/definitions/model.ChatMessageFeedback'
       id:
         type: integer
       latest_child_message:
@@ -26,6 +28,19 @@ definitions:
         type: string
       token_count:
         type: integer
+    type: object
+  model.ChatMessageFeedback:
+    properties:
+      chat_message_id:
+        type: integer
+      feedback:
+        type: string
+      id:
+        type: integer
+      up_votes:
+        type: boolean
+      user_id:
+        type: string
     type: object
   model.ChatSession:
     properties:
@@ -339,6 +354,13 @@ definitions:
       user_name:
         type: string
     type: object
+  parameters.AddUserParam:
+    properties:
+      email:
+        type: string
+      role:
+        type: string
+    type: object
   parameters.BaseFilters:
     properties:
       document_set:
@@ -421,6 +443,11 @@ definitions:
       name:
         type: string
     type: object
+  parameters.EditUserParam:
+    properties:
+      role:
+        type: string
+    type: object
   parameters.EmbeddingModelParam:
     properties:
       index_name:
@@ -447,6 +474,13 @@ definitions:
       email:
         type: string
       role:
+        type: string
+    type: object
+  parameters.MessageFeedbackParam:
+    properties:
+      id:
+        type: integer
+      vote:
         type: string
     type: object
   parameters.PersonaParam:
@@ -657,6 +691,29 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: return list of chat sessions for current user
+      tags:
+      - Chat
+  /chats/message/feedback:
+    post:
+      description: add  feedback to message
+      operationId: chat_message_feedback
+      parameters:
+      - description: send message parameters
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/parameters.MessageFeedbackParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChatMessageFeedback'
+      security:
+      - ApiKeyAuth: []
+      summary: add  feedback to message
       tags:
       - Chat
   /manage/connector:
@@ -1194,6 +1251,56 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: return list of users
+      tags:
+      - Tenant
+    post:
+      description: add new user
+      operationId: tenant_add_user
+      parameters:
+      - description: create user parameter
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/parameters.AddUserParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      security:
+      - ApiKeyAuth: []
+      summary: add new user
+      tags:
+      - Tenant
+  /tenant/users/{id}:
+    put:
+      description: edit  user
+      operationId: tenant_edit_user
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: edit user parameter
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/parameters.EditUserParam'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      security:
+      - ApiKeyAuth: []
+      summary: edit user
       tags:
       - Tenant
 securityDefinitions:

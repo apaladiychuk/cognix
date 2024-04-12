@@ -217,6 +217,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/chats/message/feedback": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "add  feedback to message",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "add  feedback to message",
+                "operationId": "chat_message_feedback",
+                "parameters": [
+                    {
+                        "description": "send message parameters",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.MessageFeedbackParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ChatMessageFeedback"
+                        }
+                    }
+                }
+            }
+        },
         "/manage/connector": {
             "get": {
                 "security": [
@@ -1065,6 +1102,85 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "add new user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenant"
+                ],
+                "summary": "add new user",
+                "operationId": "tenant_add_user",
+                "parameters": [
+                    {
+                        "description": "create user parameter",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.AddUserParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/tenant/users/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "edit  user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tenant"
+                ],
+                "summary": "edit user",
+                "operationId": "tenant_edit_user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "edit user parameter",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.EditUserParam"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                }
             }
         }
     },
@@ -1083,6 +1199,9 @@ const docTemplate = `{
                 },
                 "error": {
                     "type": "string"
+                },
+                "feedback": {
+                    "$ref": "#/definitions/model.ChatMessageFeedback"
                 },
                 "id": {
                     "type": "integer"
@@ -1107,6 +1226,26 @@ const docTemplate = `{
                 },
                 "token_count": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.ChatMessageFeedback": {
+            "type": "object",
+            "properties": {
+                "chat_message_id": {
+                    "type": "integer"
+                },
+                "feedback": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "up_votes": {
+                    "type": "boolean"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
@@ -1559,6 +1698,17 @@ const docTemplate = `{
                 }
             }
         },
+        "parameters.AddUserParam": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "parameters.BaseFilters": {
             "type": "object",
             "properties": {
@@ -1685,6 +1835,14 @@ const docTemplate = `{
                 }
             }
         },
+        "parameters.EditUserParam": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "parameters.EmbeddingModelParam": {
             "type": "object",
             "properties": {
@@ -1724,6 +1882,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "parameters.MessageFeedbackParam": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "vote": {
                     "type": "string"
                 }
             }

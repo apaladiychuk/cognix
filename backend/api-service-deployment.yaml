@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apiservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apiservice
+  template:
+    metadata:
+      labels:
+        app: apiservice
+    spec:
+      containers:
+      - name: apiservice
+        image: cognixacr.azurecr.io/cognix/apiservice:main
+        env:
+        - name: PORT
+          value: 8080
+        - name: STORAGE_PATH
+          value: "/storage_volume/data"
+        - name: UI_URL
+          value: "http://api:8080/"
+        - name: REDIRECT_URL
+          value: "https://rag.cognix.ch"          
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: env-configmap
+              key: OAUTH_CLIENT_ID
+        - name: GOOGLE_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: env-configmap
+              key: OAUTH_CLIENT_SECRET
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: env-configmap
+              key: DATABASE_URL
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /storage_volume
+          name: storage-volume 
+        imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+        - name: pullsecret
+      volumes:
+        - name: storage-volume
+          persistentVolumeClaim:
+            claimName: storage-volume
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+spec:
+  selector:
+    app.kubernetes.io/name: apiservice
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

@@ -48,4 +48,4 @@ jobs:
           ${{ env.ACRNAME }}.azurecr.io/cognix/apiservice:${{ github.ref_name }}       
         build-args: |
           COGNIX_VERSION=${{ github.ref_name }}
-          service: api
+          service=api

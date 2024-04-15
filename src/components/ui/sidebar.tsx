@@ -215,7 +215,7 @@ const SideBar: React.FC<SideBarProps> = ({
           {chats.slice(0, 4).map((chat) => (
             <NavLink
               key={chat.id}
-              to={`/chat/${chat.id}`}
+              to={`/chat`}
               className="flex flex-row items-center"
             >
               <span className="truncate md:text-clip">{chat.text}</span>

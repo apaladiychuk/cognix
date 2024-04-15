@@ -1,28 +1,29 @@
-import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { SideBar } from "./sidebar";
 import SendIcon from "@/assets/svgs/send-icon.svg?react";
 import FileIcon from "@/assets/svgs/file-icon.svg?react";
 import { Card } from "../ui/card";
+import MessageCard from "./message-card";
+
+const messages: any[] = [
+  // { 
+  //   text: `'LostFocus’ which updates the data source when the textbox loses focus. Other modes include 
+  //   'PropertyChanged’ which updates the data source whenever the textbox value changes, and 'Explicit', which requires manual triggering of the update. 
+  //   It's important to note that WPF provides features like string formatting and value converters to customize the display and conversion of data in textbox bindings. String formatting allows you to format the displayed text, while value converters enable you to convert the data between different representations. 
+  //   Please note that the information provided is a general overview of textbox data bindings in WPF. For more detailed information and examples, please refer to the relevant documents`, 
+  //   sources: ["[1] big.pdf"], 
+  //   created_at: "April 13, 2024",
+  //   sender: "AI Chat",
+  // }
+];
+
 
 export function ChatComponent() {
-  const [isSidebarOpen, setSidebarOpen] = useState<boolean>(false);
-
   return (
-    <div className="flex h-screen bg-foreground">
-      <div className="flex flex-row flex-grow">
-        <div
-          className={`bg-foreground text-white transition-all duration-300 ease-in-out ${
-            isSidebarOpen ? "w-48" : "w-14"
-          }`}
-        >
-          <SideBar
-            isSideBarOpen={isSidebarOpen}
-            setIsSideBarOpen={setSidebarOpen}
-          />
-        </div>
-        <div className="flex flex-col flex-grow align-center justify-center bg-background m-5 mr-0 rounded-md rounded-r-none w-4/6">
+    <div className="flex h-screen">
+      { messages.length == 0 ?
+      (
+        <div className="flex flex-col flex-grow m-5 w-4/6">
           <div className="flex items-center justify-center pt-8">
             <span className="text-4xl font-bold">
               Which assistant do you want
@@ -75,7 +76,22 @@ export function ChatComponent() {
             </span>
           </div>
         </div>
-        <div className="flex ml-0 m-5 w-1/5 flex-col bg-white rounded-md rounded-l-none">
+      )         : (
+        <div className="flex flex-col flex-grow mt-7 ml-20 w-3/4">
+        {messages?.map((message, index) => (
+          <MessageCard
+            key={index} // Add a unique key for each message
+            sender={message.sender}
+            message={message.text}
+            timestamp={message.created_at}
+            sources={message.sources}
+            className=""
+          />
+        ))}
+      </div>
+      )
+    }
+        <div className="flex mt-5 mb-5 w-1/5 flex-col bg-white rounded-md rounded-l-none">
           <div className="content-start space-x-2 pl-4">
             <div className="flex content-start space-x-2 pt-5 pl-3">
               <FileIcon />
@@ -94,6 +110,5 @@ export function ChatComponent() {
           </div>
         </div>
       </div>
-    </div>
   );
 }

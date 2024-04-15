@@ -13,11 +13,11 @@ import (
 
 type (
 	MinioConfig struct {
-		AccessKey       string `env:"MINIO_ACCESS_KEY,required"`
-		SecretAccessKey string `env:"MINIO_SECRET_ACCESS_KEY,required"`
-		Endpoint        string `env:"MINIO_ENDPOINT,required"`
+		AccessKey       string `env:"MINIO_ACCESS_KEY"`
+		SecretAccessKey string `env:"MINIO_SECRET_ACCESS_KEY"`
+		Endpoint        string `env:"MINIO_ENDPOINT"`
 		UseSSL          bool   `env:"MINIO_USE_SSL"`
-		BucketName      string `env:"MINIO_BUCKET_NAME,required"`
+		BucketName      string `env:"MINIO_BUCKET_NAME"`
 		Region          string `env:"MINIO_REGION,required"`
 		Mocked          bool   `env:"MINIO_MOCKED" default:"false"`
 	}

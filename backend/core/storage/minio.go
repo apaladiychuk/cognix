@@ -18,8 +18,8 @@ type (
 		Endpoint        string `env:"MINIO_ENDPOINT"`
 		UseSSL          bool   `env:"MINIO_USE_SSL"`
 		BucketName      string `env:"MINIO_BUCKET_NAME"`
-		Region          string `env:"MINIO_REGION,required"`
-		Mocked          bool   `env:"MINIO_MOCKED" default:"false"`
+		Region          string `env:"MINIO_REGION"`
+		Mocked          bool   `env:"MINIO_MOCKED" envDefault:"true"`
 	}
 	MinIOClient interface {
 		Upload(ctx context.Context, filename, contentType string, reader io.Reader) (string, string, error)

@@ -82,7 +82,7 @@ export default {
         sans: ['var(--font-sans)'],
       },
       fontSize: {
-        '2sm': '0.75rem',
+        '2sm': '0.85rem',
         '2xs': '0.625rem',
       },
       keyframes: {

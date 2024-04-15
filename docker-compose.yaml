@@ -1,0 +1,14 @@
+services:
+  ui:
+    image: cognix:ui
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    networks:
+      - dev-network
+
+networks:
+  dev-network:
+    external: true

@@ -1,5 +1,5 @@
 export function UserManagementComponent() {
-  return <div>documents explorer</div>;
+  return <div>Config</div>;
 }
 
 export { UserManagementComponent as Component };

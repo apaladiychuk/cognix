@@ -1,5 +1,5 @@
 export function UserManagementComponent() {
-  return <div>model-config LLMs</div>;
+  return <div>LLMs</div>;
 }
 
 export { UserManagementComponent as Component };

@@ -21,7 +21,7 @@ func NewDocumentSetHandler(documentSetBL bll.DocumentSetBL) *DocumentSetHandler 
 }
 
 func (h *DocumentSetHandler) Mount(router *gin.Engine, authMiddleware gin.HandlerFunc) {
-	handler := router.Group("/manage/document_sets").Use(authMiddleware)
+	handler := router.Group("/api/manage/document_sets").Use(authMiddleware)
 	handler.GET("/", server.HandlerErrorFuncAuth(h.GetAll))
 	handler.GET("/:id", server.HandlerErrorFuncAuth(h.GetByID))
 	handler.POST("/", server.HandlerErrorFuncAuth(h.Create))

@@ -19,7 +19,7 @@ func NewPersonaHandler(personaBL bll.PersonaBL) *PersonaHandler {
 	return &PersonaHandler{personaBL: personaBL}
 }
 func (h *PersonaHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
-	handler := route.Group("/manage/personas")
+	handler := route.Group("/api/manage/personas")
 	handler.Use(authMiddleware)
 	handler.GET("/", server.HandlerErrorFuncAuth(h.GetAll))
 	handler.GET("/:id", server.HandlerErrorFuncAuth(h.GetByID))

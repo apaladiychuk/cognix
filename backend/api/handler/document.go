@@ -21,7 +21,7 @@ func NewDocumentHandler(documentBL bll.DocumentBL) *DocumentHandler {
 }
 
 func (h *DocumentHandler) Mount(router *gin.Engine, authMiddleware gin.HandlerFunc) {
-	handler := router.Group("/manage/documents").Use(authMiddleware)
+	handler := router.Group("/api/manage/documents").Use(authMiddleware)
 	handler.GET("/", server.HandlerErrorFuncAuth(h.GetAll))
 	handler.POST("/upload", server.HandlerErrorFuncAuth(h.Upload))
 }

@@ -23,7 +23,7 @@ func NewChatHandler(chatBL bll.ChatBL) *ChatHandler {
 }
 
 func (h *ChatHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
-	handler := route.Group("/chats")
+	handler := route.Group("/api/chats")
 	handler.Use(authMiddleware)
 	handler.GET("/get-user-chat-sessions", server.HandlerErrorFuncAuth(h.GetSessions))
 	handler.GET("/get-chat-session/:id", server.HandlerErrorFuncAuth(h.GetByID))

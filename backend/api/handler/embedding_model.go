@@ -21,7 +21,7 @@ func NewEmbeddingModelHandler(embeddingModelBL bll.EmbeddingModelBL) *EmbeddingM
 }
 
 func (h *EmbeddingModelHandler) Mount(router *gin.Engine, authMiddleware gin.HandlerFunc) {
-	handler := router.Group("/manage/embedding_models").Use(authMiddleware)
+	handler := router.Group("/api/manage/embedding_models").Use(authMiddleware)
 	handler.GET("/", server.HandlerErrorFuncAuth(h.GetAll))
 	handler.GET("/:id", server.HandlerErrorFuncAuth(h.GetByID))
 	handler.POST("/", server.HandlerErrorFuncAuth(h.Create))

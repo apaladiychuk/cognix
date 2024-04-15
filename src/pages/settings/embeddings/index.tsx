@@ -1,5 +1,5 @@
 export function UserManagementComponent() {
-  return <div>custom-assistant slack-bots</div>;
+  return <div>Embeddings</div>;
 }
 
 export { UserManagementComponent as Component };

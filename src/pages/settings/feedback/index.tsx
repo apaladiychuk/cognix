@@ -1,5 +1,5 @@
 export function UserManagementComponent() {
-  return <div>Settings - user</div>;
+  return <div>Feedback</div>;
 }
 
 export { UserManagementComponent as Component };

@@ -18,7 +18,7 @@ func NewCredentialHandler(credentialBl bll.CredentialBL) *CredentialHandler {
 	return &CredentialHandler{credentialBl: credentialBl}
 }
 func (h *CredentialHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
-	handler := route.Group("/manage/credential")
+	handler := route.Group("/api/manage/credential")
 	handler.Use(authMiddleware)
 	handler.GET("/", server.HandlerErrorFunc(h.GetAll))
 	handler.GET("/:id", server.HandlerErrorFunc(h.GetByID))

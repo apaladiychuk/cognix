@@ -24,7 +24,7 @@ func NewTenantHandler(TenantBL bll.TenantBL) *TenantHandler {
 }
 
 func (h *TenantHandler) Mount(route *gin.Engine, TenantMiddleware gin.HandlerFunc) {
-	handler := route.Group("/tenant")
+	handler := route.Group("/api/tenant")
 	handler.Use(TenantMiddleware)
 	handler.GET("/users", server.HandlerErrorFuncAuth(h.GetUserList))
 	handler.POST("/users", server.HandlerErrorFuncAuth(h.AddUser))

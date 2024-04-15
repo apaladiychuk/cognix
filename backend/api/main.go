@@ -18,7 +18,7 @@ import (
 // @in header
 // @name Authorization
 
-// @BasePath /
+// @BasePath /api
 // @query.collection.format multi
 
 func main() {

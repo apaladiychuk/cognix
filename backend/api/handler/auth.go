@@ -38,12 +38,12 @@ func NewAuthHandler(oauthClient oauth.Proxy,
 }
 
 func (h *AuthHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
-	handler := route.Group("/auth")
+	handler := route.Group("/api/auth")
 	handler.GET("/google/login", server.HandlerErrorFunc(h.SignIn))
 	handler.GET("/google/signup", server.HandlerErrorFunc(h.SignUp))
 	handler.GET("/google/callback", server.HandlerErrorFunc(h.Callback))
 	handler.GET("/google/invite", server.HandlerErrorFunc(h.JoinToTenant))
-	adminHandler := route.Group("/auth")
+	adminHandler := route.Group("/api/auth")
 	adminHandler.Use(authMiddleware)
 	adminHandler.POST("/google/invite", server.HandlerErrorFuncAuth(h.Invite))
 }

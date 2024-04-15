@@ -22,7 +22,7 @@ func NewCollectorHandler(connectorRepo repository.ConnectorRepository,
 	}
 }
 func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
-	handler := route.Group("/manage/connector")
+	handler := route.Group("/api/manage/connector")
 	handler.Use(authMiddleware)
 	handler.GET("/", server.HandlerErrorFunc(h.GetAll))
 	handler.GET("/:id", server.HandlerErrorFunc(h.GetById))

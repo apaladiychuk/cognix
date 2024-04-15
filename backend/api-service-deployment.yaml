@@ -40,7 +40,17 @@ spec:
               name: env-configmap
               key: DATABASE_URL
         - name: MINIO_ACCESS_KEY
-          value: "access_key"
+          value: "minioadmin"
+        - name: MINIO_SECRET_ACCESS_KEY
+          value: "minioadmin"         
+        - name: MINIO_ENDPOINT
+          value: "my-release-minio-svc"
+        - name: MINIO_USE_SSL
+          value: false       
+        - name: MINIO_BUCKET_NAME
+          value: "data"        
+        - name: MINIO_REGION
+          value: "CH"                   
         ports:
         - containerPort: 80
         volumeMounts:

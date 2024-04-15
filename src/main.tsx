@@ -9,7 +9,7 @@ const router = createBrowserRouter([
     path: "/",
     children: [
       {
-        path: "login",
+        path: "",
         lazy: () => import("@/pages/login"),
       },
       {

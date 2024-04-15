@@ -74,6 +74,5 @@ func (g *googleProvider) Callback(ctx context.Context, code string) (*IdentityRe
 }
 
 func (g *googleProvider) RefreshToken(token *oauth2.Token) (*oauth2.Token, error) {
-	//TODO implement me
-	panic("implement me")
+	return token, nil
 }

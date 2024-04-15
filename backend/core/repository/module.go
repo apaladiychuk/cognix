@@ -21,5 +21,6 @@ var DatabaseModule = fx.Options(
 		NewDocumentRepository,
 		NewDocumentSetRepository,
 		NewEmbeddingModelRepository,
+		NewTenantRepository,
 	),
 )

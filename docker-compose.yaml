@@ -13,8 +13,9 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - config/.env
       - config/cocroach.env
+      - config/minio.env
+      - config/.env
     volumes:
       - ./backend:/backend
       - "storage_volume:/storage_volume"
@@ -88,6 +89,9 @@ services:
     volumes:
       - minio_data:/minio_data
     command: minio server /minio_data
+    ports:
+      - "35723:35723"
+      - "9000:9000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s

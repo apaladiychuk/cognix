@@ -17,11 +17,31 @@ type ChatBL interface {
 	GetSessionByID(ctx context.Context, user *model.User, id int64) (*model.ChatSession, error)
 	CreateSession(ctx context.Context, user *model.User, param *parameters.CreateChatSession) (*model.ChatSession, error)
 	SendMessage(ctx *gin.Context, user *model.User, param *parameters.CreateChatMessageRequest) (responder.ChatResponder, error)
+	FeedbackMessage(ctx *gin.Context, user *model.User, id int64, vote bool) (*model.ChatMessageFeedback, error)
 }
 type chatBL struct {
 	chatRepo    repository.ChatRepository
 	personaRepo repository.PersonaRepository
 	aiBuilder   *ai.Builder
+}
+
+func (b *chatBL) FeedbackMessage(ctx *gin.Context, user *model.User, id int64, vote bool) (*model.ChatMessageFeedback, error) {
+	message, err := b.chatRepo.GetMessageByIDAndUserID(ctx, id, user.ID)
+	if err != nil {
+		return nil, err
+	}
+	feedback := message.Feedback
+	if feedback == nil {
+		feedback = &model.ChatMessageFeedback{
+			ChatMessageID: message.ID,
+			UserID:        user.ID,
+		}
+	}
+	feedback.UpVotes = vote
+	if err = b.chatRepo.MessageFeedback(ctx, feedback); err != nil {
+		return nil, err
+	}
+	return feedback, nil
 }
 
 func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *parameters.CreateChatMessageRequest) (responder.ChatResponder, error) {

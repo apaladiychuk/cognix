@@ -64,3 +64,25 @@ type UpdateConnectorParam struct {
 	Shared                  bool          `json:"shared,omitempty"`
 	Disabled                bool          `json:"disabled,omitempty"`
 }
+
+type AddUserParam struct {
+	Email string `json:"email"`
+	Role  string `json:"role"`
+}
+
+func (v AddUserParam) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Email, validation.Required, is.Email),
+		validation.Field(&v.Role, validation.Required, validation.In(model.RoleSuperAdmin, model.RoleUser, model.RoleAdmin)),
+	)
+}
+
+type EditUserParam struct {
+	Role string `json:"role"`
+}
+
+func (v EditUserParam) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Role, validation.Required, validation.In(model.RoleSuperAdmin, model.RoleUser, model.RoleAdmin)),
+	)
+}

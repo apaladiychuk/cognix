@@ -34,7 +34,7 @@ func (r *documentRepository) FindByConnectorID(ctx context.Context, user *model.
 }
 
 func (r *documentRepository) Create(ctx context.Context, document ...*model.Document) error {
-	if _, err := r.db.WithContext(ctx).Model(document).Insert(); err != nil {
+	if _, err := r.db.WithContext(ctx).Model(&document).Insert(); err != nil {
 		return utils.Internal.Wrap(err, "can not insert document")
 	}
 	return nil

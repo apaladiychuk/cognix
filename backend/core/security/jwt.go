@@ -18,6 +18,7 @@ type (
 	JWTService interface {
 		Create(claim *Identity) (string, error)
 		ParseAndValidate(string) (*Identity, error)
+		Refresh(refreshToken string) (string, error)
 	}
 	jwtService struct {
 		jwtSecret      string `json:"jwt_secret"`
@@ -32,7 +33,7 @@ func NewJWTService(jwtSecret string, jwtExpiredTime int) JWTService {
 
 func (j *jwtService) Create(identity *Identity) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, identity)
-	identity.ExpiresAt = time.Now().Add(time.Duration(j.jwtExpiredTime)).Unix()
+	//identity.ExpiresAt = time.Now().Add(time.Duration(j.jwtExpiredTime)).Unix()
 	tokenString, err := token.SignedString([]byte(j.jwtSecret))
 	if err != nil {
 		return "", err
@@ -54,4 +55,7 @@ func (j *jwtService) ParseAndValidate(tokenString string) (*Identity, error) {
 	}
 
 	return &identity, nil
+}
+func (j *jwtService) Refresh(refreshToken string) (string, error) {
+	return refreshToken, nil
 }

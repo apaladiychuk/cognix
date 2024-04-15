@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+const (
+	MessageFeedbackUpvote   = "upvote"
+	MessageFeedbackDownvote = "downvote"
+)
+
 type CreateChatSession struct {
 	Description string `json:"description"`
 	PersonaID   int64  `json:"persona_id"`
@@ -42,4 +47,15 @@ type BaseFilters struct {
 	DocumentSet []string           `json:"document_set,omitempty"`
 	TimeCutoff  time.Time          `json:"time_cutoff,omitempty"`
 	Tags        []string           `json:"tags,omitempty"`
+}
+
+type MessageFeedbackParam struct {
+	ID   int64  `json:"id"`
+	Vote string `json:"vote"`
+}
+
+func (v MessageFeedbackParam) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.ID, validation.Required),
+		validation.Field(&v.Vote, validation.Required, validation.In(MessageFeedbackDownvote, MessageFeedbackUpvote)))
 }

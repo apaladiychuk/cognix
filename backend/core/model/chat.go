@@ -27,17 +27,27 @@ type (
 	}
 
 	ChatMessage struct {
-		tableName          struct{}  `pg:"chat_messages"`
-		ID                 int64     `json:"id,omitempty"`
-		ChatSessionID      int64     `json:"chat_session_id,omitempty"`
-		Message            string    `json:"message,omitempty"`
-		MessageType        string    `json:"message_type,omitempty"`
-		TimeSent           time.Time `json:"time_sent,omitempty"`
-		TokenCount         int       `json:"token_count,omitempty" pg:",use_zero"`
-		ParentMessage      int64     `json:"parent_message,omitempty" pg:",use_zero"`
-		LatestChildMessage int       `json:"latest_child_message,omitempty" pg:",use_zero"`
-		RephrasedQuery     string    `json:"rephrased_query,omitempty" pg:",use_zero"`
-		Citations          JSON      `json:"citations,omitempty"`
-		Error              string    `json:"error,omitempty" pg:",use_zero"`
+		tableName          struct{}             `pg:"chat_messages"`
+		ID                 int64                `json:"id,omitempty"`
+		ChatSessionID      int64                `json:"chat_session_id,omitempty"`
+		Message            string               `json:"message,omitempty"`
+		MessageType        string               `json:"message_type,omitempty"`
+		TimeSent           time.Time            `json:"time_sent,omitempty"`
+		TokenCount         int                  `json:"token_count,omitempty" pg:",use_zero"`
+		ParentMessage      int64                `json:"parent_message,omitempty" pg:",use_zero"`
+		LatestChildMessage int                  `json:"latest_child_message,omitempty" pg:",use_zero"`
+		RephrasedQuery     string               `json:"rephrased_query,omitempty" pg:",use_zero"`
+		Citations          JSON                 `json:"citations,omitempty"`
+		Error              string               `json:"error,omitempty" pg:",use_zero"`
+		Feedback           *ChatMessageFeedback `json:"feedback,omitempty" pg:"rel:has-one,fk:id,join_fk:chat_message_id"`
+	}
+
+	ChatMessageFeedback struct {
+		tableName     struct{}  `pg:"chat_message_feedbacks"`
+		ID            int64     `json:"id,omitempty"`
+		ChatMessageID int64     `json:"chat_message_id,omitempty"`
+		UserID        uuid.UUID `json:"user_id,omitempty"`
+		UpVotes       bool      `json:"up_votes,omitempty" pg:",use_zero"`
+		Feedback      string    `json:"feedback,omitempty" pg:",use_zero"`
 	}
 )

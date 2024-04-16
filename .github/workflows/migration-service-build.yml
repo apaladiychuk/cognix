@@ -1,4 +1,4 @@
-name: Build api service
+name: Build migration service
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -37,27 +37,26 @@ jobs:
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
 
-    - name: API Service Image Docker Build and Push
+    - name: Migration Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./backend
-        file: ./backend/Dockerfile
+        context: ./migration
+        file: ./migration/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ env.ACRNAME }}.azurecr.io/cognix/apiservice:${{ github.ref_name }}       
+          ${{ env.ACRNAME }}.azurecr.io/cognix/migrationservice:${{ github.ref_name }}       
         build-args: |
           COGNIX_VERSION=${{ github.ref_name }}
-          service=api
 
-    - name: Login to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Get AKS kubeconfig
-      run: az aks get-credentials --resource-group $RGNAME --name $AKSNAME
-
-    - name: Deploy API server manifests
-      run: |
-        kubectl rollout restart deploy/apiservice         
+#    - name: Login to Azure
+#      uses: azure/login@v1
+#      with:
+#        creds: ${{ secrets.AZURE_CREDENTIALS }}
+#
+#    - name: Get AKS kubeconfig
+#      run: az aks get-credentials --resource-group $RGNAME --name $AKSNAME
+#
+#    - name: Deploy API server manifests
+#      run: |
+#        kubectl rollout restart deploy/apiservice         

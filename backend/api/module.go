@@ -26,7 +26,7 @@ var Module = fx.Options(
 		NewRouter,
 		newGoogleOauthProvider,
 		newJWTService,
-		newStorage,
+		//newStorage,
 		ai.NewBuilder,
 		server.NewAuthMiddleware,
 		handler.NewAuthHandler,

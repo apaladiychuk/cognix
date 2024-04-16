@@ -7,7 +7,6 @@ import (
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
-	"cognix.ch/api/v2/core/storage"
 	"cognix.ch/api/v2/core/utils"
 	"encoding/base64"
 	"encoding/json"
@@ -21,19 +20,19 @@ type AuthHandler struct {
 	oauthClient oauth.Proxy
 	jwtService  security.JWTService
 	authBL      bll.AuthBL
-	storage     storage.Storage
+	//storage     storage.Storage
 }
 
 func NewAuthHandler(oauthClient oauth.Proxy,
 	jwtService security.JWTService,
 	authBL bll.AuthBL,
-	storage storage.Storage,
+	//storage storage.Storage,
 
 ) *AuthHandler {
 	return &AuthHandler{oauthClient: oauthClient,
 		jwtService: jwtService,
 		authBL:     authBL,
-		storage:    storage,
+		//storage:    storage,
 	}
 }
 
@@ -184,20 +183,20 @@ func (h *AuthHandler) Invite(c *gin.Context, identity *security.Identity) error 
 // @Success 200 {object} string
 // @Router /auth/google/invite [get]
 func (h *AuthHandler) JoinToTenant(c *gin.Context) error {
-	param := c.Query("state")
-
-	key, err := base64.URLEncoding.DecodeString(param)
-	if err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong state")
-	}
-	value, err := h.storage.Pull(string(key))
-
-	state := base64.URLEncoding.EncodeToString(value)
-
-	url, err := h.oauthClient.Login(c.Request.Context(), state)
-	if err != nil {
-		return err
-	}
-	c.Redirect(http.StatusFound, url)
+	//param := c.Query("state")
+	//
+	//key, err := base64.URLEncoding.DecodeString(param)
+	//if err != nil {
+	//	return utils.InvalidInput.Wrap(err, "wrong state")
+	//}
+	////value, err := h.storage.Pull(string(key))
+	//
+	//state := base64.URLEncoding.EncodeToString("value")
+	//
+	//url, err := h.oauthClient.Login(c.Request.Context(), state)
+	//if err != nil {
+	//	return err
+	//}
+	//c.Redirect(http.StatusFound, url)
 	return nil
 }

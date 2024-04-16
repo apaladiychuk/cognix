@@ -6,11 +6,9 @@ import (
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/security"
-	"cognix.ch/api/v2/core/storage"
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 )
@@ -26,16 +24,14 @@ type (
 	authBL struct {
 		userRepo    repository.UserRepository
 		redirectURL string
-		storage     storage.Storage
+		//storage     storage.Storage
 	}
 )
 
 func NewAuthBL(userRepo repository.UserRepository,
-	storage storage.Storage,
 	cfg *Config) AuthBL {
 	return &authBL{
 		userRepo:    userRepo,
-		storage:     storage,
 		redirectURL: cfg.RedirectURL,
 	}
 }
@@ -83,18 +79,18 @@ func (a *authBL) Invite(ctx context.Context, identity *security.Identity, param 
 	if exists {
 		return "", utils.InvalidInput.New("user already registered.")
 	}
-	buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.InviteState,
-		Role:     param.Role,
-		Email:    param.Email,
-		TenantID: identity.User.TenantID.String(),
-	})
-	if err != nil {
-		return "", utils.Internal.Wrap(err, "can not marshal payload")
-	}
+	//buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.InviteState,
+	//	Role:     param.Role,
+	//	Email:    param.Email,
+	//	TenantID: identity.User.TenantID.String(),
+	//})
+	//if err != nil {
+	//	return "", utils.Internal.Wrap(err, "can not marshal payload")
+	//}
 	key := uuid.New()
-	if err = a.storage.Save(key.String(), buf); err != nil {
-		return "", err
-	}
+	//if err = a.storage.Save(key.String(), buf); err != nil {
+	//	return "", err
+	//}
 	state := base64.URLEncoding.EncodeToString([]byte(key.String()))
 
 	return fmt.Sprintf("%s/auth/google/invite?state=%s", a.redirectURL, state), nil

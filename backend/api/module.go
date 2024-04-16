@@ -67,9 +67,9 @@ func newJWTService(cfg *Config) security.JWTService {
 	return security.NewJWTService(cfg.JWTSecret, cfg.JWTExpiredTime)
 }
 
-func newStorage(cfg *Config) (storage.Storage, error) {
-	return storage.NewNutsDbStorage(cfg.StoragePath)
-}
+//func newStorage(cfg *Config) (storage.Storage, error) {
+//	return storage.NewNutsDbStorage(cfg.StoragePath)
+//}
 
 func NewRouter() *gin.Engine {
 	router := gin.Default()

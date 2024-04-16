@@ -75,8 +75,11 @@ func NewRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(otelgin.Middleware("service-name"))
 	corsConfig := cors.DefaultConfig()
+
+	corsConfig.CustomSchemas = cors.DefaultSchemas
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowCredentials = true
+	corsConfig.AllowWildcard = true
 	router.Use(cors.New(corsConfig))
 	return router
 }

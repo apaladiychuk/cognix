@@ -16,7 +16,10 @@ spec:
       - name: migrationservice
         image: cognixacr.azurecr.io/cognix/migrationservice:main
         env:
-        - name: DATABASE_URL
-          value: "postgres://root:123@cockroach:26257/defaultdb?sslmode=disable"
+          - name: DATABASE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: env-configmap
+                key: DATABASE_URL
       imagePullSecrets:
         - name: pullsecret

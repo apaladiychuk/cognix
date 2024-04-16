@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: migrationservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: migrationservice
+  template:
+    metadata:
+      labels:
+        app: migrationservice
+    spec:
+      containers:
+      - name: migrationservice
+        image: cognixacr.azurecr.io/cognix/migrationservice:main
+        env:
+        - name: DATABASE_URL
+          value: "postgres://root:123@cockroach:26257/defaultdb?sslmode=disable"
+      imagePullSecrets:
+        - name: pullsecret

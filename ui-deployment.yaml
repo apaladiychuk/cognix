@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ui
+  template:
+    metadata:
+      labels:
+        app: ui
+    spec:
+      containers:
+      - name: ui
+        image: cognixacr.azurecr.io/cognix/ui:main
+        env:
+        - name: PORT
+          value: "5173"
+        ports:
+        - containerPort: 5173
+      imagePullSecrets:
+        - name: pullsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui
+spec:
+  selector:
+    app.kubernetes.io/name: ui
+  ports:
+    - protocol: TCP
+      port: 5173
+      targetPort: 5173

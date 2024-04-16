@@ -26,6 +26,7 @@ func (h *SwaggerHandler) Mount(router *gin.Engine) {
 	///url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	router.GET("/api/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler, url))
 	router.GET("/swagger/docs", server.HandlerErrorFunc(h.GetDoc))
+	router.GET("/api/health", h.Health)
 
 }
 
@@ -41,4 +42,8 @@ func (h *SwaggerHandler) GetDoc(c *gin.Context) error {
 		return utils.NotFound.Wrap(err, "can not parse swagger doc")
 	}
 	return server.JsonResult(c, http.StatusOK, result)
+}
+
+func (h *SwaggerHandler) Health(c *gin.Context) {
+	c.String(http.StatusOK, "ok")
 }

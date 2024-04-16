@@ -10,10 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "autoprefixer": "^10.4.19",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.367.0",
     "path": "^0.12.7",
+    "postcss": "^8.4.38",
+    "radix-ui": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3"
+    "react-router-dom": "^6.22.3",
+    "tailwind-merge": "^2.2.2"
   },
   "devDependencies": {
     "@types/node": "^20.12.6",
@@ -25,7 +32,9 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "tailwindcss": "^3.4.3",
     "typescript": "^5.2.2",
-    "vite": "^5.2.0"
+    "vite": "^5.2.0",
+    "vite-plugin-svgr": "^4.2.0"
   }
 }

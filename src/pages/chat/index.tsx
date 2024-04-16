@@ -1,5 +1,13 @@
-export function ChatComponent() {
-  return <div>Chat</div>;
+import { ChatComponent } from "@/components/chat";
+import { useDocumentTitle } from "@/lib/hooks/use-document-title";
+
+export function Chat() {
+  useDocumentTitle("Chat");
+  return (
+    <div>
+      <ChatComponent />
+    </div>
+  );
 }
 
-export { ChatComponent as Component };
+export { Chat as Component };

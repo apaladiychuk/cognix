@@ -11,7 +11,7 @@ export function LoginComponent() {
       <span className="text-2xl font-bold">Log In to CogniX</span>
       <div className="flex items-center justify-center">
         <Link
-        to={"/chat"}
+        to={`${import.meta.env.VITE_PLATFORM_API_URL}/auth/google/login`}
         >
       <Button
         variant='outline'

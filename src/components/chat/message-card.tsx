@@ -5,13 +5,12 @@ import ThumbUpIcon from "@/assets/svgs/thumb-up.svg?react";
 import ThumbDownIcon from "@/assets/svgs/thumn-down.svg?react";
 import FileWhiteIcon from "@/assets/svgs/file-white-icon.svg?react";
 
-
 export interface MessageProps {
   sender?: string;
   message: string;
   timestamp: string;
   className?: string;
-  sources?: string[];
+  sources?: number[];
 }
 
 const MessageCard: React.FC<MessageProps> = ({
@@ -40,12 +39,12 @@ const MessageCard: React.FC<MessageProps> = ({
         <div className="ml-12">
           <div className="-mt-6 text-muted-foreground">{message}</div>
           <div className="pt-2 font-bold">Sources:</div>
-            {sources?.map((source) => (
-                <div className="inline-flex cursor-pointer items-center mt-1 px-2 py-1 space-x-2 bg-card rounded-lg shadow-md">
-                    <FileWhiteIcon className="w-4 h-4 "/>
-                    <span>{source}</span>
-                </div>
-            ))}
+          {sources?.map((source) => (
+            <div className="inline-flex cursor-pointer items-center mt-1 px-2 py-1 space-x-2 bg-card rounded-lg shadow-md">
+              <FileWhiteIcon className="w-4 h-4 " />
+              <span>{source}</span>
+            </div>
+          ))}
           <div className="flex items-center mt-5 space-x-3 text-muted cursor-pointer">
             <CopyIcon className="w-5 h-5" />
             <ThumbUpIcon className="w-5 h-5" />

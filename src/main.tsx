@@ -2,15 +2,30 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import "@/global.css";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 // import "@fontsource-variable/inter";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
+    lazy: () => import("@/pages/login"),
+  },
+  {
+  path: "/",
+  lazy: () => import("@/pages/platform"),
+  children: [
+    {
+      path: "google/callback",
+      lazy: () => import("@/pages/chat"),
+    },
+  ],
+},
+  {
+    path: "/platform",
     lazy: () => import("@/pages/platform"),
     children: [
       {
-        path: "chat",
+        path: "/platform",
         lazy: () => import("@/pages/chat"),
       },
       {
@@ -54,14 +69,12 @@ const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "/login",
-    lazy: () => import("@/pages/login"),
-  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
+    <GoogleOAuthProvider clientId="935340563200-pfouqrv2u9fh0cp8etnbbnhi1efjfpsi.apps.googleusercontent.com">
     <RouterProvider router={router} />
+    </GoogleOAuthProvider>
   </React.StrictMode>
 );

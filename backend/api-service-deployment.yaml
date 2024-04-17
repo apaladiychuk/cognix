@@ -52,7 +52,7 @@ spec:
         - name: MINIO_REGION
           value: "CH"                   
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         volumeMounts:
         - mountPath: /storage_volume
           name: storage-volume 

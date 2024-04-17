@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -61,6 +62,7 @@ func (h *AuthHandler) SignIn(c *gin.Context) error {
 	if err := c.ShouldBindQuery(&param); err != nil {
 		return utils.InvalidInput.Wrap(err, "wrong redirect url")
 	}
+	zap.S().Infof("redirec to %s", param.RedirectURL)
 	buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.LoginState})
 	if err != nil {
 		return utils.Internal.Wrap(err, "can not marshal payload")

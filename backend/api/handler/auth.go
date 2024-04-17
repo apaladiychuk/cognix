@@ -39,7 +39,7 @@ func NewAuthHandler(oauthClient oauth.Proxy,
 func (h *AuthHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := route.Group("/api/auth")
 	handler.GET("/google/login", server.HandlerErrorFunc(h.SignIn))
-	handler.GET("/google/signup", server.HandlerErrorFunc(h.SignUp))
+	//handler.GET("/google/signup", server.HandlerErrorFunc(h.SignUp))
 	handler.GET("/google/callback", server.HandlerErrorFunc(h.Callback))
 	//handler.GET("/google/invite", server.HandlerErrorFunc(h.JoinToTenant))
 	//adminHandler := route.Group("/api/auth")
@@ -52,16 +52,21 @@ func (h *AuthHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 // @Description login using google auth
 // @Tags Auth
 // @ID auth_login
+// @Param redirect_url query string false "redirect base url"
 // @Produce  json
 // @Success 200 {object} string
 // @Router /auth/google/login [get]
 func (h *AuthHandler) SignIn(c *gin.Context) error {
+	var param parameters.LoginParam
+	if err := c.ShouldBindQuery(&param); err != nil {
+		return utils.InvalidInput.Wrap(err, "wrong redirect url")
+	}
 	buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.LoginState})
 	if err != nil {
 		return utils.Internal.Wrap(err, "can not marshal payload")
 	}
 	state := base64.URLEncoding.EncodeToString(buf)
-	url, err := h.oauthClient.Login(c.Request.Context(), state)
+	url, err := h.oauthClient.Login(c.Request.Context(), param.RedirectURL, state)
 	if err != nil {
 		return err
 	}
@@ -124,28 +129,28 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 	return server.JsonResult(c, http.StatusOK, token)
 }
 
-// SignUp register new user and tenant using google auth
-// @Summary register new user and tenant using google auth
-// @Description register new user and tenant using google auth
-// @Tags Auth
-// @ID auth_signup
-// @Produce  json
-// @Success 200 {object} string
-// @Router /auth/google/signup [get]
-func (h *AuthHandler) SignUp(c *gin.Context) error {
-	buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.SignUpState})
-	if err != nil {
-		return utils.Internal.Wrap(err, "can not marshal payload")
-	}
-
-	state := base64.URLEncoding.EncodeToString(buf)
-	url, err := h.oauthClient.Login(c.Request.Context(), state)
-	if err != nil {
-		return err
-	}
-	c.Redirect(http.StatusFound, url)
-	return nil
-}
+//SignUp register new user and tenant using google auth
+//@Summary register new user and tenant using google auth
+//@Description register new user and tenant using google auth
+//@Tags Auth
+//@ID auth_signup
+//@Produce  json
+//@Success 200 {object} string
+//@Router /auth/google/signup [get]
+//func (h *AuthHandler) SignUp(c *gin.Context) error {
+//	buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.SignUpState})
+//	if err != nil {
+//		return utils.Internal.Wrap(err, "can not marshal payload")
+//	}
+//
+//	state := base64.URLEncoding.EncodeToString(buf)
+//	url, err := h.oauthClient.Login(c.Request.Context(), state)
+//	if err != nil {
+//		return err
+//	}
+//	c.Redirect(http.StatusFound, url)
+//	return nil
+//}
 
 // Invite create invitation for user
 // @Summary create invitation for user

@@ -65,8 +65,7 @@ func (h *AuthHandler) SignIn(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	c.Redirect(http.StatusFound, url)
-	return nil
+	return server.JsonResult(c, http.StatusOK, url)
 }
 
 func (h *AuthHandler) RefreshToken(c *gin.Context) error {

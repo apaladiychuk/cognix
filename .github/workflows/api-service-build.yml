@@ -61,11 +61,11 @@ jobs:
 
     - name: Update API server manifest
       run:
-        sed -ie "s/apiservice:main/apiservice:${{env.GITHUB_SHA}}/g" api-service-deployment.yaml
+        sed -ie "s/apiservice:main/apiservice:${{env.GITHUB_SHA}}/g" ./backend/api-service-deployment.yaml
 
     - name: Deploy API server manifests
       run: |
-        kubectl apply -f api-service-deployment.yaml 
+        kubectl apply -f ./backend/api-service-deployment.yaml 
 
     - name: Delete API server pod
       run: |

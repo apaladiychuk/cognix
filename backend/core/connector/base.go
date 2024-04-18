@@ -14,10 +14,3 @@ type Connector interface {
 type Builder struct {
 	connectorRepo repository.ConnectorRepository
 }
-
-func (b *Builder) New(ctx context.Context, connector *model.Connector) Connector {
-	switch connector.Source {
-	case model.SourceTypeWEB:
-		return NewWeb(connector)
-	}
-}

@@ -6,6 +6,10 @@ import (
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
+type LoginParam struct {
+	RedirectURL string `form:"redirect_url"`
+}
+
 type OAuthParam struct {
 	Action   string `json:"action,omitempty"`
 	TenantID string `json:"tenant_id,omitempty"`
@@ -26,11 +30,11 @@ func (v InviteParam) Validate() error {
 }
 
 type ArchivedParam struct {
-	Archived bool `query:"archived"`
+	Archived bool `form:"archived"`
 }
 type GetAllCredentialsParam struct {
 	ArchivedParam
-	Source string `query:"source"`
+	Source string `form:"source"`
 }
 
 type CreateCredentialParam struct {

@@ -88,7 +88,7 @@ func RunServer(cfg *Config, router *gin.Engine) {
 	srv := http.Server{}
 	srv.Addr = fmt.Sprintf("0.0.0.0:%d", cfg.Port)
 	srv.Handler = router
-	otelzap.S().Infof("Start HTTP server %s ", srv.Addr)
+	otelzap.S().Infof("Start server %s ", srv.Addr)
 	if err := srv.ListenAndServe(); err != nil {
 		otelzap.S().Errorf("HTTP server: %s", err.Error())
 	}

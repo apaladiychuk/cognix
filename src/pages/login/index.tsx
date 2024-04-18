@@ -13,14 +13,13 @@ export function LoginComponent() {
       `${import.meta.env.VITE_PLATFORM_API_URL}/api/auth/google/login?redirect_url=${window.location.origin}`
     ).then( response => {
       if (response.status === 200) {
-        return response.data
-      }
+        const authUrl = response.data;
+        window.location.href = authUrl.data;
+            }
       return ""
     }
     )
-    window.location.href = authUrl.data
-
-}; 
+  }; 
 
   return (
     <>

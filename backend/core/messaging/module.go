@@ -8,7 +8,8 @@ import (
 
 type (
 	Config struct {
-		URL string `env:"NUTS_URL"`
+		URL                 string `env:"NUTS_URL"`
+		ConnectorStreamName string `env:"NUTS_STREAM_NAME" envDefault:"Connector"`
 	}
 	Message struct {
 		Header map[string]string `json:"header"`
@@ -19,7 +20,7 @@ type (
 const (
 	reconnectAttempts = 120
 	reconnectWaitTime = 5 * time.Second
-	channelCapacity   = 16
+	streamMaxPending  = 256
 )
 
 var NutsModule = fx.Options(

@@ -23,7 +23,7 @@ type (
 		GoogleSecret   string `env:"GOOGLE_SECRET"`
 	}
 	Proxy interface {
-		Login(ctx context.Context, state string) (string, error)
+		Login(ctx context.Context, redirectUrl, state string) (string, error)
 		Callback(ctx context.Context, code string) (*IdentityResponse, error)
 		RefreshToken(token *oauth2.Token) (*oauth2.Token, error)
 	}

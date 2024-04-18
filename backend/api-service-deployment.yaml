@@ -23,7 +23,7 @@ spec:
         - name: UI_URL
           value: "http://api:8080/"
         - name: REDIRECT_URL
-          value: "https://rag.cognix.ch"          
+          value: "http://localhost:5173"
         - name: GOOGLE_CLIENT_ID
           valueFrom:
             configMapKeyRef:
@@ -46,7 +46,7 @@ spec:
         - name: MINIO_ENDPOINT
           value: "my-release-minio-svc"
         - name: MINIO_USE_SSL
-          value: false       
+          value: "false"
         - name: MINIO_BUCKET_NAME
           value: "data"        
         - name: MINIO_REGION
@@ -56,7 +56,7 @@ spec:
         volumeMounts:
         - mountPath: /storage_volume
           name: storage-volume 
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
       imagePullSecrets:
         - name: pullsecret
       volumes:

@@ -18,7 +18,8 @@ on:
 env:
   RGNAME: AKS_RG
   ACRNAME: cognixacr
-  AKSNAME: Cognix_AKS  
+  AKSNAME: Cognix_AKS
+  GITHUB_SHA: ${{ github.sha }}
 
 jobs:
   build-and-push:
@@ -46,9 +47,9 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ env.ACRNAME }}.azurecr.io/cognix/migrationservice:${{ github.ref_name }}       
+          ${{ env.ACRNAME }}.azurecr.io/cognix/migrationservice:$GITHUB_SHA
         build-args: |
-          COGNIX_VERSION=${{ github.ref_name }}
+          COGNIX_VERSION=$GITHUB_SHA
 
 #    - name: Login to Azure
 #      uses: azure/login@v1

@@ -469,13 +469,6 @@ definitions:
       url:
         type: string
     type: object
-  parameters.InviteParam:
-    properties:
-      email:
-        type: string
-      role:
-        type: string
-    type: object
   parameters.MessageFeedbackParam:
     properties:
       id:
@@ -566,46 +559,15 @@ info:
   title: Cognix API
   version: "1.0"
 paths:
-  /auth/google/invite:
-    get:
-      description: join user to tenant using invitation link
-      operationId: auth_join_to_team
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: join user to tenant using invitation link
-      tags:
-      - Auth
-    post:
-      description: create invitation for user
-      operationId: auth_invitation
-      parameters:
-      - description: invitation  parameter
-        in: body
-        name: params
-        required: true
-        schema:
-          $ref: '#/definitions/parameters.InviteParam'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: create invitation for user
-      tags:
-      - Auth
   /auth/google/login:
     get:
       description: login using google auth
       operationId: auth_login
+      parameters:
+      - description: redirect base url
+        in: query
+        name: redirect_url
+        type: string
       produces:
       - application/json
       responses:
@@ -614,20 +576,6 @@ paths:
           schema:
             type: string
       summary: login using google auth
-      tags:
-      - Auth
-  /auth/google/signup:
-    get:
-      description: register new user and tenant using google auth
-      operationId: auth_signup
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: register new user and tenant using google auth
       tags:
       - Auth
   /chats/create-chat-session:

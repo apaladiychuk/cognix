@@ -40,14 +40,15 @@ func NewGoogleProvider(cfg *Config, redirectURL string) Proxy {
 			ClientID:     cfg.GoogleClientID,
 			ClientSecret: cfg.GoogleSecret,
 			Endpoint:     google.Endpoint,
-			RedirectURL:  fmt.Sprintf("%s/auth/google/callback", redirectURL),
+			RedirectURL:  fmt.Sprintf("%s/api/auth/google/callback", redirectURL),
 			Scopes: []string{"https://www.googleapis.com/auth/userinfo.email",
 				"https://www.googleapis.com/auth/userinfo.profile"},
 		},
 	}
 }
 
-func (g *googleProvider) Login(ctx context.Context, state string) (string, error) {
+func (g *googleProvider) Login(ctx context.Context, redirectURL, state string) (string, error) {
+	g.config.RedirectURL = fmt.Sprintf("%s/google/callback", redirectURL)
 	return g.config.AuthCodeURL(state), nil
 }
 

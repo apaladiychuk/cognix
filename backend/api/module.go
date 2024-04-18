@@ -26,7 +26,7 @@ var Module = fx.Options(
 		NewRouter,
 		newGoogleOauthProvider,
 		newJWTService,
-		newStorage,
+		//newStorage,
 		ai.NewBuilder,
 		server.NewAuthMiddleware,
 		handler.NewAuthHandler,
@@ -67,25 +67,28 @@ func newJWTService(cfg *Config) security.JWTService {
 	return security.NewJWTService(cfg.JWTSecret, cfg.JWTExpiredTime)
 }
 
-func newStorage(cfg *Config) (storage.Storage, error) {
-	return storage.NewNutsDbStorage(cfg.StoragePath)
-}
+//func newStorage(cfg *Config) (storage.Storage, error) {
+//	return storage.NewNutsDbStorage(cfg.StoragePath)
+//}
 
 func NewRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(otelgin.Middleware("service-name"))
 	corsConfig := cors.DefaultConfig()
+
+	corsConfig.CustomSchemas = cors.DefaultSchemas
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowCredentials = true
+	corsConfig.AllowWildcard = true
 	router.Use(cors.New(corsConfig))
 	return router
 }
 
 func RunServer(cfg *Config, router *gin.Engine) {
 	srv := http.Server{}
-	srv.Addr = fmt.Sprintf(":%d", cfg.Port)
+	srv.Addr = fmt.Sprintf("0.0.0.0:%d", cfg.Port)
 	srv.Handler = router
-	otelzap.S().Infof("Start HTTP server %s ", srv.Addr)
+	otelzap.S().Infof("Start server %s ", srv.Addr)
 	if err := srv.ListenAndServe(); err != nil {
 		otelzap.S().Errorf("HTTP server: %s", err.Error())
 	}

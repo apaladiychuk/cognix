@@ -60,7 +60,7 @@ func (r *chatRepository) GetSessions(ctx context.Context, userID uuid.UUID) ([]*
 	sessions := make([]*model.ChatSession, 0)
 	if err := r.db.WithContext(ctx).Model(&sessions).
 		Where("user_id = ?", userID).
-		Order(" created_date desc").Select(); err != nil {
+		Order("created_date", "desc").Select(); err != nil {
 		return nil, utils.NotFound.Wrapf(err, "can not find sessions")
 	}
 	return sessions, nil

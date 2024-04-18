@@ -3,38 +3,39 @@ import CognixLow from "@/assets/svgs/cognix-sm.svg?react";
 import { useState } from "react";
 import { api } from "@/lib/api";
 
-
 export function LoginComponent() {
   const [error] = useState<string | null>(null); // Updated initial state
 
-
   async function login(): Promise<void> {
-    const authUrl = await api.get(
-      `${import.meta.env.VITE_PLATFORM_API_URL}/api/auth/google/login?redirect_url=${window.location.origin}`
-    ).then( response => {
-      if (response.status === 200) {
-        const authUrl = response.data;
-        window.location.href = authUrl.data;
-            }
-      return ""
-    }
-    )
-  }; 
+    await api
+      .get(
+        `${
+          import.meta.env.VITE_PLATFORM_API_URL
+        }/api/auth/google/login?redirect_url=${window.location.origin}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          const authUrl = response.data;
+          window.location.href = authUrl.data;
+        }
+        return "";
+      });
+  }
 
   return (
     <>
       <div className="flex flex-col items-center justify-center h-screen space-y-5">
-        <CognixLow className="w-20 h-20"/>
+        <CognixLow className="w-20 h-20" />
         <span className="text-2xl font-bold">Log In to CogniX</span>
         <div className="flex items-center justify-center">
           <Button
-            variant='outline'
-            size='xl'
+            variant="outline"
+            size="xl"
             className="shadow-none bg-secondary"
             type="button"
             onClick={() => login()}
-          >       
-          Continue with Google
+          >
+            Continue with Google
           </Button>
         </div>
         {error && <p className="text-red-500">{error}</p>}

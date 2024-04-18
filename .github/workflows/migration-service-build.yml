@@ -17,7 +17,8 @@ on:
 env:
   RGNAME: AKS_RG
   ACRNAME: cognixacr
-  AKSNAME: Cognix_AKS  
+  AKSNAME: Cognix_AKS
+  GITHUB_SHA: ${{ github.sha }}
 
 jobs:
   build-and-push:

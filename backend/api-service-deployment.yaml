@@ -70,7 +70,7 @@ metadata:
   name: api
 spec:
   selector:
-    app.kubernetes.io/name: apiservice
+    app: apiservice
   ports:
     - protocol: TCP
       port: 8080

@@ -2,6 +2,7 @@ package messaging
 
 import (
 	"cognix.ch/api/v2/core/utils"
+	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
 	"time"
 )
@@ -14,6 +15,11 @@ type (
 	Message struct {
 		Header map[string]string `json:"header"`
 		Body   interface{}       `json:"body"`
+	}
+
+	Subscription struct {
+		ch           chan *Message
+		subscription *nats.Subscription
 	}
 )
 

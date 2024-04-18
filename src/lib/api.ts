@@ -53,5 +53,6 @@ axios.interceptors.response.use(
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_PLATFORM_API_URL,
-  timeout: 1000,
+  timeout: 10000,
+  // headers: {"CORS": "Access-Control-Allow-Origin"}
 });

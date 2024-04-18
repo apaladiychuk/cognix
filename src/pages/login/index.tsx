@@ -1,16 +1,12 @@
 import { Button } from "@/components/ui/button";
 import CognixLow from "@/assets/svgs/cognix-sm.svg?react";
 import { useState } from "react";
-import { useGoogleLogin } from '@react-oauth/google';
-import { useLocalStorage } from "@/lib/local-store";
 import { api } from "@/lib/api";
 
 
 export function LoginComponent() {
   const [error] = useState<string | null>(null); // Updated initial state
 
-  const { set } = useLocalStorage()
-  const loginUrl = `${import.meta.env.VITE_PLATFORM_API_URL}/auth/google/login`
 
   async function login(): Promise<void> {
     const authUrl = await api.get(

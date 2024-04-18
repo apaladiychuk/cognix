@@ -1,3 +1,4 @@
+import { ChatComponent } from "@/components/chat";
 import { api } from "@/lib/api";
 import { useLocalStorage } from "@/lib/local-store";
 import { useEffect } from "react";
@@ -23,7 +24,7 @@ function RedirectComponent() {
       }, []);
     
 
-    return <></>
+    return <ChatComponent/>
 }
 
 export { RedirectComponent as Component}

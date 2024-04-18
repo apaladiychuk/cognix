@@ -46,7 +46,7 @@ spec:
         - name: MINIO_ENDPOINT
           value: "my-release-minio-svc"
         - name: MINIO_USE_SSL
-          value: false       
+          value: "false"
         - name: MINIO_BUCKET_NAME
           value: "data"        
         - name: MINIO_REGION

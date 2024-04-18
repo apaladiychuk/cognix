@@ -9,7 +9,7 @@ function RedirectComponent() {
     
     useEffect(() => {
         api.get(
-            `${import.meta.env.VITE_PLATFORM_API_URL}/auth/google/callback?${window.location.href.split("?")[1]}`
+            `${import.meta.env.VITE_PLATFORM_API_URL}/api/auth/google/callback?${window.location.href.split("?")[1]}`
           ).then( response => {
             if (response.status === 200) {
               response.data

@@ -10,7 +10,7 @@ export function LoginComponent() {
 
   async function login(): Promise<void> {
     const authUrl = await api.get(
-      `${import.meta.env.VITE_PLATFORM_API_URL}/auth/google/login?redirect_url=http://localhost:5173`
+      `${import.meta.env.VITE_PLATFORM_API_URL}/api/auth/google/login?redirect_url=http://localhost:5173`
     ).then( response => {
       if (response.status === 200) {
         return response.data

@@ -22,18 +22,8 @@ export function LoginComponent() {
       return ""
     }
     )
-    setTimeout(()=> {window.location.href = authUrl.data}, 6000)
+    window.location.href = authUrl.data
 
-
-    // const accessToken = await api.get(
-    //   `${import.meta.env.VITE_PLATFORM_API_URL}/auth/google/login?redirect_url=http://localhost:5173`
-    // ).then( response => {
-    //   if (response.status === 200) {
-    //     return response.data
-    //   }
-    //   return ""
-    // }
-    // )
 }; 
 
   return (

@@ -5,7 +5,7 @@ services:
       context: ./backend
       args:
         service: api
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     environment:
       PORT: 8080
       STORAGE_PATH: /storage_volume/data
@@ -130,3 +130,4 @@ volumes:
 networks:
   dev-network:
     driver: bridge
+    name: dev-network

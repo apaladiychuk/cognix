@@ -18,62 +18,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/google/invite": {
-            "get": {
-                "description": "join user to tenant using invitation link",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "join user to tenant using invitation link",
-                "operationId": "auth_join_to_team",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "create invitation for user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "create invitation for user",
-                "operationId": "auth_invitation",
-                "parameters": [
-                    {
-                        "description": "invitation  parameter",
-                        "name": "params",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/parameters.InviteParam"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/google/login": {
             "get": {
                 "description": "login using google auth",
@@ -85,27 +29,14 @@ const docTemplate = `{
                 ],
                 "summary": "login using google auth",
                 "operationId": "auth_login",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "redirect base url",
+                        "name": "redirect_url",
+                        "in": "query"
                     }
-                }
-            }
-        },
-        "/auth/google/signup": {
-            "get": {
-                "description": "register new user and tenant using google auth",
-                "produces": [
-                    "application/json"
                 ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "register new user and tenant using google auth",
-                "operationId": "auth_signup",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1871,17 +1802,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "parameters.InviteParam": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "role": {
                     "type": "string"
                 }
             }

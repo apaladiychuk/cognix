@@ -23,7 +23,7 @@ spec:
         - name: UI_URL
           value: "http://api:8080/"
         - name: REDIRECT_URL
-          value: "https://rag.cognix.ch"          
+          value: "http://localhost:5173"
         - name: GOOGLE_CLIENT_ID
           valueFrom:
             configMapKeyRef:

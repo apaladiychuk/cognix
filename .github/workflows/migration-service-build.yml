@@ -13,7 +13,8 @@ on:
   push:
     branches:
       - main
-
+    paths:
+      - migration
 env:
   RGNAME: AKS_RG
   ACRNAME: cognixacr

@@ -16,7 +16,7 @@ export const router = createBrowserRouter([
   children: [
     {
       path: "google/callback",
-      lazy: () => import("@/pages/chat"),
+      lazy: () => import("@/pages/login/redirect"),
     },
   ],
 },
@@ -73,8 +73,8 @@ export const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId="935340563200-pfouqrv2u9fh0cp8etnbbnhi1efjfpsi.apps.googleusercontent.com">
+    {/* <GoogleOAuthProvider clientId="935340563200-pfouqrv2u9fh0cp8etnbbnhi1efjfpsi.apps.googleusercontent.com"> */}
     <RouterProvider router={router} />
-    </GoogleOAuthProvider>
+    {/* </GoogleOAuthProvider> */}
   </React.StrictMode>
 );

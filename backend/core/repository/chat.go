@@ -25,8 +25,8 @@ func (r *chatRepository) GetMessageByIDAndUserID(ctx context.Context, id int64, 
 	var message model.ChatMessage
 	if err := r.db.Model(&message).
 		Relation("Feedback").
-		Join("inner join chat_sessions on chat_sessions.id = chat_messages.session_id and chat_session.user_id = ?", userID).
-		Where("chat_messages.id = ?", id).First(); err != nil {
+		Join("inner join chat_sessions on chat_sessions.id = chat_message.chat_session_id and chat_sessions.user_id = ?", userID).
+		Where("chat_message.id = ?", id).First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "cannot find message by id")
 	}
 	return &message, nil
@@ -73,7 +73,9 @@ func (r *chatRepository) GetSessionByID(ctx context.Context, userID uuid.UUID, i
 		Where("chat_session.id = ?", id).
 		Relation("Persona").
 		Relation("Persona.LLM").
-		Relation("Messages").First(); err != nil {
+		Relation("Messages").
+		Relation("Messages.Feedback").
+		First(); err != nil {
 		return nil, utils.NotFound.Wrapf(err, "can not find session")
 	}
 	return &session, nil

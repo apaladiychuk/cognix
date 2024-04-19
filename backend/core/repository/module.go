@@ -12,6 +12,11 @@ var DatabaseModule = fx.Options(
 		return &cfg, err
 	},
 		NewDatabase,
+	),
+)
+
+var RepositoriesModule = fx.Options(
+	fx.Provide(
 		NewUserRepository,
 		NewCredentialRepository,
 		NewConnectorRepository,

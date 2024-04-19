@@ -58,7 +58,7 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 }
 
 func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateConnectorParam) (*model.Connector, error) {
-	connector, err := c.connectorRepo.GetByID(ctx, user.TenantID, user.ID, id)
+	connector, err := c.connectorRepo.GetByIDAndUser(ctx, user.TenantID, user.ID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -93,5 +93,5 @@ func (c *connectorBL) GetAll(ctx context.Context, user *model.User) ([]*model.Co
 }
 
 func (c *connectorBL) GetByID(ctx context.Context, user *model.User, id int64) (*model.Connector, error) {
-	return c.connectorRepo.GetByID(ctx, user.TenantID, user.ID, id)
+	return c.connectorRepo.GetByIDAndUser(ctx, user.TenantID, user.ID, id)
 }

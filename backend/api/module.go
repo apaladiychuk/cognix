@@ -20,6 +20,7 @@ import (
 
 var Module = fx.Options(
 	repository.DatabaseModule,
+	repository.RepositoriesModule,
 	bll.BLLModule,
 	storage.MinioModule,
 	fx.Provide(ReadConfig,

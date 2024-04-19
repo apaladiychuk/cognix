@@ -12,7 +12,8 @@ import (
 type (
 	ConnectorRepository interface {
 		GetAll(ctx context.Context, tenantID, userID uuid.UUID) ([]*model.Connector, error)
-		GetByID(ctx context.Context, tenantID, userID uuid.UUID, id int64) (*model.Connector, error)
+		GetByIDAndUser(ctx context.Context, tenantID, userID uuid.UUID, id int64) (*model.Connector, error)
+		GetByID(ctx context.Context, id int64) (*model.Connector, error)
 		GetBySource(ctx context.Context, tenantID, userID uuid.UUID, source model.SourceType) (*model.Connector, error)
 		Create(ctx context.Context, connector *model.Connector) error
 		Update(ctx context.Context, connector *model.Connector) error
@@ -53,7 +54,7 @@ func (r *connectorRepository) GetAll(ctx context.Context, tenantID, userID uuid.
 	return connectors, nil
 }
 
-func (r *connectorRepository) GetByID(ctx context.Context, tenantID, userID uuid.UUID, id int64) (*model.Connector, error) {
+func (r *connectorRepository) GetByIDAndUser(ctx context.Context, tenantID, userID uuid.UUID, id int64) (*model.Connector, error) {
 	var connector model.Connector
 	if err := r.db.WithContext(ctx).Model(&connector).
 		Where("tenant_id = ?", tenantID).
@@ -62,6 +63,16 @@ func (r *connectorRepository) GetByID(ctx context.Context, tenantID, userID uuid
 			return query.WhereOr("user_id = ?", userID).
 				WhereOr("shared = ?", true), nil
 		}).First(); err != nil {
+		return nil, utils.NotFound.Wrap(err, "can not load connector")
+	}
+	return &connector, nil
+}
+
+func (r *connectorRepository) GetByID(ctx context.Context, id int64) (*model.Connector, error) {
+	var connector model.Connector
+	if err := r.db.WithContext(ctx).Model(&connector).
+		Where("id = ?", id).
+		First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "can not load connector")
 	}
 	return &connector, nil

@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { ChatMessage } from "@/models/chat";
 
-
 export function ChatComponent() {
   const [messages, setMessages] = useState<ChatMessage[]>();
 

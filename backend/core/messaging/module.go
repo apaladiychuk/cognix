@@ -1,6 +1,7 @@
 package messaging
 
 import (
+	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/utils"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
@@ -14,7 +15,7 @@ type (
 	}
 	Message struct {
 		Header map[string]string `json:"header"`
-		Body   interface{}       `json:"body"`
+		Body   model.JSONMap     `json:"body"`
 	}
 
 	Subscription struct {

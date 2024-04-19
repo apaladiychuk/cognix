@@ -32,6 +32,9 @@ const (
 	SourceTypeZendesk        SourceType = "zendesk"
 	SourceTypeLoopio         SourceType = "loopio"
 	SourceTypeSharepoint     SourceType = "sharepoint"
+
+	CollectionTenant = "tenant:%s"
+	CollectionUser   = "user:%s"
 )
 
 type SourceType string

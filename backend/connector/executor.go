@@ -3,7 +3,6 @@ package main
 import (
 	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
-	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/repository"
 	"context"
 	"go.opentelemetry.io/otel"
@@ -17,13 +16,6 @@ type executor struct {
 	streamClient  messaging.Client
 }
 
-func (e *executor) New(ctx context.Context, connectorModel *model.Connector) Connector {
-	switch connectorModel.Source {
-	case model.SourceTypeWEB:
-		return connector.NewWeb(connectorModel)
-	}
-}
-
 func (e *executor) run(ctx context.Context) error {
 	ch, err := e.streamClient.Listen(TopicExecutor)
 	if err != nil {
@@ -31,7 +23,10 @@ func (e *executor) run(ctx context.Context) error {
 	}
 	select {
 	case msg := <-ch:
-
+		_, err = e.runConnector(ctx, msg)
+		if err != nil {
+			return err
+		}
 	case <-ctx.Done():
 		return ctx.Err()
 
@@ -39,7 +34,27 @@ func (e *executor) run(ctx context.Context) error {
 
 }
 
-func runConnector(msg *messaging.Message) (context.Context, error) {
-	ctx := context.Background()
-	otel.GetTextMapPropagator().Extract(ctx, &propagation.MapCarrier{})
+func (e *executor) runConnector(ctx context.Context, msg *messaging.Message) (context.Context, error) {
+	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
+	var trigger connector.Trigger
+	if err := msg.Body.ToStruct(&trigger); err != nil {
+		return ctx, err
+	}
+	connectorModel, err := e.connectorRepo.GetByID(ctx, trigger.ID)
+	if err != nil {
+		return ctx, err
+	}
+	connectorWF, err := connector.New(connectorModel)
+	if err != nil {
+		return ctx, err
+	}
+	return ctx, connectorWF.Execute(ctx, trigger.Params)
+}
+
+func NewExecutor(connectorRepo repository.ConnectorRepository,
+	streamClient messaging.Client) *executor {
+	return &executor{
+		connectorRepo: connectorRepo,
+		streamClient:  streamClient,
+	}
 }

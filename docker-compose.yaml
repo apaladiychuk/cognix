@@ -5,7 +5,7 @@ services:
       context: ./backend
       args:
         service: api
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     environment:
       PORT: 8080
       STORAGE_PATH: /storage_volume/data

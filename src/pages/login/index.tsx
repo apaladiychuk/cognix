@@ -9,7 +9,9 @@ export function LoginComponent() {
   function login(): void {
     axios
       .get(
-        `${import.meta.env.VITE_PLATFORM_API_LOGIN_URL}?redirect_url=${window.location.origin}`,
+        `${import.meta.env.VITE_PLATFORM_API_LOGIN_URL}?redirect_url=${
+          window.location.origin
+        }`
       )
       .then((response) => {
         if (response.status === 200) {

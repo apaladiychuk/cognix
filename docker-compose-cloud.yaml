@@ -1,0 +1,9 @@
+services:
+  ui:
+    image: cognix:ui
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+#    ports:
+#      - "5173:5173"
+    network_mode: host

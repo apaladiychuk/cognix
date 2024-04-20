@@ -18,7 +18,7 @@ export function ApplicationRoot() {
           />
         </div>
         <div className="flex flex-col flex-grow w-full align-center justify-center bg-background m-5 rounded-md">
-        <Outlet/>
+          <Outlet />
         </div>
       </div>
     </div>

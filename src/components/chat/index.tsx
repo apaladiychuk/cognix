@@ -5,18 +5,17 @@ import FileIcon from "@/assets/svgs/file-icon.svg?react";
 import { Card } from "../ui/card";
 import MessageCard from "./message-card";
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { ChatMessage } from "@/models/chat";
-import { api } from "@/lib/api";
 
 export function ChatComponent() {
   const [messages, setMessages] = useState<ChatMessage[]>();
 
-  function getMessages(): void {
-    // Assuming the return type is void, adjust as needed
-    api
-      .get("/chats/get-user-chat-sessions")
+  async function getMessages(): Promise<void> {
+    await axios
+      .get(`/api/chats/get-user-chat-sessions`)
       .then(function (response) {
-        setMessages(response.data);
+        setMessages(response.data.data);
       })
       .catch(function (error) {
         setMessages([]);

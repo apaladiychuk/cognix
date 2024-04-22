@@ -27,6 +27,7 @@ func (h *TenantHandler) Mount(route *gin.Engine, TenantMiddleware gin.HandlerFun
 	handler := route.Group("/api/tenant")
 	handler.Use(TenantMiddleware)
 	handler.GET("/users", server.HandlerErrorFuncAuth(h.GetUserList))
+	handler.GET("/user_info", server.HandlerErrorFuncAuth(h.GetUserInfo))
 	handler.POST("/users", server.HandlerErrorFuncAuth(h.AddUser))
 	handler.PUT("/users/:id", server.HandlerErrorFuncAuth(h.EditUser))
 }
@@ -109,4 +110,17 @@ func (h *TenantHandler) EditUser(c *gin.Context, identity *security.Identity) er
 		return err
 	}
 	return server.JsonResult(c, http.StatusOK, user)
+}
+
+// GetUserInfo get user info
+// @Summary  get user info
+// @Description  get user info
+// @Tags Tenant
+// @ID tenant_get_user_info
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} model.User
+// @Router /tenant/user_info [get]
+func (h *TenantHandler) GetUserInfo(c *gin.Context, identity *security.Identity) error {
+	return server.JsonResult(c, http.StatusOK, identity.User)
 }

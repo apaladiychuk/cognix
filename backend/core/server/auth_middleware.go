@@ -1,6 +1,7 @@
 package server
 
 import (
+	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/utils"
 	"context"
@@ -14,10 +15,13 @@ const ContextParamUser = "CONTEXT_USER"
 
 type AuthMiddleware struct {
 	jwtService security.JWTService
+	userRepo   repository.UserRepository
 }
 
-func NewAuthMiddleware(jwtService security.JWTService) *AuthMiddleware {
-	return &AuthMiddleware{jwtService: jwtService}
+func NewAuthMiddleware(jwtService security.JWTService,
+	userRepo repository.UserRepository) *AuthMiddleware {
+	return &AuthMiddleware{jwtService: jwtService,
+		userRepo: userRepo}
 }
 
 func (m *AuthMiddleware) RequireAuth(c *gin.Context) {
@@ -51,6 +55,11 @@ func (m *AuthMiddleware) RequireAuth(c *gin.Context) {
 		return
 	}
 
+	if claims.User, err = m.userRepo.GetByIDAndTenantID(c.Request.Context(), claims.User.ID, claims.User.TenantID); err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		c.Abort()
+		return
+	}
 	c.Request = c.Request.WithContext(context.WithValue(
 		c.Request.Context(), ContextParamUser, claims))
 	c.Next()

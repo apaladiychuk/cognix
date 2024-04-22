@@ -9,13 +9,13 @@ const (
 )
 
 type User struct {
-	ID         uuid.UUID   `json:"id"`
-	TenantID   uuid.UUID   `json:"tenant_id"`
-	UserName   string      `json:"user_name"`
-	FirstName  string      `json:"first_name"`
-	LastName   string      `json:"last_name"`
+	ID         uuid.UUID   `json:"id,omitempty"`
+	TenantID   uuid.UUID   `json:"tenant_id,omitempty"`
+	UserName   string      `json:"user_name,omitempty"`
+	FirstName  string      `json:"first_name,omitempty"`
+	LastName   string      `json:"last_name,omitempty"`
 	ExternalID string      `json:"-"`
-	Roles      StringSlice `json:"roles" pg:",array"`
+	Roles      StringSlice `json:"roles,omitempty" pg:",array"`
 	Tenant     *Tenant     `json:"tenant,omitempty" pg:"rel:has-one"`
 }
 

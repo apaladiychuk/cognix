@@ -13,7 +13,7 @@ export function ChatComponent() {
 
   async function getMessages(): Promise<void> {
     await axios
-      .get(`/api/chats/get-user-chat-sessions`)
+      .get(import.meta.env.VITE_PLATFORM_API_CHAT_LIST_URL)
       .then(function (response) {
         setMessages(response.data.data);
       })

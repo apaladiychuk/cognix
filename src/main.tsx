@@ -10,16 +10,6 @@ export const router = createBrowserRouter([
     lazy: () => import("@/pages/login"),
   },
   {
-    path: "/",
-    lazy: () => import("@/pages/platform"),
-    children: [
-      {
-        path: "google/callback",
-        lazy: () => import("@/pages/login/redirect"),
-      },
-    ],
-  },
-  {
     path: "/platform",
     lazy: () => import("@/pages/platform"),
     children: [
@@ -59,7 +49,7 @@ export const router = createBrowserRouter([
           {
             path: "users",
             lazy: () => import("@/pages/settings/users"),
-          },
+          },          
           {
             path: "config",
             lazy: () => import("@/pages/settings/config"),

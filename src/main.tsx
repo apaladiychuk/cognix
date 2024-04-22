@@ -11,7 +11,6 @@ export const router = createBrowserRouter([
   },
   {
     path: "/",
-    lazy: () => import("@/pages/platform"),
     children: [
       {
         path: "google/callback",

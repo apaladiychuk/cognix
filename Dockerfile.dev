@@ -11,6 +11,8 @@ WORKDIR /react-ui
 
 COPY . .
 
+COPY .env.example .env
+
 # Build the project and copy the files
 RUN npm run build
 

@@ -1,25 +1,25 @@
 import { Button } from "@/components/ui/button";
 import CognixLow from "@/assets/svgs/cognix-sm.svg?react";
 import { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 
 export function LoginComponent() {
   const [error] = useState<string | null>(null); // Updated initial state
 
-  function login(): void {
-    axios
-      .get(
-        `${import.meta.env.VITE_PLATFORM_API_LOGIN_URL}?redirect_url=${
-          window.location.origin
-        }`
-      )
-      .then((response) => {
-        if (response.status === 200) {
-          const authUrl = response.data;
-          window.location.href = authUrl.data;
-        }
-      });
-  }
+  // function login(): void {
+  //   axios
+  //     .get(
+  //       `${import.meta.env.VITE_PLATFORM_API_LOGIN_URL}?redirect_url=${
+  //         window.location.origin
+  //       }`
+  //     )
+  //     .then((response) => {
+  //       if (response.status === 200) {
+  //         const authUrl = response.data;
+  //         window.location.href = authUrl.data;
+  //       }
+  //     });
+  // }
 
   return (
     <>
@@ -32,7 +32,7 @@ export function LoginComponent() {
             size="xl"
             className="shadow-none bg-secondary"
             type="button"
-            onClick={() => login()}
+            onClick={() =>  console.log("Log in")}
           >
             Continue with Google
           </Button>

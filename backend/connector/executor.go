@@ -21,17 +21,18 @@ func (e *executor) run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	select {
-	case msg := <-ch:
-		_, err = e.runConnector(ctx, msg)
-		if err != nil {
-			return err
+	for {
+		select {
+		case msg := <-ch:
+			_, err = e.runConnector(ctx, msg)
+			if err != nil {
+				return err
+			}
+		case <-ctx.Done():
+			return ctx.Err()
 		}
-	case <-ctx.Done():
-		return ctx.Err()
-
 	}
-
+	return nil
 }
 
 func (e *executor) runConnector(ctx context.Context, msg *messaging.Message) (context.Context, error) {

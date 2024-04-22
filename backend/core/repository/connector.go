@@ -11,7 +11,8 @@ import (
 
 type (
 	ConnectorRepository interface {
-		GetAll(ctx context.Context, tenantID, userID uuid.UUID) ([]*model.Connector, error)
+		GetActive(ctx context.Context) ([]*model.Connector, error)
+		GetAllByUser(ctx context.Context, tenantID, userID uuid.UUID) ([]*model.Connector, error)
 		GetByIDAndUser(ctx context.Context, tenantID, userID uuid.UUID, id int64) (*model.Connector, error)
 		GetByID(ctx context.Context, id int64) (*model.Connector, error)
 		GetBySource(ctx context.Context, tenantID, userID uuid.UUID, source model.SourceType) (*model.Connector, error)
@@ -41,7 +42,7 @@ func NewConnectorRepository(db *pg.DB) ConnectorRepository {
 	return &connectorRepository{db: db}
 }
 
-func (r *connectorRepository) GetAll(ctx context.Context, tenantID, userID uuid.UUID) ([]*model.Connector, error) {
+func (r *connectorRepository) GetAllByUser(ctx context.Context, tenantID, userID uuid.UUID) ([]*model.Connector, error) {
 	connectors := make([]*model.Connector, 0)
 	if err := r.db.WithContext(ctx).Model(&connectors).
 		Where("tenant_id = ?", tenantID).
@@ -90,4 +91,15 @@ func (r *connectorRepository) Update(ctx context.Context, connector *model.Conne
 		return utils.Internal.Wrap(err, "can not update connector")
 	}
 	return nil
+}
+
+func (r *connectorRepository) GetActive(ctx context.Context) ([]*model.Connector, error) {
+	connectors := make([]*model.Connector, 0)
+	if err := r.db.WithContext(ctx).
+		Model(&connectors).
+		Where("disabled = false").Select(); err != nil {
+		return nil, utils.Internal.Wrap(err, "can not load connectors")
+	}
+	return connectors, nil
+
 }

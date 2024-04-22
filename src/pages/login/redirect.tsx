@@ -1,30 +1,32 @@
-import { ChatComponent } from "@/components/chat";
-import { api } from "@/lib/api";
 import { useLocalStorage } from "@/lib/local-store";
+import { router } from "@/main";
+import axios from "axios";
 import { useEffect } from "react";
 
-const { set } = useLocalStorage()
-
 function RedirectComponent() {
-    
-    useEffect(() => {
-        api.get(
-            `${import.meta.env.VITE_PLATFORM_API_URL}/api/auth/google/callback?${window.location.href.split("?")[1]}`
-          ).then( response => {
-            if (response.status === 200) {
-              response.data
-              set("access_token", response.data.data)
-            }
-            return ""
-          }
-        ).catch( e => {
-            console.log(e)
-        }
-        )
-      }, []);
-    
+  const { set } = useLocalStorage();
 
-    return <ChatComponent/>
+  useEffect(() => {
+    axios
+      .get(
+        `${import.meta.env.VITE_PLATFORM_API_LOGIN_CALLBACK_URL}?${
+          window.location.href.split("?")[1]
+        }`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response.data);
+          set("access_token", response.data.data);
+        }
+        router.navigate("/platform");
+        return "";
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }, []);
+
+  return <></>;
 }
 
-export { RedirectComponent as Component}
+export { RedirectComponent as Component };

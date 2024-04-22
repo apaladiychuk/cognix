@@ -1,5 +1,5 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -10,6 +10,6 @@ export function capitalize(str: string) {
 }
 
 export const virtuosoClassName = cn(
-  '[&::-webkit-scrollbar]:bg-transparent [&::-webkit-scrollbar]:w-2',
-  '[&::-webkit-scrollbar-thumb]:dark:bg-muted [&::-webkit-scrollbar-thumb]:bg-muted-foreground/40 [&::-webkit-scrollbar-thumb]:rounded'
+  "[&::-webkit-scrollbar]:bg-transparent [&::-webkit-scrollbar]:w-2",
+  "[&::-webkit-scrollbar-thumb]:dark:bg-muted [&::-webkit-scrollbar-thumb]:bg-muted-foreground/40 [&::-webkit-scrollbar-thumb]:rounded"
 );

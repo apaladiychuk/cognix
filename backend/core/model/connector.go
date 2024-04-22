@@ -58,4 +58,5 @@ type Connector struct {
 	CreatedDate             time.Time   `json:"created_date,omitempty"`
 	UpdatedDate             pg.NullTime `json:"updated_date,omitempty" pg:",use_zero"`
 	DeletedDate             pg.NullTime `json:"deleted_date,omitempty" pg:",use_zero"`
+	Credential              *Credential `json:"credential,omitempty" pg:"rel:has-one,fk:credential_id"`
 }

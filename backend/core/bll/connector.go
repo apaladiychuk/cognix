@@ -89,7 +89,7 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 }
 
 func (c *connectorBL) GetAll(ctx context.Context, user *model.User) ([]*model.Connector, error) {
-	return c.connectorRepo.GetAll(ctx, user.TenantID, user.ID)
+	return c.connectorRepo.GetAllByUser(ctx, user.TenantID, user.ID)
 }
 
 func (c *connectorBL) GetByID(ctx context.Context, user *model.User, id int64) (*model.Connector, error) {

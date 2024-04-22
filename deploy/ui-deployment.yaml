@@ -18,10 +18,10 @@ spec:
         imagePullPolicy: Always
         env:
         - name: PORT
-          value: "5173"
+          value: "80"
         - name: VITE_PLATFORM_API_URL
           value: https://rag.cognix.ch          
         ports:
-        - containerPort: 5173
+        - containerPort: 80
       imagePullSecrets:
         - name: pullsecret

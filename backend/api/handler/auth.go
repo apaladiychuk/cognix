@@ -122,7 +122,9 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 	identity := &security.Identity{
 		AccessToken:  response.AccessToken,
 		RefreshToken: response.RefreshToken,
-		User:         user,
+		User: &model.User{ID: user.ID,
+			TenantID: user.TenantID,
+		},
 	}
 	token, err := h.jwtService.Create(identity)
 	if err != nil {

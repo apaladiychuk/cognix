@@ -1183,6 +1183,22 @@ paths:
       summary: update persona
       tags:
       - Persona
+  /tenant/user_info:
+    get:
+      description: get user info
+      operationId: tenant_get_user_info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      security:
+      - ApiKeyAuth: []
+      summary: get user info
+      tags:
+      - Tenant
   /tenant/users:
     get:
       description: return list of users

@@ -9,15 +9,13 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 )
 
-const TopicExecutor = "executor"
-
 type executor struct {
 	connectorRepo repository.ConnectorRepository
 	streamClient  messaging.Client
 }
 
 func (e *executor) run(ctx context.Context) error {
-	ch, err := e.streamClient.Listen(TopicExecutor)
+	ch, err := e.streamClient.Listen(connector.TopicExecutor)
 	if err != nil {
 		return err
 	}
@@ -57,5 +55,6 @@ func NewExecutor(connectorRepo repository.ConnectorRepository,
 	return &executor{
 		connectorRepo: connectorRepo,
 		streamClient:  streamClient,
+		tracer:        otel.Tracer("connector"),
 	}
 }

@@ -7,6 +7,11 @@ import (
 	"fmt"
 )
 
+const (
+	TopicExecutor   = "executor"
+	ConnectorTracer = "connector"
+)
+
 type Base struct {
 	collectionName string
 	model          *model.Connector

@@ -1,5 +1,5 @@
 
-interface JSONMap {
+export interface JSONMap {
     [key: string]: any;
   }
 

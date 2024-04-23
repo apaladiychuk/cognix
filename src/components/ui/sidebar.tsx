@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, PlusCircle } from "lucide-react";
 import Cognix from "@/assets/svgs/cognix.svg?react";
@@ -12,7 +12,8 @@ import EmbeddingIcon from "@/assets/svgs/embedding.svg?react";
 import UsersIcon from "@/assets/svgs/users.svg?react";
 import ConfigIcon from "@/assets/svgs/config.svg?react";
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import { AuthContext } from "@/context/AuthContext";
 
 export interface SideBarProps {
   isSideBarOpen: boolean;
@@ -23,76 +24,56 @@ const SideBar: React.FC<SideBarProps> = ({
   isSideBarOpen,
   setIsSideBarOpen,
 }) => {
-  const chats = [
-    {
-      id: 1,
-      text: "WPF Textbox Data Bind",
-    },
-    {
-      id: 2,
-      text: "Enabling “Get Attention”",
-    },
-    {
-      id: 3,
-      text: "Gen AI server role in Da",
-    },
-    {
-      id: 4,
-      text: "Collaboard “Get Attention”",
-    },
-    {
-      id: 5,
-      text: "Enabling “Get Attention”",
-    },
-  ];
-
   const settings = [
     {
       id: 1,
       text: "Connectors",
       icon: <ConnectorsIcon className="h-4 w-4" />,
-      link: "/platform/settings/connectors/existing-connectors",
+      link: "/settings/connectors/existing-connectors",
     },
     {
       id: 2,
       text: "Feedback",
       icon: <FeedbackIcon className="h-4 w-4" />,
-      link: "/platform/settings/feedback",
+      link: "/settings/feedback",
     },
     {
       id: 3,
       text: "LLMs",
       icon: <LLMIcon className="h-4 w-4" />,
-      link: "/platform/settings/llms",
+      link: "/settings/llms",
     },
     {
       id: 4,
       text: "Embeddings",
       icon: <EmbeddingIcon className="h-4 w-4" />,
-      link: "/platform/settings/embeddings",
+      link: "/settings/embeddings",
     },
     {
       id: 5,
       text: "Users",
       icon: <UsersIcon className="h-4 w-4" />,
-      link: "/platform/settings/users",
+      link: "/settings/users",
     },
     {
       id: 6,
       text: "Config Map",
       icon: <ConfigIcon className="h-4 w-4" />,
-      link: "/platform/settings/config",
+      link: "/settings/config",
     },
   ];
 
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const { firstName, lastName, chats } = useContext(AuthContext);
 
   return isSideBarOpen ? (
     <div className="ml-2 mr-2 space-y-5">
       <div className="space-y-9">
         <div className="flex items-center mt-8 space-x-3">
-          <Cognix className="h-10" />
+          <Link to={"/"}>
+            <Cognix className="h-10" />
+          </Link>
           <SideBarIcon
             className="cursor-pointer"
             onClick={() => {
@@ -133,7 +114,11 @@ const SideBar: React.FC<SideBarProps> = ({
               to={`/platform`}
               className="flex flex-row items-center"
             >
-              <span className="truncate">{chat.text}</span>
+              <span className="truncate">
+                {chat.messages.length > 0
+                  ? chat.messages[chat.messages.length - 1].message
+                  : ""}
+              </span>
             </NavLink>
           ))}
         </div>
@@ -167,9 +152,14 @@ const SideBar: React.FC<SideBarProps> = ({
       )}
       <div className="fixed bottom-7 pl-2 flex items-center justify-center space-x-2">
         <div className="w-7 h-7 rounded-md bg-accent flex items-center justify-center">
-          <span className="text-xs">MB</span>
+          <span className="text-xs">
+            {firstName && `${firstName.charAt(0)}`}
+          </span>
+          <span className="text-xs">
+            {lastName && `${lastName.charAt(0)}`}
+          </span>
         </div>
-        <span className="text-sm">Michael Brown</span>
+        <span className="text-sm">{firstName + " " + lastName}</span>
       </div>
     </div>
   ) : (
@@ -184,7 +174,9 @@ const SideBar: React.FC<SideBarProps> = ({
           />
         </div>
         <div className="ml-1.5">
-          <CognixSmall className="h-9 w-9" />
+          <Link to={"/"}>
+            <CognixSmall className="h-9 w-9" />
+          </Link>
         </div>
         <div>
           <Button
@@ -217,7 +209,11 @@ const SideBar: React.FC<SideBarProps> = ({
               to={`/platform`}
               className="flex flex-row items-center"
             >
-              <span className="truncate md:text-clip">{chat.text}</span>
+              <span className="truncate">
+                {chat.messages.length > 0
+                  ? chat.messages[chat.messages.length - 1].message
+                  : ""}
+              </span>
             </NavLink>
           ))}
         </div>

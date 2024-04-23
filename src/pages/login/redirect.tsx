@@ -18,7 +18,7 @@ function RedirectComponent() {
           console.log(response.data);
           set("access_token", response.data.data);
         }
-        router.navigate("/platform");
+        router.navigate("/");
         return "";
       })
       .catch((e) => {

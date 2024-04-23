@@ -7,25 +7,19 @@ import AuthProvider from "./context/AuthContext";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/login",
     lazy: () => import("@/pages/login"),
   },
   {
+    path: "/google/callback",
+    lazy: () => import("@/pages/login/redirect"),
+  },
+  {
     path: "/",
     lazy: () => import("@/pages/platform"),
     children: [
       {
-        path: "google/callback",
-        lazy: () => import("@/pages/login/redirect"),
-      },
-    ],
-  },
-  {
-    path: "/platform",
-    lazy: () => import("@/pages/platform"),
-    children: [
-      {
-        path: "/platform",
+        path: "/",
         lazy: () => import("@/pages/chat"),
       },
       {
@@ -74,7 +68,7 @@ export const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
-    <RouterProvider router={router} />
+      <RouterProvider router={router} />
     </AuthProvider>
   </React.StrictMode>
 );

@@ -4,6 +4,7 @@ import (
 	"cognix.ch/api/v2/api/handler"
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/security"
@@ -23,6 +24,7 @@ var Module = fx.Options(
 	repository.RepositoriesModule,
 	bll.BLLModule,
 	storage.MinioModule,
+	messaging.NatsModule,
 	fx.Provide(ReadConfig,
 		NewRouter,
 		newGoogleOauthProvider,

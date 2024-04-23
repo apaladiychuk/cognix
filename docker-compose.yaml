@@ -22,6 +22,36 @@ services:
     networks:
       - dev-network
 
+  orchestrator:
+    image: cognix:orchestrator
+    build:
+      context: ./backend
+      args:
+        service: orchestrator
+      dockerfile: Dockerfile.dev
+    env_file:
+      - config/cocroach.env
+      - config/nats.env
+    volumes:
+      - ./backend:/backend
+    networks:
+      - dev-network
+
+  connector:
+    image: cognix:connector
+    build:
+      context: ./backend
+      args:
+        service: connector
+      dockerfile: Dockerfile.dev
+    env_file:
+      - config/cocroach.env
+      - config/nats.env
+    volumes:
+      - ./backend:/backend
+    networks:
+      - dev-network
+
   nats:
     image: docker.io/nats:2.9.20
     ports:

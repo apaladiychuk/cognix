@@ -1,8 +1,8 @@
 package messaging
 
 import (
-	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/utils"
+	"encoding/json"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
 	"time"
@@ -10,12 +10,12 @@ import (
 
 type (
 	Config struct {
-		URL                 string `env:"NUTS_URL"`
-		ConnectorStreamName string `env:"NUTS_STREAM_NAME" envDefault:"Connector"`
+		URL                 string `env:"NATS_URL"`
+		ConnectorStreamName string `env:"NATS_STREAM_NAME" envDefault:"Connector"`
 	}
 	Message struct {
 		Header map[string]string `json:"header"`
-		Body   model.JSONMap     `json:"body"`
+		Body   json.RawMessage   `json:"body"`
 	}
 
 	Subscription struct {
@@ -30,7 +30,7 @@ const (
 	streamMaxPending  = 256
 )
 
-var NutsModule = fx.Options(
+var NatsModule = fx.Options(
 	fx.Provide(func() (*Config, error) {
 		cfg := Config{}
 		err := utils.ReadConfig(&cfg)

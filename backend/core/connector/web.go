@@ -24,8 +24,7 @@ func (c *Web) Config(connector *model.Connector) (Connector, error) {
 }
 
 func (c *Web) Execute(ctx context.Context, param model.JSONMap) error {
-	//TODO implement me
-	panic("implement me")
+	return nil
 }
 
 func NewWeb(connector *model.Connector) (Connector, error) {

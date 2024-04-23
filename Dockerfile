@@ -11,6 +11,8 @@ WORKDIR /react-ui
 
 COPY . .
 
+COPY .env.example .env
+
 # Build the project and copy the files
 RUN npm run build
 
@@ -22,7 +24,7 @@ FROM nginx:alpine3.17
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
 
 ## Remove default nginx index page
-RUN rm -rf /usr/share/nginx/html/*
+# RUN rm -rf /usr/share/nginx/html/*
 
 # Copy from the stahg 1
 COPY --from=builder /react-ui/dist /usr/share/nginx/html

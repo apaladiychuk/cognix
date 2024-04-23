@@ -38,7 +38,7 @@ export default function AuthProvider({
   };
 
   useEffect(() => {
-    fetchMeToState();
+    setTimeout((() => fetchMeToState()), 1000);
   }, []);
 
   const value = {

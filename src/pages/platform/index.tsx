@@ -1,9 +1,10 @@
 import { SideBar } from "@/components/ui/sidebar";
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
 export function ApplicationRoot() {
   const [isSidebarOpen, setSidebarOpen] = useState<boolean>(false);
+
   return (
     <div className="flex h-screen bg-foreground">
       <div className="flex flex-row flex-grow">
@@ -18,7 +19,11 @@ export function ApplicationRoot() {
           />
         </div>
         <div className="flex flex-col flex-grow w-full align-center justify-center bg-background m-5 rounded-md">
-          <Outlet />
+          {localStorage.getItem("access_token") ? (
+            <Outlet />
+          ) : (
+            <Navigate to="/login" />
+          )}
         </div>
       </div>
     </div>

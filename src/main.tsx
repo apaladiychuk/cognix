@@ -3,66 +3,61 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import "@/global.css";
 import "@/lib/axios";
+import AuthProvider from "./context/AuthContext";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/login",
     lazy: () => import("@/pages/login"),
   },
   {
+    path: "/google/callback",
+    lazy: () => import("@/pages/login/redirect"),
+  },
+  {
     path: "/",
+    lazy: () => import("@/pages/platform"),
     children: [
       {
-        path: "google/callback",
-        lazy: () => import("@/pages/login/redirect"),
+        path: "/",
+        lazy: () => import("@/pages/chat"),
       },
       {
-        path: "/platform",
-        lazy: () => import("@/pages/platform"),
+        path: "settings",
         children: [
           {
-            path: "/platform",
-            lazy: () => import("@/pages/chat"),
-          },
-          {
-            path: "settings",
+            path: "connectors",
             children: [
               {
-                path: "connectors",
-                children: [
-                  {
-                    path: "existing-connectors",
-                    lazy: () =>
-                      import("@/pages/settings/connectors/existing-connectors"),
-                  },
-                  {
-                    path: "add-connector",
-                    lazy: () =>
-                      import("@/pages/settings/connectors/add-connector"),
-                  },
-                ],
+                path: "existing-connectors",
+                lazy: () =>
+                  import("@/pages/settings/connectors/existing-connectors"),
               },
               {
-                path: "feedback",
-                lazy: () => import("@/pages/settings/feedback"),
-              },
-              {
-                path: "embeddings",
-                lazy: () => import("@/pages/settings/embeddings"),
-              },
-              {
-                path: "llms",
-                lazy: () => import("@/pages/settings/llms"),
-              },
-              {
-                path: "users",
-                lazy: () => import("@/pages/settings/users"),
-              },
-              {
-                path: "config",
-                lazy: () => import("@/pages/settings/config"),
+                path: "add-connector",
+                lazy: () => import("@/pages/settings/connectors/add-connector"),
               },
             ],
+          },
+          {
+            path: "feedback",
+            lazy: () => import("@/pages/settings/feedback"),
+          },
+          {
+            path: "embeddings",
+            lazy: () => import("@/pages/settings/embeddings"),
+          },
+          {
+            path: "llms",
+            lazy: () => import("@/pages/settings/llms"),
+          },
+          {
+            path: "users",
+            lazy: () => import("@/pages/settings/users"),
+          },
+          {
+            path: "config",
+            lazy: () => import("@/pages/settings/config"),
           },
         ],
       },
@@ -72,6 +67,8 @@ export const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );

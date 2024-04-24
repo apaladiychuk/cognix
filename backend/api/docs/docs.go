@@ -54,23 +54,23 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "send message and wait stream response",
+                "description": "creates new chat session",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Chat"
                 ],
-                "summary": "send message and wait stream response",
-                "operationId": "chat_send_message",
+                "summary": "creates new chat session",
+                "operationId": "chat_create_session",
                 "parameters": [
                     {
-                        "description": "send message parameters",
+                        "description": "create session parameters",
                         "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/parameters.CreateChatMessageRequest"
+                            "$ref": "#/definitions/parameters.CreateChatSession"
                         }
                     }
                 ],
@@ -78,7 +78,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.ChatMessage"
+                            "$ref": "#/definitions/model.ChatSession"
                         }
                     }
                 }
@@ -180,6 +180,43 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.ChatMessageFeedback"
+                        }
+                    }
+                }
+            }
+        },
+        "/chats/send-message": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "send message and wait stream response",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "send message and wait stream response",
+                "operationId": "chat_send_message",
+                "parameters": [
+                    {
+                        "description": "send message parameters",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.CreateChatMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ChatMessage"
                         }
                     }
                 }

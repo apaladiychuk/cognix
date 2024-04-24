@@ -49,7 +49,9 @@ func NewGoogleProvider(cfg *Config, redirectURL string) Proxy {
 
 func (g *googleProvider) Login(ctx context.Context, redirectURL, state string) (string, error) {
 	g.config.RedirectURL = fmt.Sprintf("%s/google/callback", redirectURL)
-	return g.config.AuthCodeURL(state), nil
+
+	return g.config.AuthCodeURL(state,
+		oauth2.ApprovalForce), nil
 }
 
 func (g *googleProvider) Callback(ctx context.Context, code string) (*IdentityResponse, error) {

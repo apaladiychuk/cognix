@@ -114,11 +114,7 @@ const SideBar: React.FC<SideBarProps> = ({
               to={`/platform`}
               className="flex flex-row items-center"
             >
-              <span className="truncate">
-                {chat.messages.length > 0
-                  ? chat.messages[chat.messages.length - 1].message
-                  : ""}
-              </span>
+              <span className="truncate">{chat.description}</span>
             </NavLink>
           ))}
         </div>

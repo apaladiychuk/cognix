@@ -580,25 +580,25 @@ paths:
       - Auth
   /chats/create-chat-session:
     post:
-      description: send message and wait stream response
-      operationId: chat_send_message
+      description: creates new chat session
+      operationId: chat_create_session
       parameters:
-      - description: send message parameters
+      - description: create session parameters
         in: body
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/parameters.CreateChatMessageRequest'
+          $ref: '#/definitions/parameters.CreateChatSession'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.ChatMessage'
+            $ref: '#/definitions/model.ChatSession'
       security:
       - ApiKeyAuth: []
-      summary: send message and wait stream response
+      summary: creates new chat session
       tags:
       - Chat
   /chats/get-chat-session/{id}:
@@ -662,6 +662,29 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: add  feedback to message
+      tags:
+      - Chat
+  /chats/send-message:
+    post:
+      description: send message and wait stream response
+      operationId: chat_send_message
+      parameters:
+      - description: send message parameters
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/parameters.CreateChatMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ChatMessage'
+      security:
+      - ApiKeyAuth: []
+      summary: send message and wait stream response
       tags:
       - Chat
   /manage/connector:

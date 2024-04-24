@@ -105,7 +105,7 @@ func (h *ChatHandler) CreateSession(c *gin.Context, identity *security.Identity)
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 200 {object} model.ChatMessage
-// @Router /chats/create-chat-session [post]
+// @Router /chats/send-message [post]
 func (h *ChatHandler) SendMessage(c *gin.Context, identity *security.Identity) error {
 	var param parameters.CreateChatMessageRequest
 	if err := c.BindJSON(&param); err != nil {

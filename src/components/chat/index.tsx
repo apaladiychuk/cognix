@@ -22,7 +22,7 @@ export function ChatComponent() {
       .get(`${import.meta.env.VITE_PLATFORM_API_CHAT_DETAIL_URL}/${chatId}`)
       .then(function (response) {
         if (response.status == 200){
-        setMessages(response.data.data);
+        setMessages(response.data.data.messages);
         } else {
           setMessages([])
         }
@@ -100,7 +100,7 @@ export function ChatComponent() {
               sender={message.message_type ?? "AI Chat"}
               message={message.message}
               timestamp={message.time_sent}
-              sources={message.citations}
+              citations={message.citations}
               className=""
             />
           ))}

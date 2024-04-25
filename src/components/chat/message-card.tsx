@@ -10,14 +10,14 @@ export interface MessageProps {
   message: string;
   timestamp: string;
   className?: string;
-  sources?: number[];
+  citations?: number[];
 }
 
 const MessageCard: React.FC<MessageProps> = ({
   sender,
   message,
   timestamp,
-  sources,
+  citations,
   className,
 }) => {
   return (
@@ -39,12 +39,12 @@ const MessageCard: React.FC<MessageProps> = ({
         <div className="ml-12">
           <div className="-mt-6 text-muted-foreground">{message}</div>
           <div className="pt-2 font-bold">Sources:</div>
-          {sources?.map((source) => (
+          {/* {citations?.map((citation) => (
             <div className="inline-flex cursor-pointer items-center mt-1 px-2 py-1 space-x-2 bg-card rounded-lg shadow-md">
               <FileWhiteIcon className="w-4 h-4 " />
-              <span>{source}</span>
+              <span>{citation}</span>
             </div>
-          ))}
+          ))} */}
           <div className="flex items-center mt-5 space-x-3 text-muted cursor-pointer">
             <CopyIcon className="w-5 h-5" />
             <ThumbUpIcon className="w-5 h-5" />

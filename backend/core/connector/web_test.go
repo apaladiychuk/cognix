@@ -15,6 +15,7 @@ func TestWeb_Execute(t *testing.T) {
 			InputType: "src",
 			ConnectorSpecificConfig: model.JSONMap{
 				"url1": "https://help.collaboard.app/",
+				"url2": "https://apidog.com/blog/openapi-specification/",
 				"url":  "https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML",
 			},
 			DocsMap: make(map[string]*model.Document),
@@ -28,5 +29,7 @@ func TestWeb_Execute(t *testing.T) {
 		t.Log(err.Error())
 		t.Fatal(err)
 	}
-	t.Log(conn.Docs)
+	for _, doc := range conn.Docs {
+		t.Log(doc.DocumentID)
+	}
 }

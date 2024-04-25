@@ -20,9 +20,6 @@ function RedirectComponent() {
         router.navigate("/");
         return "";
       })
-      .catch((e) => {
-        console.log(e);
-      });
   }, []);
 
   return <></>;

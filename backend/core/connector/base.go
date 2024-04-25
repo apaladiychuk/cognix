@@ -10,11 +10,12 @@ import (
 type Base struct {
 	collectionName string
 	model          *model.Connector
+	embeddingCh    chan string
 }
 
 type Connector interface {
 	Config(connector *model.Connector) (Connector, error)
-	Execute(ctx context.Context, param model.JSONMap) error
+	Execute(ctx context.Context, param model.JSONMap) (*model.Connector, error)
 }
 
 type Builder struct {
@@ -31,8 +32,8 @@ func (n *nopConnector) Config(connector *model.Connector) (Connector, error) {
 	return n, nil
 }
 
-func (n *nopConnector) Execute(ctx context.Context, param model.JSONMap) error {
-	return nil
+func (n *nopConnector) Execute(ctx context.Context, param model.JSONMap) (*model.Connector, error) {
+	return &model.Connector{}, nil
 }
 
 func New(connectorModel *model.Connector) (Connector, error) {

@@ -10,7 +10,8 @@ import (
 
 type (
 	DocumentRepository interface {
-		FindByConnectorID(ctx context.Context, user *model.User, connectorID int64) ([]*model.Document, error)
+		FindByConnectorIDAndUser(ctx context.Context, user *model.User, connectorID int64) ([]*model.Document, error)
+		FindByConnectorID(ctx context.Context, connectorID int64) ([]*model.Document, error)
 		Create(ctx context.Context, document ...*model.Document) error
 	}
 	documentRepository struct {
@@ -18,7 +19,18 @@ type (
 	}
 )
 
-func (r *documentRepository) FindByConnectorID(ctx context.Context, user *model.User, connectorID int64) ([]*model.Document, error) {
+func (r *documentRepository) FindByConnectorID(ctx context.Context, connectorID int64) ([]*model.Document, error) {
+	documents := make([]*model.Document, 0)
+	if err := r.db.WithContext(ctx).Model(&documents).
+		Join("INNER JOIN connectors c ON c.id = connector_id").
+		Where("connector_id = ?", connectorID).
+		Select(); err != nil {
+		return nil, utils.NotFound.Wrap(err, "can not find documents ")
+	}
+	return documents, nil
+}
+
+func (r *documentRepository) FindByConnectorIDAndUser(ctx context.Context, user *model.User, connectorID int64) ([]*model.Document, error) {
 	documents := make([]*model.Document, 0)
 	if err := r.db.WithContext(ctx).Model(&documents).
 		Join("INNER JOIN connectors c ON c.id = connector_id").

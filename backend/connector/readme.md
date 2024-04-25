@@ -23,3 +23,15 @@ we create a collection for each organization and a collection for each user
 in milvus we create a collection for each tennant and one collection for each user foe the private connectors
 collection name is fixed by a rule like tennant_{ID}. user_{ID}
 pass opentelemetry context to nats for distributed tracing
+
+
+### file compatibility 
+teams chats
+teams teams
+sharepoint
+slack
+email (office/gmail)
+google drive
+one drive
+dropbox
+upload files (supported formats)

@@ -3,9 +3,15 @@ package connector
 import (
 	"cognix.ch/api/v2/core/model"
 	"context"
+	"crypto/sha256"
+	"fmt"
+	"github.com/go-pg/pg/v10"
 	"github.com/gocolly/colly/v2"
-	"github.com/k3a/html2text"
 	"go.uber.org/zap"
+	"jaytaylor.com/html2text"
+	"net/url"
+	"strings"
+	"time"
 )
 
 type (
@@ -13,6 +19,7 @@ type (
 		Base
 		param   *WebParameters
 		scraper *colly.Collector
+		history map[string]struct{}
 	}
 	WebParameters struct {
 		URL string `url:"url"`
@@ -22,6 +29,7 @@ type (
 func (c *Web) Config(connector *model.Connector) (Connector, error) {
 	c.Base.Config(connector)
 	c.param = &WebParameters{}
+	c.history = make(map[string]struct{})
 	if err := connector.ConnectorSpecificConfig.ToStruct(c.param); err != nil {
 		return nil, err
 	}
@@ -31,27 +39,81 @@ func (c *Web) Config(connector *model.Connector) (Connector, error) {
 	return c, nil
 }
 
-func (c *Web) Execute(ctx context.Context, param model.JSONMap) error {
-	c.scraper.OnHTML("a[href]", c.onNextURL)
-	c.scraper.OnResponse(c.onResponse)
-	if err := c.scraper.Visit(c.param.URL); err != nil {
+func (c *Web) Execute(ctx context.Context, param model.JSONMap) (*model.Connector, error) {
+
+	c.scraper.OnHTML("body", c.onNextURL)
+	c.history[c.param.URL] = struct{}{}
+	err := c.scraper.Visit(c.param.URL)
+	if err != nil {
 		zap.L().Error("Failed to scrape URL", zap.String("url", c.param.URL), zap.Error(err))
 	}
-	return nil
+	return c.model, err
 }
 
 func NewWeb(connector *model.Connector) (Connector, error) {
-	var web Web
+	web := Web{}
 	return web.Config(connector)
 }
 
 func (c *Web) onNextURL(e *colly.HTMLElement) {
-	if err := e.Request.Visit(e.Request.AbsoluteURL(e.Attr("href"))); err != nil {
-		zap.S().Fatalw("Failed to visit URL", "url", e.Request.URL.String())
+	child := e.ChildAttrs("a", "href")
+	c.processChildLinks(e.Request.URL, child)
+
+	text, _ := html2text.FromString(e.ChildText("main"), html2text.Options{
+		PrettyTables: true,
+		PrettyTablesOptions: &html2text.PrettyTablesOptions{
+			AutoFormatHeader: true,
+			AutoWrapText:     true,
+		},
+		OmitLinks: true,
+	})
+
+	signature := fmt.Sprintf("%x", sha256.Sum256([]byte(text)))
+	docID := e.Request.URL.String()
+	doc, ok := c.model.DocsMap[docID]
+	if !ok {
+		doc = &model.Document{
+			DocumentID:  docID,
+			ConnectorID: c.model.ID,
+			Link:        docID,
+			CreatedDate: time.Now().UTC(),
+			IsExists:    true,
+			IsUpdated:   true,
+		}
+		c.model.DocsMap[docID] = doc
+		c.model.Docs = append(c.model.Docs, doc)
 	}
+	doc.IsExists = true
+	if doc.Signature == signature {
+		return
+	}
+	doc.Signature = signature
+	if doc.ID != 0 {
+		doc.IsUpdated = true
+		doc.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	}
+
+	// todo send text for indexing
+	fmt.Println(text)
+
 }
 
-func (c *Web) onResponse(e *colly.Response) {
-	text := html2text.HTML2Text(string(e.Body))
-	zap.S().Infof(text)
+func (c *Web) processChildLinks(baseURL *url.URL, urls []string) {
+	for _, u := range urls {
+		if u[0] == '#' || !strings.Contains(u, baseURL.Path) {
+			continue
+		}
+		if strings.HasPrefix(u, baseURL.Path) {
+			u = fmt.Sprintf("%s://%s%s", baseURL.Scheme, baseURL.Host, u)
+		}
+		if _, ok := c.history[u]; ok {
+			continue
+		}
+		c.history[u] = struct{}{}
+
+		if err := c.scraper.Visit(u); err != nil {
+			zap.S().Errorf("Failed to scrape URL: %s", u)
+		}
+	}
+	return
 }

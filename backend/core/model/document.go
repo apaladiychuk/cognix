@@ -20,6 +20,8 @@ type Document struct {
 	CreatedDate      time.Time   `json:"created_date,omitempty"`
 	UpdatedDate      pg.NullTime `json:"updated_date,omitempty" pg:",use_zero"`
 	DeletedDate      pg.NullTime `json:"deleted_date,omitempty" pg:",use_zero"`
+	IsExists         bool        `json:"is_exists,omitempty" pg:"-"`
+	IsUpdated        bool        `json:"is_updates,omitempty" pg:"-"`
 }
 
 type DocumentFeedback struct {

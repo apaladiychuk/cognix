@@ -17,7 +17,6 @@ export function ChatComponent() {
   }>();
 
   async function getMessages(): Promise<void> {
-    console.log(chatId)
     await axios
       .get(`${import.meta.env.VITE_PLATFORM_API_CHAT_DETAIL_URL}/${chatId}`)
       .then(function (response) {

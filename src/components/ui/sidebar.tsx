@@ -66,6 +66,7 @@ const SideBar: React.FC<SideBarProps> = ({
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const { firstName, lastName, chats } = useContext(AuthContext);
+  console.log(chats)
 
   return isSideBarOpen ? (
     <div className="ml-2 mr-2 space-y-5">
@@ -111,10 +112,10 @@ const SideBar: React.FC<SideBarProps> = ({
           {chats.slice(0, 4).map((chat) => (
             <NavLink
               key={chat.id}
-              to={`/platform`}
+              to={`/chat/${chat.id}`}
               className="flex flex-row items-center"
             >
-              <span className="truncate">{chat.description}</span>
+              <span className="text-clip">{chat.description}</span>
             </NavLink>
           ))}
         </div>
@@ -201,16 +202,12 @@ const SideBar: React.FC<SideBarProps> = ({
         <div className="flex flex-col ml-1 space-y-3 text-2sm font-thin text-muted">
           {chats.slice(0, 4).map((chat) => (
             <NavLink
-              key={chat.id}
-              to={`/platform`}
-              className="flex flex-row items-center"
-            >
-              <span className="truncate">
-                {chat.messages.length > 0
-                  ? chat.messages[chat.messages.length - 1].message
-                  : ""}
-              </span>
-            </NavLink>
+            key={chat.id}
+            to={`/chat/${chat.id}`}
+            className="flex flex-row items-center"
+          >
+            <span className="text-clip">{chat.description}</span>
+          </NavLink>
           ))}
         </div>
       )}

@@ -81,6 +81,5 @@ func NewExecutor(connectorRepo repository.ConnectorRepository,
 		docRepo:       docRepo,
 		streamClient:  streamClient,
 		embeddingCh:   make(chan string),
-		documentCh:    make(chan *model.Document),
 	}
 }

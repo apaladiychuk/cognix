@@ -14,15 +14,19 @@ func TestWeb_Execute(t *testing.T) {
 			Source:    "web",
 			InputType: "src",
 			ConnectorSpecificConfig: model.JSONMap{
-				"url": "https://en.wikipedia.org/",
+				"url1": "https://help.collaboard.app/",
+				"url":  "https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML",
 			},
+			DocsMap: make(map[string]*model.Document),
 		})
 	if err != nil {
 		t.Log(err.Error())
 		t.Fatal(err)
 	}
-	if err = web.Execute(context.Background(), nil); err != nil {
+	conn, err := web.Execute(context.Background(), nil)
+	if err != nil {
 		t.Log(err.Error())
 		t.Fatal(err)
 	}
+	t.Log(conn.Docs)
 }

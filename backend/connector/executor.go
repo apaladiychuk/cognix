@@ -14,7 +14,9 @@ import (
 
 type executor struct {
 	connectorRepo repository.ConnectorRepository
+	docRepo       repository.DocumentRepository
 	streamClient  messaging.Client
+	embeddingCh   chan string
 }
 
 func (e *executor) run(ctx context.Context) error {
@@ -26,11 +28,12 @@ func (e *executor) run(ctx context.Context) error {
 		for {
 			select {
 			case msg := <-ch:
-				_, err = e.runConnector(ctx, msg)
+				err = e.runConnector(ctx, msg)
 				if err != nil {
 					zap.S().Errorf("Failed to run connector: %v", err)
 				}
 			case <-ctx.Done():
+				close(e.embeddingCh)
 				return
 			}
 		}
@@ -39,27 +42,45 @@ func (e *executor) run(ctx context.Context) error {
 	return nil
 }
 
-func (e *executor) runConnector(ctx context.Context, msg *messaging.Message) (context.Context, error) {
+func (e *executor) runEmbedding() {
+	for text := range e.embeddingCh {
+		zap.S().Infof("sending embedded message: %s ...", text[:20])
+	}
+}
+
+func (e *executor) runConnector(ctx context.Context, msg *messaging.Message) error {
 	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
 	var trigger connector.Trigger
 	if err := json.Unmarshal(msg.Body, &trigger); err != nil {
-		return ctx, err
+		return err
 	}
 	connectorModel, err := e.connectorRepo.GetByID(ctx, trigger.ID)
 	if err != nil {
-		return ctx, err
+		return err
 	}
 	connectorWF, err := connector.New(connectorModel)
 	if err != nil {
-		return ctx, err
+		return err
 	}
-	return ctx, connectorWF.Execute(ctx, trigger.Params)
+
+	connectorModel, err = connectorWF.Execute(ctx, trigger.Params)
+	if err != nil {
+		connectorModel.LastAttemptStatus = model.StatusFailed
+	} else {
+		connectorModel.LastAttemptStatus = model.StatusSuccess
+	}
+
+	return nil
 }
 
 func NewExecutor(connectorRepo repository.ConnectorRepository,
+	docRepo repository.DocumentRepository,
 	streamClient messaging.Client) *executor {
 	return &executor{
 		connectorRepo: connectorRepo,
+		docRepo:       docRepo,
 		streamClient:  streamClient,
+		embeddingCh:   make(chan string),
+		documentCh:    make(chan *model.Document),
 	}
 }

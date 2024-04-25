@@ -7,18 +7,27 @@ import MessageCard from "./message-card";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ChatMessage } from "@/models/chat";
+import { useParams } from "react-router-dom";
 
 export function ChatComponent() {
-  const [messages, setMessages] = useState<ChatMessage[]>();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+  const { chatId } = useParams<{
+    chatId: string;
+  }>();
 
   async function getMessages(): Promise<void> {
+    console.log(chatId)
     await axios
-      .get(import.meta.env.VITE_PLATFORM_API_CHAT_LIST_URL)
+      .get(`${import.meta.env.VITE_PLATFORM_API_CHAT_DETAIL_URL}/${chatId}`)
       .then(function (response) {
-        setMessages(response.data.data);
+        if (response.status == 200){
+        setMessages(response.data.data.messages);
+        } else {
+          setMessages([])
+        }
       })
       .catch(function (error) {
-        setMessages([]);
         console.error("Error fetching messages:", error);
       });
   }
@@ -85,13 +94,13 @@ export function ChatComponent() {
         </div>
       ) : (
         <div className="flex flex-col flex-grow mt-7 ml-20 w-3/4">
-          {messages?.map((message, index) => (
+          {messages.map((message, index) => (
             <MessageCard
               key={index}
               sender={message.message_type ?? "AI Chat"}
               message={message.message}
               timestamp={message.time_sent}
-              sources={message.citations}
+              citations={message.citations}
               className=""
             />
           ))}

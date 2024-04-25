@@ -30,11 +30,10 @@ export default function AuthProvider({
     setLastName(user_response.data.data.last_name);
     setRoles(user_response.data.data.roles);
 
-    const chats_response = await axios.get<{
-      data: ChatSession[];
-    }>(import.meta.env.VITE_PLATFORM_API_USER_CHAT_URL);
-
-    setChats(chats_response.data.data);
+    await axios.get(import.meta.env.VITE_PLATFORM_API_USER_CHATS_URL)
+    .then((res) => {
+      setChats(res.data.data);
+    });
   };
 
   useEffect(() => {

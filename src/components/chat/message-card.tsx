@@ -3,7 +3,7 @@ import BotIcon from "@/assets/svgs/cognix-sm.svg?react";
 import CopyIcon from "@/assets/svgs/copy-icon.svg?react";
 import ThumbUpIcon from "@/assets/svgs/thumb-up.svg?react";
 import ThumbDownIcon from "@/assets/svgs/thumn-down.svg?react";
-import FileWhiteIcon from "@/assets/svgs/file-white-icon.svg?react";
+// import FileWhiteIcon from "@/assets/svgs/file-white-icon.svg?react";
 
 export interface MessageProps {
   sender?: string;
@@ -17,7 +17,7 @@ const MessageCard: React.FC<MessageProps> = ({
   sender,
   message,
   timestamp,
-  citations,
+  // citations,
   className,
 }) => {
   return (

@@ -141,7 +141,7 @@ func (h *ChatHandler) MessageFeedback(c *gin.Context, identity *security.Identit
 	if err := param.Validate(); err != nil {
 		return utils.InvalidInput.Wrap(err, err.Error())
 	}
-	feedback, err := h.chatBL.FeedbackMessage(c, identity.User, param.ID, param.Vote == parameters.MessageFeedbackUpvote)
+	feedback, err := h.chatBL.FeedbackMessage(c, identity.User, param.ID.IntPart(), param.Vote == parameters.MessageFeedbackUpvote)
 	if err != nil {
 		return err
 	}

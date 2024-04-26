@@ -1183,7 +1183,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "chat_session_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "citations": {
                     "type": "array",
@@ -1198,7 +1198,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.ChatMessageFeedback"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "latest_child_message": {
                     "type": "integer"
@@ -1210,7 +1210,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "parent_message": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "rephrased_query": {
                     "type": "string"
@@ -1227,13 +1227,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "chat_message_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "feedback": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "up_votes": {
                     "type": "boolean"
@@ -1256,7 +1256,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "messages": {
                     "type": "array",
@@ -1271,7 +1271,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.Persona"
                 },
                 "persona_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "user_id": {
                     "type": "string"
@@ -1288,7 +1288,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "credential_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "deleted_date": {
                     "$ref": "#/definitions/pg.NullTime"
@@ -1297,7 +1297,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "input_type": {
                     "type": "string"
@@ -1347,7 +1347,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/pg.NullTime"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "shared": {
                     "type": "boolean"
@@ -1379,7 +1379,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "is_up_to_date": {
                     "type": "boolean"
@@ -1405,10 +1405,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "connector_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "document_set_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "is_current": {
                     "type": "boolean"
@@ -1425,7 +1425,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/pg.NullTime"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "index_name": {
                     "type": "string"
@@ -1479,7 +1479,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "model_id": {
                     "type": "string"
@@ -1517,7 +1517,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "is_visible": {
                     "type": "boolean"
@@ -1526,7 +1526,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.LLM"
                 },
                 "llm_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "name": {
                     "type": "string"
@@ -1567,7 +1567,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "include_citations": {
                     "type": "boolean"
@@ -1576,7 +1576,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "persona_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "system_prompt": {
                     "type": "string"
@@ -1733,7 +1733,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "chat_session_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "message": {
                     "type": "string"
@@ -1742,10 +1742,10 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "parent_message_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "prompt_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "query_override": {
                     "type": "string"
@@ -1756,7 +1756,7 @@ const docTemplate = `{
                 "search_doc_ids": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "number"
                     }
                 }
             }
@@ -1771,7 +1771,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "persona_id": {
-                    "type": "integer"
+                    "type": "number"
                 }
             }
         },
@@ -1782,7 +1782,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.JSONMap"
                 },
                 "credential_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "disabled": {
                     "type": "boolean"
@@ -1873,7 +1873,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "vote": {
                     "type": "string"
@@ -1959,7 +1959,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.JSONMap"
                 },
                 "credential_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "disabled": {
                     "type": "boolean"

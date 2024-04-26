@@ -31,7 +31,7 @@ func NewConnectorBL(connectorRepo repository.ConnectorRepository, credentialRepo
 }
 
 func (c *connectorBL) Create(ctx context.Context, user *model.User, param *parameters.CreateConnectorParam) (*model.Connector, error) {
-	cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID, user.TenantID, user.ID)
+	cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 	if err != nil {
 		return nil, err
 	}
-	cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID, user.TenantID, user.ID)
+	cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
 	if err != nil {
 		return nil, err
 	}

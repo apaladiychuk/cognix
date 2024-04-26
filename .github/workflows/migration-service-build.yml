@@ -14,7 +14,7 @@ on:
     branches:
       - main
     paths:
-      - migration
+      - 'migration/**'
 env:
   RGNAME: AKS_RG
   ACRNAME: cognixacr

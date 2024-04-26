@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
 type Persona struct {
 	tableName       struct{}        `pg:"personas"`
-	ID              int64           `json:"id,omitempty"`
+	ID              decimal.Decimal `json:"id,omitempty"`
 	Name            string          `json:"name,omitempty"`
-	LlmID           int64           `json:"llm_id,omitempty"`
+	LlmID           decimal.Decimal `json:"llm_id,omitempty"`
 	DefaultPersona  bool            `json:"default_persona,omitempty" pg:",use_zero"`
 	Description     string          `json:"description,omitempty"`
 	TenantID        uuid.UUID       `json:"tenant_id,omitempty"`

@@ -3,6 +3,7 @@ package parameters
 import (
 	"cognix.ch/api/v2/core/model"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
@@ -12,9 +13,9 @@ const (
 )
 
 type CreateChatSession struct {
-	Description string `json:"description"`
-	PersonaID   int64  `json:"persona_id"`
-	OneShot     bool   `json:"one_shot"`
+	Description string          `json:"description"`
+	PersonaID   decimal.Decimal `json:"persona_id"`
+	OneShot     bool            `json:"one_shot"`
 }
 
 func (v CreateChatSession) Validate() error {
@@ -24,14 +25,14 @@ func (v CreateChatSession) Validate() error {
 }
 
 type CreateChatMessageRequest struct {
-	ChatSessionId    int64            `json:"chat_session_id,omitempty"`
-	ParentMessageId  int64            `json:"parent_message_id,omitempty"`
-	Message          string           `json:"message,omitempty"`
-	PromptId         int64            `json:"prompt_id,omitempty"`
-	SearchDocIds     []int64          `json:"search_doc_ids,omitempty"`
-	RetrievalOptions RetrievalDetails `json:"retrieval_options,omitempty"`
-	QueryOverride    string           `json:"query_override,omitempty"`
-	NoAiAnswer       bool             `json:"no_ai_answer,omitempty"`
+	ChatSessionId    decimal.Decimal   `json:"chat_session_id,omitempty"`
+	ParentMessageId  decimal.Decimal   `json:"parent_message_id,omitempty"`
+	Message          string            `json:"message,omitempty"`
+	PromptId         decimal.Decimal   `json:"prompt_id,omitempty"`
+	SearchDocIds     []decimal.Decimal `json:"search_doc_ids,omitempty"`
+	RetrievalOptions RetrievalDetails  `json:"retrieval_options,omitempty"`
+	QueryOverride    string            `json:"query_override,omitempty"`
+	NoAiAnswer       bool              `json:"no_ai_answer,omitempty"`
 }
 
 type RetrievalDetails struct {
@@ -50,8 +51,8 @@ type BaseFilters struct {
 }
 
 type MessageFeedbackParam struct {
-	ID   int64  `json:"id"`
-	Vote string `json:"vote"`
+	ID   decimal.Decimal `json:"id"`
+	Vote string          `json:"vote"`
 }
 
 func (v MessageFeedbackParam) Validate() error {

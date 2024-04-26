@@ -15,7 +15,7 @@ on:
       - main
     paths:
       - 'migration/**'
-      - '.github/workflows/**'
+      - '.github/workflows/migration-service-build.yml'
 env:
   RGNAME: AKS_RG
   ACRNAME: cognixacr

@@ -11,10 +11,10 @@ func NewBuilder() *Builder {
 }
 
 func (b *Builder) New(llm *model.LLM) OpenAIClient {
-	if client, ok := b.clients[llm.ID]; ok {
+	if client, ok := b.clients[llm.ID.IntPart()]; ok {
 		return client
 	}
 	client := NewOpenAIClient(llm)
-	b.clients[llm.ID] = client
+	b.clients[llm.ID.IntPart()] = client
 	return client
 }

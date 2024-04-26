@@ -4,6 +4,7 @@ import (
 	"cognix.ch/api/v2/core/model"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
+	"github.com/shopspring/decimal"
 )
 
 type LoginParam struct {
@@ -49,24 +50,24 @@ type UpdateCredentialParam struct {
 }
 
 type CreateConnectorParam struct {
-	CredentialID            int64         `json:"credential_id,omitempty"`
-	Name                    string        `json:"name,omitempty"`
-	Source                  string        `json:"source,omitempty"`
-	InputType               string        `json:"input_type,omitempty"`
-	ConnectorSpecificConfig model.JSONMap `json:"connector_specific_config,omitempty"`
-	RefreshFreq             int           `json:"refresh_freq,omitempty"`
-	Shared                  bool          `json:"shared,omitempty"`
-	Disabled                bool          `json:"disabled,omitempty"`
+	CredentialID            decimal.Decimal `json:"credential_id,omitempty"`
+	Name                    string          `json:"name,omitempty"`
+	Source                  string          `json:"source,omitempty"`
+	InputType               string          `json:"input_type,omitempty"`
+	ConnectorSpecificConfig model.JSONMap   `json:"connector_specific_config,omitempty"`
+	RefreshFreq             int             `json:"refresh_freq,omitempty"`
+	Shared                  bool            `json:"shared,omitempty"`
+	Disabled                bool            `json:"disabled,omitempty"`
 }
 
 type UpdateConnectorParam struct {
-	CredentialID            int64         `json:"credential_id,omitempty"`
-	Name                    string        `json:"name,omitempty"`
-	InputType               string        `json:"input_type,omitempty"`
-	ConnectorSpecificConfig model.JSONMap `json:"connector_specific_config,omitempty"`
-	RefreshFreq             int           `json:"refresh_freq,omitempty"`
-	Shared                  bool          `json:"shared,omitempty"`
-	Disabled                bool          `json:"disabled,omitempty"`
+	CredentialID            decimal.Decimal `json:"credential_id,omitempty"`
+	Name                    string          `json:"name,omitempty"`
+	InputType               string          `json:"input_type,omitempty"`
+	ConnectorSpecificConfig model.JSONMap   `json:"connector_specific_config,omitempty"`
+	RefreshFreq             int             `json:"refresh_freq,omitempty"`
+	Shared                  bool            `json:"shared,omitempty"`
+	Disabled                bool            `json:"disabled,omitempty"`
 }
 
 type AddUserParam struct {

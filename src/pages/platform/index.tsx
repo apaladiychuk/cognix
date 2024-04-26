@@ -6,7 +6,7 @@ export function ApplicationRoot() {
   const [isSidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
   return (
-    <div className="flex h-screen bg-foreground">
+    <div className="flex h-screen bg-foreground overflow-x-hidden">
       <div className="flex flex-row flex-grow">
         <div
           className={`bg-foreground text-white transition-all duration-300 ease-in-out ${

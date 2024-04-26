@@ -1,10 +1,19 @@
 import { Persona } from "src/models/settings";
 
+
+export interface MessageFeedback {
+  id: string;
+  chat_message_id: string;
+  user_id: string;
+  up_votes: boolean;
+}
+
+
 export interface ChatMessage {
     chat_session_id: number;
     citations?: number[];
     error?: string;
-    id: number;
+    id: string;
     latest_child_message?: number;
     message: string;
     message_type: string;
@@ -12,13 +21,14 @@ export interface ChatMessage {
     rephrased_query?: string;
     time_sent: string;
     token_count: number;
+    feedback?: MessageFeedback;
   }
   
   export interface ChatSession {
     created_date: string;
     deleted_date?: string | null;
     description: string;
-    id: number;
+    id: string;
     messages: ChatMessage[];
     one_shot: boolean;
     persona: Persona;

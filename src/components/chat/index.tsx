@@ -4,13 +4,15 @@ import SendIcon from "@/assets/svgs/send-icon.svg?react";
 import FileIcon from "@/assets/svgs/file-icon.svg?react";
 import { Card } from "../ui/card";
 import MessageCard from "./message-card";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { ChatMessage } from "@/models/chat";
 import { useParams } from "react-router-dom";
 
 export function ChatComponent() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const textInputRef = useRef<HTMLInputElement>(null);
+
 
   const { chatId } = useParams<{
     chatId: string;
@@ -29,16 +31,30 @@ export function ChatComponent() {
       .catch(function (error) {
         console.error("Error fetching messages:", error);
       });
+      console.log(messages);
   }
 
+  async function createMessages(message: string): Promise<void> {
+    await axios
+      .post(`${import.meta.env.VITE_PLATFORM_API_CHAT_SEND_MESSAGE_URL}`, {"message": message, "chat_session_id": chatId})
+      .then(function (response) {
+        if (response.status == 200){
+        setMessages(response.data.data.messages);
+        }
+      })
+      .catch(function (error) {
+        console.error("Error creating messages:", error);
+      });
+  }
   useEffect(() => {
     getMessages();
-  }, []);
+  }, [chatId]);
 
   return (
     <div className="flex h-screen">
-      {messages?.length == 0 ? (
-        <div className="flex flex-col flex-grow m-5 w-4/6">
+        <div className="flex flex-col m-5 w-4/6">
+      {!Array.isArray(messages) ? (
+        <div className="flex flex-col flex-grow">
           <div className="flex items-center justify-center pt-8">
             <span className="text-4xl font-bold">
               Which assistant do you want
@@ -67,11 +83,30 @@ export function ChatComponent() {
               />
             </div>
           </div>
-          <div className="flex-grow p-4">{/* Content here */}</div>
+  </div>
+      ) : (
+        <div className="flex flex-col flex-grow ml-10 w-3/4 overflow-x-hidden">
+        {messages?.map((message, index) => (
+          <MessageCard
+            key={index}
+            id={message.id}
+            sender={message.message_type === 'user' ? 'You' : "AI Chat"}
+            isResponse={message.message_type !== 'user'}
+            message={message.message}
+            timestamp={message.time_sent}
+            citations={message.citations}
+            className=""
+          />
+        ))}
+      </div>
+      )}
+      <div>
+      <div className="flex-grow p-4">{/* Content here */}</div>
           <div className="flex items-center justify-between space-x-3 p-4 ml-12 mr-12">
             <Input
               placeholder="Ask me anything..."
               className="flex-grow rounded-lgw-1/2"
+              ref={textInputRef}
             />
             <Button
               size="icon"
@@ -79,7 +114,7 @@ export function ChatComponent() {
               className="w-12 h-12 bg-primary hover:bg-foreground"
               type="button"
               onClick={() => {
-                alert("Message will be sent");
+                createMessages(textInputRef.current?.value ?? "")
               }}
             >
               <SendIcon className="size-5" />
@@ -90,21 +125,8 @@ export function ChatComponent() {
               CogniX can make mistakes. Consider checking critical information.
             </span>
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col flex-grow mt-7 ml-20 w-3/4">
-          {messages.map((message, index) => (
-            <MessageCard
-              key={index}
-              sender={message.message_type ?? "AI Chat"}
-              message={message.message}
-              timestamp={message.time_sent}
-              citations={message.citations}
-              className=""
-            />
-          ))}
-        </div>
-      )}
+      </div>
+      </div>
       <div className="flex mt-5 mb-5 w-1/5 flex-col bg-white rounded-md rounded-l-none">
         <div className="content-start space-x-2 pl-4">
           <div className="flex content-start space-x-2 pt-5 pl-3">

@@ -1175,7 +1175,7 @@
             "type": "object",
             "properties": {
                 "chat_session_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "citations": {
                     "type": "array",
@@ -1190,7 +1190,7 @@
                     "$ref": "#/definitions/model.ChatMessageFeedback"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "latest_child_message": {
                     "type": "integer"
@@ -1202,7 +1202,7 @@
                     "type": "string"
                 },
                 "parent_message": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "rephrased_query": {
                     "type": "string"
@@ -1219,13 +1219,13 @@
             "type": "object",
             "properties": {
                 "chat_message_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "feedback": {
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "up_votes": {
                     "type": "boolean"
@@ -1248,7 +1248,7 @@
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "messages": {
                     "type": "array",
@@ -1263,7 +1263,7 @@
                     "$ref": "#/definitions/model.Persona"
                 },
                 "persona_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "user_id": {
                     "type": "string"
@@ -1280,7 +1280,7 @@
                     "type": "string"
                 },
                 "credential_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "deleted_date": {
                     "$ref": "#/definitions/pg.NullTime"
@@ -1289,7 +1289,7 @@
                     "type": "boolean"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "input_type": {
                     "type": "string"
@@ -1339,7 +1339,7 @@
                     "$ref": "#/definitions/pg.NullTime"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "shared": {
                     "type": "boolean"
@@ -1371,7 +1371,7 @@
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "is_up_to_date": {
                     "type": "boolean"
@@ -1397,10 +1397,10 @@
             "type": "object",
             "properties": {
                 "connector_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "document_set_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "is_current": {
                     "type": "boolean"
@@ -1417,7 +1417,7 @@
                     "$ref": "#/definitions/pg.NullTime"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "index_name": {
                     "type": "string"
@@ -1471,7 +1471,7 @@
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "model_id": {
                     "type": "string"
@@ -1509,7 +1509,7 @@
                     "type": "integer"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "is_visible": {
                     "type": "boolean"
@@ -1518,7 +1518,7 @@
                     "$ref": "#/definitions/model.LLM"
                 },
                 "llm_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "name": {
                     "type": "string"
@@ -1559,7 +1559,7 @@
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "include_citations": {
                     "type": "boolean"
@@ -1568,7 +1568,7 @@
                     "type": "string"
                 },
                 "persona_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "system_prompt": {
                     "type": "string"
@@ -1725,7 +1725,7 @@
             "type": "object",
             "properties": {
                 "chat_session_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "message": {
                     "type": "string"
@@ -1734,10 +1734,10 @@
                     "type": "boolean"
                 },
                 "parent_message_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "prompt_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "query_override": {
                     "type": "string"
@@ -1748,7 +1748,7 @@
                 "search_doc_ids": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "number"
                     }
                 }
             }
@@ -1763,7 +1763,7 @@
                     "type": "boolean"
                 },
                 "persona_id": {
-                    "type": "integer"
+                    "type": "number"
                 }
             }
         },
@@ -1774,7 +1774,7 @@
                     "$ref": "#/definitions/model.JSONMap"
                 },
                 "credential_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "disabled": {
                     "type": "boolean"
@@ -1865,7 +1865,7 @@
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "vote": {
                     "type": "string"
@@ -1951,7 +1951,7 @@
                     "$ref": "#/definitions/model.JSONMap"
                 },
                 "credential_id": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "disabled": {
                     "type": "boolean"

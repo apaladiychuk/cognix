@@ -31,7 +31,7 @@ type (
 		tableName          struct{}             `pg:"chat_messages"`
 		ID                 decimal.Decimal      `json:"id,omitempty"`
 		ChatSessionID      decimal.Decimal      `json:"chat_session_id,omitempty"`
-		Message            string               `json:"message,omitempty"`
+		Message            string               `json:"message,omitempty"  pg:",use_zero"`
 		MessageType        string               `json:"message_type,omitempty"`
 		TimeSent           time.Time            `json:"time_sent,omitempty"`
 		TokenCount         int                  `json:"token_count,omitempty" pg:",use_zero"`

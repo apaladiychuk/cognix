@@ -16,7 +16,6 @@ type aiResponder struct {
 
 func (r *aiResponder) Send(ctx context.Context, parentMessage *model.ChatMessage) error {
 	response, err := r.aiClient.Request(ctx, parentMessage.Message)
-
 	message := model.ChatMessage{
 		ChatSessionID: parentMessage.ChatSessionID,
 		ParentMessage: parentMessage.ID,
@@ -28,16 +27,14 @@ func (r *aiResponder) Send(ctx context.Context, parentMessage *model.ChatMessage
 	} else {
 		message.Message = response.Message
 	}
-	if err = r.charRepo.SendMessage(ctx, &message); err != nil {
-		r.ch <- &Response{
-			IsValid: false,
-			Error:   err.Error()}
-		return nil
-	}
 
+	if errr := r.charRepo.SendMessage(ctx, &message); errr != nil {
+		err = errr
+		message.Error = err.Error()
+	}
 	go func() {
 		r.ch <- &Response{
-			IsValid: true,
+			IsValid: err == nil,
 			Message: &message,
 		}
 	}()

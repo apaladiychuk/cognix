@@ -7,12 +7,14 @@ import (
 	"time"
 )
 
-const ResponseMessage = "message"
+const (
+	ResponseMessage = "message"
+	ResponseError   = "error"
+)
 
 type Response struct {
 	IsValid bool
 	Message *model.ChatMessage
-	Error   string
 }
 
 type ChatResponder interface {

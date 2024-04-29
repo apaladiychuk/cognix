@@ -69,7 +69,9 @@ func (e *executor) runConnector(ctx context.Context, msg *messaging.Message) err
 	} else {
 		connectorModel.LastAttemptStatus = model.StatusSuccess
 	}
-
+	if err = e.connectorRepo.UpdateStatistic(ctx, connectorModel); err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -26,7 +26,9 @@ type Trigger struct {
 	ID     int64         `json:"id"`
 	Params model.JSONMap `json:"params"`
 }
-type nopConnector struct{}
+type nopConnector struct {
+	Base
+}
 
 func (n *nopConnector) Config(connector *model.Connector) (Connector, error) {
 	return n, nil

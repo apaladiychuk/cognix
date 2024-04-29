@@ -46,13 +46,17 @@ func (r *connectorRepository) UpdateStatistic(ctx context.Context, connector *mo
 		updatedDocs = append(updatedDocs, doc)
 	}
 	return r.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
-		if _, err := tx.Model(newDocs).Insert(); err != nil {
-			return utils.Internal.Wrap(err, "cannot insert new documents")
+		if len(newDocs) > 0 {
+			if _, err := tx.Model(&newDocs).Insert(); err != nil {
+				return utils.Internal.Wrap(err, "cannot insert new documents")
+			}
 		}
-		if _, err := tx.Model(&model.Document{}).
-			Where("id in (?)", pq.Array(deletedDocs)).
-			Delete(); err != nil {
-			return utils.Internal.Wrap(err, "cannot delete documents")
+		if len(deletedDocs) > 0 {
+			if _, err := tx.Model(&model.Document{}).
+				Where("id in (?)", pq.Array(deletedDocs)).
+				Delete(); err != nil {
+				return utils.Internal.Wrap(err, "cannot delete documents")
+			}
 		}
 		for _, doc := range updatedDocs {
 			if _, err := tx.Model(doc).

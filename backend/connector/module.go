@@ -12,6 +12,7 @@ var Module = fx.Options(
 	messaging.NatsModule,
 	fx.Provide(
 		repository.NewConnectorRepository,
+		repository.NewDocumentRepository,
 		NewExecutor,
 	),
 	fx.Invoke(RunServer),

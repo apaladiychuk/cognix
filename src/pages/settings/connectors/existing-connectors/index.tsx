@@ -1,28 +1,31 @@
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { RenderTable } from '@/pages/settings/components/renderTable/render-table';
-import { SettingHeader } from '../../components/setting-header/setting-header';
-import { Controller } from './existing-connectors.controller';
-import { ConfirmDeleteDialog } from '@/components/dialogs/ConfirmDeleteDialog';
-import { useState } from 'react';
-import { CreateConnectorDialog } from '@/components/dialogs/CreateConnectorDialog';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { RenderTable } from "@/pages/settings/components/renderTable/render-table";
+import { SettingHeader } from "../../components/setting-header/setting-header";
+import { Controller } from "./existing-connectors.controller";
+import { ConfirmDeleteDialog } from "@/components/dialogs/ConfirmDeleteDialog";
+import { useState } from "react";
+import { CreateConnectorDialog } from "@/components/dialogs/CreateConnectorDialog";
 
-export function UserManagementComponent() {
-  const { columns, tableData, sortField, handleSortingChange } = Controller.useFilterHandler()
+export function ConnectorsManagementComponent() {
+  const { columns, tableData, sortField, handleSortingChange } =
+    Controller.useFilterHandler();
 
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false); // State to manage visibility of the delete dialog
-  const [ showCreateTicketDialogOpen, setShowCreateTicketDialogOpen ] = useState<boolean>(false);
-
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showCreateTicketDialogOpen, setShowCreateTicketDialogOpen] =
+    useState<boolean>(false);
 
   return (
-    <>
+    <div className="flex flex-grow flex-col m-8">
       <SettingHeader
-        title={'Existing Connectors'}
+        title={"Existing Connectors"}
         withBtn
-        handleClick={() => {setShowCreateTicketDialogOpen(true)}}
+        handleClick={() => {
+          setShowCreateTicketDialogOpen(true);
+        }}
       />
       <>
         <Tabs defaultValue="personal">
-          <TabsList className="mb-7">
+          <TabsList className="mb-4">
             <TabsTrigger value="personal">Personal</TabsTrigger>
             <TabsTrigger value="organizational">Organizational</TabsTrigger>
           </TabsList>
@@ -32,7 +35,9 @@ export function UserManagementComponent() {
               handleSortingChange={handleSortingChange}
               sortField={sortField}
               tableData={tableData}
-              onDelete={() => {setShowDeleteDialog(true)}}
+              onDelete={() => {
+                setShowDeleteDialog(true);
+              }}
               onEdit={() => {}}
               onPause={() => {}}
               withBtn
@@ -44,34 +49,36 @@ export function UserManagementComponent() {
               handleSortingChange={handleSortingChange}
               sortField={sortField}
               tableData={tableData}
-              onDelete={() => {setShowDeleteDialog(true)}}
+              onDelete={() => {
+                setShowDeleteDialog(true);
+              }}
               onEdit={() => {}}
               onPause={() => {}}
             />
           </TabsContent>
         </Tabs>
       </>
-      { showDeleteDialog &&(
-      <div className="ml-auto">
-      <ConfirmDeleteDialog
-          description="Are you sure you want to delete this Connector?"
-          deleteButtonText="Yes, Delete"
-          onConfirm={() => {console.log("Pressed")}} // Pass the handleDeleteConfirm function as the onConfirm prop
-          open={showDeleteDialog}
-          onOpenChange={setShowDeleteDialog}
-        />
+      {showDeleteDialog && (
+        <div className="ml-auto">
+          <ConfirmDeleteDialog
+            description="Are you sure you want to delete this Connector?"
+            deleteButtonText="Yes, Delete"
+            onConfirm={() => {
+              console.log("Pressed");
+            }}
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+          />
         </div>
-        )
-      }
-      { showCreateTicketDialogOpen && (
+      )}
+      {showCreateTicketDialogOpen && (
         <CreateConnectorDialog
-        open={showCreateTicketDialogOpen}
-        onOpenChange={setShowCreateTicketDialogOpen}
-      />
-      )
-      }
-    </>
+          open={showCreateTicketDialogOpen}
+          onOpenChange={setShowCreateTicketDialogOpen}
+        />
+      )}
+    </div>
   );
 }
 
-export { UserManagementComponent as Component };
+export { ConnectorsManagementComponent as Component };

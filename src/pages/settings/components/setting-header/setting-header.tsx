@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import AddIcon from '@/assets/svgs/add-icon.svg?react';
+import { memo } from "react";
+import AddIcon from "@/assets/svgs/add-icon.svg?react";
 
 interface Props {
   title: string;
@@ -9,7 +9,7 @@ interface Props {
 
 const SettingHeader = memo(({ title, handleClick, withBtn }: Props) => {
   return (
-    <div className="flex flex-row justify-between gap-1 mb-10">
+    <div className="flex flex-row justify-between gap-1 mb-6">
       <h1 className="text-3xl font-bold leading-6">{title}</h1>
       {withBtn && (
         <button

@@ -33,10 +33,6 @@ export const router = createBrowserRouter([
                 lazy: () =>
                   import("@/pages/settings/connectors/existing-connectors"),
               },
-              {
-                path: "add-connector",
-                lazy: () => import("@/pages/settings/connectors/add-connector"),
-              },
             ],
           },
           {

@@ -8,9 +8,9 @@
     /* #ffffff */
     --foreground: #1E1E2A;
     /* #09090b */
-    --card: #ffffff;
+    --main: #ffffff;
     /* #ffffff */
-    --card-foreground: #09090b;
+    --main-foreground: #09090b;
     /* #09090b */
     --popover: #ffffff;
     /* #ffffff */
@@ -53,9 +53,9 @@
     /* #09090b */
     --foreground: 0 0% 98%;
     /* #fafafa */
-    --card: 240 10% 3.9%;
+    --main: 240 10% 3.9%;
     /* #09090b */
-    --card-foreground: 0 0% 98%;
+    --main-foreground: 0 0% 98%;
     /* #fafafa */
     --popover: 240 10% 3.9%;
     /* #09090b */
@@ -209,4 +209,16 @@ em-emoji-picker {
 .break-overflow-word {
   overflow-wrap: break-word;
   word-break: break-word;
+}
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+ /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+}
 }

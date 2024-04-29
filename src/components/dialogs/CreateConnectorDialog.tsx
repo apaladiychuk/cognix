@@ -28,7 +28,7 @@ const formSchema = z.object({
   source: z.string(),
   connector_specific_config: z.record(z.string()),
   refresh_freq: z.union([z.string().email(), z.literal("")]),
-  credential_id: z.number(),
+  credential_id: z.string(),
 });
 
 export function CreateConnectorDialog({
@@ -53,14 +53,6 @@ export function CreateConnectorDialog({
       ...defaultValues,
     },
   });
-
-  //   useEffect(() => {
-  //     if (activeTab === 'existing') {
-  //       form.setValue('new_customer_email', '');
-  //     } else if (activeTab === 'create') {
-  //       form.setValue('customer_id', '');
-  //     }
-  //   }, [activeTab]);
 
   const { trigger: triggerCreateConnector } =
     useMutation<CreateConnectorSchema>(
@@ -131,14 +123,17 @@ export function CreateConnectorDialog({
             <FormField
               control={form.control}
               name="connector_specific_config"
-              render={({...field}) => (
+              render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <textarea
                       className="h-28 w-full p-3 rounded-md"
                       style={{ resize: "none" }}
                       placeholder="Connector Specific Configuration"
-                      {...field}
+                      value={field.value.value}
+                      onChange={() => {
+                        field.onChange;
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -152,7 +147,11 @@ export function CreateConnectorDialog({
               render={(field) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Refresh Frequency" type="text" {...field}/>
+                    <Input
+                      placeholder="Refresh Frequency"
+                      type="text"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,7 +168,8 @@ export function CreateConnectorDialog({
                       className="h-28 w-full p-3 rounded-md"
                       style={{ resize: "none" }}
                       placeholder="Connector credential"
-                      {...field}
+                      value={field.field.value}
+                      onChange={field.field.onChange}
                     />
                   </FormControl>
                   <FormMessage />

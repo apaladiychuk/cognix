@@ -13,3 +13,11 @@ export const virtuosoClassName = cn(
   "[&::-webkit-scrollbar]:bg-transparent [&::-webkit-scrollbar]:w-2",
   "[&::-webkit-scrollbar-thumb]:dark:bg-muted [&::-webkit-scrollbar-thumb]:bg-muted-foreground/40 [&::-webkit-scrollbar-thumb]:rounded"
 );
+
+export function dataConverter(dateString: string) {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}

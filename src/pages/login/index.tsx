@@ -4,7 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 
 export function LoginComponent() {
-  const [error] = useState<string | null>(null); // Updated initial state
+  const [error] = useState<string | null>(null);
 
   function login(): void {
     axios

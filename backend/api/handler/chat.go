@@ -117,7 +117,11 @@ func (h *ChatHandler) SendMessage(c *gin.Context, identity *security.Identity) e
 	}
 	c.Stream(func(w io.Writer) bool {
 		response, ok := assistant.Receive()
-		c.SSEvent(responder.ResponseMessage, response.Message)
+		if response.IsValid {
+			c.SSEvent(responder.ResponseMessage, response.Message)
+			return ok
+		}
+		c.SSEvent(responder.ResponseError, response.Message)
 		return ok
 	})
 	return nil

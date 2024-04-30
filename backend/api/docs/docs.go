@@ -288,6 +288,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/manage/connector/source_types": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "return list of source types",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "return list of source types",
+                "operationId": "connectors_get_source_types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.SourceTypeDescription"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/manage/connector/{id}": {
             "get": {
                 "security": [
@@ -1619,7 +1648,8 @@ const docTemplate = `{
                 "google_sites",
                 "zendesk",
                 "loopio",
-                "sharepoint"
+                "sharepoint",
+                "msteams"
             ],
             "x-enum-varnames": [
                 "SourceTypeIngestionApi",
@@ -1646,8 +1676,23 @@ const docTemplate = `{
                 "SourceTypeGoogleSites",
                 "SourceTypeZendesk",
                 "SourceTypeLoopio",
-                "SourceTypeSharepoint"
+                "SourceTypeSharepoint",
+                "SourceTypeMsTeams"
             ]
+        },
+        "model.SourceTypeDescription": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "$ref": "#/definitions/model.SourceType"
+                },
+                "isImplemented": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
         },
         "model.Tenant": {
             "type": "object",

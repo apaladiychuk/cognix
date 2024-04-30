@@ -14,9 +14,16 @@ type LLM struct {
 	ModelID     string          `json:"model_id,omitempty"`
 	TenantID    uuid.UUID       `json:"tenant_id,omitempty"`
 	Url         string          `json:"url,omitempty"`
-	ApiKey      string          `json:"-"`
+	ApiKey      string          `json:"api_key"`
 	Endpoint    string          `json:"endpoint,omitempty"`
 	CreatedDate time.Time       `json:"created_date,omitempty"`
 	UpdatedDate pg.NullTime     `json:"updated_date,omitempty" pg:",use_zero"`
 	DeletedDate pg.NullTime     `json:"deleted_date,omitempty" pg:",use_zero"`
+}
+
+func (l *LLM) MaskApiKey() string {
+	if len(l.ApiKey) < 10 {
+		return "***"
+	}
+	return string(l.ApiKey[:4]) + "***" + l.ApiKey[len(l.ApiKey)-4:]
 }

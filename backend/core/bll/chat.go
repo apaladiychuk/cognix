@@ -16,7 +16,7 @@ type ChatBL interface {
 	GetSessions(ctx context.Context, user *model.User) ([]*model.ChatSession, error)
 	GetSessionByID(ctx context.Context, user *model.User, id int64) (*model.ChatSession, error)
 	CreateSession(ctx context.Context, user *model.User, param *parameters.CreateChatSession) (*model.ChatSession, error)
-	SendMessage(ctx *gin.Context, user *model.User, param *parameters.CreateChatMessageRequest) (responder.ChatResponder, error)
+	SendMessage(ctx *gin.Context, user *model.User, param *parameters.CreateChatMessageRequest) (*responder.Manager, error)
 	FeedbackMessage(ctx *gin.Context, user *model.User, id int64, vote bool) (*model.ChatMessageFeedback, error)
 }
 type chatBL struct {
@@ -44,7 +44,7 @@ func (b *chatBL) FeedbackMessage(ctx *gin.Context, user *model.User, id int64, v
 	return feedback, nil
 }
 
-func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *parameters.CreateChatMessageRequest) (responder.ChatResponder, error) {
+func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *parameters.CreateChatMessageRequest) (*responder.Manager, error) {
 	chatSession, err := b.chatRepo.GetSessionByID(ctx.Request.Context(), user.ID, param.ChatSessionId.IntPart())
 	if err != nil {
 		return nil, err
@@ -59,12 +59,11 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 		return nil, err
 	}
 	aiClient := b.aiBuilder.New(chatSession.Persona.LLM)
-	resp := responder.NewAIResponder(aiClient, b.chatRepo)
+	resp := responder.NewManager(
+		responder.NewAIResponder(aiClient, b.chatRepo),
+		responder.NewEmbeddingResponder())
 
-	if err = resp.Send(ctx, &message); err != nil {
-		return nil, err
-	}
-
+	go resp.Send(ctx, &message)
 	return resp, nil
 }
 

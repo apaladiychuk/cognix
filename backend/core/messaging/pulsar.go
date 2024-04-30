@@ -2,18 +2,17 @@ package messaging
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"github.com/apache/pulsar-client-go/pulsar"
-	"github.com/google/uuid"
-	"log"
+	"go.uber.org/zap"
 	"time"
 )
 
 type (
 	pulsarConfig struct {
-		URL               string        `env:"PULSAR_URL"`
-		OperationTimeout  time.Duration `env:"OPERATION_TIMEOUT" envDefault:"30"`
-		ConnectionTimeout time.Duration `env:"CONNECTION_TIMEOUT" envDefault:"30"`
+		URL               string `env:"PULSAR_URL"`
+		OperationTimeout  int    `env:"OPERATION_TIMEOUT" envDefault:"30"`
+		ConnectionTimeout int    `env:"CONNECTION_TIMEOUT" envDefault:"30"`
 	}
 	pulsarClient struct {
 		conn       pulsar.Client
@@ -44,33 +43,50 @@ func (p *pulsarClient) Publish(ctx context.Context, topic string, body interface
 	return err
 }
 
-func (p *pulsarClient) Listen(_ context.Context, topic string) (<-chan *Message, error) {
+func (p *pulsarClient) Listen(ctx context.Context, topic, subscriptionName string) (<-chan *Message, error) {
 	consumer, err := p.conn.Subscribe(pulsar.ConsumerOptions{
 		Topic:            topic,
-		SubscriptionName: uuid.New().String(),
+		SubscriptionName: subscriptionName,
 		Type:             pulsar.Shared,
 	})
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	defer consumer.Close()
 
-	for i := 0; i < 10; i++ {
-		// may block here
-		msg, err := consumer.Receive(context.Background())
-		if err != nil {
-			log.Fatal(err)
+	msgCh := make(chan *Message, 1)
+
+	go func() {
+		defer consumer.Close()
+		for {
+			// may block here
+			select {
+			case <-ctx.Done():
+				close(msgCh)
+				break
+			default:
+
+			}
+			msg, err := consumer.Receive(ctx)
+			if err != nil {
+				zap.S().Errorf("Receive message error: %s", err.Error())
+				break
+			}
+			var message Message
+			if err := json.Unmarshal(msg.Payload(), &message); err != nil {
+				zap.S().Errorf("Error unmarshalling message: %s", string(msg.Payload()))
+				continue
+			}
+			msgCh <- &message
+			if err = consumer.Ack(msg); err != nil {
+				zap.S().Errorf("Ack message error: %s", err.Error())
+			}
 		}
+		if err = consumer.Unsubscribe(); err != nil {
+			zap.S().Errorf("Unsubscribe message error: %s", err.Error())
+		}
+	}()
 
-		fmt.Printf("Received message msgId: %#v -- content: '%s'\n",
-			msg.ID(), string(msg.Payload()))
-
-		consumer.Ack(msg)
-	}
-
-	if err := consumer.Unsubscribe(); err != nil {
-		log.Fatal(err)
-	}
+	return msgCh, nil
 }
 
 func (p *pulsarClient) Close() {
@@ -83,8 +99,8 @@ func (p *pulsarClient) Close() {
 func NewPulsar(cfg *pulsarConfig) (Client, error) {
 	coon, err := pulsar.NewClient(pulsar.ClientOptions{
 		URL:               cfg.URL,
-		OperationTimeout:  cfg.OperationTimeout * time.Second,
-		ConnectionTimeout: cfg.ConnectionTimeout * time.Second,
+		OperationTimeout:  time.Duration(cfg.OperationTimeout) * time.Second,
+		ConnectionTimeout: time.Duration(cfg.ConnectionTimeout) * time.Second,
 	})
 	if err != nil {
 		return nil, err

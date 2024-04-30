@@ -45,7 +45,7 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 	if cred.Source != model.SourceType(param.Source) {
 		return nil, utils.InvalidInput.New("wrong credential source")
 	}
-	connector := model.Connector{
+	conn := model.Connector{
 		CredentialID:            param.CredentialID,
 		Name:                    param.Name,
 		Source:                  model.SourceType(param.Source),
@@ -58,8 +58,8 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 		Disabled:                param.Disabled,
 		CreatedDate:             time.Now().UTC(),
 	}
-	if param.CredentialID != 0 {
-		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID, user.TenantID, user.ID)
+	if param.CredentialID.IntPart() != 0 {
+		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -72,7 +72,7 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 	if err := c.connectorRepo.Create(ctx, &conn); err != nil {
 		return nil, err
 	}
-	if err := c.messenger.Publish(ctx, model.TopicUpdateConnector, connector.Trigger{ID: conn.ID}); err != nil {
+	if err := c.messenger.Publish(ctx, model.TopicUpdateConnector, connector.Trigger{ID: conn.ID.IntPart()}); err != nil {
 		return nil, err
 	}
 	return &conn, nil
@@ -83,8 +83,8 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 	if err != nil {
 		return nil, err
 	}
-	if param.CredentialID != 0 {
-		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID, user.TenantID, user.ID)
+	if param.CredentialID.IntPart() != 0 {
+		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -104,7 +104,7 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 	if err = c.connectorRepo.Update(ctx, conn); err != nil {
 		return nil, err
 	}
-	if err = c.messenger.Publish(ctx, model.TopicUpdateConnector, connector.Trigger{ID: conn.ID}); err != nil {
+	if err = c.messenger.Publish(ctx, model.TopicUpdateConnector, connector.Trigger{ID: conn.ID.IntPart()}); err != nil {
 		return nil, err
 	}
 

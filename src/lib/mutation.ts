@@ -10,9 +10,10 @@ export const useMutation = <
   headers?: Record<string, string>,
   options?: Parameters<typeof useSWRMutation<ResponseData, any, string, RequestData>>[2]
 ) => {
+
   return useSWRMutation<ResponseData, any, string | null, RequestData>(
     path,
-    (key, { arg }) => axios(key, {method: method, params: arg, headers: headers}),
+    (key, { arg }) => axios(key, {method: method, data: arg, headers: headers}),
     options
   );
 };

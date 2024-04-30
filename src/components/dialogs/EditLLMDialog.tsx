@@ -21,24 +21,27 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { useMutation } from "@/lib/mutation";
-import { CreateConnectorSchema } from "@/lib/schemas/connectors";
+import { LLMSchema } from "@/lib/schemas/llms";
 import { TextArea } from "../ui/textarea";
 
 const formSchema = z.object({
-  connector_id: z.number(),
-  source: z.string(),
-  connector_specific_config: z.record(z.string()),
-  refresh_freq: z.union([z.string().email(), z.literal("")]),
-  credential_id: z.string(),
+  name: z.string(),
+  model_id: z.string(),
+  url: z.string(),
+  api_key: z.string(),
+  endpoint: z.string(),
+  system_prompt: z.string(),
+  task_prompt: z.string(),
+  description: z.string(),
 });
 
-export function CreateConnectorDialog({
-  defaultValues,
+export function EditLLMDialog({
+  values,
   children,
   open,
   onOpenChange,
 }: {
-  defaultValues?: DefaultValues<z.infer<typeof formSchema>>;
+  values?: DefaultValues<z.infer<typeof formSchema>>;
   children?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -46,29 +49,26 @@ export function CreateConnectorDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      source: "",
-      connector_specific_config: {},
-      refresh_freq: "",
-      credential_id: undefined,
-      connector_id: undefined,
-      ...defaultValues,
+      ...values,
     },
   });
 
-  const { trigger: triggerCreateConnector } =
-    useMutation<CreateConnectorSchema>(
-      import.meta.env.VITE_PLATFORM_API_CONNECTOR_CREATE_URL,
-      "POST"
-    );
+  const { trigger: triggerEditLLM } = useMutation<LLMSchema>(
+    import.meta.env.VITE_PLATFORM_API_LLM_CREATE_URL,
+    "POST"
+  );
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await triggerCreateConnector({
-        source: values.source,
-        connector_specific_config: values.connector_specific_config,
-        refresh_freq: values.refresh_freq,
-        credential_id: values.credential_id,
-        connector_id: values.connector_id,
+      await triggerEditLLM({
+        name: values.name,
+        model_id: values.model_id,
+        url: values.url,
+        api_key: values.api_key,
+        endpoint: values.endpoint,
+        system_prompt: values.system_prompt,
+        task_prompt: values.task_prompt,
+        description: values.description,
       });
     } catch (e) {
       console.log(e);
@@ -86,35 +86,24 @@ export function CreateConnectorDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Connector</DialogTitle>
+          <DialogTitle>Edit LLM</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="max-w-full space-y-4 overflow-hidden px-0.5"
+            className="max-w-full space-y-4 overflow-hidden px-0.5 bg-white"
             onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
           >
             <FormField
               control={form.control}
-              name="connector_id"
-              render={(field) => (
-                <FormItem>
-                  <FormLabel>Connector</FormLabel>
-                  <FormControl>
-                    <Input value={field.field.value} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="source"
+              name="name"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                    Name
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Source" {...field} />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -123,12 +112,81 @@ export function CreateConnectorDialog({
 
             <FormField
               control={form.control}
-              name="connector_specific_config"
-              render={( field ) => (
+              name="model_id"
+              render={({ field }) => (
                 <FormItem>
+                  <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                    Model ID
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                    URL
+                  </FormLabel>
+
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="api_key"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                    API Key
+                  </FormLabel>
+
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="endpoint"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                    Endpoint
+                  </FormLabel>
+
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="system_prompt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="fixed ml-2 mt-1 text-center px-1 bg-white text-muted-foreground">
+                    System Prompt
+                  </FormLabel>
+
                   <FormControl>
                     <TextArea
-                      placeholder="Connector Specific Configuration"
                       {...field}
                     />
                   </FormControl>
@@ -136,32 +194,17 @@ export function CreateConnectorDialog({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
-              name="refresh_freq"
-              render={(field) => (
+              name="task_prompt"
+              render={({ field }) => (
                 <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder="Refresh Frequency"
-                      type="text"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                  <FormLabel className="fixed ml-2 mt-1 text-center px-1 bg-white text-muted-foreground">
+                    Task Prompt
+                  </FormLabel>
 
-            <FormField
-              control={form.control}
-              name="credential_id"
-              render={(field) => (
-                <FormItem>
                   <FormControl>
                     <TextArea
-                      placeholder="Connector credential"
                       {...field}
                     />
                   </FormControl>
@@ -175,12 +218,12 @@ export function CreateConnectorDialog({
                   variant="outline"
                   className={`${buttonVariants({
                     variant: "destructive",
-                  })} w-full h-10`}
+                  })} text-md w-full h-10`}
                 >
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" className="w-full h-10">
+              <Button type="submit" className="text-md w-full h-10">
                 Add
               </Button>
             </DialogFooter>

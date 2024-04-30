@@ -4,30 +4,34 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"context"
 	"fmt"
+	"sync"
 	"time"
 )
 
 const (
-	ResponseMessage = "message"
-	ResponseError   = "error"
+	ResponseMessage  = "message"
+	ResponseError    = "error"
+	ResponseDocument = "document"
+	ResponseEnd      = "end"
 )
 
 type Response struct {
-	IsValid bool
-	Message *model.ChatMessage
+	IsValid  bool
+	Type     string
+	Message  *model.ChatMessage
+	Document *model.Document
 }
 
 type ChatResponder interface {
-	Send(cx context.Context, parentMessage *model.ChatMessage) error
-	Receive() (*Response, bool)
+	Send(cx context.Context, ch chan *Response, wg *sync.WaitGroup, parentMessage *model.ChatMessage)
 }
-
 type nopResponder struct {
 	ch chan string
 }
 
-func (r *nopResponder) Send(cx context.Context, parentMessage *model.ChatMessage) error {
+func (r *nopResponder) Send(cx context.Context, ch chan *Response, wg *sync.WaitGroup, parentMessage *model.ChatMessage) {
 	go func() {
+		defer wg.Done()
 		i := 0
 		for i < 3 {
 			time.Sleep(20 * time.Second)
@@ -37,7 +41,7 @@ func (r *nopResponder) Send(cx context.Context, parentMessage *model.ChatMessage
 		close(r.ch)
 	}()
 
-	return nil
+	return
 }
 
 func (r *nopResponder) Receive() (*Response, bool) {

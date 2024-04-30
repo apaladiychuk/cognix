@@ -5,16 +5,17 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/repository"
 	"context"
+	"sync"
 	"time"
 )
 
 type aiResponder struct {
 	aiClient ai.OpenAIClient
 	charRepo repository.ChatRepository
-	ch       chan *Response
 }
 
-func (r *aiResponder) Send(ctx context.Context, parentMessage *model.ChatMessage) error {
+func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.WaitGroup, parentMessage *model.ChatMessage) {
+
 	response, err := r.aiClient.Request(ctx, parentMessage.Message)
 	message := model.ChatMessage{
 		ChatSessionID: parentMessage.ChatSessionID,
@@ -32,18 +33,16 @@ func (r *aiResponder) Send(ctx context.Context, parentMessage *model.ChatMessage
 		err = errr
 		message.Error = err.Error()
 	}
-	go func() {
-		r.ch <- &Response{
-			IsValid: err == nil,
-			Message: &message,
-		}
-	}()
-	return nil
-}
-
-func (r *aiResponder) Receive() (*Response, bool) {
-	response := <-r.ch
-	return response, false
+	payload := &Response{
+		IsValid: err == nil,
+		Type:    ResponseMessage,
+		Message: &message,
+	}
+	if err != nil {
+		payload.Type = ResponseError
+	}
+	ch <- payload
+	wg.Done()
 }
 
 func NewAIResponder(
@@ -52,6 +51,5 @@ func NewAIResponder(
 ) ChatResponder {
 	return &aiResponder{aiClient: aiClient,
 		charRepo: charRepo,
-		ch:       make(chan *Response),
 	}
 }

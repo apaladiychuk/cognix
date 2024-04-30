@@ -3,7 +3,6 @@ package handler
 import (
 	"cognix.ch/api/v2/core/bll"
 	"cognix.ch/api/v2/core/parameters"
-	"cognix.ch/api/v2/core/responder"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
 	"cognix.ch/api/v2/core/utils"
@@ -117,11 +116,10 @@ func (h *ChatHandler) SendMessage(c *gin.Context, identity *security.Identity) e
 	}
 	c.Stream(func(w io.Writer) bool {
 		response, ok := assistant.Receive()
-		if response.IsValid {
-			c.SSEvent(responder.ResponseMessage, response.Message)
-			return ok
+		if !ok {
+			return false
 		}
-		c.SSEvent(responder.ResponseError, response.Message)
+		c.SSEvent(response.Type, response)
 		return ok
 	})
 	return nil

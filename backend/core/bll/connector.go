@@ -9,6 +9,7 @@ import (
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/go-pg/pg/v10"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
@@ -38,13 +39,7 @@ func NewConnectorBL(connectorRepo repository.ConnectorRepository,
 }
 
 func (c *connectorBL) Create(ctx context.Context, user *model.User, param *parameters.CreateConnectorParam) (*model.Connector, error) {
-	cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
-	if err != nil {
-		return nil, err
-	}
-	if cred.Source != model.SourceType(param.Source) {
-		return nil, utils.InvalidInput.New("wrong credential source")
-	}
+
 	conn := model.Connector{
 		CredentialID:            param.CredentialID,
 		Name:                    param.Name,
@@ -58,15 +53,15 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 		Disabled:                param.Disabled,
 		CreatedDate:             time.Now().UTC(),
 	}
-	if param.CredentialID.IntPart() != 0 {
-		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
+	if param.CredentialID.Valid {
+		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.Decimal.IntPart(), user.TenantID, user.ID)
 		if err != nil {
 			return nil, err
 		}
 		if cred.Source != model.SourceType(param.Source) {
 			return nil, utils.InvalidInput.New("wrong credential source")
 		}
-		conn.CredentialID = cred.ID
+		conn.CredentialID = decimal.NewNullDecimal(cred.ID)
 	}
 
 	if err := c.connectorRepo.Create(ctx, &conn); err != nil {
@@ -83,8 +78,8 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 	if err != nil {
 		return nil, err
 	}
-	if param.CredentialID.IntPart() != 0 {
-		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
+	if param.CredentialID.Valid {
+		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.Decimal.IntPart(), user.TenantID, user.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -101,13 +96,16 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 	conn.Disabled = param.Disabled
 	conn.UpdatedDate = pg.NullTime{time.Now().UTC()}
 
+	//	sql.NullTime{
+	//Time:  time.Now().UTC(),
+	//Valid: true,
+	//	} //  null.TimeFrom(time.Now().UTC())
 	if err = c.connectorRepo.Update(ctx, conn); err != nil {
 		return nil, err
 	}
 	if err = c.messenger.Publish(ctx, model.TopicUpdateConnector, connector.Trigger{ID: conn.ID.IntPart()}); err != nil {
 		return nil, err
 	}
-
 	return conn, nil
 }
 

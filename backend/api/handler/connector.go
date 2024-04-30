@@ -2,8 +2,10 @@ package handler
 
 import (
 	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/repository"
+	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
 	"cognix.ch/api/v2/core/utils"
 	"github.com/gin-gonic/gin"
@@ -24,6 +26,7 @@ func NewCollectorHandler(connectorRepo repository.ConnectorRepository,
 func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := route.Group("/api/manage/connector")
 	handler.Use(authMiddleware)
+	handler.GET("/source_types", server.HandlerErrorFuncAuth(h.GetSourceTypes))
 	handler.GET("/", server.HandlerErrorFunc(h.GetAll))
 	handler.GET("/:id", server.HandlerErrorFunc(h.GetById))
 	handler.POST("/", server.HandlerErrorFunc(h.Create))
@@ -97,6 +100,9 @@ func (h *ConnectorHandler) Create(c *gin.Context) error {
 	if err = c.BindJSON(&param); err != nil {
 		return utils.InvalidInput.Wrap(err, "wrong payload")
 	}
+	if err = param.Validate(); err != nil {
+		return utils.InvalidInput.Wrap(err, err.Error())
+	}
 	connector, err := h.connectorBL.Create(c.Request.Context(), identity.User, &param)
 	if err != nil {
 		return err
@@ -133,4 +139,21 @@ func (h *ConnectorHandler) Update(c *gin.Context) error {
 		return err
 	}
 	return server.JsonResult(c, http.StatusOK, connector)
+}
+
+// GetSourceTypes return list of source types
+// @Summary return list of source types
+// @Description return list of source types
+// @Tags Connectors
+// @ID connectors_get_source_types
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {array} model.SourceTypeDescription
+// @Router /manage/connector/source_types [get]
+func (h *ConnectorHandler) GetSourceTypes(c *gin.Context, identity *security.Identity) error {
+	result := make([]*model.SourceTypeDescription, 0, len(model.AllSourceTypes))
+	for _, t := range model.AllSourceTypes {
+		result = append(result, &t)
+	}
+	return server.JsonResult(c, http.StatusOK, result)
 }

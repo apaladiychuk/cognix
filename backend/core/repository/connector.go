@@ -8,6 +8,7 @@ import (
 	"github.com/go-pg/pg/v10/orm"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+	"github.com/shopspring/decimal"
 )
 
 type (
@@ -28,7 +29,7 @@ type (
 
 func (r *connectorRepository) UpdateStatistic(ctx context.Context, connector *model.Connector) error {
 	var updatedDocs, newDocs []*model.Document
-	var deletedDocs []int64
+	var deletedDocs []decimal.Decimal
 	var docIndexed int
 	for _, doc := range connector.Docs {
 		if !doc.IsExists {
@@ -39,7 +40,7 @@ func (r *connectorRepository) UpdateStatistic(ctx context.Context, connector *mo
 		if !doc.IsUpdated {
 			continue
 		}
-		if doc.ID == 0 {
+		if doc.ID.IntPart() == 0 {
 			newDocs = append(newDocs, doc)
 			continue
 		}

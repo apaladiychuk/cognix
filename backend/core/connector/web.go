@@ -87,7 +87,7 @@ func (c *Web) onBody(e *colly.HTMLElement) {
 		return
 	}
 	doc.Signature = signature
-	if doc.ID != 0 {
+	if doc.ID.IntPart() != 0 {
 		doc.IsUpdated = true
 		doc.UpdatedDate = pg.NullTime{time.Now().UTC()}
 	}

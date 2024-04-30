@@ -99,6 +99,9 @@ func (h *CredentialHandler) Create(c *gin.Context) error {
 	if err = c.BindJSON(&param); err != nil {
 		return utils.InvalidInput.Wrap(err, "wrong payload")
 	}
+	if err = param.Validate(); err != nil {
+		return utils.InvalidInput.Wrap(err, err.Error())
+	}
 	credential, err := h.credentialBl.Create(c.Request.Context(), ident.User, &param)
 	if err != nil {
 		return err

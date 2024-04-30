@@ -3,13 +3,14 @@ package model
 import (
 	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
 type (
 	DocumentSet struct {
 		tableName   struct{}                    `pg:"document_sets"`
-		ID          int64                       `json:"id,omitempty"`
+		ID          decimal.Decimal             `json:"id,omitempty"`
 		UserID      uuid.UUID                   `json:"user_id,omitempty"`
 		Name        string                      `json:"name,omitempty"`
 		Description string                      `json:"description,omitempty"`
@@ -21,9 +22,9 @@ type (
 	}
 
 	DocumentSetConnectorPair struct {
-		tableName     struct{} `pg:"document_set_connector_pairs"`
-		DocumentSetID int64    `json:"document_set_id,omitempty"`
-		ConnectorID   int64    `json:"connector_id,omitempty"`
-		IsCurrent     bool     `json:"is_current,omitempty" pg:",use_zero"`
+		tableName     struct{}        `pg:"document_set_connector_pairs"`
+		DocumentSetID decimal.Decimal `json:"document_set_id,omitempty"`
+		ConnectorID   decimal.Decimal `json:"connector_id,omitempty"`
+		IsCurrent     bool            `json:"is_current,omitempty" pg:",use_zero"`
 	}
 )

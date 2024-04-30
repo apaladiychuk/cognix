@@ -13,7 +13,11 @@ on:
   push:
     branches:
       - main
-
+    paths:
+      - 'backend/api/**'
+      - 'backend/core/**'
+      - 'backend/go.mod'
+      - '.github/workflows/api-service-build.yml'
 env:
   RGNAME: AKS_RG
   ACRNAME: cognixacr

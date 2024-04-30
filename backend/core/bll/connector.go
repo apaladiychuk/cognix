@@ -38,8 +38,15 @@ func NewConnectorBL(connectorRepo repository.ConnectorRepository,
 }
 
 func (c *connectorBL) Create(ctx context.Context, user *model.User, param *parameters.CreateConnectorParam) (*model.Connector, error) {
-	conn := model.Connector{
-
+	cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
+	if err != nil {
+		return nil, err
+	}
+	if cred.Source != model.SourceType(param.Source) {
+		return nil, utils.InvalidInput.New("wrong credential source")
+	}
+	connector := model.Connector{
+		CredentialID:            param.CredentialID,
 		Name:                    param.Name,
 		Source:                  model.SourceType(param.Source),
 		InputType:               param.InputType,

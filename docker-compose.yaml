@@ -13,7 +13,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - config/cocroach.env
+      - config/cockroach.env
       - config/minio.env
       - config/.env
     volumes:
@@ -30,8 +30,10 @@ services:
         service: orchestrator
       dockerfile: Dockerfile.dev
     env_file:
-      - config/cocroach.env
+      - config/cockroach.env
       - config/nats.env
+      - config/pulsar.env
+      - config/.env
     volumes:
       - ./backend:/backend
     networks:
@@ -45,8 +47,10 @@ services:
         service: connector
       dockerfile: Dockerfile.dev
     env_file:
-      - config/cocroach.env
+      - config/cockroach.env
       - config/nats.env
+      - config/pulsar.env
+      - config/.env
     volumes:
       - ./backend:/backend
     networks:
@@ -90,7 +94,7 @@ services:
     image: cockroachdb/cockroach:latest-v23.2
     ports:
       - "26257:26257"
-      - "18080:8080"
+      - "28080:8080"
     command: start-single-node --insecure
     volumes:
       - "db_volume:/cockroach/cockroach-data"
@@ -103,7 +107,7 @@ services:
     volumes:
       - ./migration/versions:/versions
     env_file:
-      - config/cocroach.env
+      - config/cockroach.env
     networks:
       - dev-network
 

@@ -3,7 +3,6 @@ services:
   zookeeper:
     image: apachepulsar/pulsar:latest
     container_name: zookeeper
-    restart: on-failure
     networks:
       - dev-network
     volumes:
@@ -43,7 +42,6 @@ services:
   bookie:
     image: apachepulsar/pulsar:latest
     container_name: bookie
-    restart: on-failure
     networks:
       - dev-network
     environment:
@@ -69,7 +67,6 @@ services:
     image: apachepulsar/pulsar:latest
     container_name: broker
     hostname: broker
-    restart: on-failure
     networks:
       - dev-network
     environment:
@@ -89,7 +86,7 @@ services:
         condition: service_started
     ports:
       - "6650:6650"
-      - "8080:8080"
+      - "18080:8080"
     command: bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
 networks:
   dev-network:

@@ -20,7 +20,7 @@ type executor struct {
 }
 
 func (e *executor) run(ctx context.Context) error {
-	ch, err := e.streamClient.Listen(model.TopicExecutor)
+	ch, err := e.streamClient.Listen(ctx, model.TopicExecutor, model.SubscriptionExecutor)
 	if err != nil {
 		return err
 	}

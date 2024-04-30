@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -16,9 +17,9 @@ const (
 
 type (
 	Config struct {
-		Provider string `env:"PROVIDER" default:"nats"`
-		nats     *natsConfig
-		pulsar   *pulsarConfig
+		Provider string `env:"MESSAGING_PROVIDER" default:"nats"`
+		Nats     *natsConfig
+		Pulsar   *pulsarConfig
 	}
 	natsConfig struct {
 		URL                 string `env:"NATS_URL"`
@@ -44,11 +45,15 @@ const (
 var NatsModule = fx.Options(
 	fx.Provide(func() (*Config, error) {
 		cfg := Config{
-			pulsar: &pulsarConfig{},
-			nats:   &natsConfig{},
+			Pulsar: &pulsarConfig{},
+			Nats:   &natsConfig{},
 		}
 		err := utils.ReadConfig(&cfg)
-		return &cfg, err
+		if err != nil {
+			zap.S().Errorf(err.Error())
+			return nil, err
+		}
+		return &cfg, nil
 	},
 		NewClient,
 	),
@@ -57,9 +62,9 @@ var NatsModule = fx.Options(
 func NewClient(cfg *Config) (Client, error) {
 	switch cfg.Provider {
 	case providerNats:
-		return newNatsClient(cfg.nats)
+		return newNatsClient(cfg.Nats)
 	case providerPulsar:
-		return NewPulsar(cfg.pulsar)
+		return NewPulsar(cfg.Pulsar)
 	}
 	return nil, fmt.Errorf("unknown provider %s", cfg.Provider)
 }

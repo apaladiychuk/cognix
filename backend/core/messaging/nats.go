@@ -41,7 +41,7 @@ func (c *client) Publish(ctx context.Context, topic string, body interface{}) er
 	return nil
 }
 
-func (c *client) Listen(_ context.Context, topic string) (<-chan *Message, error) {
+func (c *client) Listen(_ context.Context, topic, subscriptionName string) (<-chan *Message, error) {
 	out := make(chan *Message)
 	subscription, err := c.conn.Subscribe(topic,
 		func(msg *nats.Msg) {

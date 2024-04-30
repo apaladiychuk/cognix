@@ -15,7 +15,7 @@ import (
 
 type Client interface {
 	Publish(ctx context.Context, topic string, body interface{}) error
-	Listen(ctx context.Context, topic string) (<-chan *Message, error)
+	Listen(ctx context.Context, topic, subscriptionName string) (<-chan *Message, error)
 	Close()
 }
 
@@ -51,7 +51,7 @@ func (c *clientStream) Publish(ctx context.Context, topic string, body interface
 	return nil
 }
 
-func (c *clientStream) Listen(_ context.Context, topic string) (<-chan *Message, error) {
+func (c *clientStream) Listen(_ context.Context, topic, subscriptionName string) (<-chan *Message, error) {
 	out := make(chan *Message)
 	subscription, err := c.stream.Subscribe(fmt.Sprintf("%s.%s", c.connectorStreamName, topic),
 		func(msg *nats.Msg) {

@@ -25,9 +25,7 @@ func NewServer(connectorRepo repository.ConnectorRepository,
 }
 
 func (s *Server) run(ctx context.Context) error {
-	if err := s.onStart(ctx); err != nil {
-		return err
-	}
+
 	zap.S().Infof("Start listener ...")
 	go s.listen(context.Background())
 	return nil
@@ -47,7 +45,12 @@ func (s *Server) onStart(ctx context.Context) error {
 }
 
 func (s *Server) listen(ctx context.Context) error {
-	ch, err := s.messenger.Listen(model.TopicUpdateConnector)
+
+	if err := s.onStart(ctx); err != nil {
+		return err
+	}
+
+	ch, err := s.messenger.Listen(ctx, model.TopicUpdateConnector, model.SubscriptionOrchestrator)
 	if err != nil {
 		return err
 	}

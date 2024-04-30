@@ -137,7 +137,11 @@ func (r *connectorRepository) GetByID(ctx context.Context, id int64) (*model.Con
 }
 
 func (r *connectorRepository) Create(ctx context.Context, connector *model.Connector) error {
-	if _, err := r.db.WithContext(ctx).Model(connector).Insert(); err != nil {
+	stm := r.db.WithContext(ctx).Model(connector)
+	if !connector.CredentialID.Valid {
+		stm = stm.ExcludeColumn("credential_id")
+	}
+	if _, err := stm.Insert(); err != nil {
 		return utils.Internal.Wrap(err, "can not create connector")
 	}
 	return nil

@@ -7,6 +7,7 @@ import (
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/go-pg/pg/v10"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
@@ -31,14 +32,8 @@ func NewConnectorBL(connectorRepo repository.ConnectorRepository, credentialRepo
 }
 
 func (c *connectorBL) Create(ctx context.Context, user *model.User, param *parameters.CreateConnectorParam) (*model.Connector, error) {
-	cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
-	if err != nil {
-		return nil, err
-	}
-	if cred.Source != model.SourceType(param.Source) {
-		return nil, utils.InvalidInput.New("wrong credential source")
-	}
-	connector := model.Connector{
+
+	conn := model.Connector{
 		CredentialID:            param.CredentialID,
 		Name:                    param.Name,
 		Source:                  model.SourceType(param.Source),
@@ -51,41 +46,54 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 		Disabled:                param.Disabled,
 		CreatedDate:             time.Now().UTC(),
 	}
-	if err = c.connectorRepo.Create(ctx, &connector); err != nil {
+	if param.CredentialID.Valid {
+		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.Decimal.IntPart(), user.TenantID, user.ID)
+		if err != nil {
+			return nil, err
+		}
+		if cred.Source != model.SourceType(param.Source) {
+			return nil, utils.InvalidInput.New("wrong credential source")
+		}
+		conn.CredentialID = decimal.NewNullDecimal(cred.ID)
+	}
+
+	if err := c.connectorRepo.Create(ctx, &conn); err != nil {
 		return nil, err
 	}
-	return &connector, nil
+	return &conn, nil
 }
 
 func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateConnectorParam) (*model.Connector, error) {
-	connector, err := c.connectorRepo.GetByID(ctx, user.TenantID, user.ID, id)
+	conn, err := c.connectorRepo.GetByID(ctx, user.TenantID, user.ID, id)
 	if err != nil {
 		return nil, err
 	}
-	cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.IntPart(), user.TenantID, user.ID)
-	if err != nil {
-		return nil, err
+	if param.CredentialID.Valid {
+		cred, err := c.credentialRepo.GetByID(ctx, param.CredentialID.Decimal.IntPart(), user.TenantID, user.ID)
+		if err != nil {
+			return nil, err
+		}
+		if cred.Source != conn.Source {
+			return nil, utils.InvalidInput.New("wrong credential source")
+		}
 	}
-	if cred.Source != connector.Source {
-		return nil, utils.InvalidInput.New("wrong credential source")
-	}
-	connector.ConnectorSpecificConfig = param.ConnectorSpecificConfig
-	connector.CredentialID = param.CredentialID
-	connector.Name = param.Name
-	connector.InputType = param.InputType
-	connector.RefreshFreq = param.RefreshFreq
-	connector.Shared = param.Shared
-	connector.Disabled = param.Disabled
-	connector.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	conn.ConnectorSpecificConfig = param.ConnectorSpecificConfig
+	conn.CredentialID = param.CredentialID
+	conn.Name = param.Name
+	conn.InputType = param.InputType
+	conn.RefreshFreq = param.RefreshFreq
+	conn.Shared = param.Shared
+	conn.Disabled = param.Disabled
+	conn.UpdatedDate = pg.NullTime{time.Now().UTC()}
 
 	//	sql.NullTime{
 	//Time:  time.Now().UTC(),
 	//Valid: true,
 	//	} //  null.TimeFrom(time.Now().UTC())
-	if err = c.connectorRepo.Update(ctx, connector); err != nil {
+	if err = c.connectorRepo.Update(ctx, conn); err != nil {
 		return nil, err
 	}
-	return connector, nil
+	return conn, nil
 }
 
 func (c *connectorBL) GetAll(ctx context.Context, user *model.User) ([]*model.Connector, error) {

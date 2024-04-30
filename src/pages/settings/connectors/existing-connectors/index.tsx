@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { RenderTable } from "@/pages/settings/components/renderTable/render-table";
-import { SettingHeader } from "../../components/setting-header/setting-header";
+import { RenderTable } from "@/components/renderTable/render-table";
+import { SettingHeader } from "@/components/ui/setting-header";
 import { Controller } from "./existing-connectors.controller";
 import { ConfirmDeleteDialog } from "@/components/dialogs/ConfirmDeleteDialog";
 import { useState } from "react";

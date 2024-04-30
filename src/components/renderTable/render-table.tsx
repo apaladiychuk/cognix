@@ -26,7 +26,7 @@ interface Props {
   columns: ColumnItem[];
   sortField: string;
   handleSortingChange: (value: string) => void;
-  onPause: (value: number) => void;
+  onPause?: (value: number) => void;
   onEdit: (value: number) => void;
   onDelete: (value: number) => void;
   withBtn?: boolean;
@@ -65,10 +65,12 @@ const RenderTable = memo(
                 {withBtn && (
                   <TableCell>
                     <div className="flex flex-row items-center justify-center gap-3">
-                      <PauseIcon
-                        onClick={() => onPause(data.id)}
-                        className="cursor-pointer"
-                      />
+                      {onPause && (
+                        <PauseIcon
+                          onClick={() => onPause(data.id)}
+                          className="cursor-pointer"
+                        />
+                      )}
                       <EditIcon
                         onClick={() => onEdit(data.id)}
                         className="cursor-pointer"

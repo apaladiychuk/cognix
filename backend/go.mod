@@ -132,6 +132,7 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/temoto/robotstxt v1.1.1 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/tidwall/btree v1.6.0 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

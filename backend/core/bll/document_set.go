@@ -6,6 +6,7 @@ import (
 	"cognix.ch/api/v2/core/repository"
 	"context"
 	"github.com/go-pg/pg/v10"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
@@ -92,7 +93,7 @@ func (b *documentSetBL) AddConnector(ctx context.Context, user *model.User, docu
 	}
 	existingContainers := make(map[int64]*model.DocumentSetConnectorPair)
 	for _, pair := range documentSet.Pairs {
-		existingContainers[pair.ConnectorID] = pair
+		existingContainers[pair.ConnectorID.IntPart()] = pair
 	}
 	var newPairs []*model.DocumentSetConnectorPair
 	for _, connectorID := range connectorIDs {
@@ -100,8 +101,8 @@ func (b *documentSetBL) AddConnector(ctx context.Context, user *model.User, docu
 			continue
 		}
 		newPairs = append(newPairs, &model.DocumentSetConnectorPair{
-			DocumentSetID: documentSetID,
-			ConnectorID:   connectorID,
+			DocumentSetID: decimal.NewFromInt(documentSetID),
+			ConnectorID:   decimal.NewFromInt(connectorID),
 			IsCurrent:     false,
 		})
 	}
@@ -118,7 +119,7 @@ func (b *documentSetBL) DeleteConnector(ctx context.Context, user *model.User, d
 	}
 	existingContainers := make(map[int64]*model.DocumentSetConnectorPair)
 	for _, pair := range documentSet.Pairs {
-		existingContainers[pair.ConnectorID] = pair
+		existingContainers[pair.ConnectorID.IntPart()] = pair
 	}
 	var removeIDs []int64
 	for _, connectorID := range connectorIDs {

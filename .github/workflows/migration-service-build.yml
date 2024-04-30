@@ -14,7 +14,8 @@ on:
     branches:
       - main
     paths:
-      - migration
+      - 'migration/**'
+      - '.github/workflows/migration-service-build.yml'
 env:
   RGNAME: AKS_RG
   ACRNAME: cognixacr
@@ -47,9 +48,10 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ env.ACRNAME }}.azurecr.io/cognix/migrationservice:$GITHUB_SHA
+          ${{ env.ACRNAME }}.azurecr.io/cognix/migrationservice:${{env.GITHUB_SHA}}
+
         build-args: |
-          COGNIX_VERSION=$GITHUB_SHA
+          COGNIX_VERSION=${{env.GITHUB_SHA}}
 
 #    - name: Login to Azure
 #      uses: azure/login@v1

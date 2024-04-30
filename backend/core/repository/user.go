@@ -89,7 +89,7 @@ func (u *userRepository) RegisterUser(c context.Context, user *model.User) error
 			ConnectorSpecificConfig: make(model.JSONMap),
 			CreatedDate:             time.Now().UTC(),
 		}
-		if _, err := tx.Model(&fileConnector).Insert(); err != nil {
+		if _, err := tx.Model(&fileConnector).ExcludeColumn("credential_id").Insert(); err != nil {
 			return utils.Internal.Wrap(err, "can not create file connector")
 		}
 		return nil

@@ -34,7 +34,7 @@ func (r *chatRepository) GetMessageByIDAndUserID(ctx context.Context, id int64, 
 
 func (r *chatRepository) MessageFeedback(ctx context.Context, feedback *model.ChatMessageFeedback) error {
 	stm := r.db.WithContext(ctx).Model(feedback)
-	if feedback.ID == 0 {
+	if feedback.ID.IntPart() == 0 {
 		if _, err := stm.Insert(); err != nil {
 			return utils.Internal.Wrap(err, "can not add feedback")
 		}

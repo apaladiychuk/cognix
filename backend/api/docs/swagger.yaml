@@ -826,7 +826,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Persona'
+            $ref: '#/definitions/model.Connector'
       security:
       - ApiKeyAuth: []
       summary: delete or restore connector
@@ -969,7 +969,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Persona'
+            $ref: '#/definitions/model.Credential'
       security:
       - ApiKeyAuth: []
       summary: delete or restore credential

@@ -19,6 +19,7 @@ type (
 		GetByID(ctx context.Context, user *model.User, id int64) (*model.Connector, error)
 		Create(ctx context.Context, user *model.User, param *parameters.CreateConnectorParam) (*model.Connector, error)
 		Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateConnectorParam) (*model.Connector, error)
+		Archive(ctx context.Context, user *model.User, id int64, restore bool) (*model.Connector, error)
 	}
 	connectorBL struct {
 		connectorRepo  repository.ConnectorRepository
@@ -26,6 +27,26 @@ type (
 		messenger      messaging.Client
 	}
 )
+
+func (c *connectorBL) Archive(ctx context.Context, user *model.User, id int64, restore bool) (*model.Connector, error) {
+	connector, err := c.connectorRepo.GetByID(ctx, user.TenantID, user.ID, id)
+	if err != nil {
+		return nil, err
+	}
+	if !(connector.UserID == user.ID || user.HasRoles(model.RoleAdmin, model.RoleSuperAdmin)) {
+		return nil, utils.ErrorPermission.New("permission denied")
+	}
+	if !restore {
+		connector.DeletedDate = pg.NullTime{time.Now().UTC()}
+	} else {
+		connector.DeletedDate = pg.NullTime{}
+	}
+	connector.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	if err = c.connectorRepo.Update(ctx, connector); err != nil {
+		return nil, err
+	}
+	return connector, nil
+}
 
 func NewConnectorBL(connectorRepo repository.ConnectorRepository,
 	credentialRepo repository.CredentialRepository,

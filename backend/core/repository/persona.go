@@ -38,7 +38,9 @@ func NewPersonaRepository(db *pg.DB) PersonaRepository {
 func (r *personaRepository) GetAll(ctx context.Context, tenantID uuid.UUID) ([]*model.Persona, error) {
 	personas := make([]*model.Persona, 0)
 	if err := r.db.WithContext(ctx).Model(&personas).
-		Where("tenant_id = ?", tenantID).Select(); err != nil {
+		Relation("LLM.model_id").Relation("LLM.name").Relation("LLM.id").
+		Relation("LLM.endpoint").
+		Where("persona.tenant_id = ?", tenantID).Select(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "personas not found")
 	}
 	return personas, nil

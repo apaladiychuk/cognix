@@ -25,6 +25,7 @@ func (h *PersonaHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc
 	handler.GET("/:id", server.HandlerErrorFuncAuth(h.GetByID))
 	handler.POST("/", server.HandlerErrorFuncAuth(h.Create))
 	handler.PUT("/:id", server.HandlerErrorFuncAuth(h.Update))
+	handler.POST("/:id/:action", server.HandlerErrorFuncAuth(h.Archive))
 }
 
 // GetAll return list of allowed personas
@@ -32,12 +33,17 @@ func (h *PersonaHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc
 // @Description return list of allowed personas
 // @Tags Persona
 // @ID personas_get_all
+// @param archived query bool false "true for include deleted personas"
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 200 {array} model.Persona
 // @Router /manage/personas [get]
 func (h *PersonaHandler) GetAll(c *gin.Context, identity *security.Identity) error {
-	personas, err := h.personaBL.GetAll(c.Request.Context(), identity.User)
+	var param parameters.ArchivedParam
+	if err := c.BindQuery(&param); err != nil {
+		return utils.InvalidInput.Wrap(err, "wrong parameters")
+	}
+	personas, err := h.personaBL.GetAll(c.Request.Context(), identity.User, param.Archived)
 	if err != nil {
 		return err
 	}
@@ -110,6 +116,33 @@ func (h *PersonaHandler) Update(c *gin.Context, identity *security.Identity) err
 		return utils.InvalidInput.Wrap(err, "wrong payload")
 	}
 	persona, err := h.personaBL.Update(c.Request.Context(), id, identity.User, &param)
+	if err != nil {
+		return err
+	}
+	return server.JsonResult(c, http.StatusOK, persona)
+}
+
+// Archive delete or restore persona
+// @Summary delete or restore persona
+// @Description delete or restore persona
+// @Tags Persona
+// @ID persona_delete_restore
+// @Param id path int true "persona id"
+// @Param action path string true "action : delete | restore "
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} model.Persona
+// @Router /manage/personas/{id}/{action} [post]
+func (h *PersonaHandler) Archive(c *gin.Context, identity *security.Identity) error {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil || id == 0 {
+		return utils.InvalidInput.New("id should be presented")
+	}
+	action := c.Param("action")
+	if !(action == ActionRestore || action == ActionDelete) {
+		return utils.InvalidInput.Newf("invalid action: should be %s or %s", ActionRestore, ActionDelete)
+	}
+	persona, err := h.personaBL.Archive(c.Request.Context(), identity.User, id, action == ActionRestore)
 	if err != nil {
 		return err
 	}

@@ -18,4 +18,5 @@ type Credential struct {
 	DeletedDate    pg.NullTime     `json:"deleted_date" pg:",use_zero"`
 	Shared         bool            `json:"shared" pg:",use_zero"`
 	CredentialJson JSONMap         `json:"credential_json" pg:"type:jsonb"`
+	Connectors     []*Connector    `json:"connectors" pg:"has-many"`
 }

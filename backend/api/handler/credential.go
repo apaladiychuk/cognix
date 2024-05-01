@@ -3,6 +3,7 @@ package handler
 import (
 	"cognix.ch/api/v2/core/bll"
 	"cognix.ch/api/v2/core/parameters"
+	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
 	"cognix.ch/api/v2/core/utils"
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,7 @@ func (h *CredentialHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerF
 	handler.GET("/:id", server.HandlerErrorFunc(h.GetByID))
 	handler.POST("/", server.HandlerErrorFunc(h.Create))
 	handler.PUT("/:id", server.HandlerErrorFunc(h.Update))
+	handler.POST("/:id/:action", server.HandlerErrorFuncAuth(h.Archive))
 }
 
 // GetAll return list of allowed credentials
@@ -134,6 +136,33 @@ func (h *CredentialHandler) Update(c *gin.Context) error {
 		return utils.InvalidInput.Wrap(err, "wrong payload")
 	}
 	credential, err := h.credentialBl.Update(c.Request.Context(), id, ident.User, &param)
+	if err != nil {
+		return err
+	}
+	return server.JsonResult(c, http.StatusOK, credential)
+}
+
+// Archive delete or restore credential
+// @Summary delete or restore credential
+// @Description delete or restore credential
+// @Tags Credentials
+// @ID credential_delete_restore
+// @Param id path int true "credential id"
+// @Param action path string true "action : delete | restore "
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} model.Persona
+// @Router /manage/credential/{id}/{action} [post]
+func (h *CredentialHandler) Archive(c *gin.Context, identity *security.Identity) error {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil || id == 0 {
+		return utils.InvalidInput.New("id should be presented")
+	}
+	action := c.Param("action")
+	if !(action == ActionRestore || action == ActionDelete) {
+		return utils.InvalidInput.Newf("invalid action: should be %s or %s", ActionRestore, ActionDelete)
+	}
+	credential, err := h.credentialBl.Archive(c.Request.Context(), identity.User, id, action == ActionRestore)
 	if err != nil {
 		return err
 	}

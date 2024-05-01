@@ -31,6 +31,7 @@ func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFu
 	handler.GET("/:id", server.HandlerErrorFunc(h.GetById))
 	handler.POST("/", server.HandlerErrorFunc(h.Create))
 	handler.PUT("/:id", server.HandlerErrorFunc(h.Update))
+	handler.POST("/:id/:action", server.HandlerErrorFuncAuth(h.Archive))
 }
 
 // GetAll return list of allowed connectors
@@ -156,4 +157,31 @@ func (h *ConnectorHandler) GetSourceTypes(c *gin.Context, identity *security.Ide
 		result = append(result, &t)
 	}
 	return server.JsonResult(c, http.StatusOK, result)
+}
+
+// Archive delete or restore connector
+// @Summary delete or restore connector
+// @Description delete or restore connector
+// @Tags Connectors
+// @ID Connectors_delete_restore
+// @Param id path int true "Connectors id"
+// @Param action path string true "action : delete | restore "
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} model.Persona
+// @Router /manage/connector/{id}/{action} [post]
+func (h *ConnectorHandler) Archive(c *gin.Context, identity *security.Identity) error {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil || id == 0 {
+		return utils.InvalidInput.New("id should be presented")
+	}
+	action := c.Param("action")
+	if !(action == ActionRestore || action == ActionDelete) {
+		return utils.InvalidInput.Newf("invalid action: should be %s or %s", ActionRestore, ActionDelete)
+	}
+	credential, err := h.connectorBL.Archive(c.Request.Context(), identity.User, id, action == ActionRestore)
+	if err != nil {
+		return err
+	}
+	return server.JsonResult(c, http.StatusOK, credential)
 }

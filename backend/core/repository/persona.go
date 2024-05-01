@@ -10,8 +10,8 @@ import (
 
 type (
 	PersonaRepository interface {
-		GetAll(ctx context.Context, tenantID uuid.UUID) ([]*model.Persona, error)
-		GetByID(ctx context.Context, id int64, tenantID uuid.UUID) (*model.Persona, error)
+		GetAll(ctx context.Context, tenantID uuid.UUID, archived bool) ([]*model.Persona, error)
+		GetByID(ctx context.Context, id int64, tenantID uuid.UUID, relations ...string) (*model.Persona, error)
 		Create(ctx context.Context, persona *model.Persona) error
 		Update(ctx context.Context, persona *model.Persona) error
 		IsExists(ctx context.Context, id int64, tenantID uuid.UUID) (bool, error)
@@ -35,24 +35,36 @@ func NewPersonaRepository(db *pg.DB) PersonaRepository {
 	return &personaRepository{db: db}
 }
 
-func (r *personaRepository) GetAll(ctx context.Context, tenantID uuid.UUID) ([]*model.Persona, error) {
+func (r *personaRepository) GetAll(ctx context.Context, tenantID uuid.UUID, archived bool) ([]*model.Persona, error) {
 	personas := make([]*model.Persona, 0)
-	if err := r.db.WithContext(ctx).Model(&personas).
+	stm := r.db.WithContext(ctx).Model(&personas).
 		Relation("LLM.model_id").Relation("LLM.name").Relation("LLM.id").
 		Relation("LLM.endpoint").
-		Where("persona.tenant_id = ?", tenantID).Select(); err != nil {
+		Where("persona.tenant_id = ?", tenantID)
+
+	if !archived {
+		stm = stm.Where("persona.deleted_date IS NULL")
+	}
+	if err := stm.Select(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "personas not found")
 	}
 	return personas, nil
 }
 
-func (r *personaRepository) GetByID(ctx context.Context, id int64, tenantID uuid.UUID) (*model.Persona, error) {
+func (r *personaRepository) GetByID(ctx context.Context, id int64, tenantID uuid.UUID, relations ...string) (*model.Persona, error) {
 	var persona model.Persona
-	if err := r.db.WithContext(ctx).Model(&persona).
+	stm := r.db.WithContext(ctx).Model(&persona).
 		Relation("LLM").
 		Relation("Prompt").
 		Where("persona.id = ?", id).
-		Where("persona.tenant_id = ?", tenantID).First(); err != nil {
+		Where("persona.tenant_id = ?", tenantID)
+	for _, relation := range relations {
+		if relation == "LLM" || relation == "Prompt" {
+			continue
+		}
+		stm = stm.Relation(relation)
+	}
+	if err := stm.First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "persona not found")
 	}
 	if persona.LLM != nil {

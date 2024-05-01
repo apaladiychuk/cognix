@@ -24,4 +24,5 @@ type Persona struct {
 	CreatedDate     time.Time       `json:"created_date,omitempty"`
 	UpdatedDate     pg.NullTime     `json:"updated_date,omitempty" pg:",use_zero"`
 	DeletedDate     pg.NullTime     `json:"deleted_date,omitempty" pg:",use_zero"`
+	ChatSessions    []*ChatSession  `json:"chat_sessions,omitempty" pg:"rel:has-many,fk:id,join_fk:persona_id""`
 }

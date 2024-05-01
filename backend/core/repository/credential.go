@@ -13,7 +13,7 @@ import (
 type (
 	CredentialRepository interface {
 		GetAll(c context.Context, tenantID, userID uuid.UUID, param *parameters.GetAllCredentialsParam) ([]*model.Credential, error)
-		GetByID(c context.Context, id int64, tenantID, userID uuid.UUID) (*model.Credential, error)
+		GetByID(c context.Context, id int64, tenantID, userID uuid.UUID, relations ...string) (*model.Credential, error)
 		Create(c context.Context, cred *model.Credential) error
 		Update(c context.Context, cred *model.Credential) error
 	}
@@ -61,15 +61,18 @@ func (r *credentialRepository) Update(c context.Context, cred *model.Credential)
 	return nil
 }
 
-func (r *credentialRepository) GetByID(c context.Context, id int64, tenantID, userID uuid.UUID) (*model.Credential, error) {
+func (r *credentialRepository) GetByID(c context.Context, id int64, tenantID, userID uuid.UUID, relations ...string) (*model.Credential, error) {
 	var credential model.Credential
-	if err := r.db.WithContext(c).Model(&credential).
-		Where("id = ?", id).
-		Where("tenant_id = ?", tenantID).
+	stm := r.db.WithContext(c).Model(&credential).
+		Where("credential.id = ?", id).
+		Where("credential.tenant_id = ?", tenantID).
 		WhereGroup(func(query *orm.Query) (*orm.Query, error) {
-			return query.WhereOr("user_id = ?", userID).WhereOr("shared = ?", true), nil
-		}).
-		First(); err != nil {
+			return query.WhereOr("credential.user_id = ?", userID).WhereOr("credential.shared = ?", true), nil
+		})
+	for _, relation := range relations {
+		stm = stm.Relation(relation)
+	}
+	if err := stm.First(); err != nil {
 		return nil, utils.NotFound.Wrapf(err, "can not find credential [%s]", err.Error())
 	}
 	return &credential, nil

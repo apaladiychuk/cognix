@@ -394,6 +394,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/manage/connector/{id}/{action}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete or restore connector",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Connectors"
+                ],
+                "summary": "delete or restore connector",
+                "operationId": "Connectors_delete_restore",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Connectors id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "action : delete | restore ",
+                        "name": "action",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Persona"
+                        }
+                    }
+                }
+            }
+        },
         "/manage/credential": {
             "get": {
                 "security": [
@@ -544,6 +586,48 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.Credential"
+                        }
+                    }
+                }
+            }
+        },
+        "/manage/credential/{id}/{action}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete or restore credential",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Credentials"
+                ],
+                "summary": "delete or restore credential",
+                "operationId": "credential_delete_restore",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "credential id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "action : delete | restore ",
+                        "name": "action",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Persona"
                         }
                     }
                 }
@@ -947,6 +1031,14 @@ const docTemplate = `{
                 ],
                 "summary": "return list of allowed personas",
                 "operationId": "personas_get_all",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "true for include deleted personas",
+                        "name": "archived",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1060,6 +1152,48 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/parameters.PersonaParam"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Persona"
+                        }
+                    }
+                }
+            }
+        },
+        "/manage/personas/{id}/{action}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "delete or restore persona",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Persona"
+                ],
+                "summary": "delete or restore persona",
+                "operationId": "persona_delete_restore",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "persona id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "action : delete | restore ",
+                        "name": "action",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1208,6 +1342,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "decimal.NullDecimal": {
+            "type": "object",
+            "properties": {
+                "decimal": {
+                    "type": "number"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
         "model.ChatMessage": {
             "type": "object",
             "properties": {
@@ -1317,7 +1462,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "credential_id": {
-                    "type": "number"
+                    "$ref": "#/definitions/decimal.NullDecimal"
                 },
                 "deleted_date": {
                     "$ref": "#/definitions/pg.NullTime"
@@ -1366,6 +1511,12 @@ const docTemplate = `{
         "model.Credential": {
             "type": "object",
             "properties": {
+                "connectors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Connector"
+                    }
+                },
                 "created_date": {
                     "type": "string"
                 },
@@ -1498,6 +1649,9 @@ const docTemplate = `{
         "model.LLM": {
             "type": "object",
             "properties": {
+                "api_key": {
+                    "type": "string"
+                },
                 "created_date": {
                     "type": "string"
                 },
@@ -1530,6 +1684,12 @@ const docTemplate = `{
         "model.Persona": {
             "type": "object",
             "properties": {
+                "chat_sessions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ChatSession"
+                    }
+                },
                 "created_date": {
                     "type": "string"
                 },
@@ -1827,7 +1987,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.JSONMap"
                 },
                 "credential_id": {
-                    "type": "number"
+                    "$ref": "#/definitions/decimal.NullDecimal"
                 },
                 "disabled": {
                     "type": "boolean"
@@ -2004,7 +2164,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.JSONMap"
                 },
                 "credential_id": {
-                    "type": "number"
+                    "$ref": "#/definitions/decimal.NullDecimal"
                 },
                 "disabled": {
                     "type": "boolean"

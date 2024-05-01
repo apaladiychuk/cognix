@@ -16,11 +16,35 @@ type (
 		GetByID(ctx context.Context, user *model.User, id int64) (*model.Credential, error)
 		Create(ctx context.Context, user *model.User, param *parameters.CreateCredentialParam) (*model.Credential, error)
 		Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateCredentialParam) (*model.Credential, error)
+		Archive(ctx context.Context, user *model.User, id int64, restore bool) (*model.Credential, error)
 	}
 	credentialBL struct {
 		credentialRepo repository.CredentialRepository
 	}
 )
+
+func (c *credentialBL) Archive(ctx context.Context, user *model.User, id int64, restore bool) (*model.Credential, error) {
+	credential, err := c.credentialRepo.GetByID(ctx, id, user.TenantID, user.ID, "Connectors")
+	if err != nil {
+		return nil, err
+	}
+	if !(credential.UserID == user.ID || user.HasRoles(model.RoleSuperAdmin, model.RoleAdmin)) {
+		return nil, utils.ErrorPermission.New("you do not have permission")
+	}
+	if !restore && len(credential.Connectors) > 0 {
+		return nil, utils.InvalidInput.New("there are still associated connectors")
+	}
+	if !restore {
+		credential.DeletedDate = pg.NullTime{time.Now().UTC()}
+	} else {
+		credential.DeletedDate = pg.NullTime{}
+	}
+	credential.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	if err = c.credentialRepo.Update(ctx, credential); err != nil {
+		return nil, err
+	}
+	return credential, nil
+}
 
 func NewCredentialBL(credentialRepo repository.CredentialRepository) CredentialBL {
 	return &credentialBL{

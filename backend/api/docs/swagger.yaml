@@ -1,5 +1,12 @@
 basePath: /api
 definitions:
+  decimal.NullDecimal:
+    properties:
+      decimal:
+        type: number
+      valid:
+        type: boolean
+    type: object
   model.ChatMessage:
     properties:
       chat_session_id:
@@ -72,7 +79,7 @@ definitions:
       created_date:
         type: string
       credential_id:
-        type: number
+        $ref: '#/definitions/decimal.NullDecimal'
       deleted_date:
         $ref: '#/definitions/pg.NullTime'
       disabled:
@@ -104,6 +111,10 @@ definitions:
     type: object
   model.Credential:
     properties:
+      connectors:
+        items:
+          $ref: '#/definitions/model.Connector'
+        type: array
       created_date:
         type: string
       credential_json:
@@ -191,6 +202,8 @@ definitions:
     type: object
   model.LLM:
     properties:
+      api_key:
+        type: string
       created_date:
         type: string
       deleted_date:
@@ -212,6 +225,10 @@ definitions:
     type: object
   model.Persona:
     properties:
+      chat_sessions:
+        items:
+          $ref: '#/definitions/model.ChatSession'
+        type: array
       created_date:
         type: string
       default_persona:
@@ -424,7 +441,7 @@ definitions:
       connector_specific_config:
         $ref: '#/definitions/model.JSONMap'
       credential_id:
-        type: number
+        $ref: '#/definitions/decimal.NullDecimal'
       disabled:
         type: boolean
       input_type:
@@ -539,7 +556,7 @@ definitions:
       connector_specific_config:
         $ref: '#/definitions/model.JSONMap'
       credential_id:
-        type: number
+        $ref: '#/definitions/decimal.NullDecimal'
       disabled:
         type: boolean
       input_type:
@@ -788,6 +805,33 @@ paths:
       summary: updates connector
       tags:
       - Connectors
+  /manage/connector/{id}/{action}:
+    post:
+      description: delete or restore connector
+      operationId: Connectors_delete_restore
+      parameters:
+      - description: Connectors id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'action : delete | restore '
+        in: path
+        name: action
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Persona'
+      security:
+      - ApiKeyAuth: []
+      summary: delete or restore connector
+      tags:
+      - Connectors
   /manage/connector/source_types:
     get:
       description: return list of source types
@@ -902,6 +946,33 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: updates credential
+      tags:
+      - Credentials
+  /manage/credential/{id}/{action}:
+    post:
+      description: delete or restore credential
+      operationId: credential_delete_restore
+      parameters:
+      - description: credential id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'action : delete | restore '
+        in: path
+        name: action
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Persona'
+      security:
+      - ApiKeyAuth: []
+      summary: delete or restore credential
       tags:
       - Credentials
   /manage/document_sets:
@@ -1150,6 +1221,11 @@ paths:
     get:
       description: return list of allowed personas
       operationId: personas_get_all
+      parameters:
+      - description: true for include deleted personas
+        in: query
+        name: archived
+        type: boolean
       produces:
       - application/json
       responses:
@@ -1233,6 +1309,33 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: update persona
+      tags:
+      - Persona
+  /manage/personas/{id}/{action}:
+    post:
+      description: delete or restore persona
+      operationId: persona_delete_restore
+      parameters:
+      - description: persona id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'action : delete | restore '
+        in: path
+        name: action
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Persona'
+      security:
+      - ApiKeyAuth: []
+      summary: delete or restore persona
       tags:
       - Persona
   /tenant/user_info:

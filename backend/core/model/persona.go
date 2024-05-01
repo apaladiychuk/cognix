@@ -14,7 +14,7 @@ type Persona struct {
 	Name            string          `json:"name,omitempty"`
 	LlmID           decimal.Decimal `json:"llm_id,omitempty"`
 	DefaultPersona  bool            `json:"default_persona,omitempty" pg:",use_zero"`
-	Description     string          `json:"description,omitempty"`
+	Description     string          `json:"description,omitempty" pg:",use_zero"`
 	TenantID        uuid.UUID       `json:"tenant_id,omitempty"`
 	IsVisible       bool            `json:"is_visible,omitempty" pg:",use_zero"`
 	DisplayPriority int             `json:"display_priority,omitempty"`

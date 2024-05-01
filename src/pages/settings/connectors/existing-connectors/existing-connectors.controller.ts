@@ -4,42 +4,42 @@ import { LABEL_STATUS } from '@/components/ui/label-status';
 
 const mockData: Interfaces.TableItem[] = [
   {
-    id: 1,
+    id: "1",
     connector: 'Helen',
     status: 'Succeeded',
     last_indexed: '1 day ago',
     docs_indexed: '1 day ago',
   },
   {
-    id: 2,
+    id: "2",
     connector: 'Mike',
     status: 'Super Admin',
     last_indexed: '1 day ago',
     docs_indexed: '1 day ago',
   },
   {
-    id: 3,
+    id: "3",
     connector: 'Greg',
     status: 'User',
     last_indexed: '1 day ago',
     docs_indexed: '1 day ago',
   },
   {
-    id: 4,
+    id: "4",
     connector: 'Ashely',
     status: 'Error',
     last_indexed: '1 day ago',
     docs_indexed: '1 day ago',
   },
   {
-    id: 5,
+    id: "5",
     connector: 'Beyonce',
     status: 'Admin',
     last_indexed: '1 day ago',
     docs_indexed: '1 day ago',
   },
   {
-    id: 6,
+    id: "6",
     connector: 'Slack',
     status: 'Super Admin',
     last_indexed: '1 day ago',

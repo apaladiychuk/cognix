@@ -2,7 +2,7 @@ import { LABEL_STATUS } from '@/components/ui/label-status';
 
 export namespace Interfaces {
   export interface TableItem {
-    id: number;
+    id: string;
     connector: string;
     status: LABEL_STATUS | string;
     last_indexed: string;

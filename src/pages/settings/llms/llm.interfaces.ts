@@ -1,14 +1,10 @@
+import { Persona } from "@/models/settings";
+
 export namespace Interfaces {
-  export interface TableItem {
-    id: number;
-    name: string;
-    model_id: string;
-    endpoint: string;
-  }
 
   export interface UseFilteredHandler {
     columns: ColumnItem[];
-    tableData: TableItem[];
+    tableData: Persona[];
     sortField: string;
     handleSortingChange: (accessor: string) => void;
   }

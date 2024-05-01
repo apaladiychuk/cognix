@@ -9,7 +9,7 @@ import { memo } from "react";
 import { RenderTableHeader } from "./render-table-header";
 
 interface TableItem {
-  id: number;
+  id: string;
   connector: string;
   status: LABEL_STATUS | string;
   last_indexed: string;
@@ -26,9 +26,9 @@ interface Props {
   columns: ColumnItem[];
   sortField: string;
   handleSortingChange: (value: string) => void;
-  onPause?: (value: number) => void;
-  onEdit: (value: number) => void;
-  onDelete: (value: number) => void;
+  onPause?: (value: string) => void;
+  onEdit: (value: string) => void;
+  onDelete: (value: string) => void;
   withBtn?: boolean;
 }
 

@@ -43,7 +43,7 @@ export function CreateLLMDialog({
   defaultValues?: DefaultValues<z.infer<typeof formSchema>>;
   children?: React.ReactNode;
   open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange: (open: boolean) => void;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,6 +78,7 @@ export function CreateLLMDialog({
         task_prompt: values.task_prompt,
         description: values.description,
       });
+      onOpenChange(false)
     } catch (e) {
       console.log(e);
     }
@@ -86,8 +87,8 @@ export function CreateLLMDialog({
   return (
     <Dialog
       open={open}
-      onOpenChange={(newOpen) => {
-        onOpenChange?.(newOpen);
+      onOpenChange={() => {
+        onOpenChange?.(false);
         form.reset();
       }}
     >

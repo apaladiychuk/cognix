@@ -151,7 +151,7 @@ func (h *CredentialHandler) Update(c *gin.Context) error {
 // @Param action path string true "action : delete | restore "
 // @Produce  json
 // @Security ApiKeyAuth
-// @Success 200 {object} model.Persona
+// @Success 200 {object} model.Credential
 // @Router /manage/credential/{id}/{action} [post]
 func (h *CredentialHandler) Archive(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)

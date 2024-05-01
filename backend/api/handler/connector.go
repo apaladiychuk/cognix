@@ -168,7 +168,7 @@ func (h *ConnectorHandler) GetSourceTypes(c *gin.Context, identity *security.Ide
 // @Param action path string true "action : delete | restore "
 // @Produce  json
 // @Security ApiKeyAuth
-// @Success 200 {object} model.Persona
+// @Success 200 {object} model.Connector
 // @Router /manage/connector/{id}/{action} [post]
 func (h *ConnectorHandler) Archive(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)

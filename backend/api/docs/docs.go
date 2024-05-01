@@ -430,7 +430,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Persona"
+                            "$ref": "#/definitions/model.Connector"
                         }
                     }
                 }
@@ -627,7 +627,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Persona"
+                            "$ref": "#/definitions/model.Credential"
                         }
                     }
                 }

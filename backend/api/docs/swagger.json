@@ -422,7 +422,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Persona"
+                            "$ref": "#/definitions/model.Connector"
                         }
                     }
                 }
@@ -619,7 +619,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Persona"
+                            "$ref": "#/definitions/model.Credential"
                         }
                     }
                 }

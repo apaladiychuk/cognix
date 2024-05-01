@@ -4,15 +4,19 @@ import SendIcon from "@/assets/svgs/send-icon.svg?react";
 import FileIcon from "@/assets/svgs/file-icon.svg?react";
 import { Card } from "../ui/card";
 import MessageCard from "./message-card";
-import { useEffect, useRef, useState } from "react";
+import { Key, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { ChatMessage } from "@/models/chat";
 import { useParams } from "react-router-dom";
 import { dataConverter } from "@/lib/utils";
 import { v4 as uuidv4 } from "uuid";
+import { Persona } from "@/models/settings";
+import { router } from "@/main";
 
 export function ChatComponent() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [personas, setPersonas] = useState<Persona[]>([]);
+  const [selectedPersona, setSelectedPersona] = useState<string>("");
   const [newMessage, setNewMessage] = useState<ChatMessage | null>();
   const textInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -36,53 +40,98 @@ export function ChatComponent() {
       });
   }
 
-  async function createMessages(text: string): Promise<void> {
-    const userMessage: ChatMessage = {
-      id: uuidv4(),
-      message: text,
-      chat_session_id: chatId!,
-      message_type: "user",
-      time_sent: new Date().toString(),
-    };
-
-    setMessages([...messages, userMessage]);
-
-    const response = await fetch(
-      `${import.meta.env.VITE_PLATFORM_API_CHAT_SEND_MESSAGE_URL}`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          message: text,
-          chat_session_id: chatId,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${JSON.parse(
-            String(localStorage.getItem("access_token"))
-          )}`,
-        },
+  async function createChat(text: string) {
+    await axios.post(import.meta.env.VITE_PLATFORM_API_CHAT_CREATE_URL, {
+      description: text,
+      one_shot: true,
+      persona_id: selectedPersona,
+    }).then(async function (response) {
+      if (response.status == 201) {
+        // router.navigate(`/${response.data.data.id}`)
+        await router.navigate(`/${response.data.data.id}`)
+        await createMessages(text, response.data.data.id)
+      } else {  
+        setPersonas([]);
       }
-    );
-    if (!response.ok || !response.body) {
-      throw response.statusText;
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    const loopRunner = true;
-    while (loopRunner) {
-      const { value, done } = await reader.read();
-      if (done) {
-        break;
-      }
-      const decodedChunk = decoder.decode(value, { stream: true });
-      const response = JSON.parse(decodedChunk?.split("\ndata:")[1].trim());
-      setMessages([...messages, userMessage, { ...response, message: "" }]);
-      setNewMessage(response);
-    }
+    });
+    // await createMessages(text)
   }
+
+  async function createMessages(text: string, passedChatId?: string): Promise<void> {
+    const currentChatId = chatId === undefined ? passedChatId : chatId  
+    const userMessage: ChatMessage = {
+        id: uuidv4(),
+        message: text,
+        chat_session_id: currentChatId!,
+        message_type: "user",
+        time_sent: new Date().toString(),
+      };
+
+      setMessages([...messages, userMessage]);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_PLATFORM_API_CHAT_SEND_MESSAGE_URL}`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            message: text,
+            chat_session_id: currentChatId!,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${JSON.parse(
+              String(localStorage.getItem("access_token"))
+            )}`,
+          },
+        }
+      );
+      if (!response.ok || !response.body) {
+        throw response.statusText;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      const loopRunner = true;
+      while (loopRunner) {
+        const { value, done } = await reader.read();
+        if (done) {
+          break;
+        }
+        const decodedChunk = decoder.decode(value, { stream: true });
+        const response = JSON.parse(decodedChunk?.split("\ndata:")[1].trim());
+        setMessages([...messages, userMessage, { ...response, message: "" }]);
+        setNewMessage(response);
+      }
+  }
+
+  async function getPersonas() {
+    await axios
+      .get(import.meta.env.VITE_PLATFORM_API_LLM_LIST_URL)
+      .then(function (response) {
+        if (response.status == 200) {
+          setPersonas(response.data.data);
+        } else {
+          setPersonas([]);
+        }
+      })
+      .catch(function (error) {
+        console.error("Error fetching personas:", error);
+      });
+  }
+
+  function chunkArray(array: any[], size: number) {
+    const chunkedArray = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunkedArray.push(array.slice(i, i + size));
+    }
+    return chunkedArray;
+  }
+
   useEffect(() => {
     getMessages();
+    if (!chatId) {
+      getPersonas();
+    }
   }, [chatId]);
 
   useEffect(() => {
@@ -120,8 +169,8 @@ export function ChatComponent() {
   return (
     <div className="flex h-screen">
       <div className="flex flex-grow flex-col m-5 w-4/6">
-        {!Array.isArray(messages) ? (
-          <div className="flex flex-col flex-grow">
+        {!chatId || !Array.isArray(messages) ? (
+          <div className="flex flex-col flex-grow overflow-x-hidden no-scrollbar">
             <div className="flex items-center justify-center pt-8">
               <span className="text-4xl font-bold">
                 Which assistant do you want
@@ -135,20 +184,30 @@ export function ChatComponent() {
                 Or ask a question immediately to use the CogniX assistant
               </span>
             </div>
-            <div className="flex pt-10 mx-20 space-x-5">
-              <div className="flex-1">
-                <Card
-                  title="CogniX"
-                  text="Assistant with access to documents
-              from your Connected Sources"
-                />
-              </div>
-              <div className="flex-1">
-                <Card
-                  title="Paraphrase"
-                  text="Assistant that is heavily constrained and only provides exact quotes from Connected Sources."
-                />
-              </div>
+            <div className="pt-10 mx-32 pb-2">
+              {personas &&
+                chunkArray(personas, 2).map(
+                  (chunk: any[], index: Key | null | undefined) => (
+                    <div className="flex pt-10 space-x-5" key={index}>
+                      {chunk.map((persona) => (
+                        <div
+                          className={`flex-1 cursor-pointer ${
+                            selectedPersona === persona.id ? "border rounded-sm border-primary" : ""
+                          }`}
+                          key={persona.id}
+                          onClick={() => {
+                            setSelectedPersona(persona.id);
+                          }}
+                        >
+                          <Card
+                            title={persona.name}
+                            text={persona.description}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )
+                )}
             </div>
           </div>
         ) : (
@@ -190,7 +249,11 @@ export function ChatComponent() {
               className="w-12 h-12 bg-primary hover:bg-foreground"
               type="button"
               onClick={() => {
-                createMessages(textInputRef.current?.value ?? "");
+                chatId 
+                ? createMessages(textInputRef.current?.value ?? "")
+                : createChat(textInputRef.current?.value ?? "")
+                textInputRef.current && (textInputRef.current.value = "");
+
               }}
             >
               <SendIcon className="size-5" />

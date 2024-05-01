@@ -10,6 +10,7 @@ import { EditLLMDialog } from "@/components/dialogs/EditLLMDialog";
 
 export function LLMManagementComponent() {
   const [llms, setLlms] = useState([]);
+  const [ selectedRow, setSelectedRow ] = useState<string>("");
   const { columns, sortField, handleSortingChange } =
     Controller.useFilterHandler(llms);
 
@@ -34,6 +35,12 @@ export function LLMManagementComponent() {
       });
   }
 
+  async function deleteLLM(id: string) {
+    await axios.post(
+      `${import.meta.env.VITE_PLATFORM_API_LLM_DELETE_URL}/${id}/delete`,
+    )
+  } 
+
   useEffect(() => {
     getLLMs();
   }, [showCreateDialogOpen, showDeleteDialog, showEditDialogOpen]);
@@ -56,10 +63,11 @@ export function LLMManagementComponent() {
               handleSortingChange={handleSortingChange}
               sortField={sortField}
               tableData={llms}
-              onDelete={() => {
+              onDelete={(id: string) => {
                 setShowDeleteDialog(true);
+                setSelectedRow(id)
               }}
-              onEdit={(id: number) => {
+              onEdit={(id: string) => {
                 setShowEditDialogOpen(true);
                 console.log(id);
               }}
@@ -74,7 +82,7 @@ export function LLMManagementComponent() {
             description="Are you sure you want to delete this LLM?"
             deleteButtonText="Yes, Delete"
             onConfirm={() => {
-              console.log("Pressed");
+              deleteLLM(selectedRow)
             }}
             open={showDeleteDialog}
             onOpenChange={setShowDeleteDialog}

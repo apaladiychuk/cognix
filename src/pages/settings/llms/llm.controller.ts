@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Interfaces } from './llm.interfaces';
+import { Persona } from '@/models/settings';
 
 const columns: Interfaces.ColumnItem[] = [
   { label: 'Name', accessor: 'name' },
@@ -8,13 +9,20 @@ const columns: Interfaces.ColumnItem[] = [
 ];
 
 export namespace Controller {
-  export function useFilterHandler(data: Interfaces.TableItem[] | []): Interfaces.UseFilteredHandler {
+  export function useFilterHandler(data: Persona[] | []): Interfaces.UseFilteredHandler {
     const [sortField, setSortField] = useState('');
     const [order, setOrder] = useState('asc');
     const [tableData, setTableData] =
-      useState<Interfaces.TableItem[]>(data);
-    console.log(data)
-
+      useState<Persona[]>(reassembleData(data));
+    
+    function reassembleData (data: Persona[]) {
+      for (const record in data){
+        data[record].model_id = data[record].llm.model_id
+        data[record].endpoint = data[record].llm.endpoint
+      }
+      return data
+    }
+  
     const handleSorting = useCallback(
       (sortField: string, sortOrder: string) => {
         if (sortField) {

@@ -54,22 +54,25 @@ export interface Connector {
   
   
   export interface LLM {
-    endpoint: string;
-    id: number;
-    model_id: string;
+    id: string;
     name: string;
-    url: string;
+    model_id: string;
+    tenant_id: string;
+    api_key: string;
+    endpoint: string;
+    created_date: string;
+    updated_date?: string;
+    deleted_date?: string;
   }
   
   export interface Persona {
+    id: number;
+    name: string;
     default_persona: boolean;
     description: string;
-    display_priority: number;
-    id: number;
+    tenant_id: string;
     is_visible: boolean;
     llm: LLM;
-    llm_id: number;
-    name: string;
-    starter_messages: number[];
-    tenant_id: string;
+    model_id?: string;
+    endpoint?: string;
   }

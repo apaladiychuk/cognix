@@ -111,7 +111,7 @@ const SideBar: React.FC<SideBarProps> = ({
           {chats.slice(0, 4).map((chat) => (
             <NavLink
               key={chat.id}
-              to={`/chat/${chat.id}`}
+              to={`/${chat.id}`}
               className="flex flex-row items-center"
             >
               <span className="text-clip">{chat.description}</span>
@@ -202,7 +202,7 @@ const SideBar: React.FC<SideBarProps> = ({
           {chats.slice(0, 4).map((chat) => (
             <NavLink
             key={chat.id}
-            to={`/chat/${chat.id}`}
+            to={`/${chat.id}`}
             className="flex flex-row items-center"
           >
             <span className="text-clip">{chat.description}</span>

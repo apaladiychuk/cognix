@@ -19,7 +19,7 @@ export const router = createBrowserRouter([
     lazy: () => import("@/pages/platform"),
     children: [
       {
-        path: "/chat/:chatId",
+        path: "/:chatId?",
         lazy: () => import("@/pages/chat"),
       },
       {

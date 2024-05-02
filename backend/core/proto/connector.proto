@@ -1,0 +1,26 @@
+syntax="proto3";
+package proto;
+option go_package = "core/proto;proto";
+import "google/protobuf/empty.proto";
+
+service Connector {
+  rpc Run(google.protobuf.Empty) returns(google.protobuf.Empty) {}
+}
+
+message ConnectorRequest {
+  int64 id = 1;
+}
+
+enum ResponseStep {
+  NO_ACTION = 0;
+  LOAD = 1;
+  EMBEDDING = 2;
+  FINISH = 3;
+
+}
+message ConnectorStepResponse {
+  int64 id = 1;
+  int64 document_id = 2;
+  ResponseStep step = 3;
+  string content = 4;
+}

@@ -4,3 +4,7 @@ lint:
 
 swag-api:
 	swag init --dir ./api --output ./api/docs --parseDependency --parseInternal
+
+gen-proto:
+	rm -f core/proto/*.pb.go
+	protoc -I=. -I=vendor -I=${GOPATH}/src core/proto/*.proto --go_out=. --go-grpc_out=.

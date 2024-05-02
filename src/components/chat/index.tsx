@@ -41,67 +41,73 @@ export function ChatComponent() {
   }
 
   async function createChat(text: string) {
-    await axios.post(import.meta.env.VITE_PLATFORM_API_CHAT_CREATE_URL, {
-      description: text,
-      one_shot: true,
-      persona_id: selectedPersona,
-    }).then(async function (response) {
-      if (response.status == 201) {
-        // router.navigate(`/${response.data.data.id}`)
-        await router.navigate(`/${response.data.data.id}`)
-        await createMessages(text, response.data.data.id)
-      } else {  
-        setPersonas([]);
-      }
-    });
-    // await createMessages(text)
+    await axios
+      .post(import.meta.env.VITE_PLATFORM_API_CHAT_CREATE_URL, {
+        description: text,
+        one_shot: true,
+        persona_id: selectedPersona,
+      })
+      .then(async function (response) {
+        if (response.status == 201) {
+          await router.navigate(`/${response.data.data.id}`);
+          await createMessages(text, response.data.data.id);
+        } else {
+          setPersonas([]);
+        }
+      });
   }
 
-  async function createMessages(text: string, passedChatId?: string): Promise<void> {
-    const currentChatId = chatId === undefined ? passedChatId : chatId  
+  async function createMessages(
+    text: string,
+    passedChatId?: string
+  ): Promise<void> {
+    const currentChatId = chatId === undefined ? passedChatId : chatId;
     const userMessage: ChatMessage = {
-        id: uuidv4(),
-        message: text,
-        chat_session_id: currentChatId!,
-        message_type: "user",
-        time_sent: new Date().toString(),
-      };
+      id: uuidv4(),
+      message: text,
+      chat_session_id: currentChatId!,
+      message_type: "user",
+      time_sent: new Date().toString(),
+    };
 
-      setMessages([...messages, userMessage]);
+    setMessages([...messages, userMessage]);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_PLATFORM_API_CHAT_SEND_MESSAGE_URL}`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            message: text,
-            chat_session_id: currentChatId!,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${JSON.parse(
-              String(localStorage.getItem("access_token"))
-            )}`,
-          },
-        }
-      );
-      if (!response.ok || !response.body) {
-        throw response.statusText;
+    const response = await fetch(
+      `${import.meta.env.VITE_PLATFORM_API_CHAT_SEND_MESSAGE_URL}`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          message: text,
+          chat_session_id: currentChatId!,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${JSON.parse(
+            String(localStorage.getItem("access_token"))
+          )}`,
+        },
       }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      const loopRunner = true;
-      while (loopRunner) {
-        const { value, done } = await reader.read();
-        if (done) {
-          break;
-        }
-        const decodedChunk = decoder.decode(value, { stream: true });
-        const response = JSON.parse(decodedChunk?.split("\ndata:")[1].trim());
-        setMessages([...messages, userMessage, { ...response, message: "" }]);
-        setNewMessage(response);
+    );
+    if (!response.ok || !response.body) {
+      throw response.statusText;
+    }
+    const reader = response.body
+      .pipeThrough(new TextDecoderStream())
+      .getReader();
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const result = value?.split("\ndata:");
+      if (result[0] == "event:message") {
+        const response = JSON.parse(result[1]);
+        setMessages([
+          ...messages,
+          userMessage,
+          { ...response.Message, message: "" },
+        ]);
+        setNewMessage(response.Message);
       }
+    }
   }
 
   async function getPersonas() {
@@ -191,8 +197,10 @@ export function ChatComponent() {
                     <div className="flex pt-10 space-x-5" key={index}>
                       {chunk.map((persona) => (
                         <div
-                          className={`flex-1 cursor-pointer ${
-                            selectedPersona === persona.id ? "border rounded-sm border-primary" : ""
+                          className={`w-1/2 cursor-pointer ${
+                            selectedPersona === persona.id
+                              ? "border rounded-sm border-primary"
+                              : ""
                           }`}
                           key={persona.id}
                           onClick={() => {
@@ -242,6 +250,14 @@ export function ChatComponent() {
               placeholder="Ask me anything..."
               className="flex-grow rounded-lgw-1/2"
               ref={textInputRef}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  chatId
+                    ? createMessages(textInputRef.current?.value ?? "")
+                    : createChat(textInputRef.current?.value ?? "");
+                  textInputRef.current && (textInputRef.current.value = "");
+                }
+              }}
             />
             <Button
               size="icon"
@@ -249,11 +265,10 @@ export function ChatComponent() {
               className="w-12 h-12 bg-primary hover:bg-foreground"
               type="button"
               onClick={() => {
-                chatId 
-                ? createMessages(textInputRef.current?.value ?? "")
-                : createChat(textInputRef.current?.value ?? "")
+                chatId
+                  ? createMessages(textInputRef.current?.value ?? "")
+                  : createChat(textInputRef.current?.value ?? "");
                 textInputRef.current && (textInputRef.current.value = "");
-
               }}
             >
               <SendIcon className="size-5" />

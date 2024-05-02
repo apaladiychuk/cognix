@@ -10,7 +10,7 @@ import { EditLLMDialog } from "@/components/dialogs/EditLLMDialog";
 
 export function LLMManagementComponent() {
   const [llms, setLlms] = useState([]);
-  const [ selectedRow, setSelectedRow ] = useState<string>("");
+  const [selectedRow, setSelectedRow] = useState<string>("");
   const { columns, sortField, handleSortingChange } =
     Controller.useFilterHandler(llms);
 
@@ -24,7 +24,6 @@ export function LLMManagementComponent() {
       .get(import.meta.env.VITE_PLATFORM_API_LLM_LIST_URL)
       .then(function (response) {
         if (response.status == 200) {
-          // console.log(response.data.data)
           setLlms(response.data.data);
         } else {
           setLlms([]);
@@ -37,16 +36,16 @@ export function LLMManagementComponent() {
 
   async function deleteLLM(id: string) {
     await axios.post(
-      `${import.meta.env.VITE_PLATFORM_API_LLM_DELETE_URL}/${id}/delete`,
-    )
-  } 
+      `${import.meta.env.VITE_PLATFORM_API_LLM_DELETE_URL}/${id}/delete`
+    );
+  }
 
   useEffect(() => {
     getLLMs();
   }, [showCreateDialogOpen, showDeleteDialog, showEditDialogOpen]);
 
   return (
-    <div className="flex flex-grow flex-col m-8">
+    <div className="flex flex-grow flex-col m-8 overflow-x-hidden no-scrollbar">
       <SettingHeader
         title={"LLMs"}
         buttonTitle="New LLM"
@@ -65,11 +64,10 @@ export function LLMManagementComponent() {
               tableData={llms}
               onDelete={(id: string) => {
                 setShowDeleteDialog(true);
-                setSelectedRow(id)
+                setSelectedRow(id);
               }}
-              onEdit={(id: string) => {
+              onEdit={() => {
                 setShowEditDialogOpen(true);
-                console.log(id);
               }}
               withBtn
             />
@@ -82,7 +80,7 @@ export function LLMManagementComponent() {
             description="Are you sure you want to delete this LLM?"
             deleteButtonText="Yes, Delete"
             onConfirm={() => {
-              deleteLLM(selectedRow)
+              deleteLLM(selectedRow);
             }}
             open={showDeleteDialog}
             onOpenChange={setShowDeleteDialog}

@@ -15,7 +15,7 @@ export function ConnectorsManagementComponent() {
     useState<boolean>(false);
 
   return (
-    <div className="flex flex-grow flex-col m-8">
+    <div className="flex flex-grow flex-col m-8 overflow-x-hidden no-scrollbar">
       <SettingHeader
         title={"Existing Connectors"}
         withBtn

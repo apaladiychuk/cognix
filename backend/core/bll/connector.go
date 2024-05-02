@@ -29,7 +29,7 @@ type (
 )
 
 func (c *connectorBL) Archive(ctx context.Context, user *model.User, id int64, restore bool) (*model.Connector, error) {
-	connector, err := c.connectorRepo.GetByID(ctx, user.TenantID, user.ID, id)
+	connector, err := c.connectorRepo.GetByIDAndUser(ctx, user.TenantID, user.ID, id)
 	if err != nil {
 		return nil, err
 	}

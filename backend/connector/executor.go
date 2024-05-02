@@ -4,13 +4,17 @@ import (
 	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
+	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
 	"encoding/json"
+	proto2 "github.com/golang/protobuf/proto"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
 )
+
+type taskRunner func(ctx context.Context, msg *messaging.Message) error
 
 type executor struct {
 	connectorRepo repository.ConnectorRepository
@@ -19,7 +23,7 @@ type executor struct {
 	embeddingCh   chan string
 }
 
-func (e *executor) run(ctx context.Context) error {
+func (e *executor) run(ctx context.Context, topic, subscriptionName string, task taskRunner) error {
 	ch, err := e.streamClient.Listen(ctx, model.TopicExecutor, model.SubscriptionExecutor)
 	if err != nil {
 		return err
@@ -28,7 +32,7 @@ func (e *executor) run(ctx context.Context) error {
 		for {
 			select {
 			case msg := <-ch:
-				err = e.runConnector(ctx, msg)
+				err = task(ctx, msg)
 				if err != nil {
 					zap.S().Errorf("Failed to run connector: %v", err)
 				}
@@ -38,14 +42,16 @@ func (e *executor) run(ctx context.Context) error {
 			}
 		}
 	}()
-
 	return nil
 }
 
-func (e *executor) runEmbedding() {
-	for text := range e.embeddingCh {
-		zap.S().Infof("sending embedded message: %s ...", text[:20])
+func (e *executor) runEmbedding(ctx context.Context, msg *messaging.Message) error {
+	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
+	var payload proto.EmbeddingRequest
+	if err := proto2.Unmarshal(msg.Body, &payload); err != nil {
+		return err
 	}
+	return nil
 }
 
 func (e *executor) runConnector(ctx context.Context, msg *messaging.Message) error {

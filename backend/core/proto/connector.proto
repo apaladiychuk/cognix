@@ -7,8 +7,15 @@ service Connector {
   rpc Run(google.protobuf.Empty) returns(google.protobuf.Empty) {}
 }
 
-message ConnectorRequest {
+message ConnectorRunRequest {
   int64 id = 1;
+}
+
+message EmbeddingRequest {
+  int64 id = 1;
+  int64 document_id = 2;
+  string key = 3;
+  string content = 4;
 }
 
 enum ResponseStep {

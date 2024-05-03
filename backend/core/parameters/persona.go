@@ -1,6 +1,10 @@
 package parameters
 
-import validation "github.com/go-ozzo/ozzo-validation/v4"
+import (
+	"cognix.ch/api/v2/core/ai"
+	"fmt"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+)
 
 type PersonaParam struct {
 	Name            string            `json:"name"`
@@ -22,6 +26,13 @@ type StarterMessage struct {
 
 func (v PersonaParam) Validate() error {
 	return validation.ValidateStruct(&v,
-		validation.Field(&v.ModelID, validation.Required),
+		validation.Field(&v.Name, validation.Required),
+		validation.Field(&v.ModelID, validation.Required,
+			validation.By(func(value interface{}) error {
+				if _, ok := ai.SupportedModels[v.ModelID]; !ok {
+					return fmt.Errorf("model %s not supported", v.ModelID)
+				}
+				return nil
+			})),
 		validation.Field(&v.APIKey, validation.Required))
 }

@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/go-pg/pg/v10"
+	"github.com/go-pg/pg/v10/orm"
 	"github.com/google/uuid"
 )
 
@@ -73,7 +74,9 @@ func (r *chatRepository) GetSessionByID(ctx context.Context, userID uuid.UUID, i
 		Where("chat_session.id = ?", id).
 		Relation("Persona").
 		Relation("Persona.LLM").
-		Relation("Messages").
+		Relation("Messages", func(query *orm.Query) (*orm.Query, error) {
+			return query.Order("time_sent asc"), nil
+		}).
 		Relation("Messages.Feedback").
 		First(); err != nil {
 		return nil, utils.NotFound.Wrapf(err, "can not find session")

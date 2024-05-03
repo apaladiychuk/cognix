@@ -13,7 +13,7 @@ type Prompt struct {
 	PersonaID        decimal.Decimal `json:"persona_id,omitempty"`
 	UserID           uuid.UUID       `json:"user_id,omitempty"`
 	Name             string          `json:"name,omitempty"`
-	Description      string          `json:"description,omitempty"`
+	Description      string          `json:"description,omitempty" pg:",use_zero"`
 	SystemPrompt     string          `json:"system_prompt,omitempty" pg:",use_zero"`
 	TaskPrompt       string          `json:"task_prompt,omitempty" pg:",use_zero"`
 	IncludeCitations bool            `json:"include_citations,omitempty" pg:",use_zero"`

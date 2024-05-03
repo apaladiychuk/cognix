@@ -46,7 +46,7 @@ func (h *CredentialHandler) GetAll(c *gin.Context) error {
 	}
 	var param parameters.GetAllCredentialsParam
 	if err = c.BindQuery(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong parameters")
+		return utils.ErrorBadRequest.Wrap(err, "wrong parameters")
 	}
 	credentials, err := h.credentialBl.GetAll(c.Request.Context(), ident.User, &param)
 	if err != nil {
@@ -72,7 +72,7 @@ func (h *CredentialHandler) GetByID(c *gin.Context) error {
 	}
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 
 	credential, err := h.credentialBl.GetByID(c.Request.Context(), ident.User, id)
@@ -99,10 +99,10 @@ func (h *CredentialHandler) Create(c *gin.Context) error {
 	}
 	var param parameters.CreateCredentialParam
 	if err = c.BindJSON(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong payload")
+		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
 	}
 	if err = param.Validate(); err != nil {
-		return utils.InvalidInput.Wrap(err, err.Error())
+		return utils.ErrorBadRequest.Wrap(err, err.Error())
 	}
 	credential, err := h.credentialBl.Create(c.Request.Context(), ident.User, &param)
 	if err != nil {
@@ -129,11 +129,11 @@ func (h *CredentialHandler) Update(c *gin.Context) error {
 	}
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 	var param parameters.UpdateCredentialParam
 	if err = c.BindJSON(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong payload")
+		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
 	}
 	credential, err := h.credentialBl.Update(c.Request.Context(), id, ident.User, &param)
 	if err != nil {
@@ -156,11 +156,11 @@ func (h *CredentialHandler) Update(c *gin.Context) error {
 func (h *CredentialHandler) Archive(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 	action := c.Param("action")
 	if !(action == ActionRestore || action == ActionDelete) {
-		return utils.InvalidInput.Newf("invalid action: should be %s or %s", ActionRestore, ActionDelete)
+		return utils.ErrorBadRequest.Newf("invalid action: should be %s or %s", ActionRestore, ActionDelete)
 	}
 	credential, err := h.credentialBl.Archive(c.Request.Context(), identity.User, id, action == ActionRestore)
 	if err != nil {

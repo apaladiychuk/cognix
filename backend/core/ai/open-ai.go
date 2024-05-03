@@ -6,6 +6,10 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
+var SupportedModels = map[string]bool{
+	openai.GPT3Dot5Turbo: true,
+}
+
 type (
 	Response struct {
 		Message string
@@ -47,6 +51,7 @@ func (o *openAIClient) Request(ctx context.Context, message string) (*Response, 
 }
 
 func NewOpenAIClient(llm *model.LLM) OpenAIClient {
+
 	return &openAIClient{
 		client:  openai.NewClient(llm.ApiKey),
 		modelID: llm.ModelID,

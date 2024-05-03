@@ -32,7 +32,7 @@ func (c *credentialBL) Archive(ctx context.Context, user *model.User, id int64, 
 		return nil, utils.ErrorPermission.New("you do not have permission")
 	}
 	if !restore && len(credential.Connectors) > 0 {
-		return nil, utils.InvalidInput.New("there are still associated connectors")
+		return nil, utils.ErrorBadRequest.New("there are still associated connectors")
 	}
 	if !restore {
 		credential.DeletedDate = pg.NullTime{time.Now().UTC()}

@@ -1,8 +1,11 @@
 package messaging
 
 import (
+	"cognix.ch/api/v2/core/proto"
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
@@ -28,7 +31,7 @@ func (c *client) Close() {
 	})
 }
 
-func (c *client) Publish(ctx context.Context, topic string, body interface{}) error {
+func (c *client) Publish(ctx context.Context, topic string, body *proto.Body) error {
 	message, err := buildMessage(ctx, body)
 	if err != nil {
 		return err
@@ -41,11 +44,11 @@ func (c *client) Publish(ctx context.Context, topic string, body interface{}) er
 	return nil
 }
 
-func (c *client) Listen(_ context.Context, topic, subscriptionName string) (<-chan *Message, error) {
-	out := make(chan *Message)
+func (c *client) Listen(_ context.Context, topic, subscriptionName string) (<-chan *proto.Message, error) {
+	out := make(chan *proto.Message)
 	subscription, err := c.conn.Subscribe(topic,
 		func(msg *nats.Msg) {
-			var message Message
+			var message proto.Message
 			if err := json.Unmarshal(msg.Data, &message); err != nil {
 				zap.S().Errorf("Error unmarshalling message: %s", string(msg.Data))
 				return
@@ -81,16 +84,17 @@ func newNatsClient(cfg *natsConfig) (Client, error) {
 	}, nil
 }
 
-func buildMessage(ctx context.Context, data interface{}) ([]byte, error) {
+func buildMessage(ctx context.Context, body *proto.Body) ([]byte, error) {
 	header := make(propagation.MapCarrier)
-	body, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
-	}
 	otel.GetTextMapPropagator().Inject(ctx, &header)
-	msg := &Message{
+	msg := &proto.Message{
 		Header: header,
 		Body:   body,
 	}
-	return json.Marshal(msg)
+	buf, err := proto2.Marshal(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return []byte(base64.StdEncoding.EncodeToString(buf)), nil
 }

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
+	"cognix.ch/api/v2/core/proto"
 	"context"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -31,13 +31,14 @@ func (t *cronTrigger) Do(ctx context.Context, conn *model.Connector) error {
 	if conn.LastSuccessfulIndexTime.IsZero() ||
 		conn.LastSuccessfulIndexTime.Add(time.Duration(conn.RefreshFreq)*time.Second).Before(time.Now()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
-		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, conn.ID))
+		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, conn.ID.IntPart()))
 		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(conn.Source)))
 		zap.S().Infof("run connector %s", conn.ID)
+		trigger := &proto.TriggerRequest{
+			Id: conn.ID.IntPart(),
+		}
 		return t.messenger.Publish(ctx, model.TopicExecutor,
-			connector.Trigger{
-				ID: conn.ID,
-			})
+			&proto.Body{Payload: &proto.Body_Trigger{Trigger: trigger}})
 	}
 	return nil
 }

@@ -1,7 +1,9 @@
 package connector
 
 import (
+	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
+	"cognix.ch/api/v2/core/proto"
 	"context"
 	"crypto/sha256"
 	"fmt"
@@ -20,28 +22,31 @@ type (
 		param   *WebParameters
 		scraper *colly.Collector
 		history map[string]string
+		ctx     context.Context
 	}
 	WebParameters struct {
 		URL string `url:"url"`
 	}
 )
 
-func (c *Web) Config(connector *model.Connector) (Connector, error) {
-	c.Base.Config(connector)
-	c.param = &WebParameters{}
-	c.history = make(map[string]string)
-	if err := connector.ConnectorSpecificConfig.ToStruct(c.param); err != nil {
-		return nil, err
-	}
-	c.scraper = colly.NewCollector(
-		colly.UserAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"),
-	)
-	return c, nil
+var excludeTag = map[string]bool{
+	"script": true,
+	"button": true,
+	"a":      true,
+	"header": true,
+	"nav":    true,
 }
 
-func (c *Web) Execute(ctx context.Context, param model.JSONMap) (*model.Connector, error) {
+func withContext(ctx context.Context, fn func(context.Context, *colly.HTMLElement)) colly.HTMLCallback {
+	return func(element *colly.HTMLElement) {
+		fn(ctx, element)
+	}
+}
+
+func (c *Web) Execute(ctx context.Context, param map[string]string) (*model.Connector, error) {
 	zap.S().Debugf("Run web connector with param %s ...", c.param.URL)
-	c.scraper.OnHTML("body", c.onBody)
+	c.ctx = ctx
+	c.scraper.OnHTML("body", withContext(ctx, c.onBody))
 	err := c.scraper.Visit(c.param.URL)
 	if err != nil {
 		zap.L().Error("Failed to scrape URL", zap.String("url", c.param.URL), zap.Error(err))
@@ -50,12 +55,21 @@ func (c *Web) Execute(ctx context.Context, param model.JSONMap) (*model.Connecto
 	return c.model, err
 }
 
-func NewWeb(connector *model.Connector) (Connector, error) {
+func NewWeb(connector *model.Connector, msgClient messaging.Client) (Connector, error) {
 	web := Web{}
-	return web.Config(connector)
+	web.Base.Config(connector, msgClient)
+	web.param = &WebParameters{}
+	web.history = make(map[string]string)
+	if err := connector.ConnectorSpecificConfig.ToStruct(web.param); err != nil {
+		return nil, err
+	}
+	web.scraper = colly.NewCollector(
+		colly.UserAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"),
+	)
+	return &web, nil
 }
 
-func (c *Web) onBody(e *colly.HTMLElement) {
+func (c *Web) onBody(ctx context.Context, e *colly.HTMLElement) {
 	child := e.ChildAttrs("a", "href")
 	text, _ := html2text.FromString(e.ChildText("main"), html2text.Options{
 		PrettyTables: true,
@@ -91,9 +105,72 @@ func (c *Web) onBody(e *colly.HTMLElement) {
 		doc.IsUpdated = true
 		doc.UpdatedDate = pg.NullTime{time.Now().UTC()}
 	}
+	if err := c.sendResult(ctx, &proto.EmbeddingRequest{
+		Id:         c.model.ID.IntPart(),
+		DocumentId: doc.ID.IntPart(),
+		Key:        doc.DocumentID,
+		Content:    text,
+	}); err != nil {
+		zap.S().Errorf(err.Error())
+	}
 
-	// todo send text for indexing
-	//fmt.Println(text)
+}
+
+func (c *Web) onBody2(ctx context.Context, e *colly.HTMLElement) {
+	child := e.ChildAttrs("a", "href")
+
+	var rows []string
+	e.ForEach("*", func(i int, element *colly.HTMLElement) {
+
+		if _, ok := excludeTag[element.Name]; ok {
+			return
+		}
+		fmt.Println(fmt.Sprintf("%d >> %s ", i, element.Name))
+		rows = append(rows, element.Text)
+	})
+
+	text, _ := html2text.FromString(strings.Join(rows, "\n"), html2text.Options{
+		PrettyTables: true,
+		PrettyTablesOptions: &html2text.PrettyTablesOptions{
+			AutoFormatHeader: true,
+			AutoWrapText:     true,
+		},
+		OmitLinks: true,
+	})
+	c.history[e.Request.URL.String()] = text
+	c.processChildLinks(e.Request.URL, child)
+	signature := fmt.Sprintf("%x", sha256.Sum256([]byte(text)))
+	docID := e.Request.URL.String()
+	doc, ok := c.model.DocsMap[docID]
+	if !ok {
+		doc = &model.Document{
+			DocumentID:  docID,
+			ConnectorID: c.model.ID,
+			Link:        docID,
+			CreatedDate: time.Now().UTC(),
+			IsExists:    true,
+			IsUpdated:   true,
+		}
+		c.model.DocsMap[docID] = doc
+		c.model.Docs = append(c.model.Docs, doc)
+	}
+	doc.IsExists = true
+	if doc.Signature == signature {
+		return
+	}
+	doc.Signature = signature
+	if doc.ID.IntPart() != 0 {
+		doc.IsUpdated = true
+		doc.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	}
+	if err := c.sendResult(ctx, &proto.EmbeddingRequest{
+		Id:         c.model.ID.IntPart(),
+		DocumentId: doc.ID.IntPart(),
+		Key:        doc.DocumentID,
+		Content:    text,
+	}); err != nil {
+		zap.S().Errorf(err.Error())
+	}
 
 }
 

@@ -7,24 +7,23 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
-	"encoding/json"
-	proto2 "github.com/golang/protobuf/proto"
+	"fmt"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
 )
 
-type taskRunner func(ctx context.Context, msg *messaging.Message) error
+type taskRunner func(ctx context.Context, msg *proto.Message) error
 
 type executor struct {
 	connectorRepo repository.ConnectorRepository
 	docRepo       repository.DocumentRepository
-	streamClient  messaging.Client
+	msgClient     messaging.Client
 	embeddingCh   chan string
 }
 
 func (e *executor) run(ctx context.Context, topic, subscriptionName string, task taskRunner) error {
-	ch, err := e.streamClient.Listen(ctx, model.TopicExecutor, model.SubscriptionExecutor)
+	ch, err := e.msgClient.Listen(ctx, topic, subscriptionName)
 	if err != nil {
 		return err
 	}
@@ -45,26 +44,28 @@ func (e *executor) run(ctx context.Context, topic, subscriptionName string, task
 	return nil
 }
 
-func (e *executor) runEmbedding(ctx context.Context, msg *messaging.Message) error {
+func (e *executor) runEmbedding(ctx context.Context, msg *proto.Message) error {
 	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
-	var payload proto.EmbeddingRequest
-	if err := proto2.Unmarshal(msg.Body, &payload); err != nil {
-		return err
+	payload := msg.GetBody().GetEmbedding()
+	if payload == nil {
+		zap.S().Errorf("Failed to get embedding payload")
 	}
+	zap.S().Infof("process embedding %d == > %50s ", payload.GetDocumentId(), payload.Content)
 	return nil
 }
 
-func (e *executor) runConnector(ctx context.Context, msg *messaging.Message) error {
+func (e *executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
-	var trigger connector.Trigger
-	if err := json.Unmarshal(msg.Body, &trigger); err != nil {
-		return err
+	trigger := msg.GetBody().GetTrigger()
+
+	if trigger == nil {
+		return fmt.Errorf("failed to get trigger payload")
 	}
-	connectorModel, err := e.connectorRepo.GetByID(ctx, trigger.ID)
+	connectorModel, err := e.connectorRepo.GetByID(ctx, trigger.GetId())
 	if err != nil {
 		return err
 	}
-	connectorWF, err := connector.New(connectorModel)
+	connectorWF, err := connector.New(connectorModel, e.msgClient)
 	if err != nil {
 		return err
 	}
@@ -87,7 +88,7 @@ func NewExecutor(connectorRepo repository.ConnectorRepository,
 	return &executor{
 		connectorRepo: connectorRepo,
 		docRepo:       docRepo,
-		streamClient:  streamClient,
+		msgClient:     streamClient,
 		embeddingCh:   make(chan string),
 	}
 }

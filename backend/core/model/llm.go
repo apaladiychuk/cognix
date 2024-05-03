@@ -13,7 +13,7 @@ type LLM struct {
 	Name        string          `json:"name,omitempty"`
 	ModelID     string          `json:"model_id,omitempty"`
 	TenantID    uuid.UUID       `json:"tenant_id,omitempty"`
-	Url         string          `json:"url,omitempty"`
+	Url         string          `json:"url,omitempty"  pg:",use_zero"`
 	ApiKey      string          `json:"api_key"`
 	Endpoint    string          `json:"endpoint,omitempty"`
 	CreatedDate time.Time       `json:"created_date,omitempty"`

@@ -73,7 +73,7 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 			return nil, err
 		}
 		if cred.Source != model.SourceType(param.Source) {
-			return nil, utils.InvalidInput.New("wrong credential source")
+			return nil, utils.ErrorBadRequest.New("wrong credential source")
 		}
 		conn.CredentialID = decimal.NewNullDecimal(cred.ID)
 	}
@@ -95,7 +95,7 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 			return nil, err
 		}
 		if cred.Source != conn.Source {
-			return nil, utils.InvalidInput.New("wrong credential source")
+			return nil, utils.ErrorBadRequest.New("wrong credential source")
 		}
 	}
 	conn.ConnectorSpecificConfig = param.ConnectorSpecificConfig

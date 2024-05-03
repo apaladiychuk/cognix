@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/server"
+	"cognix.ch/api/v2/core/utils"
 	"github.com/caarlos0/env/v10"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
@@ -46,6 +47,7 @@ func ReadConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	utils.InitLogger(cfg.Debug)
 	return cfg, nil
 
 }

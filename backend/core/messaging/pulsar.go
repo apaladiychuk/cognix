@@ -1,9 +1,12 @@
 package messaging
 
 import (
+	"cognix.ch/api/v2/core/proto"
 	"context"
-	"encoding/json"
+	"encoding/base64"
+	"fmt"
 	"github.com/apache/pulsar-client-go/pulsar"
+	proto2 "github.com/golang/protobuf/proto"
 	"go.uber.org/zap"
 	"time"
 )
@@ -21,7 +24,7 @@ type (
 	}
 )
 
-func (p *pulsarClient) Publish(ctx context.Context, topic string, body interface{}) error {
+func (p *pulsarClient) Publish(ctx context.Context, topic string, body *proto.Body) error {
 	msg, err := buildMessage(ctx, body)
 	if err != nil {
 		return err
@@ -43,7 +46,7 @@ func (p *pulsarClient) Publish(ctx context.Context, topic string, body interface
 	return err
 }
 
-func (p *pulsarClient) Listen(ctx context.Context, topic, subscriptionName string) (<-chan *Message, error) {
+func (p *pulsarClient) Listen(ctx context.Context, topic, subscriptionName string) (<-chan *proto.Message, error) {
 	consumer, err := p.conn.Subscribe(pulsar.ConsumerOptions{
 		Topic:            topic,
 		SubscriptionName: subscriptionName,
@@ -53,7 +56,7 @@ func (p *pulsarClient) Listen(ctx context.Context, topic, subscriptionName strin
 		return nil, err
 	}
 
-	msgCh := make(chan *Message, 1)
+	msgCh := make(chan *proto.Message, 1)
 
 	go func() {
 		defer consumer.Close()
@@ -71,14 +74,8 @@ func (p *pulsarClient) Listen(ctx context.Context, topic, subscriptionName strin
 				zap.S().Errorf("Receive message error: %s", err.Error())
 				break
 			}
-			var message Message
-			if err := json.Unmarshal(msg.Payload(), &message); err != nil {
-				zap.S().Errorf("Error unmarshalling message: %s", string(msg.Payload()))
-				continue
-			}
-			msgCh <- &message
-			if err = consumer.Ack(msg); err != nil {
-				zap.S().Errorf("Ack message error: %s", err.Error())
+			if err = p.processMessage(consumer, msgCh, msg); err != nil {
+				zap.S().Errorf(err.Error())
 			}
 		}
 		if err = consumer.Unsubscribe(); err != nil {
@@ -87,6 +84,24 @@ func (p *pulsarClient) Listen(ctx context.Context, topic, subscriptionName strin
 	}()
 
 	return msgCh, nil
+}
+
+func (p *pulsarClient) processMessage(consumer pulsar.Consumer, msgCh chan *proto.Message, msg pulsar.Message) error {
+	defer func() {
+		if err := consumer.Ack(msg); err != nil {
+			zap.S().Errorf("Ack message error: %s", err.Error())
+		}
+	}()
+	buf, err := base64.StdEncoding.DecodeString(string(msg.Payload()))
+	if err != nil {
+		return fmt.Errorf("decode message error: %s", err.Error())
+	}
+	var message proto.Message
+	if err := proto2.Unmarshal(buf, &message); err != nil {
+		return fmt.Errorf("error unmarshalling message: %s", string(msg.Payload()))
+	}
+	msgCh <- &message
+	return nil
 }
 
 func (p *pulsarClient) Close() {

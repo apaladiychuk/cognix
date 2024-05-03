@@ -25,13 +25,13 @@ func RunServer(lc fx.Lifecycle, executor *executor) error {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			if err := executor.run(ctx, model.TopicEmbedding, model.SubscriptionEmbedding, executor.runEmbedding); err != nil {
+			if err := executor.run(context.Background(), model.TopicEmbedding, model.SubscriptionEmbedding, executor.runEmbedding); err != nil {
 				return err
 			}
 			return executor.run(context.Background(), model.TopicExecutor, model.SubscriptionExecutor, executor.runConnector)
 		},
 		OnStop: func(ctx context.Context) error {
-			executor.streamClient.Close()
+			executor.msgClient.Close()
 			return nil
 		},
 	})

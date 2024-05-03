@@ -1,9 +1,10 @@
 package messaging
 
 import (
+	"cognix.ch/api/v2/core/proto"
 	"context"
-	"encoding/json"
 	"fmt"
+	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
 	_ "github.com/nats-io/nats.go/jetstream"
 	_ "go.opentelemetry.io/otel/propagation"
@@ -14,8 +15,8 @@ import (
 )
 
 type Client interface {
-	Publish(ctx context.Context, topic string, body interface{}) error
-	Listen(ctx context.Context, topic, subscriptionName string) (<-chan *Message, error)
+	Publish(ctx context.Context, topic string, body *proto.Body) error
+	Listen(ctx context.Context, topic, subscriptionName string) (<-chan *proto.Message, error)
 	Close()
 }
 
@@ -38,7 +39,7 @@ func (c *clientStream) Close() {
 	})
 }
 
-func (c *clientStream) Publish(ctx context.Context, topic string, body interface{}) error {
+func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Body) error {
 	message, err := buildMessage(ctx, body)
 	if err != nil {
 		return err
@@ -51,8 +52,8 @@ func (c *clientStream) Publish(ctx context.Context, topic string, body interface
 	return nil
 }
 
-func (c *clientStream) Listen(_ context.Context, topic, subscriptionName string) (<-chan *Message, error) {
-	out := make(chan *Message)
+func (c *clientStream) Listen(_ context.Context, topic, subscriptionName string) (<-chan *proto.Message, error) {
+	out := make(chan *proto.Message)
 	subscription, err := c.stream.Subscribe(fmt.Sprintf("%s.%s", c.connectorStreamName, topic),
 		func(msg *nats.Msg) {
 			defer func() {
@@ -60,8 +61,8 @@ func (c *clientStream) Listen(_ context.Context, topic, subscriptionName string)
 					zap.S().Warnf("Ack failed: %s", err.Error())
 				}
 			}()
-			var message Message
-			if err := json.Unmarshal(msg.Data, &message); err != nil {
+			var message proto.Message
+			if err := proto2.Unmarshal(msg.Data, &message); err != nil {
 				zap.S().Errorf("Error unmarshalling message: %s", string(msg.Data))
 				return
 			}
@@ -115,4 +116,24 @@ func NewClientStream(cfg *natsConfig) (Client, error) {
 		connectorStreamName: cfg.ConnectorStreamName,
 		once:                sync.Once{},
 	}, nil
+}
+
+type NopClient struct {
+}
+
+func (n *NopClient) Publish(ctx context.Context, topic string, body *proto.Body) error {
+	return nil
+}
+
+func (n *NopClient) Listen(ctx context.Context, topic, subscriptionName string) (<-chan *proto.Message, error) {
+	return make(chan *proto.Message), nil
+}
+
+func (n *NopClient) Close() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewMopClient() Client {
+	return &NopClient{}
 }

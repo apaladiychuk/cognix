@@ -1,25 +1,28 @@
 package connector
 
 import (
+	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
 	"context"
+	"github.com/shopspring/decimal"
 	"testing"
 )
 
 func TestWeb_Execute(t *testing.T) {
 	web, err := NewWeb(
 		&model.Connector{
-			ID:        1,
+			ID:        decimal.NewFromInt(1),
 			Name:      "web test",
 			Source:    "web",
 			InputType: "src",
 			ConnectorSpecificConfig: model.JSONMap{
-				"url":  "https://help.collaboard.app/",
+				"url1": "https://help.collaboard.app/",
 				"url2": "https://apidog.com/blog/openapi-specification/",
-				"url1": "https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML",
+				"url":  "https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML",
 			},
 			DocsMap: make(map[string]*model.Document),
-		})
+		},
+		messaging.NewMopClient())
 	if err != nil {
 		t.Log(err.Error())
 		t.Fatal(err)

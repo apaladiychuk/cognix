@@ -1,12 +1,11 @@
 package main
 
 import (
-	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
+	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
-	"encoding/json"
 	"go.uber.org/zap"
 )
 
@@ -57,13 +56,13 @@ func (s *Server) listen(ctx context.Context) error {
 	for {
 		select {
 		case msg := <-ch:
-			var trigger connector.Trigger
-			if err = json.Unmarshal(msg.Body, &trigger); err != nil {
-				zap.S().Errorf("error unmarshalling trigger message: %v", err)
+			trigger := msg.GetBody().GetTrigger()
+			if trigger == nil {
+				zap.S().Errorf("Received message with empty trigger")
 				continue
 			}
-			if err = s.scheduleConnector(context.Background(), &trigger); err != nil {
-				zap.S().Errorf("error scheduling connector[%d] : %v", trigger.ID, err)
+			if err = s.scheduleConnector(context.Background(), trigger); err != nil {
+				zap.S().Errorf("error scheduling connector[%d] : %v", trigger.GetId(), err)
 			}
 		case <-ctx.Done():
 			return ctx.Err()
@@ -72,8 +71,8 @@ func (s *Server) listen(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) scheduleConnector(ctx context.Context, trigger *connector.Trigger) error {
-	conn, err := s.connectorRepo.GetByID(ctx, trigger.ID)
+func (s *Server) scheduleConnector(ctx context.Context, trigger *proto.TriggerRequest) error {
+	conn, err := s.connectorRepo.GetByID(ctx, trigger.GetId())
 	if err != nil {
 		return err
 	}

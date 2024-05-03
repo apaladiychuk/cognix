@@ -1,8 +1,8 @@
 package messaging
 
 import (
+	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/utils"
-	"encoding/json"
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
@@ -25,13 +25,8 @@ type (
 		URL                 string `env:"NATS_URL"`
 		ConnectorStreamName string `env:"NATS_STREAM_NAME" envDefault:"Connector"`
 	}
-	Message struct {
-		Header map[string]string `json:"header"`
-		Body   json.RawMessage   `json:"body"`
-	}
-
 	Subscription struct {
-		ch           chan *Message
+		ch           chan *proto.Message
 		subscription *nats.Subscription
 	}
 )

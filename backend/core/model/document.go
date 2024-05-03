@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+const (
+	StatusInvalidate = "invalidate"
+	StatusPending    = "pending"
+	StatusEmbedding  = "embedding"
+	StatusComplete   = "complete"
+)
+
 type Document struct {
 	tableName        struct{}        `pg:"documents"`
 	ID               decimal.Decimal `json:"id,omitempty"`
@@ -21,9 +28,9 @@ type Document struct {
 	CreatedDate      time.Time       `json:"created_date,omitempty"`
 	UpdatedDate      pg.NullTime     `json:"updated_date,omitempty" pg:",use_zero"`
 	DeletedDate      pg.NullTime     `json:"deleted_date,omitempty" pg:",use_zero"`
-	IsExists         bool        `json:"is_exists,omitempty" pg:"-"`
-	IsUpdated        bool        `json:"is_updates,omitempty" pg:"-"`
-
+	IsExists         bool            `json:"is_exists,omitempty" pg:"-"`
+	IsUpdated        bool            `json:"is_updates,omitempty" pg:"-"`
+	Status           string          `json:"status,omitempty" pg:",use_zero"`
 }
 
 type DocumentFeedback struct {

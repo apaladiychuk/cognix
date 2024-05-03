@@ -2,6 +2,7 @@ package parameters
 
 import (
 	"cognix.ch/api/v2/core/model"
+	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/shopspring/decimal"
 	"time"
@@ -20,19 +21,31 @@ type CreateChatSession struct {
 
 func (v CreateChatSession) Validate() error {
 	return validation.ValidateStruct(&v,
-		validation.Field(&v.PersonaID, validation.Required),
+		validation.Field(&v.PersonaID, validation.Required,
+			validation.By(func(value interface{}) error {
+				if v.PersonaID.IsZero() {
+					return fmt.Errorf("persona_id is zero")
+				}
+				return nil
+			})),
 	)
 }
 
 type CreateChatMessageRequest struct {
-	ChatSessionId    decimal.Decimal   `json:"chat_session_id,omitempty"`
-	ParentMessageId  decimal.Decimal   `json:"parent_message_id,omitempty"`
-	Message          string            `json:"message,omitempty"`
-	PromptId         decimal.Decimal   `json:"prompt_id,omitempty"`
-	SearchDocIds     []decimal.Decimal `json:"search_doc_ids,omitempty"`
-	RetrievalOptions RetrievalDetails  `json:"retrieval_options,omitempty"`
-	QueryOverride    string            `json:"query_override,omitempty"`
-	NoAiAnswer       bool              `json:"no_ai_answer,omitempty"`
+	ChatSessionID   decimal.Decimal   `json:"chat_session_id,omitempty"`
+	ParentMessageID decimal.Decimal   `json:"parent_message_id,omitempty"`
+	Message         string            `json:"message,omitempty"`
+	PromptID        decimal.Decimal   `json:"prompt_id,omitempty"`
+	SearchDocIds    []decimal.Decimal `json:"search_doc_ids,omitempty"`
+	//RetrievalOptions RetrievalDetails  `json:"retrieval_options,omitempty"`
+	QueryOverride string `json:"query_override,omitempty"`
+	NoAiAnswer    bool   `json:"no_ai_answer,omitempty"`
+}
+
+func (v CreateChatMessageRequest) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.ChatSessionID, validation.Required),
+		validation.Field(&v.Message, validation.Required))
 }
 
 type RetrievalDetails struct {

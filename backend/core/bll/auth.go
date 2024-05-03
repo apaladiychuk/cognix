@@ -46,7 +46,7 @@ func (a *authBL) SignUp(ctx context.Context, identity *oauth.IdentityResponse) (
 		return nil, err
 	}
 	if exists {
-		return nil, utils.InvalidInput.New("user already exists")
+		return nil, utils.ErrorBadRequest.New("user already exists")
 	}
 	user := model.User{
 		ID:         uuid.New(),
@@ -73,7 +73,7 @@ func (a *authBL) SignUp(ctx context.Context, identity *oauth.IdentityResponse) (
 //		return "", err
 //	}
 //	if exists {
-//		return "", utils.InvalidInput.New("user already registered.")
+//		return "", utils.ErrorBadRequest.New("user already registered.")
 //	}
 //	//buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.InviteState,
 //	//	Role:     param.Role,

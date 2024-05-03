@@ -43,7 +43,7 @@ func (h *EmbeddingModelHandler) Mount(router *gin.Engine, authMiddleware gin.Han
 func (h *EmbeddingModelHandler) GetAll(c *gin.Context, identity *security.Identity) error {
 	var param parameters.ArchivedParam
 	if err := c.ShouldBindQuery(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong parameters")
+		return utils.ErrorBadRequest.Wrap(err, "wrong parameters")
 	}
 	result, err := h.embeddingModelBL.GetAll(c.Request.Context(), identity.User, &param)
 	if err != nil {
@@ -65,7 +65,7 @@ func (h *EmbeddingModelHandler) GetAll(c *gin.Context, identity *security.Identi
 func (h *EmbeddingModelHandler) GetByID(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 	embeddingModel, err := h.embeddingModelBL.GetByID(c.Request.Context(), identity.User, id)
 	if err != nil {
@@ -87,7 +87,7 @@ func (h *EmbeddingModelHandler) GetByID(c *gin.Context, identity *security.Ident
 func (h *EmbeddingModelHandler) Create(c *gin.Context, identity *security.Identity) error {
 	var param parameters.EmbeddingModelParam
 	if err := c.ShouldBind(&param); err != nil {
-		return utils.InvalidInput.New("invalid params")
+		return utils.ErrorBadRequest.New("invalid params")
 	}
 	embeddingModel, err := h.embeddingModelBL.Create(c.Request.Context(), identity.User, &param)
 	if err != nil {
@@ -110,11 +110,11 @@ func (h *EmbeddingModelHandler) Create(c *gin.Context, identity *security.Identi
 func (h *EmbeddingModelHandler) Update(c *gin.Context, identity *security.Identity) error {
 	var param parameters.EmbeddingModelParam
 	if err := c.ShouldBind(&param); err != nil {
-		return utils.InvalidInput.New("invalid params")
+		return utils.ErrorBadRequest.New("invalid params")
 	}
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 	embeddingModel, err := h.embeddingModelBL.Update(c.Request.Context(), identity.User, id, &param)
 	if err != nil {
@@ -137,11 +137,11 @@ func (h *EmbeddingModelHandler) Update(c *gin.Context, identity *security.Identi
 func (h *EmbeddingModelHandler) Delete(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 	action := c.Param("action")
 	if !(action == ActionRestore || action == ActionDelete) {
-		return utils.InvalidInput.Newf("invalid action: should be %s or %s", ActionRestore, ActionDelete)
+		return utils.ErrorBadRequest.Newf("invalid action: should be %s or %s", ActionRestore, ActionDelete)
 	}
 	var embedingModel *model.EmbeddingModel
 	switch action {

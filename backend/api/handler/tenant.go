@@ -66,10 +66,10 @@ func (h *TenantHandler) AddUser(c *gin.Context, identity *security.Identity) err
 
 	var param parameters.AddUserParam
 	if err := c.ShouldBind(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong parameter")
+		return utils.ErrorBadRequest.Wrap(err, "wrong parameter")
 	}
 	if err := param.Validate(); err != nil {
-		return utils.InvalidInput.New(err.Error())
+		return utils.ErrorBadRequest.New(err.Error())
 	}
 	user, err := h.tenantBL.AddUser(c.Request.Context(), identity.User, param.Email, param.Role)
 	if err != nil {
@@ -100,10 +100,10 @@ func (h *TenantHandler) EditUser(c *gin.Context, identity *security.Identity) er
 	}
 	var param parameters.EditUserParam
 	if err := c.ShouldBind(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong parameter")
+		return utils.ErrorBadRequest.Wrap(err, "wrong parameter")
 	}
 	if err := param.Validate(); err != nil {
-		return utils.InvalidInput.New(err.Error())
+		return utils.ErrorBadRequest.New(err.Error())
 	}
 	user, err := h.tenantBL.UpdateUser(c.Request.Context(), identity.User, userID, param.Role)
 	if err != nil {

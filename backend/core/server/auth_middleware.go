@@ -6,7 +6,6 @@ import (
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"strings"
 	"time"
 )
@@ -29,7 +28,7 @@ func (m *AuthMiddleware) RequireAuth(c *gin.Context) {
 	//Get the  bearer Token
 	tokenString := c.GetHeader("Authorization")
 	if tokenString == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "message": "Authorization token is required"})
+		handleError(c, utils.ErrorUnauthorized.New("Authorization token is required"))
 		c.Abort()
 		return
 	}
@@ -37,26 +36,26 @@ func (m *AuthMiddleware) RequireAuth(c *gin.Context) {
 	extractedToken := strings.Split(tokenString, "Bearer ")
 
 	if len(extractedToken) != 2 {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Incorrect format of authorization token"})
+		handleError(c, utils.ErrorBadRequest.New("Incorrect format of authorization token"))
 		c.Abort()
 		return
 	}
 
 	claims, err := m.jwtService.ParseAndValidate(strings.TrimSpace(extractedToken[1]))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Token is not valid"})
+		handleError(c, utils.ErrorBadRequest.New("Token is not valid"))
 		c.Abort()
 		return
 	}
 
 	if claims.ExpiresAt != 0 && time.Now().Unix() > claims.ExpiresAt {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		handleError(c, utils.ErrorUnauthorized.New("token expired"))
 		c.Abort()
 		return
 	}
 
 	if claims.User, err = m.userRepo.GetByIDAndTenantID(c.Request.Context(), claims.User.ID, claims.User.TenantID); err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		handleError(c, utils.ErrorUnauthorized.Wrap(err, "wrong user"))
 		c.Abort()
 		return
 	}

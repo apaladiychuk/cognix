@@ -60,7 +60,7 @@ func (h *AuthHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 func (h *AuthHandler) SignIn(c *gin.Context) error {
 	var param parameters.LoginParam
 	if err := c.ShouldBindQuery(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong redirect url")
+		return utils.ErrorBadRequest.Wrap(err, "wrong redirect url")
 	}
 	zap.S().Infof("redirec to %s", param.RedirectURL)
 	buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.LoginState})
@@ -94,7 +94,7 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 
 	buf, err := base64.URLEncoding.DecodeString(c.Query(oauth.StateNameGoogle))
 	if err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong state")
+		return utils.ErrorBadRequest.Wrap(err, "wrong state")
 	}
 	var state parameters.OAuthParam
 	if err = json.Unmarshal(buf, &state); err != nil {
@@ -169,10 +169,10 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 //func (h *AuthHandler) Invite(c *gin.Context, identity *security.Identity) error {
 //	var param parameters.InviteParam
 //	if err := c.BindJSON(&param); err != nil {
-//		return utils.InvalidInput.Wrap(err, "can not parse payload")
+//		return utils.ErrorBadRequest.Wrap(err, "can not parse payload")
 //	}
 //	if err := param.Validate(); err != nil {
-//		return utils.InvalidInput.Wrap(err, err.Error())
+//		return utils.ErrorBadRequest.Wrap(err, err.Error())
 //	}
 //
 //	url, err := h.authBL.Invite(c.Request.Context(), identity, &param)
@@ -195,7 +195,7 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 //	//
 //	//key, err := base64.URLEncoding.DecodeString(param)
 //	//if err != nil {
-//	//	return utils.InvalidInput.Wrap(err, "wrong state")
+//	//	return utils.ErrorBadRequest.Wrap(err, "wrong state")
 //	//}
 //	////value, err := h.storage.Pull(string(key))
 //	//

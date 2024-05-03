@@ -13,10 +13,11 @@ type Errors struct {
 type ErrorWrap int
 
 const (
-	ErrorPermission ErrorWrap = http.StatusForbidden
-	NotFound        ErrorWrap = http.StatusNotFound
-	Internal        ErrorWrap = http.StatusInternalServerError
-	InvalidInput    ErrorWrap = http.StatusBadRequest
+	ErrorPermission   ErrorWrap = http.StatusForbidden
+	NotFound          ErrorWrap = http.StatusNotFound
+	Internal          ErrorWrap = http.StatusInternalServerError
+	ErrorBadRequest   ErrorWrap = http.StatusBadRequest
+	ErrorUnauthorized ErrorWrap = http.StatusUnauthorized
 )
 
 func (e Errors) Error() string {

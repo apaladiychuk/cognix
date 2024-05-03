@@ -45,7 +45,7 @@ func (b *chatBL) FeedbackMessage(ctx *gin.Context, user *model.User, id int64, v
 }
 
 func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *parameters.CreateChatMessageRequest) (*responder.Manager, error) {
-	chatSession, err := b.chatRepo.GetSessionByID(ctx.Request.Context(), user.ID, param.ChatSessionId.IntPart())
+	chatSession, err := b.chatRepo.GetSessionByID(ctx.Request.Context(), user.ID, param.ChatSessionID.IntPart())
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (b *chatBL) CreateSession(ctx context.Context, user *model.User, param *par
 		return nil, err
 	}
 	if !exists {
-		return nil, utils.InvalidInput.New("persona is not exists")
+		return nil, utils.ErrorBadRequest.New("persona is not exists")
 	}
 	session := model.ChatSession{
 		UserID:      user.ID,

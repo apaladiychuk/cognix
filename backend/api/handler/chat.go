@@ -61,7 +61,7 @@ func (h *ChatHandler) GetSessions(c *gin.Context, identity *security.Identity) e
 func (h *ChatHandler) GetByID(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 	session, err := h.chatBL.GetSessionByID(c.Request.Context(), identity.User, id)
 	if err != nil {
@@ -82,11 +82,8 @@ func (h *ChatHandler) GetByID(c *gin.Context, identity *security.Identity) error
 // @Router /chats/create-chat-session [post]
 func (h *ChatHandler) CreateSession(c *gin.Context, identity *security.Identity) error {
 	var param parameters.CreateChatSession
-	if err := c.BindJSON(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong payload")
-	}
-	if err := param.Validate(); err != nil {
-		return utils.InvalidInput.Wrap(err, err.Error())
+	if err := server.BindJsonAndValidate(c, &param); err != nil {
+		return err
 	}
 	session, err := h.chatBL.CreateSession(c.Request.Context(), identity.User, &param)
 	if err != nil {
@@ -107,8 +104,8 @@ func (h *ChatHandler) CreateSession(c *gin.Context, identity *security.Identity)
 // @Router /chats/send-message [post]
 func (h *ChatHandler) SendMessage(c *gin.Context, identity *security.Identity) error {
 	var param parameters.CreateChatMessageRequest
-	if err := c.BindJSON(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong payload")
+	if err := server.BindJsonAndValidate(c, &param); err != nil {
+		return err
 	}
 	assistant, err := h.chatBL.SendMessage(c, identity.User, &param)
 	if err != nil {
@@ -138,10 +135,10 @@ func (h *ChatHandler) SendMessage(c *gin.Context, identity *security.Identity) e
 func (h *ChatHandler) MessageFeedback(c *gin.Context, identity *security.Identity) error {
 	var param parameters.MessageFeedbackParam
 	if err := c.BindJSON(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "wrong payload")
+		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
 	}
 	if err := param.Validate(); err != nil {
-		return utils.InvalidInput.Wrap(err, err.Error())
+		return utils.ErrorBadRequest.Wrap(err, err.Error())
 	}
 	feedback, err := h.chatBL.FeedbackMessage(c, identity.User, param.ID.IntPart(), param.Vote == parameters.MessageFeedbackUpvote)
 	if err != nil {

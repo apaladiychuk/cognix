@@ -37,7 +37,7 @@ func (b *tenantBL) AddUser(ctx context.Context, user *model.User, email, role st
 		return nil, err
 	}
 	if exists {
-		return nil, utils.InvalidInput.New("user already exists")
+		return nil, utils.ErrorBadRequest.New("user already exists")
 	}
 	newUser := &model.User{
 		ID:         uuid.New(),

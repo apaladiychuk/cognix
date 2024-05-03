@@ -44,7 +44,7 @@ func (h *DocumentSetHandler) Mount(router *gin.Engine, authMiddleware gin.Handle
 func (h *DocumentSetHandler) GetAll(c *gin.Context, identity *security.Identity) error {
 	var param parameters.ArchivedParam
 	if err := c.ShouldBindQuery(&param); err != nil {
-		return utils.InvalidInput.Wrap(err, "failed to bind query params")
+		return utils.ErrorBadRequest.Wrap(err, "failed to bind query params")
 	}
 	documentSets, err := h.documentSetBL.GetByUser(c.Request.Context(), identity.User, &param)
 	if err != nil {
@@ -66,7 +66,7 @@ func (h *DocumentSetHandler) GetAll(c *gin.Context, identity *security.Identity)
 func (h *DocumentSetHandler) GetByID(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 	documentSet, err := h.documentSetBL.GetByID(c, identity.User, id)
 	if err != nil {
@@ -89,7 +89,7 @@ func (h *DocumentSetHandler) GetByID(c *gin.Context, identity *security.Identity
 func (h *DocumentSetHandler) Create(c *gin.Context, identity *security.Identity) error {
 	var param parameters.DocumentSetParam
 	if err := c.ShouldBindJSON(&param); err != nil {
-		return utils.InvalidInput.New("invalid params")
+		return utils.ErrorBadRequest.New("invalid params")
 	}
 	documentSet, err := h.documentSetBL.Create(c.Request.Context(), identity.User, &param)
 	if err != nil {
@@ -112,12 +112,12 @@ func (h *DocumentSetHandler) Create(c *gin.Context, identity *security.Identity)
 func (h *DocumentSetHandler) Update(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 
 	var param parameters.DocumentSetParam
 	if err = c.ShouldBindJSON(&param); err != nil {
-		return utils.InvalidInput.New("invalid params")
+		return utils.ErrorBadRequest.New("invalid params")
 	}
 	documentSet, err := h.documentSetBL.Update(c.Request.Context(), identity.User, id, &param)
 	if err != nil {
@@ -140,11 +140,11 @@ func (h *DocumentSetHandler) Update(c *gin.Context, identity *security.Identity)
 func (h *DocumentSetHandler) Delete(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
-		return utils.InvalidInput.New("id should be presented")
+		return utils.ErrorBadRequest.New("id should be presented")
 	}
 	action := c.Param("action")
 	if !(action == ActionRestore || action == ActionDelete) {
-		return utils.InvalidInput.Newf("invalid action: should be %s or %s", ActionRestore, ActionDelete)
+		return utils.ErrorBadRequest.Newf("invalid action: should be %s or %s", ActionRestore, ActionDelete)
 	}
 	var documentSet *model.DocumentSet
 	switch action {

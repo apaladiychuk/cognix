@@ -3,7 +3,8 @@ package server
 import (
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/utils"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -47,7 +48,6 @@ func handleError(c *gin.Context, err error) {
 			ew.Code = http.StatusInternalServerError
 			ew.Message = err.Error()
 		}
-		otelzap.S().Errorf("[%s] %v", ew.Message, ew.Original)
 		errResp := JsonErrorResponse{
 			Status: int(ew.Code),
 			Error:  ew.Message,
@@ -55,6 +55,7 @@ func handleError(c *gin.Context, err error) {
 		if ew.Original != nil {
 			errResp.OriginalError = ew.Original.Error()
 		}
+		zap.S().Errorf("[%s] %v", ew.Message, ew.Original)
 		c.JSON(int(ew.Code), errResp)
 	}
 }
@@ -65,5 +66,17 @@ func JsonResult(c *gin.Context, status int, data interface{}) error {
 		Error:  "",
 		Data:   data,
 	})
+	return nil
+}
+
+func BindJsonAndValidate(c *gin.Context, data interface{}) error {
+	if err := c.BindJSON(data); err != nil {
+		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
+	}
+	if vl, ok := data.(validation.Validatable); ok {
+		if err := vl.Validate(); err != nil {
+			return utils.ErrorBadRequest.New(err.Error())
+		}
+	}
 	return nil
 }

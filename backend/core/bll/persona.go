@@ -39,7 +39,7 @@ func (b *personaBL) Archive(ctx context.Context, user *model.User, id int64, res
 		return nil, err
 	}
 	if len(persona.ChatSessions) > 0 {
-		return nil, utils.InvalidInput.New("persona is used in chat sessions")
+		return nil, utils.ErrorBadRequest.New("persona is used in chat sessions")
 	}
 	if restore {
 		persona.DeletedDate = pg.NullTime{}
@@ -57,7 +57,7 @@ func (b *personaBL) Create(ctx context.Context, user *model.User, param *paramet
 
 	starterMessages, err := json.Marshal(param.StarterMessages)
 	if err != nil {
-		return nil, utils.InvalidInput.Wrap(err, "fail to marshal starter messages")
+		return nil, utils.ErrorBadRequest.Wrap(err, "fail to marshal starter messages")
 	}
 	persona := model.Persona{
 		Name:            param.Name,
@@ -101,7 +101,7 @@ func (b *personaBL) Update(ctx context.Context, id int64, user *model.User, para
 	}
 	starterMessages, err := json.Marshal(param.StarterMessages)
 	if err != nil {
-		return nil, utils.InvalidInput.Wrap(err, "fail to marshal starter messages")
+		return nil, utils.ErrorBadRequest.Wrap(err, "fail to marshal starter messages")
 	}
 	persona.Name = param.Name
 	persona.Description = param.Description

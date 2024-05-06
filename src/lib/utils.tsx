@@ -1,3 +1,4 @@
+import { Persona } from "@/models/settings";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -21,3 +22,20 @@ export function dataConverter(dateString: string) {
     year: "numeric",
   });
 }
+
+export function reassembleLLMData (data: Persona[]) {
+  for (const record in data){
+    data[record].model_id = data[record].llm.model_id
+    data[record].endpoint = data[record].llm.endpoint
+  }
+  return data
+}
+
+// export function reassembleLLMInstance (data: Persona) {
+//   data.model_id = data.llm.model_id
+//   data.endpoint = data.llm.endpoint
+//   data.task_prompt = data.prompt?.task_prompt
+//   data.system_prompt = data.prompt?.system_prompt
+//   data.url = data.prompt.url
+//   return data
+// }

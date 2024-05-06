@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
+	"time"
 )
 
 type (
@@ -13,6 +14,7 @@ type (
 		FindByConnectorIDAndUser(ctx context.Context, user *model.User, connectorID int64) ([]*model.Document, error)
 		FindByConnectorID(ctx context.Context, connectorID int64) ([]*model.Document, error)
 		Create(ctx context.Context, document ...*model.Document) error
+		Update(ctx context.Context, document *model.Document) error
 	}
 	documentRepository struct {
 		db *pg.DB
@@ -47,6 +49,14 @@ func (r *documentRepository) FindByConnectorIDAndUser(ctx context.Context, user 
 
 func (r *documentRepository) Create(ctx context.Context, document ...*model.Document) error {
 	if _, err := r.db.WithContext(ctx).Model(&document).Insert(); err != nil {
+		return utils.Internal.Wrap(err, "can not insert document")
+	}
+	return nil
+}
+
+func (r *documentRepository) Update(ctx context.Context, document *model.Document) error {
+	document.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	if _, err := r.db.WithContext(ctx).Model(&document).Where("id = ? ", document.ID).Update(); err != nil {
 		return utils.Internal.Wrap(err, "can not insert document")
 	}
 	return nil

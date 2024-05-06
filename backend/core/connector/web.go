@@ -1,19 +1,16 @@
 package connector
 
 import (
-	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"github.com/go-pg/pg/v10"
 	"github.com/gocolly/colly/v2"
 	"go.uber.org/zap"
 	"jaytaylor.com/html2text"
 	"net/url"
 	"strings"
-	"time"
 )
 
 type (
@@ -43,21 +40,24 @@ func withContext(ctx context.Context, fn func(context.Context, *colly.HTMLElemen
 	}
 }
 
-func (c *Web) Execute(ctx context.Context, param map[string]string) (*model.Connector, error) {
+func (c *Web) Execute(ctx context.Context, param map[string]string) chan *proto.TriggerResponse {
 	zap.S().Debugf("Run web connector with param %s ...", c.param.URL)
 	c.ctx = ctx
-	c.scraper.OnHTML("body", withContext(ctx, c.onBody))
-	err := c.scraper.Visit(c.param.URL)
-	if err != nil {
-		zap.L().Error("Failed to scrape URL", zap.String("url", c.param.URL), zap.Error(err))
-	}
-	zap.S().Debugf("Complete web connector with param %s", c.param.URL)
-	return c.model, err
+	go func() {
+		c.scraper.OnHTML("body", withContext(ctx, c.onBody))
+		err := c.scraper.Visit(c.param.URL)
+		if err != nil {
+			zap.L().Error("Failed to scrape URL", zap.String("url", c.param.URL), zap.Error(err))
+		}
+		zap.S().Debugf("Complete web connector with param %s", c.param.URL)
+		close(c.resultCh)
+	}()
+	return c.resultCh
 }
 
-func NewWeb(connector *model.Connector, msgClient messaging.Client) (Connector, error) {
+func NewWeb(connector *model.Connector) (Connector, error) {
 	web := Web{}
-	web.Base.Config(connector, msgClient)
+	web.Base.Config(connector)
 	web.param = &WebParameters{}
 	web.history = make(map[string]string)
 	if err := connector.ConnectorSpecificConfig.ToStruct(web.param); err != nil {
@@ -83,94 +83,70 @@ func (c *Web) onBody(ctx context.Context, e *colly.HTMLElement) {
 	c.processChildLinks(e.Request.URL, child)
 	signature := fmt.Sprintf("%x", sha256.Sum256([]byte(text)))
 	docID := e.Request.URL.String()
-	doc, ok := c.model.DocsMap[docID]
-	if !ok {
-		doc = &model.Document{
-			DocumentID:  docID,
-			ConnectorID: c.model.ID,
-			Link:        docID,
-			CreatedDate: time.Now().UTC(),
-			IsExists:    true,
-			IsUpdated:   true,
-		}
-		c.model.DocsMap[docID] = doc
-		c.model.Docs = append(c.model.Docs, doc)
-	}
-	doc.IsExists = true
-	if doc.Signature == signature {
-		return
-	}
-	doc.Signature = signature
-	if doc.ID.IntPart() != 0 {
-		doc.IsUpdated = true
-		doc.UpdatedDate = pg.NullTime{time.Now().UTC()}
-	}
-	if err := c.sendResult(ctx, &proto.EmbeddingRequest{
-		Id:         c.model.ID.IntPart(),
-		DocumentId: doc.ID.IntPart(),
-		Key:        doc.DocumentID,
+
+	c.resultCh <- &proto.TriggerResponse{
+		DocumentId: docID,
+		Url:        docID,
 		Content:    text,
-	}); err != nil {
-		zap.S().Errorf(err.Error())
+		Signature:  signature,
+		Status:     proto.Status_SUCCESS,
 	}
 
 }
 
 func (c *Web) onBody2(ctx context.Context, e *colly.HTMLElement) {
-	child := e.ChildAttrs("a", "href")
-
-	var rows []string
-	e.ForEach("*", func(i int, element *colly.HTMLElement) {
-
-		if _, ok := excludeTag[element.Name]; ok {
-			return
-		}
-		fmt.Println(fmt.Sprintf("%d >> %s ", i, element.Name))
-		rows = append(rows, element.Text)
-	})
-
-	text, _ := html2text.FromString(strings.Join(rows, "\n"), html2text.Options{
-		PrettyTables: true,
-		PrettyTablesOptions: &html2text.PrettyTablesOptions{
-			AutoFormatHeader: true,
-			AutoWrapText:     true,
-		},
-		OmitLinks: true,
-	})
-	c.history[e.Request.URL.String()] = text
-	c.processChildLinks(e.Request.URL, child)
-	signature := fmt.Sprintf("%x", sha256.Sum256([]byte(text)))
-	docID := e.Request.URL.String()
-	doc, ok := c.model.DocsMap[docID]
-	if !ok {
-		doc = &model.Document{
-			DocumentID:  docID,
-			ConnectorID: c.model.ID,
-			Link:        docID,
-			CreatedDate: time.Now().UTC(),
-			IsExists:    true,
-			IsUpdated:   true,
-		}
-		c.model.DocsMap[docID] = doc
-		c.model.Docs = append(c.model.Docs, doc)
-	}
-	doc.IsExists = true
-	if doc.Signature == signature {
-		return
-	}
-	doc.Signature = signature
-	if doc.ID.IntPart() != 0 {
-		doc.IsUpdated = true
-		doc.UpdatedDate = pg.NullTime{time.Now().UTC()}
-	}
-	if err := c.sendResult(ctx, &proto.EmbeddingRequest{
-		Id:         c.model.ID.IntPart(),
-		DocumentId: doc.ID.IntPart(),
-		Key:        doc.DocumentID,
-		Content:    text,
-	}); err != nil {
-		zap.S().Errorf(err.Error())
-	}
+	//child := e.ChildAttrs("a", "href")
+	//
+	//var rows []string
+	//e.ForEach("*", func(i int, element *colly.HTMLElement) {
+	//
+	//	if _, ok := excludeTag[element.Name]; ok {
+	//		return
+	//	}
+	//	fmt.Println(fmt.Sprintf("%d >> %s ", i, element.Name))
+	//	rows = append(rows, element.Text)
+	//})
+	//
+	//text, _ := html2text.FromString(strings.Join(rows, "\n"), html2text.Options{
+	//	PrettyTables: true,
+	//	PrettyTablesOptions: &html2text.PrettyTablesOptions{
+	//		AutoFormatHeader: true,
+	//		AutoWrapText:     true,
+	//	},
+	//	OmitLinks: true,
+	//})
+	//c.history[e.Request.URL.String()] = text
+	//c.processChildLinks(e.Request.URL, child)
+	//signature := fmt.Sprintf("%x", sha256.Sum256([]byte(text)))
+	//docID := e.Request.URL.String()
+	//doc, ok := c.model.DocsMap[docID]
+	//if !ok {
+	//	doc = &model.Document{
+	//		DocumentID:  docID,
+	//		ConnectorID: c.model.ID,
+	//		Link:        docID,
+	//		CreatedDate: time.Now().UTC(),
+	//		IsExists:    true,
+	//		IsUpdated:   true,
+	//	}
+	//	c.model.DocsMap[docID] = doc
+	//	c.model.Docs = append(c.model.Docs, doc)
+	//}
+	//doc.IsExists = true
+	//if doc.Signature == signature {
+	//	return
+	//}
+	//doc.Signature = signature
+	//if doc.ID.IntPart() != 0 {
+	//	doc.IsUpdated = true
+	//	doc.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	//}
+	//c.resultCh <- &proto.TriggerResponse{
+	//	DocumentId: doc.ID.IntPart(),
+	//	Url:        doc.DocumentID,
+	//	Content:    text,
+	//	Signature:  signature,
+	//}
 
 }
 

@@ -3,7 +3,6 @@ package messaging
 import (
 	"cognix.ch/api/v2/core/proto"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
@@ -91,10 +90,5 @@ func buildMessage(ctx context.Context, body *proto.Body) ([]byte, error) {
 		Header: header,
 		Body:   body,
 	}
-	buf, err := proto2.Marshal(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return []byte(base64.StdEncoding.EncodeToString(buf)), nil
+	return proto2.Marshal(msg)
 }

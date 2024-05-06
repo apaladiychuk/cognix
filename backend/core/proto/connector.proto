@@ -33,11 +33,17 @@ message EmbeddingRequest {
 }
 
 message TriggerResponse {
-  int64 document_id = 1;
+  string document_id = 1;
   string url = 2;
   string content = 4;
+  Status  status = 5;
+  string signature = 6;
 }
 
+enum Status {
+  SUCCESS = 0;
+  FAILED = 1;
+}
 enum ResponseStep {
   NO_ACTION = 0;
   LOAD = 1;

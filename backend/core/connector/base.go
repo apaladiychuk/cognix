@@ -1,7 +1,6 @@
 package connector
 
 import (
-	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
@@ -12,12 +11,11 @@ import (
 type Base struct {
 	collectionName string
 	model          *model.Connector
-	msgClient      messaging.Client
-	resultCh       chan <-
+	resultCh       chan *proto.TriggerResponse
 }
 
 type Connector interface {
-	Execute(ctx context.Context, param map[string]string) (*model.Connector, error)
+	Execute(ctx context.Context, param map[string]string) chan *proto.TriggerResponse
 }
 
 type Builder struct {
@@ -28,30 +26,27 @@ type nopConnector struct {
 	Base
 }
 
-func (n *nopConnector) Execute(ctx context.Context, param map[string]string) (*model.Connector, error) {
-	return &model.Connector{}, nil
+func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *proto.TriggerResponse {
+	ch := make(chan *proto.TriggerResponse)
+	return ch
 }
 
-func New(connectorModel *model.Connector, msgClient messaging.Client) (Connector, error) {
+func New(connectorModel *model.Connector) (Connector, error) {
 	switch connectorModel.Source {
 	case model.SourceTypeWEB:
-		return NewWeb(connectorModel, msgClient)
+		return NewWeb(connectorModel)
 	default:
 		return &nopConnector{}, nil
 	}
 }
 
-func (b *Base) Config(connector *model.Connector, msgClient messaging.Client) {
+func (b *Base) Config(connector *model.Connector) {
 	b.model = connector
-	b.msgClient = msgClient
+	b.resultCh = make(chan *proto.TriggerResponse, 10)
 	if connector.Shared {
 		b.collectionName = fmt.Sprintf(model.CollectionTenant, connector.TenantID)
 	} else {
 		b.collectionName = fmt.Sprintf(model.CollectionUser, connector.UserID)
 	}
 	return
-}
-
-func (b *Base) sendResult(ctx context.Context, payload *proto.EmbeddingRequest) error {
-	return b.msgClient.Publish(ctx, model.TopicEmbedding, &proto.Body{Payload: &proto.Body_Embedding{Embedding: payload}})
 }

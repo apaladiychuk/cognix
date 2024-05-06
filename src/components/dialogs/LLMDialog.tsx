@@ -13,6 +13,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { DefaultValues, useForm } from "react-hook-form";
@@ -22,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { useMutation } from "@/lib/mutation";
 import { LLMSchema } from "@/lib/schemas/llms";
 import { TextArea } from "../ui/textarea";
+import { Persona } from "@/models/settings";
 
 const formSchema = z.object({
   name: z.string(),
@@ -31,16 +33,18 @@ const formSchema = z.object({
   endpoint: z.string(),
   system_prompt: z.string(),
   task_prompt: z.string(),
-  description: z.string()
+  description: z.string(),
 });
 
-export function CreateLLMDialog({
-  defaultValues,  
+export function LLMDialog({
+  defaultValues,
+  instance,
   children,
   open,
   onOpenChange,
 }: {
   defaultValues?: DefaultValues<z.infer<typeof formSchema>>;
+  instance?: Persona;
   children?: React.ReactNode;
   open?: boolean;
   onOpenChange: (open: boolean) => void;
@@ -48,37 +52,54 @@ export function CreateLLMDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      model_id: "",
-      url: "",
-      api_key: "",
-      endpoint: "",
-      system_prompt: "",
-      task_prompt: "",
-      description: "blank",
+      name: instance ? instance.name : "",
+      model_id: instance ? instance.llm.model_id : "",
+      url: instance ? instance.llm.url : "",
+      api_key: instance ? instance.llm.api_key : "",
+      endpoint: instance ? instance.llm.endpoint : "",
+      system_prompt: instance ? instance.prompt?.system_prompt : "",
+      task_prompt: instance ? instance.prompt?.task_prompt : "",
+      description: instance ? instance.description : "blank",
       ...defaultValues,
     },
   });
 
-  const { trigger: triggerCreateLLM } =
-    useMutation<LLMSchema>(
-      import.meta.env.VITE_PLATFORM_API_LLM_CREATE_URL,
-      "POST"
-    );
+  const { trigger: triggerCreateLLM } = useMutation<LLMSchema>(
+    import.meta.env.VITE_PLATFORM_API_LLM_CREATE_URL,
+    "POST"
+  );
+
+  const { trigger: triggerEditLLM } = useMutation<LLMSchema>(
+    `${import.meta.env.VITE_PLATFORM_API_LLM_EDIT_URL}/${instance?.id}`,
+    "PUT"
+  );
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await triggerCreateLLM({
-        name: values.name,
-        model_id: values.model_id,
-        url: values.url,
-        api_key: values.api_key,
-        endpoint: values.endpoint,
-        system_prompt: values.system_prompt,
-        task_prompt: values.task_prompt,
-        description: values.description,
-      });
-      onOpenChange(false)
+      if (instance) {
+        await triggerEditLLM({
+          name: values.name,
+          model_id: values.model_id,
+          url: values.url,
+          api_key: values.api_key,
+          endpoint: values.endpoint,
+          system_prompt: values.system_prompt,
+          task_prompt: values.task_prompt,
+          description: values.description,
+        });
+      } else {
+        await triggerCreateLLM({
+          name: values.name,
+          model_id: values.model_id,
+          url: values.url,
+          api_key: values.api_key,
+          endpoint: values.endpoint,
+          system_prompt: values.system_prompt,
+          task_prompt: values.task_prompt,
+          description: values.description,
+        });
+      }
+      onOpenChange(false);
     } catch (e) {
       console.log(e);
     }
@@ -88,8 +109,8 @@ export function CreateLLMDialog({
     <Dialog
       open={open}
       onOpenChange={() => {
-        onOpenChange?.(false);
         form.reset();
+        onOpenChange?.(false);
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -108,6 +129,11 @@ export function CreateLLMDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
+                  {instance && (
+                    <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                      Name
+                    </FormLabel>
+                  )}
                   <FormControl>
                     <Input placeholder="Name" {...field} />
                   </FormControl>
@@ -121,6 +147,11 @@ export function CreateLLMDialog({
               name="model_id"
               render={({ field }) => (
                 <FormItem>
+                  {instance && (
+                    <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                      Model ID
+                    </FormLabel>
+                  )}
                   <FormControl>
                     <Input placeholder="Model ID" {...field} />
                   </FormControl>
@@ -134,6 +165,11 @@ export function CreateLLMDialog({
               name="url"
               render={({ field }) => (
                 <FormItem>
+                  {instance && (
+                    <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                      URL
+                    </FormLabel>
+                  )}
                   <FormControl>
                     <Input placeholder="URL" {...field} />
                   </FormControl>
@@ -145,13 +181,15 @@ export function CreateLLMDialog({
             <FormField
               control={form.control}
               name="api_key"
-              render={({field}) => (
+              render={({ field }) => (
                 <FormItem>
+                  {instance && (
+                    <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                      API Key
+                    </FormLabel>
+                  )}
                   <FormControl>
-                    <Input
-                       placeholder="API Key"
-                      {...field}
-                    />
+                    <Input placeholder="API Key" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -161,10 +199,15 @@ export function CreateLLMDialog({
             <FormField
               control={form.control}
               name="endpoint"
-              render={({field}) => (
+              render={({ field }) => (
                 <FormItem>
+                  {instance && (
+                    <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                      Endpoint
+                    </FormLabel>
+                  )}
                   <FormControl>
-                    <Input placeholder="Endpoint" {...field}/>
+                    <Input placeholder="Endpoint" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -175,11 +218,13 @@ export function CreateLLMDialog({
               name="system_prompt"
               render={({ field }) => (
                 <FormItem>
+                  {instance && (
+                    <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                      System Prompt
+                    </FormLabel>
+                  )}
                   <FormControl>
-                    <TextArea
-                      placeholder="System Prompt"
-                      {...field}
-                    />
+                    <TextArea placeholder="System Prompt" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -190,11 +235,13 @@ export function CreateLLMDialog({
               name="task_prompt"
               render={({ field }) => (
                 <FormItem>
+                  {instance && (
+                    <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                      Task Prompt
+                    </FormLabel>
+                  )}
                   <FormControl>
-                    <TextArea
-                      placeholder="Task Prompt"
-                      {...field}
-                    />
+                    <TextArea placeholder="Task Prompt" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

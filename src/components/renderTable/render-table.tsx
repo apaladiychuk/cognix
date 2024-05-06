@@ -22,7 +22,7 @@ interface ColumnItem {
 }
 
 interface Props {
-  tableData: TableItem[];
+  tableData: any[];
   columns: ColumnItem[];
   sortField: string;
   handleSortingChange: (value: string) => void;

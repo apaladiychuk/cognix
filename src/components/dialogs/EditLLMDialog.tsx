@@ -16,13 +16,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { DefaultValues, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { useMutation } from "@/lib/mutation";
 import { LLMSchema } from "@/lib/schemas/llms";
 import { TextArea } from "../ui/textarea";
+import { Persona } from "@/models/settings";
 
 const formSchema = z.object({
   name: z.string(),
@@ -36,26 +37,26 @@ const formSchema = z.object({
 });
 
 export function EditLLMDialog({
-  values,
+  instance,
   children,
   open,
   onOpenChange,
 }: {
-  values?: DefaultValues<z.infer<typeof formSchema>>;
+  instance: Persona;
   children?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      ...values,
+      ...instance,
     },
   });
-
   const { trigger: triggerEditLLM } = useMutation<LLMSchema>(
-    import.meta.env.VITE_PLATFORM_API_LLM_CREATE_URL,
-    "POST"
+    import.meta.env.VITE_PLATFORM_API_LLM_EDIT_URL,
+    "PUT"
   );
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -186,9 +187,7 @@ export function EditLLMDialog({
                   </FormLabel>
 
                   <FormControl>
-                    <TextArea
-                      {...field}
-                    />
+                    <TextArea {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -204,9 +203,7 @@ export function EditLLMDialog({
                   </FormLabel>
 
                   <FormControl>
-                    <TextArea
-                      {...field}
-                    />
+                    <TextArea {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

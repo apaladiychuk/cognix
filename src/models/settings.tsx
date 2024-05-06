@@ -6,13 +6,13 @@ export interface JSONMap {
 export interface Connector {
     connector_specific_config: JSONMap;
     created_date: string;
-    credential_id: number;
+    credential_id: string;
     deleted_date?: string | null;
     disabled: boolean;
-    id: number;
+    id: string;
     input_type: string;
     last_attempt_status: string;
-    last_successful_index_time?: string | null;
+    last_successful_index_time: string | null;
     name: string;
     refresh_freq: number;
     shared: boolean;
@@ -23,11 +23,17 @@ export interface Connector {
     user_id: string;
   }
   
+  export interface SourceType {
+    id: string;
+    name: string;
+    isImplemented: boolean;
+  }
+
   export interface Credential {
     created_date: string;
     credential_json: JSONMap;
     deleted_date?: string | null;
-    id: number;
+    id: string;
     shared: boolean;
     source: string;
     tenant_id: string;
@@ -63,16 +69,35 @@ export interface Connector {
     created_date: string;
     updated_date?: string;
     deleted_date?: string;
+    url?: string;
+  }
+
+  export interface Prompt {
+    id: string;
+    persona_id: string;
+    user_id: string;
+    name: string;
+    description: string;
+    system_prompt: string;
+    task_prompt: string;
+    created_date: string;
+    updated_date?: string;
+    deleted_date?: string;
   }
   
   export interface Persona {
-    id: number;
+    id: string;
     name: string;
     default_persona: boolean;
     description: string;
     tenant_id: string;
     is_visible: boolean;
     llm: LLM;
+    prompt?: Prompt;
+    system_prompt?: string;
+    task_prompt?: string;
     model_id?: string;
     endpoint?: string;
+    api_key?: string;
+    url?: string;
   }

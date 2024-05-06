@@ -1,12 +1,10 @@
-import { LABEL_STATUS } from '@/components/ui/label-status';
-
 export namespace Interfaces {
   export interface TableItem {
     id: string;
-    connector: string;
-    status: LABEL_STATUS | string;
-    last_indexed: string;
-    docs_indexed: string;
+    source: string;
+    // status: LABEL_STATUS | string;
+    last_successful_index_time: string | null;
+    total_docs_indexed: number;
   }
 
   export interface UseFilteredHandler {

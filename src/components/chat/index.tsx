@@ -4,7 +4,7 @@ import SendIcon from "@/assets/svgs/send-icon.svg?react";
 import FileIcon from "@/assets/svgs/file-icon.svg?react";
 import { Card } from "../ui/card";
 import MessageCard from "./message-card";
-import { Key, useEffect, useRef, useState } from "react";
+import { Key, useEffect, useLayoutEffect, useRef, useState } from "react";
 import axios from "axios";
 import { ChatMessage } from "@/models/chat";
 import { useParams } from "react-router-dom";
@@ -25,6 +25,13 @@ export function ChatComponent() {
     chatId: string;
   }>();
 
+  async function onHandleSubmit() {
+    chatId
+    ? await createMessages(textInputRef.current?.value ?? "")
+    : await createChat(textInputRef.current?.value ?? "") 
+    return textInputRef!.current!.value = ""
+  }
+
   async function getMessages(): Promise<void> {
     await axios
       .get(`${import.meta.env.VITE_PLATFORM_API_CHAT_DETAIL_URL}/${chatId}`)
@@ -42,19 +49,18 @@ export function ChatComponent() {
 
   async function createChat(text: string) {
     await axios
-      .post(import.meta.env.VITE_PLATFORM_API_CHAT_CREATE_URL, {
-        description: text,
-        one_shot: true,
-        persona_id: selectedPersona,
-      })
-      .then(async function (response) {
-        if (response.status == 201) {
-          await router.navigate(`/${response.data.data.id}`);
-          await createMessages(text, response.data.data.id);
-        } else {
-          setPersonas([]);
-        }
-      });
+        .post(import.meta.env.VITE_PLATFORM_API_CHAT_CREATE_URL, {
+          description: text,
+          one_shot: true,
+          persona_id: selectedPersona,
+        })
+        .then(async function (response) {
+          if (response.status == 201) {
+            await createMessages(text, response.data.data.id);
+          } else {
+            setPersonas([]);
+          }
+        });
   }
 
   async function createMessages(
@@ -100,11 +106,10 @@ export function ChatComponent() {
       const result = value?.split("\ndata:");
       if (result[0] == "event:message") {
         const response = JSON.parse(result[1]);
-        setMessages([
-          ...messages,
-          userMessage,
-          { ...response.Message, message: "" },
-        ]);
+        setMessages((prev) => ([
+          ...prev ?? [],
+            { ...response.Message, message: "" },
+        ]));
         setNewMessage(response.Message);
       }
     }
@@ -133,12 +138,21 @@ export function ChatComponent() {
     return chunkedArray;
   }
 
-  useEffect(() => {
-    getMessages();
-    if (!chatId) {
+  useLayoutEffect(() => {
+    if (chatId) {
+      getMessages();
+    } else {
       getPersonas();
+      setMessages([])
     }
   }, [chatId]);
+
+  // useEffect(() => {
+  //   getMessages();
+  //   if (!chatId) {
+  //     getPersonas();
+  //   }
+  // }, [chatId]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -151,7 +165,7 @@ export function ChatComponent() {
     const intervalId = setInterval(() => {
       if (newMessage && newMessage.message) {
         setMessages((prevMessages) =>
-          prevMessages.map((prevMessage) =>
+          prevMessages?.map((prevMessage) =>
             prevMessage.id === newMessage.id
               ? {
                   ...prevMessage,
@@ -166,7 +180,9 @@ export function ChatComponent() {
         }
       }
     }, 25);
-
+    if (!chatId) {
+      router.navigate(`/${newMessage?.chat_session_id}`)
+    }
     return () => {
       clearInterval(intervalId);
     };
@@ -175,7 +191,7 @@ export function ChatComponent() {
   return (
     <div className="flex h-screen">
       <div className="flex flex-grow flex-col m-5 w-4/6">
-        {!chatId || !Array.isArray(messages) ? (
+        {messages.length == 0 ? (
           <div className="flex flex-col flex-grow overflow-x-hidden no-scrollbar">
             <div className="flex items-center justify-center pt-8">
               <span className="text-4xl font-bold">
@@ -252,10 +268,7 @@ export function ChatComponent() {
               ref={textInputRef}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
-                  chatId
-                    ? createMessages(textInputRef.current?.value ?? "")
-                    : createChat(textInputRef.current?.value ?? "");
-                  textInputRef.current && (textInputRef.current.value = "");
+                  onHandleSubmit()
                 }
               }}
             />
@@ -264,12 +277,7 @@ export function ChatComponent() {
               variant="outline"
               className="w-12 h-12 bg-primary hover:bg-foreground"
               type="button"
-              onClick={() => {
-                chatId
-                  ? createMessages(textInputRef.current?.value ?? "")
-                  : createChat(textInputRef.current?.value ?? "");
-                textInputRef.current && (textInputRef.current.value = "");
-              }}
+              onClick={onHandleSubmit}
             >
               <SendIcon className="size-5" />
             </Button>

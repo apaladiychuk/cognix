@@ -4,20 +4,20 @@ import { SettingHeader } from "@/components/ui/setting-header";
 import { Controller } from "./llm.controller";
 import { ConfirmDeleteDialog } from "@/components/dialogs/ConfirmDeleteDialog";
 import { useEffect, useState } from "react";
-import { CreateLLMDialog } from "@/components/dialogs/CreateLLMDialog";
+import { LLMDialog } from "@/components/dialogs/LLMDialog";
 import axios from "axios";
-import { EditLLMDialog } from "@/components/dialogs/EditLLMDialog";
+import { Persona } from "@/models/settings";
 
 export function LLMManagementComponent() {
-  const [llms, setLlms] = useState([]);
-  const [selectedRow, setSelectedRow] = useState<string>("");
+  const [llms, setLlms] = useState<Persona[]>([]);
+  const [selectedRow, setSelectedRow] = useState<Persona>();
+
   const { columns, sortField, handleSortingChange } =
     Controller.useFilterHandler(llms);
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showCreateDialogOpen, setShowCreateDialogOpen] =
+  const [showLLMDialogOpen, setShowLLMDialogOpen] =
     useState<boolean>(false);
-  const [showEditDialogOpen, setShowEditDialogOpen] = useState<boolean>(false);
 
   async function getLLMs() {
     await axios
@@ -37,12 +37,31 @@ export function LLMManagementComponent() {
   async function deleteLLM(id: string) {
     await axios.post(
       `${import.meta.env.VITE_PLATFORM_API_LLM_DELETE_URL}/${id}/delete`
-    );
+    ).then((response) => {
+      if (response.status == 200){
+        setLlms(llms.filter((llm) => llm.id !== id));
+      }
+    });
+  }
+
+  async function setRow(id: string) {
+    return await axios.get(`${import.meta.env.VITE_PLATFORM_API_LLM_DETAIL_URL}/${id}`)
+    .then(function (response) {
+      if (response.status === 200) {
+        setSelectedRow(response.data.data);
+      } else {
+        throw new Error("Failed to fetch detailed LLM: " + response.status);
+      }
+    })
+    .catch(function (error) {
+      console.error("Error fetching detailed LLM:", error);
+      throw error; // Re-throw the error to be caught by the caller
+    });
   }
 
   useEffect(() => {
     getLLMs();
-  }, [showCreateDialogOpen, showDeleteDialog, showEditDialogOpen]);
+  }, [showLLMDialogOpen, showDeleteDialog]);
 
   return (
     <div className="flex flex-grow flex-col m-8 overflow-x-hidden no-scrollbar">
@@ -51,7 +70,7 @@ export function LLMManagementComponent() {
         buttonTitle="New LLM"
         withBtn
         handleClick={() => {
-          setShowCreateDialogOpen(true);
+          setShowLLMDialogOpen(true);
         }}
       />
       <>
@@ -62,12 +81,13 @@ export function LLMManagementComponent() {
               handleSortingChange={handleSortingChange}
               sortField={sortField}
               tableData={llms}
-              onDelete={(id: string) => {
+              onDelete={async (id: string) => {
+                await setRow(id);
                 setShowDeleteDialog(true);
-                setSelectedRow(id);
               }}
-              onEdit={() => {
-                setShowEditDialogOpen(true);
+              onEdit={async (id: string) => {
+                await setRow(id)
+                setShowLLMDialogOpen(true);
               }}
               withBtn
             />
@@ -80,24 +100,21 @@ export function LLMManagementComponent() {
             description="Are you sure you want to delete this LLM?"
             deleteButtonText="Yes, Delete"
             onConfirm={() => {
-              deleteLLM(selectedRow);
+              deleteLLM(selectedRow!.id);
             }}
             open={showDeleteDialog}
             onOpenChange={setShowDeleteDialog}
           />
         </div>
       )}
-      {showCreateDialogOpen && (
-        <CreateLLMDialog
-          open={showCreateDialogOpen}
-          onOpenChange={setShowCreateDialogOpen}
-        />
-      )}
-      {showEditDialogOpen && (
-        <EditLLMDialog
-          open={showEditDialogOpen}
-          onOpenChange={setShowEditDialogOpen}
-          // values={}
+      {showLLMDialogOpen && (
+        <LLMDialog
+          open={showLLMDialogOpen}
+          onOpenChange={() => {
+            setShowLLMDialogOpen(false);
+            setSelectedRow(undefined);
+          }}
+          instance={selectedRow}
         />
       )}
     </div>

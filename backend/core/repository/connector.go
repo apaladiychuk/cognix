@@ -7,8 +7,6 @@ import (
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
-	"github.com/shopspring/decimal"
 )
 
 type (
@@ -20,60 +18,20 @@ type (
 		GetBySource(ctx context.Context, tenantID, userID uuid.UUID, source model.SourceType) (*model.Connector, error)
 		Create(ctx context.Context, connector *model.Connector) error
 		Update(ctx context.Context, connector *model.Connector) error
-		UpdateStatistic(ctx context.Context, connector *model.Connector) error
+		InvalidateConnector(ctx context.Context, connector *model.Connector) error
 	}
 	connectorRepository struct {
 		db *pg.DB
 	}
 )
 
-func (r *connectorRepository) UpdateStatistic(ctx context.Context, connector *model.Connector) error {
-	var updatedDocs, newDocs []*model.Document
-	var deletedDocs []decimal.Decimal
-	var docIndexed int
-	for _, doc := range connector.Docs {
-		if !doc.IsExists {
-			deletedDocs = append(deletedDocs, doc.ID)
-			continue
-		}
-		docIndexed++
-		if !doc.IsUpdated {
-			continue
-		}
-		if doc.ID.IntPart() == 0 {
-			newDocs = append(newDocs, doc)
-			continue
-		}
-		updatedDocs = append(updatedDocs, doc)
+func (r *connectorRepository) InvalidateConnector(ctx context.Context, connector *model.Connector) error {
+	if _, err := r.db.WithContext(ctx).Model(&model.Document{}).
+		Set("status = ?", model.StatusPending).
+		Where("connector_id  = ?", connector.ID.IntPart()).Update(); err != nil {
+		return utils.Internal.Wrap(err, "Error while invalidating connector")
 	}
-	return r.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
-		if len(newDocs) > 0 {
-			if _, err := tx.Model(&newDocs).Insert(); err != nil {
-				return utils.Internal.Wrap(err, "cannot insert new documents")
-			}
-		}
-		if len(deletedDocs) > 0 {
-			if _, err := tx.Model(&model.Document{}).
-				Where("id in (?)", pq.Array(deletedDocs)).
-				Delete(); err != nil {
-				return utils.Internal.Wrap(err, "cannot delete documents")
-			}
-		}
-		for _, doc := range updatedDocs {
-			if _, err := tx.Model(doc).
-				Where("id = ?", doc.ID).Update(); err != nil {
-				return utils.Internal.Wrap(err, "cannot update document")
-			}
-		}
-		connector.TotalDocsIndexed = docIndexed
-		if _, err := tx.Model(connector).
-			Where("id = ?", connector.ID).
-			Update(); err != nil {
-			return utils.Internal.Wrap(err, "cannot update connector")
-		}
-		return nil
-	})
-
+	return nil
 }
 
 func (r *connectorRepository) GetBySource(ctx context.Context, tenantID, userID uuid.UUID, source model.SourceType) (*model.Connector, error) {

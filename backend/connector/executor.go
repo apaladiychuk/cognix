@@ -66,6 +66,9 @@ func (e *executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	if err != nil {
 		return err
 	}
+	if err = e.connectorRepo.InvalidateConnector(ctx, connectorModel); err != nil {
+		return err
+	}
 	connectorWF, err := connector.New(connectorModel)
 	if err != nil {
 		return err

@@ -10,6 +10,7 @@ import (
 const (
 	StatusInvalidate = "invalidate"
 	StatusPending    = "pending"
+	StatusInProgress = "in_progress"
 	StatusEmbedding  = "embedding"
 	StatusComplete   = "complete"
 )

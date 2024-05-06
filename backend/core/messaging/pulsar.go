@@ -3,7 +3,6 @@ package messaging
 import (
 	"cognix.ch/api/v2/core/proto"
 	"context"
-	"encoding/base64"
 	"fmt"
 	"github.com/apache/pulsar-client-go/pulsar"
 	proto2 "github.com/golang/protobuf/proto"
@@ -92,12 +91,12 @@ func (p *pulsarClient) processMessage(consumer pulsar.Consumer, msgCh chan *prot
 			zap.S().Errorf("Ack message error: %s", err.Error())
 		}
 	}()
-	buf, err := base64.StdEncoding.DecodeString(string(msg.Payload()))
-	if err != nil {
-		return fmt.Errorf("decode message error: %s", err.Error())
-	}
+	//buf, err := base64.StdEncoding.DecodeString(string(msg.Payload()))
+	//if err != nil {
+	//	return fmt.Errorf("decode message error: %s", err.Error())
+	//}
 	var message proto.Message
-	if err := proto2.Unmarshal(buf, &message); err != nil {
+	if err := proto2.Unmarshal(msg.Payload(), &message); err != nil {
 		return fmt.Errorf("error unmarshalling message: %s", string(msg.Payload()))
 	}
 	msgCh <- &message

@@ -11,6 +11,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
+	"time"
 )
 
 type taskRunner func(ctx context.Context, msg *proto.Message) error
@@ -65,21 +66,77 @@ func (e *executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	if err != nil {
 		return err
 	}
-	connectorWF, err := connector.New(connectorModel, e.msgClient)
+	connectorWF, err := connector.New(connectorModel)
 	if err != nil {
 		return err
 	}
 
-	connectorModel, err = connectorWF.Execute(ctx, trigger.Params)
+	resultCh := connectorWF.Execute(ctx, trigger.Params)
+
+	for result := range resultCh {
+		doc, errr := e.handleResult(ctx, connectorModel, result)
+		if errr != nil {
+			doc.Status = model.StatusFailed
+			doc.IsUpdated = true
+			err = errr
+		}
+		if !doc.IsUpdated {
+			continue
+		}
+		if doc.ID.IntPart() != 0 {
+			errr = e.docRepo.Update(ctx, doc)
+		} else {
+			errr = e.docRepo.Create(ctx, doc)
+		}
+		if err != nil {
+			err = errr
+			zap.S().Errorf("Failed to update document: %v", err)
+		}
+	}
+
 	if err != nil {
 		connectorModel.LastAttemptStatus = model.StatusFailed
 	} else {
 		connectorModel.LastAttemptStatus = model.StatusSuccess
 	}
-	if err = e.connectorRepo.UpdateStatistic(ctx, connectorModel); err != nil {
+	if err = e.connectorRepo.Update(ctx, connectorModel); err != nil {
 		return err
 	}
 	return nil
+}
+
+func (e *executor) handleResult(ctx context.Context, connectorModel *model.Connector, result *proto.TriggerResponse) (*model.Document, error) {
+	doc, ok := connectorModel.DocsMap[result.GetDocumentId()]
+	if !ok {
+		doc = &model.Document{
+			DocumentID:  result.GetDocumentId(),
+			ConnectorID: connectorModel.ID,
+			Link:        result.GetUrl(),
+			Signature:   result.GetSignature(),
+			CreatedDate: time.Now().UTC(),
+			Status:      model.StatusInProgress,
+			IsUpdated:   true,
+		}
+	} else {
+		if doc.Signature != result.GetSignature() {
+			doc.Signature = result.GetSignature()
+			doc.Status = model.StatusInProgress
+			doc.IsUpdated = true
+		}
+	}
+	if !doc.IsUpdated {
+		doc.Status = model.StatusSuccess
+		return doc, nil
+	}
+
+	return doc, e.msgClient.Publish(ctx, model.TopicEmbedding,
+		&proto.Body{Payload: &proto.Body_Embedding{Embedding: &proto.EmbeddingRequest{
+			Id:         connectorModel.ID.IntPart(),
+			DocumentId: doc.ID.IntPart(),
+			Key:        doc.DocumentID,
+			Content:    result.Content,
+		}}},
+	)
 }
 
 func NewExecutor(connectorRepo repository.ConnectorRepository,

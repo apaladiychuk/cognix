@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/bll"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/security"
@@ -13,10 +14,11 @@ import (
 
 type PersonaHandler struct {
 	personaBL bll.PersonaBL
+	aiBuilder *ai.Builder
 }
 
-func NewPersonaHandler(personaBL bll.PersonaBL) *PersonaHandler {
-	return &PersonaHandler{personaBL: personaBL}
+func NewPersonaHandler(personaBL bll.PersonaBL, aiBuilder *ai.Builder) *PersonaHandler {
+	return &PersonaHandler{personaBL: personaBL, aiBuilder: aiBuilder}
 }
 func (h *PersonaHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := route.Group("/api/manage/personas")
@@ -112,12 +114,15 @@ func (h *PersonaHandler) Update(c *gin.Context, identity *security.Identity) err
 		return utils.ErrorBadRequest.New("id should be presented")
 	}
 	var param parameters.PersonaParam
-	if err := server.BindJsonAndValidate(c, &param); err != nil {
+	if err = server.BindJsonAndValidate(c, &param); err != nil {
 		return err
 	}
 	persona, err := h.personaBL.Update(c.Request.Context(), id, identity.User, &param)
 	if err != nil {
 		return err
+	}
+	if persona.LLM != nil {
+		h.aiBuilder.Invalidate(persona.LLM)
 	}
 	return server.JsonResult(c, http.StatusOK, persona)
 }
@@ -145,6 +150,9 @@ func (h *PersonaHandler) Archive(c *gin.Context, identity *security.Identity) er
 	persona, err := h.personaBL.Archive(c.Request.Context(), identity.User, id, action == ActionRestore)
 	if err != nil {
 		return err
+	}
+	if persona.LLM != nil {
+		h.aiBuilder.Invalidate(persona.LLM)
 	}
 	return server.JsonResult(c, http.StatusOK, persona)
 }

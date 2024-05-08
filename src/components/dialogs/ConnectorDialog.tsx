@@ -59,13 +59,12 @@ export function CreateConnectorDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: instance ? instance.name : "",
-      connector_specific_config: instance
-        ? JSON.stringify(instance.connector_specific_config)
-        : "",
-      refresh_freq: instance ? String(instance.refresh_freq) : undefined,
-      credential_id: instance ? instance.credential_id : "",
-      source: instance ? instance.source : "",
+      name: instance && instance.name,
+      connector_specific_config:
+        instance && JSON.stringify(instance.connector_specific_config),
+      refresh_freq: instance && String(instance.refresh_freq),
+      credential_id: instance && instance.credential_id,
+      source: instance && instance.source,
       ...defaultValues,
     },
   });
@@ -82,28 +81,23 @@ export function CreateConnectorDialog({
   );
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(form.getValues())
-    try {
-      if (instance) {
-        await triggerEditConnector({
-          connector_specific_config: JSON.parse(values.connector_specific_config),
-          refresh_freq: Number(values.refresh_freq),
-          credential_id: values.credential_id,
-          name: values.name,
-        });
-      } else {
-        await triggerCreateConnector({
-          source: values.source,
-          connector_specific_config: JSON.parse(values.connector_specific_config),
-          refresh_freq: Number(values.refresh_freq),
-          credential_id: values.credential_id,
-          name: values.name,
-        });
-      }
-      onOpenChange(false);
-    } catch (e) {
-      console.log(e);
+    if (instance) {
+      await triggerEditConnector({
+        connector_specific_config: JSON.parse(values.connector_specific_config),
+        refresh_freq: Number(values.refresh_freq),
+        credential_id: values.credential_id,
+        name: values.name,
+      });
+    } else {
+      await triggerCreateConnector({
+        source: values.source,
+        connector_specific_config: JSON.parse(values.connector_specific_config),
+        refresh_freq: Number(values.refresh_freq),
+        credential_id: values.credential_id,
+        name: values.name,
+      });
     }
+    onOpenChange(false);
   };
 
   async function getSourceTypes() {
@@ -127,8 +121,6 @@ export function CreateConnectorDialog({
     }
   }, []);
 
-  console.log(sourceTypes);
-
   return (
     <Dialog
       open={open}
@@ -138,12 +130,15 @@ export function CreateConnectorDialog({
       }}
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent 
+      <DialogContent
         className={`${step == 1 ? "sm:max-w-[800px]" : "sm:max-w-[425px]"}`}
       >
         <DialogHeader>
           <DialogTitle>Add Connector</DialogTitle>
-          <span className="fixed right-3 top-3 text-sm"> <span className="text-primary">Step {step}</span>/2</span>
+          <span className="fixed right-3 top-3 text-sm">
+            {" "}
+            <span className="text-primary">Step {step}</span>/2
+          </span>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -201,7 +196,9 @@ export function CreateConnectorDialog({
                         </DialogClose>
                         <Button
                           onClick={() => {
-                            setStep(2)
+                            if (form.getValues("source")) {
+                              setStep(2);
+                            }
                           }}
                           className="w-full h-10"
                         >
@@ -221,7 +218,11 @@ export function CreateConnectorDialog({
                     <FormItem>
                       <FormLabel>Connector</FormLabel>
                       <FormControl>
-                        <Input {...field} value={capitalize(field.value)} disabled />
+                        <Input
+                          {...field}
+                          value={capitalize(field.value)}
+                          disabled
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -231,14 +232,16 @@ export function CreateConnectorDialog({
                 <FormField
                   control={form.control}
                   name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <FormField

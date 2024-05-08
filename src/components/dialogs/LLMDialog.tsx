@@ -28,12 +28,12 @@ import { Persona } from "@/models/settings";
 const formSchema = z.object({
   name: z.string(),
   model_id: z.string(),
-  url: z.string(),
+  url: z.string().optional(),
   api_key: z.string(),
-  endpoint: z.string(),
-  system_prompt: z.string(),
-  task_prompt: z.string(),
-  description: z.string(),
+  endpoint: z.string().optional(),
+  system_prompt: z.string().optional(),
+  task_prompt: z.string().optional(),
+  description: z.string().optional(),
 });
 
 export function LLMDialog({
@@ -52,14 +52,14 @@ export function LLMDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: instance ? instance.name : "",
-      model_id: instance ? instance.llm.model_id : "",
-      url: instance ? instance.llm.url : "",
-      api_key: instance ? instance.llm.api_key : "",
-      endpoint: instance ? instance.llm.endpoint : "",
-      system_prompt: instance ? instance.prompt?.system_prompt : "",
-      task_prompt: instance ? instance.prompt?.task_prompt : "",
-      description: instance ? instance.description : "blank",
+      name: instance && instance.name,
+      model_id: instance && instance.llm.model_id,
+      url: instance && instance.llm.url,
+      api_key: instance && instance.llm.api_key,
+      endpoint: instance && instance.llm.endpoint,
+      system_prompt: instance && instance.prompt?.system_prompt,
+      task_prompt: instance && instance.prompt?.task_prompt,
+      description: instance && instance.description,
       ...defaultValues,
     },
   });
@@ -75,34 +75,30 @@ export function LLMDialog({
   );
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      if (instance) {
-        await triggerEditLLM({
-          name: values.name,
-          model_id: values.model_id,
-          url: values.url,
-          api_key: values.api_key,
-          endpoint: values.endpoint,
-          system_prompt: values.system_prompt,
-          task_prompt: values.task_prompt,
-          description: values.description,
-        });
-      } else {
-        await triggerCreateLLM({
-          name: values.name,
-          model_id: values.model_id,
-          url: values.url,
-          api_key: values.api_key,
-          endpoint: values.endpoint,
-          system_prompt: values.system_prompt,
-          task_prompt: values.task_prompt,
-          description: values.description,
-        });
-      }
-      onOpenChange(false);
-    } catch (e) {
-      console.log(e);
+    if (instance) {
+      await triggerEditLLM({
+        name: values.name,
+        model_id: values.model_id,
+        url: values.url,
+        api_key: values.api_key,
+        endpoint: values.endpoint,
+        system_prompt: values.system_prompt,
+        task_prompt: values.task_prompt,
+        description: values.description,
+      });
+    } else {
+      await triggerCreateLLM({
+        name: values.name,
+        model_id: values.model_id,
+        url: values.url,
+        api_key: values.api_key,
+        endpoint: values.endpoint,
+        system_prompt: values.system_prompt,
+        task_prompt: values.task_prompt,
+        description: values.description,
+      });
     }
+    onOpenChange(false);
   };
 
   return (
@@ -135,7 +131,7 @@ export function LLMDialog({
                     </FormLabel>
                   )}
                   <FormControl>
-                    <Input placeholder="Name" {...field} />
+                    <Input placeholder={instance ? "" : "Name"} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -153,7 +149,10 @@ export function LLMDialog({
                     </FormLabel>
                   )}
                   <FormControl>
-                    <Input placeholder="Model ID" {...field} />
+                    <Input
+                      placeholder={instance ? "" : "Model ID"}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -171,7 +170,7 @@ export function LLMDialog({
                     </FormLabel>
                   )}
                   <FormControl>
-                    <Input placeholder="URL" {...field} />
+                    <Input placeholder={instance ? "" : "URL"} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -189,7 +188,7 @@ export function LLMDialog({
                     </FormLabel>
                   )}
                   <FormControl>
-                    <Input placeholder="API Key" {...field} />
+                    <Input placeholder={instance ? "" : "API Key"} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -207,7 +206,10 @@ export function LLMDialog({
                     </FormLabel>
                   )}
                   <FormControl>
-                    <Input placeholder="Endpoint" {...field} />
+                    <Input
+                      placeholder={instance ? "" : "Endpoint"}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -219,12 +221,15 @@ export function LLMDialog({
               render={({ field }) => (
                 <FormItem>
                   {instance && (
-                    <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                    <FormLabel className="fixed ml-2 text-center px-1 bg-white text-muted-foreground">
                       System Prompt
                     </FormLabel>
                   )}
                   <FormControl>
-                    <TextArea placeholder="System Prompt" {...field} />
+                    <TextArea
+                      placeholder={instance ? "" : "System Prompt"}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -236,12 +241,15 @@ export function LLMDialog({
               render={({ field }) => (
                 <FormItem>
                   {instance && (
-                    <FormLabel className="fixed ml-2 -mt-1.5 text-center px-1 bg-white text-muted-foreground">
+                    <FormLabel className="fixed ml-2 text-center px-1 bg-white text-muted-foreground">
                       Task Prompt
                     </FormLabel>
                   )}
                   <FormControl>
-                    <TextArea placeholder="Task Prompt" {...field} />
+                    <TextArea
+                      placeholder={instance ? "" : "Task Prompt"}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -12,6 +12,7 @@ import { dataConverter } from "@/lib/utils";
 import { v4 as uuidv4 } from "uuid";
 import { Persona } from "@/models/settings";
 import { router } from "@/main";
+import { toast } from "react-toastify";
 
 export function ChatComponent() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -27,9 +28,9 @@ export function ChatComponent() {
 
   async function onHandleSubmit() {
     chatId
-    ? await createMessages(textInputRef.current?.value ?? "")
-    : await createChat(textInputRef.current?.value ?? "") 
-    return textInputRef!.current!.value = ""
+      ? await createMessages(textInputRef.current?.value ?? "")
+      : await createChat(textInputRef.current?.value ?? "");
+    return (textInputRef!.current!.value = "");
   }
 
   async function getMessages(): Promise<void> {
@@ -49,18 +50,18 @@ export function ChatComponent() {
 
   async function createChat(text: string) {
     await axios
-        .post(import.meta.env.VITE_PLATFORM_API_CHAT_CREATE_URL, {
-          description: text,
-          one_shot: true,
-          persona_id: selectedPersona,
-        })
-        .then(async function (response) {
-          if (response.status == 201) {
-            await createMessages(text, response.data.data.id);
-          } else {
-            setPersonas([]);
-          }
-        });
+      .post(import.meta.env.VITE_PLATFORM_API_CHAT_CREATE_URL, {
+        description: text,
+        one_shot: true,
+        persona_id: selectedPersona,
+      })
+      .then(async function (response) {
+        if (response.status == 201) {
+          await createMessages(text, response.data.data.id);
+        } else {
+          setPersonas([]);
+        }
+      });
   }
 
   async function createMessages(
@@ -106,11 +107,14 @@ export function ChatComponent() {
       const result = value?.split("\ndata:");
       if (result[0] == "event:message") {
         const response = JSON.parse(result[1]);
-        setMessages((prev) => ([
-          ...prev ?? [],
-            { ...response.Message, message: "" },
-        ]));
+        setMessages((prev) => [
+          ...(prev ?? []),
+          { ...response.Message, message: "" },
+        ]);
         setNewMessage(response.Message);
+      } else if (result[0] == "event:error") {
+        const response = JSON.parse(result[1]);
+        toast.error(response.Message.error);
       }
     }
   }
@@ -143,16 +147,9 @@ export function ChatComponent() {
       getMessages();
     } else {
       getPersonas();
-      setMessages([])
+      setMessages([]);
     }
   }, [chatId]);
-
-  // useEffect(() => {
-  //   getMessages();
-  //   if (!chatId) {
-  //     getPersonas();
-  //   }
-  // }, [chatId]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -181,7 +178,7 @@ export function ChatComponent() {
       }
     }, 25);
     if (!chatId) {
-      router.navigate(`/${newMessage?.chat_session_id}`)
+      router.navigate(`/${newMessage?.chat_session_id}`);
     }
     return () => {
       clearInterval(intervalId);
@@ -268,7 +265,7 @@ export function ChatComponent() {
               ref={textInputRef}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
-                  onHandleSubmit()
+                  onHandleSubmit();
                 }
               }}
             />

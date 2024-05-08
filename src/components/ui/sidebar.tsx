@@ -14,6 +14,7 @@ import ConfigIcon from "@/assets/svgs/config.svg?react";
 import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
+import { router } from "@/main";
 
 export interface SideBarProps {
   isSideBarOpen: boolean;
@@ -87,6 +88,9 @@ const SideBar: React.FC<SideBarProps> = ({
             size="lg"
             className="shadow-none bg-primary w-full"
             type="button"
+            onClick={() => {
+              router.navigate("/");
+            }}
           >
             <PlusCircle className="h-4 w-4 mr-2" />
             New chat
@@ -151,9 +155,7 @@ const SideBar: React.FC<SideBarProps> = ({
           <span className="text-xs">
             {firstName && `${firstName.charAt(0)}`}
           </span>
-          <span className="text-xs">
-            {lastName && `${lastName.charAt(0)}`}
-          </span>
+          <span className="text-xs">{lastName && `${lastName.charAt(0)}`}</span>
         </div>
         <span className="text-sm">{firstName + " " + lastName}</span>
       </div>
@@ -180,6 +182,9 @@ const SideBar: React.FC<SideBarProps> = ({
             size="icon"
             className="ml-1.5 bg-primary h-9 w-9"
             type="button"
+            onClick={() => {
+              router.navigate("/");
+            }}
           >
             <PlusCircle className="h-4 w-4" />
           </Button>
@@ -201,12 +206,12 @@ const SideBar: React.FC<SideBarProps> = ({
         <div className="flex flex-col ml-1 space-y-3 text-2sm font-thin text-muted">
           {chats.slice(0, 4).map((chat) => (
             <NavLink
-            key={chat.id}
-            to={`/${chat.id}`}
-            className="flex flex-row items-center"
-          >
-            <span className="text-clip">{chat.description}</span>
-          </NavLink>
+              key={chat.id}
+              to={`/${chat.id}`}
+              className="flex flex-row items-center"
+            >
+              <span className="text-clip">{chat.description}</span>
+            </NavLink>
           ))}
         </div>
       )}

@@ -3,15 +3,17 @@ import { RenderTable } from "@/components/renderTable/render-table";
 import { SettingHeader } from "@/components/ui/setting-header";
 import { Controller } from "./existing-connectors.controller";
 import { ConfirmDeleteDialog } from "@/components/dialogs/ConfirmDeleteDialog";
-import { useLayoutEffect, useState } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
 import { CreateConnectorDialog } from "@/components/dialogs/ConnectorDialog";
 import axios from "axios";
 import { Connector } from "@/models/settings";
+import { AuthContext } from "@/context/AuthContext";
 
 export function ConnectorsManagementComponent() {
-  const [ connectors, setConnectors ] = useState<Connector[]>([]);
+  const { id, roles } = useContext(AuthContext);
+  const [connectors, setConnectors] = useState<Connector[]>([]);
   const [selectedRow, setSelectedRow] = useState<Connector>();
-  const { columns, tableData, sortField, handleSortingChange } =
+  const { columns, sortField, handleSortingChange } =
     Controller.useFilterHandler(connectors);
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -34,32 +36,37 @@ export function ConnectorsManagementComponent() {
   }
 
   async function deleteConnector(id: string) {
-    await axios.post(
-      `${import.meta.env.VITE_PLATFORM_API_CONNECTOR_DELETE_URL}/${id}/delete`
-    ).then((response) => {
-      if (response.status == 200){
-        setConnectors(connectors.filter((connector) => connector.id !== id));
-      }
-    });
+    await axios
+      .post(
+        `${import.meta.env.VITE_PLATFORM_API_CONNECTOR_DELETE_URL}/${id}/delete`
+      )
+      .then((response) => {
+        if (response.status == 200) {
+          setConnectors(connectors.filter((connector) => connector.id !== id));
+        }
+      });
   }
 
   async function setRow(id: string) {
-    return await axios.get(`${import.meta.env.VITE_PLATFORM_API_CONNECTOR_DETAIL_URL}/${id}`)
-    .then(function (response) {
-      if (response.status === 200) {
-        setSelectedRow(response.data.data);
-      } else {
-        throw new Error("Failed to fetch detailed connector: " + response.status);
-      }
-    })
-    .catch(function (error) {
-      console.error("Error fetching detailed connector:", error);
-      throw error; // Re-throw the error to be caught by the caller
-    });
+    return await axios
+      .get(`${import.meta.env.VITE_PLATFORM_API_CONNECTOR_DETAIL_URL}/${id}`)
+      .then(function (response) {
+        if (response.status === 200) {
+          setSelectedRow(response.data.data);
+        } else {
+          throw new Error(
+            "Failed to fetch detailed connector: " + response.status
+          );
+        }
+      })
+      .catch(function (error) {
+        console.error("Error fetching detailed connector:", error);
+        throw error; // Re-throw the error to be caught by the caller
+      });
   }
 
   useLayoutEffect(() => {
-    getConnectors()
+    getConnectors();
   }, [showConnectorDialogOpen]);
 
   return (
@@ -82,16 +89,21 @@ export function ConnectorsManagementComponent() {
               columns={columns}
               handleSortingChange={handleSortingChange}
               sortField={sortField}
-              tableData={connectors}
+              tableData={connectors.filter(
+                (connector) => connector.user_id == id
+              )}
               onDelete={async (id: string) => {
                 await setRow(id);
                 setShowDeleteDialog(true);
               }}
               onEdit={async (id: string) => {
-                await setRow(id)
+                await setRow(id);
                 setShowConnectorDialogOpen(true);
               }}
-              onPause={() => {}}
+              onPause={async (id: string) => {
+                await setRow(id);
+                setShowConnectorDialogOpen(true);
+              }}
               withBtn
             />
           </TabsContent>
@@ -100,12 +112,19 @@ export function ConnectorsManagementComponent() {
               columns={columns}
               handleSortingChange={handleSortingChange}
               sortField={sortField}
-              tableData={tableData}
-              onDelete={() => {
+              tableData={connectors.filter(
+                (connector) => connector.shared == true
+              )}
+              onDelete={async (id: string) => {
+                await setRow(id);
                 setShowDeleteDialog(true);
               }}
-              onEdit={() => {}}
+              onEdit={async (id: string) => {
+                await setRow(id);
+                setShowConnectorDialogOpen(true);
+              }}
               onPause={() => {}}
+              withBtn={roles && roles.includes("super_admin")}
             />
           </TabsContent>
         </Tabs>
@@ -116,7 +135,7 @@ export function ConnectorsManagementComponent() {
             description="Are you sure you want to delete this Connector?"
             deleteButtonText="Yes, Delete"
             onConfirm={() => {
-              deleteConnector(selectedRow!.id)
+              deleteConnector(selectedRow!.id);
             }}
             open={showDeleteDialog}
             onOpenChange={setShowDeleteDialog}

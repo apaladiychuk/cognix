@@ -12,3 +12,7 @@ export type UpdateConnectorSchema = {
   refresh_freq: number;
   credential_id?: string;
 };
+
+export type DisableConnectorSchema = {
+  disabled: boolean;
+};

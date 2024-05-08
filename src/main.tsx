@@ -4,6 +4,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import "@/global.css";
 import "@/lib/axios";
 import AuthProvider from "./context/AuthContext";
+import { ToastContainer } from "react-toastify";
 
 export const router = createBrowserRouter([
   {
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
+      <ToastContainer position="bottom-center" />
       <RouterProvider router={router} />
     </AuthProvider>
   </React.StrictMode>

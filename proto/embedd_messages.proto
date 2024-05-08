@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package com.embedd;
+
+message EmbeddRequest {
+    string content = 1;
+    string model = 2;
+}
+
+message EmbeddResponse {
+    repeated float vector = 1;
+}

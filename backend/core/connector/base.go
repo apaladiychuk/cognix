@@ -15,6 +15,7 @@ type Base struct {
 }
 
 type Connector interface {
+	CollectionName() string
 	Execute(ctx context.Context, param map[string]string) chan *proto.TriggerResponse
 }
 
@@ -49,4 +50,8 @@ func (b *Base) Config(connector *model.Connector) {
 		b.collectionName = fmt.Sprintf(model.CollectionUser, connector.UserID)
 	}
 	return
+}
+
+func (b *Base) CollectionName() string {
+	return b.collectionName
 }

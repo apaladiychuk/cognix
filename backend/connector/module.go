@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/repository"
@@ -13,15 +14,18 @@ var Module = fx.Options(
 	repository.DatabaseModule,
 	messaging.NatsModule,
 	storage.MilvusModule,
+	storage.MinioModule,
 	fx.Provide(
 		repository.NewConnectorRepository,
 		repository.NewDocumentRepository,
+		repository.NewEmbeddingModelRepository,
+		ai.NewEmbeddingParser,
 		NewExecutor,
 	),
 	fx.Invoke(RunServer),
 )
 
-func RunServer(lc fx.Lifecycle, executor *executor) error {
+func RunServer(lc fx.Lifecycle, executor *Executor) error {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {

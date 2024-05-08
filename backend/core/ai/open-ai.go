@@ -6,10 +6,6 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-var SupportedModels = map[string]bool{
-	openai.GPT3Dot5Turbo: true,
-}
-
 type (
 	Response struct {
 		Message string

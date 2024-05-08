@@ -1,11 +1,13 @@
 package main
 
 import (
+	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
+	"cognix.ch/api/v2/core/storage"
 	"context"
 	"fmt"
 	"go.opentelemetry.io/otel"
@@ -16,14 +18,16 @@ import (
 
 type taskRunner func(ctx context.Context, msg *proto.Message) error
 
-type executor struct {
+type Executor struct {
 	connectorRepo repository.ConnectorRepository
 	docRepo       repository.DocumentRepository
 	msgClient     messaging.Client
-	embeddingCh   chan string
+	chunking      ai.Chunking
+	embedding     ai.EmbeddingParser
+	milvusClinet  storage.MilvusClient
 }
 
-func (e *executor) run(ctx context.Context, topic, subscriptionName string, task taskRunner) error {
+func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task taskRunner) error {
 	ch, err := e.msgClient.Listen(ctx, topic, subscriptionName)
 	if err != nil {
 		return err
@@ -37,7 +41,6 @@ func (e *executor) run(ctx context.Context, topic, subscriptionName string, task
 					zap.S().Errorf("Failed to run connector: %v", err)
 				}
 			case <-ctx.Done():
-				close(e.embeddingCh)
 				return
 			}
 		}
@@ -45,17 +48,18 @@ func (e *executor) run(ctx context.Context, topic, subscriptionName string, task
 	return nil
 }
 
-func (e *executor) runEmbedding(ctx context.Context, msg *proto.Message) error {
+func (e *Executor) runEmbedding(ctx context.Context, msg *proto.Message) error {
 	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
 	payload := msg.GetBody().GetEmbedding()
 	if payload == nil {
 		zap.S().Errorf("Failed to get embedding payload")
+		return nil
 	}
 	zap.S().Infof("process embedding %d == > %50s ", payload.GetDocumentId(), payload.Content)
 	return nil
 }
 
-func (e *executor) runConnector(ctx context.Context, msg *proto.Message) error {
+func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
 	trigger := msg.GetBody().GetTrigger()
 
@@ -77,24 +81,70 @@ func (e *executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	resultCh := connectorWF.Execute(ctx, trigger.Params)
 
 	for result := range resultCh {
-		doc, errr := e.handleResult(ctx, connectorModel, result)
-		if errr != nil {
-			doc.Status = model.StatusFailed
-			doc.IsUpdated = true
-			err = errr
-		}
+		var loopErr error
+		doc := e.handleResult(ctx, connectorModel, result)
 		if !doc.IsUpdated {
 			continue
 		}
 		if doc.ID.IntPart() != 0 {
-			errr = e.docRepo.Update(ctx, doc)
+			loopErr = e.docRepo.Update(ctx, doc)
 		} else {
-			errr = e.docRepo.Create(ctx, doc)
+			loopErr = e.docRepo.Create(ctx, doc)
 		}
-		if err != nil {
-			err = errr
-			zap.S().Errorf("Failed to update document: %v", err)
+		if loopErr != nil {
+			err = loopErr
+			doc.Status = model.StatusFailed
+			zap.S().Errorf("Failed to update document: %v", loopErr)
+			continue
 		}
+		chunks, loopErr := e.chunking.Split(ctx, result.Content)
+		if loopErr != nil {
+			err = loopErr
+			doc.Status = model.StatusFailed
+			zap.S().Errorf("Failed to update document: %v", loopErr)
+			continue
+		}
+		embeddingResponse, loopErr := e.embedding.Parse(ctx, &proto.EmbeddingRequest{
+			DocumentId: doc.ID.IntPart(),
+			Key:        doc.DocumentID,
+			Content:    chunks,
+		})
+		if loopErr != nil {
+			err = loopErr
+			doc.Status = model.StatusFailed
+			zap.S().Errorf("Failed to update document: %v", loopErr)
+			continue
+		}
+		milvusPayload := make([]*storage.MilvusPayload, 0, len(embeddingResponse.Payload))
+		for _, payload := range embeddingResponse.Payload {
+			milvusPayload = append(milvusPayload, &storage.MilvusPayload{
+				DocumentID: embeddingResponse.GetDocumentId(),
+				Chunk:      payload.GetChunk(),
+				Content:    payload.GetContent(),
+				Vector:     payload.GetVector(),
+			})
+		}
+		if loopErr = e.milvusClinet.Save(ctx, connectorWF.CollectionName(), milvusPayload...); loopErr != nil {
+			err = loopErr
+			doc.Status = model.StatusFailed
+			zap.S().Errorf("Failed to update document: %v", loopErr)
+			continue
+		}
+
+		//todo for production
+		//if loopErr = e.msgClient.Publish(ctx, model.TopicEmbedding,
+		//	&proto.Body{MilvusPayload: &proto.Body_Embedding{Embedding: &proto.EmbeddingRequest{
+		//		DocumentId: doc.ID.IntPart(),
+		//		Key:        doc.DocumentID,
+		//		Content:    chunks,
+		//	}}},
+		//); err != nil {
+		//	err = loopErr
+		//	zap.S().Errorf("Failed to update document: %v", err)
+		//	doc.Status = model.StatusFailed
+		//	doc.Signature = ""
+		//	continue
+		//}
 	}
 
 	if err != nil {
@@ -108,7 +158,7 @@ func (e *executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	return nil
 }
 
-func (e *executor) handleResult(ctx context.Context, connectorModel *model.Connector, result *proto.TriggerResponse) (*model.Document, error) {
+func (e *Executor) handleResult(ctx context.Context, connectorModel *model.Connector, result *proto.TriggerResponse) *model.Document {
 	doc, ok := connectorModel.DocsMap[result.GetDocumentId()]
 	if !ok {
 		doc = &model.Document{
@@ -120,6 +170,7 @@ func (e *executor) handleResult(ctx context.Context, connectorModel *model.Conne
 			Status:      model.StatusInProgress,
 			IsUpdated:   true,
 		}
+		connectorModel.DocsMap[result.GetDocumentId()] = doc
 	} else {
 		if doc.Signature != result.GetSignature() {
 			doc.Signature = result.GetSignature()
@@ -127,28 +178,22 @@ func (e *executor) handleResult(ctx context.Context, connectorModel *model.Conne
 			doc.IsUpdated = true
 		}
 	}
-	if !doc.IsUpdated {
-		doc.Status = model.StatusSuccess
-		return doc, nil
-	}
-
-	return doc, e.msgClient.Publish(ctx, model.TopicEmbedding,
-		&proto.Body{Payload: &proto.Body_Embedding{Embedding: &proto.EmbeddingRequest{
-			Id:         connectorModel.ID.IntPart(),
-			DocumentId: doc.ID.IntPart(),
-			Key:        doc.DocumentID,
-			Content:    result.Content,
-		}}},
-	)
+	return doc
 }
 
 func NewExecutor(connectorRepo repository.ConnectorRepository,
 	docRepo repository.DocumentRepository,
-	streamClient messaging.Client) *executor {
-	return &executor{
+	streamClient messaging.Client,
+	chunking ai.Chunking,
+	embedding ai.EmbeddingParser,
+	milvusClinet storage.MilvusClient,
+) *Executor {
+	return &Executor{
 		connectorRepo: connectorRepo,
 		docRepo:       docRepo,
 		msgClient:     streamClient,
-		embeddingCh:   make(chan string),
+		chunking:      chunking,
+		embedding:     embedding,
+		milvusClinet:  milvusClinet,
 	}
 }

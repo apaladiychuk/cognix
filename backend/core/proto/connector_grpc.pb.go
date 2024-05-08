@@ -104,3 +104,89 @@ var Connector_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "core/proto/connector.proto",
 }
+
+// EmbeddingClient is the client API for Embedding service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type EmbeddingClient interface {
+	Run(ctx context.Context, in *EmbeddingRequest, opts ...grpc.CallOption) (*EmbeddingResponse, error)
+}
+
+type embeddingClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewEmbeddingClient(cc grpc.ClientConnInterface) EmbeddingClient {
+	return &embeddingClient{cc}
+}
+
+func (c *embeddingClient) Run(ctx context.Context, in *EmbeddingRequest, opts ...grpc.CallOption) (*EmbeddingResponse, error) {
+	out := new(EmbeddingResponse)
+	err := c.cc.Invoke(ctx, "/proto.Embedding/Run", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// EmbeddingServer is the server API for Embedding service.
+// All implementations must embed UnimplementedEmbeddingServer
+// for forward compatibility
+type EmbeddingServer interface {
+	Run(context.Context, *EmbeddingRequest) (*EmbeddingResponse, error)
+	mustEmbedUnimplementedEmbeddingServer()
+}
+
+// UnimplementedEmbeddingServer must be embedded to have forward compatible implementations.
+type UnimplementedEmbeddingServer struct {
+}
+
+func (UnimplementedEmbeddingServer) Run(context.Context, *EmbeddingRequest) (*EmbeddingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Run not implemented")
+}
+func (UnimplementedEmbeddingServer) mustEmbedUnimplementedEmbeddingServer() {}
+
+// UnsafeEmbeddingServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to EmbeddingServer will
+// result in compilation errors.
+type UnsafeEmbeddingServer interface {
+	mustEmbedUnimplementedEmbeddingServer()
+}
+
+func RegisterEmbeddingServer(s grpc.ServiceRegistrar, srv EmbeddingServer) {
+	s.RegisterService(&Embedding_ServiceDesc, srv)
+}
+
+func _Embedding_Run_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmbeddingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EmbeddingServer).Run(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Embedding/Run",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EmbeddingServer).Run(ctx, req.(*EmbeddingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Embedding_ServiceDesc is the grpc.ServiceDesc for Embedding service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Embedding_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.Embedding",
+	HandlerType: (*EmbeddingServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Run",
+			Handler:    _Embedding_Run_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "core/proto/connector.proto",
+}

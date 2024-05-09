@@ -10,3 +10,10 @@ message EmbeddRequest {
 message EmbeddResponse {
     repeated float vector = 1;
 }
+
+message EmbeddData {
+    int64 id = 1;
+    string content = 2;
+    string model = 3;
+    repeated float vector = 4;
+}

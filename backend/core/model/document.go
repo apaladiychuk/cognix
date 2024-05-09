@@ -7,6 +7,14 @@ import (
 	"time"
 )
 
+const (
+	StatusInvalidate = "invalidate"
+	StatusPending    = "pending"
+	StatusInProgress = "in_progress"
+	StatusEmbedding  = "embedding"
+	StatusComplete   = "complete"
+)
+
 type Document struct {
 	tableName        struct{}        `pg:"documents"`
 	ID               decimal.Decimal `json:"id,omitempty"`
@@ -15,7 +23,7 @@ type Document struct {
 	Boost            int             `json:"boost,omitempty" pg:",use_zero"`
 	Hidden           bool            `json:"hidden,omitempty" pg:",use_zero"`
 	SemanticID       string          `json:"semantic_id,omitempty" pg:",use_zero"`
-	Link             string          `json:"link,omitempty" json:"link"`
+	Link             string          `json:"link,omitempty" pg:"link"`
 	FromIngestionAPI bool            `json:"from_ingestion_api,omitempty" pg:",use_zero"`
 	Signature        string          `json:"signature,omitempty" pg:",use_zero"`
 	CreatedDate      time.Time       `json:"created_date,omitempty"`
@@ -23,6 +31,12 @@ type Document struct {
 	DeletedDate      pg.NullTime     `json:"deleted_date,omitempty" pg:",use_zero"`
 }
 
+type DocumentResponse struct {
+	ID         decimal.Decimal `json:"id,omitempty"`
+	Link       string          `json:"link,omitempty"`
+	DocumentID string          `json:"document_id,omitempty"`
+	Content    string          `json:"content,omitempty"`
+}
 type DocumentFeedback struct {
 	tableName    struct{}        `pg:"document_feedbacks"`
 	ID           decimal.Decimal `json:"id,omitempty"`

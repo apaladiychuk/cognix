@@ -8,7 +8,6 @@ import (
 	"cognix.ch/api/v2/core/responder"
 	"cognix.ch/api/v2/core/utils"
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
@@ -88,9 +87,8 @@ func (b *chatBL) GetSessionByID(ctx context.Context, user *model.User, id int64)
 			Content:    fmt.Sprintf("content of document %d", i),
 		})
 	}
-	buf, err := json.Marshal(docs)
 	for _, msg := range result.Messages {
-		msg.Citations = buf
+		msg.Citations = docs
 	}
 	return result, nil
 }

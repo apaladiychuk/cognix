@@ -19,7 +19,7 @@ type Response struct {
 	IsValid  bool
 	Type     string
 	Message  *model.ChatMessage
-	Document *model.Document
+	Document *model.DocumentResponse
 }
 
 type ChatResponder interface {

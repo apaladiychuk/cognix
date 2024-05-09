@@ -3,8 +3,10 @@ import BotIcon from "@/assets/svgs/cognix-sm.svg?react";
 import CopyIcon from "@/assets/svgs/copy-icon.svg?react";
 import ThumbUpIcon from "@/assets/svgs/thumb-up.svg?react";
 import ThumbDownIcon from "@/assets/svgs/thumn-down.svg?react";
+import FileWhiteIcon from "@/assets/svgs/file-white-icon.svg?react";
 import axios from "axios";
 import { AuthContext } from "@/context/AuthContext";
+import { Document } from "@/models/chat";
 
 export interface MessageProps {
   id: string;
@@ -12,7 +14,7 @@ export interface MessageProps {
   message: string;
   timestamp: string;
   className?: string;
-  citations?: number[];
+  citations?: Document[];
   isResponse?: boolean;
 }
 
@@ -20,6 +22,7 @@ const MessageCard: React.FC<MessageProps> = ({
   id,
   sender,
   message,
+  citations,
   isResponse,
   className,
 }) => {
@@ -57,15 +60,15 @@ const MessageCard: React.FC<MessageProps> = ({
         </div>
         <div className="ml-12">
           <div className="-mt-6 text-muted-foreground break-all">{message}</div>
-          {/* {citations && (
-            <div>
+          <div>
               <div className="pt-2 font-bold">Sources:</div>
+          {citations?.map((citation) =>(
               <div className="inline-flex cursor-pointer items-center mt-1 px-2 py-1 space-x-2 bg-main rounded-lg shadow-md">
                 <FileWhiteIcon className="w-4 h-4" />
-                <span>{citations}</span>
+                <span>{citation.link}</span>
               </div>
-            </div>
-          )} */}
+          ))}
+          </div>
           <div className="flex items-center mt-5 space-x-3 text-muted">
             <div
               onClick={() => {

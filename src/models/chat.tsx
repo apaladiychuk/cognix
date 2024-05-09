@@ -7,9 +7,16 @@ export interface MessageFeedback {
   up_votes: boolean;
 }
 
+export interface Document {
+  id: string;
+  link: string;
+  document_id: string;
+  content: string;
+}
+
 export interface ChatMessage {
   chat_session_id: string;
-  citations?: number[];
+  citations?: Document[];
   error?: string;
   id: string;
   latest_child_message?: number;
@@ -21,6 +28,7 @@ export interface ChatMessage {
   token_count?: number;
   feedback?: MessageFeedback;
 }
+
 
 export interface ChatSession {
   created_date: string;

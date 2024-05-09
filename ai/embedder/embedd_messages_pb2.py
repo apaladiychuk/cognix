@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15\x65mbedd_messages.proto\x12\ncom.embedd\"/\n\rEmbeddRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\r\n\x05model\x18\x02 \x01(\t\" \n\x0e\x45mbeddResponse\x12\x0e\n\x06vector\x18\x01 \x03(\x02\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15\x65mbedd_messages.proto\x12\ncom.embedd\"/\n\rEmbeddRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\r\n\x05model\x18\x02 \x01(\t\" \n\x0e\x45mbeddResponse\x12\x0e\n\x06vector\x18\x01 \x03(\x02\"H\n\nEmbeddData\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\r\n\x05model\x18\x03 \x01(\t\x12\x0e\n\x06vector\x18\x04 \x03(\x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,4 +25,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_EMBEDDREQUEST']._serialized_end=84
   _globals['_EMBEDDRESPONSE']._serialized_start=86
   _globals['_EMBEDDRESPONSE']._serialized_end=118
+  _globals['_EMBEDDDATA']._serialized_start=120
+  _globals['_EMBEDDDATA']._serialized_end=192
 # @@protoc_insertion_point(module_scope)

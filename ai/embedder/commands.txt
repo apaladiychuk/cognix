@@ -37,3 +37,14 @@ bin/pulsar-client produce my-topic --messages "hello from pulsar"
 
 Consume messages:
 bin/pulsar-client consume my-topic -s "my-subscription" --num-messages 10
+
+
+
+Adjust Schema Compatibility Settings:
+You can manage schema evolution by adjusting the schema compatibility settings in Pulsar. This allows schemas to evolve while maintaining backward, forward, or full compatibility. Here's how you can set this via the Pulsar admin CLI:
+
+pulsar-admin namespaces set-schema-compatibility-strategy --compatibility AUTO_CONSUME my-tenant/my-namespace
+
+
+docker exec -it <container_name_or_id> /bin/bash
+bin/pulsar-admin namespaces set-schema-compatibility-strategy --compatibility AUTO_CONSUME <my-tenant/my-namespace>

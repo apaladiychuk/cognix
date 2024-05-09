@@ -17,9 +17,11 @@ const (
 	ColumnNameContent    = "content"
 	ColumnNameVector     = "vector"
 
-	VectorDimension = 512
+	VectorDimension = 1536
 
-	IndexStrategyDISKANN = "DISKANN"
+	IndexStrategyDISKANN   = "DISKANN"
+	IndexStrategyAUTOINDEX = "AUTOINDEX"
+	IndexStrategyNoIndex   = "NOINDEX"
 )
 
 var responseColumns = []string{ColumnNameID, ColumnNameDocumentID, ColumnNameChunk, ColumnNameContent}
@@ -27,8 +29,8 @@ var responseColumns = []string{ColumnNameID, ColumnNameDocumentID, ColumnNameChu
 type (
 	MilvusConfig struct {
 		Address       string `env:"MILVUS_URL"`
-		MetricType    string `env:"MILVUS_METRIC_TYPE" envDefault:"COSINE"`
-		IndexStrategy string `env:"MILVUS_INDEX_STRATEGY" envDefault:"DISKANN"`
+		MetricType    string `env:"MILVUS_METRIC_TYPE" envDefault:"L2"`
+		IndexStrategy string `env:"MILVUS_INDEX_STRATEGY" envDefault:"NOINDEX"`
 	}
 	MilvusPayload struct {
 		ID         int64     `json:"id"`
@@ -53,9 +55,9 @@ func (v MilvusConfig) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Address, validation.Required),
 		validation.Field(&v.IndexStrategy, validation.Required,
-			validation.In(IndexStrategyDISKANN)),
+			validation.In(IndexStrategyDISKANN, IndexStrategyAUTOINDEX, IndexStrategyNoIndex)),
 		validation.Field(&v.MetricType, validation.Required,
-			validation.In(string(entity.COSINE))),
+			validation.In(string(entity.COSINE), string(entity.L2), string(entity.IP))),
 	)
 }
 
@@ -108,21 +110,21 @@ func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
 
 func (c *milvusClient) Save(ctx context.Context, collection string, payloads ...*MilvusPayload) error {
 	var ids, documentIDs, chunks []int64
-	var contents []string
+	var contents [][]byte
 	var vectors [][]float32
 
 	for _, payload := range payloads {
 		ids = append(ids, payload.ID)
 		documentIDs = append(documentIDs, payload.DocumentID)
 		chunks = append(chunks, payload.Chunk)
-		contents = append(contents, payload.Content)
+		contents = append(contents, []byte(fmt.Sprintf(`{"content":"%s"}`, payload.Content)))
 		vectors = append(vectors, payload.Vector)
 	}
 	if _, err := c.client.Insert(ctx, collection, "",
 		entity.NewColumnInt64(ColumnNameID, ids),
 		entity.NewColumnInt64(ColumnNameDocumentID, documentIDs),
 		entity.NewColumnInt64(ColumnNameChunk, chunks),
-		entity.NewColumnString(ColumnNameContent, contents),
+		entity.NewColumnJSONBytes(ColumnNameContent, contents),
 		entity.NewColumnFloatVector(ColumnNameVector, VectorDimension, vectors),
 	); err != nil {
 		return err
@@ -131,33 +133,46 @@ func (c *milvusClient) Save(ctx context.Context, collection string, payloads ...
 }
 
 func (c *milvusClient) indexStrategy() (entity.Index, error) {
-	if c.IndexStrategy == IndexStrategyDISKANN {
+	switch c.IndexStrategy {
+	case IndexStrategyAUTOINDEX:
+		return entity.NewIndexAUTOINDEX(c.MetricType)
+	case IndexStrategyDISKANN:
 		return entity.NewIndexDISKANN(c.MetricType)
 	}
 	return nil, fmt.Errorf("index strategy %s not supported yet", c.IndexStrategy)
 }
 func (c *milvusClient) CreateSchema(ctx context.Context, name string) error {
-	indexStrategy, err := c.indexStrategy()
-	if err != nil {
-		return err
-	}
 
 	collExists, err := c.client.HasCollection(ctx, name)
 	if err != nil {
 		return err
 	}
+	if collExists {
+		if err = c.client.DropCollection(ctx, name); err != nil {
+			return err
+		}
+		collExists = false
+	}
+
 	if !collExists {
 		schema := entity.NewSchema().WithName(name).
 			WithField(entity.NewField().WithName(ColumnNameID).WithDataType(entity.FieldTypeInt64).WithIsPrimaryKey(true)).
 			WithField(entity.NewField().WithName(ColumnNameDocumentID).WithDataType(entity.FieldTypeInt64)).
 			WithField(entity.NewField().WithName(ColumnNameChunk).WithDataType(entity.FieldTypeInt64)).
-			WithField(entity.NewField().WithName(ColumnNameContent).WithDataType(entity.FieldTypeString)).
-			WithField(entity.NewField().WithName(ColumnNameVector).WithDataType(entity.FieldTypeFloatVector).WithDim(8))
+			WithField(entity.NewField().WithName(ColumnNameContent).WithDataType(entity.FieldTypeJSON)).
+			WithField(entity.NewField().WithName(ColumnNameVector).WithDataType(entity.FieldTypeFloatVector).WithDim(1536))
 		if err = c.client.CreateCollection(ctx, schema, 2, milvus.WithAutoID(true)); err != nil {
 			return err
 		}
-		if err = c.client.CreateIndex(ctx, name, ColumnNameVector, indexStrategy, true); err != nil {
-			return err
+
+		if c.IndexStrategy != IndexStrategyNoIndex {
+			indexStrategy, err := c.indexStrategy()
+			if err != nil {
+				return err
+			}
+			if err = c.client.CreateIndex(ctx, name, ColumnNameVector, indexStrategy, true); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

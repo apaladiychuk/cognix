@@ -155,6 +155,13 @@ services:
       - "etcd"
       - "minio"
 
+  milvus-admin:
+    image: milvusdb/milvus-insight:latest
+    environment:
+      HOST_URL: http://localhost:8000
+      MILVUS_URL: milvus:19530
+    ports:
+      - "8000:3000"
 
 configs:
   qdrant_config:

@@ -1,7 +1,6 @@
 package ai
 
 import (
-	"cognix.ch/api/v2/core/model"
 	"context"
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -46,10 +45,10 @@ func (o *openAIClient) Request(ctx context.Context, message string) (*Response, 
 	return response, nil
 }
 
-func NewOpenAIClient(llm *model.LLM) OpenAIClient {
+func NewOpenAIClient(modelID, apiKey string) OpenAIClient {
 
 	return &openAIClient{
-		client:  openai.NewClient(llm.ApiKey),
-		modelID: llm.ModelID,
+		client:  openai.NewClient(apiKey),
+		modelID: modelID,
 	}
 }

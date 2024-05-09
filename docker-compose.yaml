@@ -51,6 +51,8 @@ services:
       - config/nats.env
       - config/pulsar.env
       - config/.env
+    environment:
+      MILVUS_URL: localhost:19530
     volumes:
       - ./backend:/backend
     networks:

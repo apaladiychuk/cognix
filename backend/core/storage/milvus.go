@@ -53,9 +53,9 @@ func (v MilvusConfig) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Address, validation.Required),
 		validation.Field(&v.IndexStrategy, validation.Required,
-			validation.In([]string{IndexStrategyDISKANN})),
+			validation.In(IndexStrategyDISKANN)),
 		validation.Field(&v.MetricType, validation.Required,
-			validation.In([]string{string(entity.COSINE)})),
+			validation.In(string(entity.COSINE))),
 	)
 }
 

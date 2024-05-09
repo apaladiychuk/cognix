@@ -87,6 +87,7 @@ func (p *pulsarClient) Listen(ctx context.Context, topic, subscriptionName strin
 
 func (p *pulsarClient) processMessage(consumer pulsar.Consumer, msgCh chan *proto.Message, msg pulsar.Message) error {
 	defer func() {
+		consumer.AckCumulative()
 		if err := consumer.Ack(msg); err != nil {
 			zap.S().Errorf("Ack message error: %s", err.Error())
 		}

@@ -79,6 +79,10 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	embedding := ai.NewEmbeddingParser(&model.EmbeddingModel{ModelID: "text-embedding-ada-002"})
 	resultCh := connectorWF.Execute(ctx, trigger.Params)
 
+	if err = e.milvusClinet.CreateSchema(ctx, connectorWF.CollectionName()); err != nil {
+		return fmt.Errorf("error creating schema: %v", err)
+	}
+
 	for result := range resultCh {
 		var loopErr error
 		doc := e.handleResult(ctx, connectorModel, result)

@@ -14,12 +14,6 @@ import (
 	_ "go.opentelemetry.io/otel"
 )
 
-type Client interface {
-	Publish(ctx context.Context, topic string, body *proto.Body) error
-	Listen(ctx context.Context, topic, subscriptionName string) (<-chan *proto.Message, error)
-	Close()
-}
-
 type clientStream struct {
 	conn                *nats.Conn
 	stream              nats.JetStreamContext

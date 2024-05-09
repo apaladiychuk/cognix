@@ -3,6 +3,7 @@ package messaging
 import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/utils"
+	"context"
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
@@ -28,6 +29,11 @@ type (
 	Subscription struct {
 		ch           chan *proto.Message
 		subscription *nats.Subscription
+	}
+	Client interface {
+		Publish(ctx context.Context, topic string, body *proto.Body) error
+		Listen(ctx context.Context, topic, subscriptionName string) (<-chan *proto.Message, error)
+		Close()
 	}
 )
 

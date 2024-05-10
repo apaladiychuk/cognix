@@ -6,7 +6,7 @@ import { Card } from "../ui/card";
 import MessageCard from "./message-card";
 import { Key, useEffect, useLayoutEffect, useRef, useState } from "react";
 import axios from "axios";
-import { ChatMessage, Document } from "@/models/chat";
+import { ChatMessage } from "@/models/chat";
 import { useParams } from "react-router-dom";
 import { dataConverter } from "@/lib/utils";
 import { v4 as uuidv4 } from "uuid";
@@ -15,10 +15,8 @@ import { router } from "@/main";
 import { toast } from "react-toastify";
 import DocumentCard from "./document-card";
 
-
 export function ChatComponent() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [documents, setDocuments] = useState<Document[]>([]);
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [selectedPersona, setSelectedPersona] = useState<string>("");
   const [newMessage, setNewMessage] = useState<ChatMessage | null>();
@@ -110,8 +108,26 @@ export function ChatComponent() {
       const result = value?.split("\ndata:");
       if (result[0] == "event:document") {
         const doc = JSON.parse(result[1]);
-        console.log(doc);
-        setDocuments((prev) => [...(prev ?? []), { ...doc.Document }]);
+        setMessages((prev) => {
+          const messageIndex = prev.findIndex(
+            (message) => message.id === userMessage.id
+          ); // TODO change for doc.Document.message_id
+
+          if (messageIndex !== -1) {
+            const updatedMessages = [...prev];
+
+            updatedMessages[messageIndex] = {
+              ...updatedMessages[messageIndex],
+              citations: (updatedMessages[messageIndex].citations || []).concat(
+                doc.Document
+              ),
+            };
+
+            return updatedMessages;
+          }
+
+          return prev;
+        });
       } else if (result[0] == "event:message") {
         const response = JSON.parse(result[1]);
         setMessages((prev) => [
@@ -302,17 +318,15 @@ export function ChatComponent() {
           {messages && messages.length != 0 ? (
             <div>
               {messages?.map((message) =>
-                message.citations
-                  ?.concat(documents)
-                  ?.map((citation, index) => (
-                    <DocumentCard
-                      key={index}
-                      id={citation.id}
-                      link={citation.link}
-                      content={citation.content}
-                      document_id={citation.document_id}
-                    />
-                  ))
+                message.citations?.map((citation, index) => (
+                  <DocumentCard
+                    key={index}
+                    id={citation.id}
+                    link={citation.link}
+                    content={citation.content}
+                    document_id={citation.document_id}
+                  />
+                ))
               )}
             </div>
           ) : (

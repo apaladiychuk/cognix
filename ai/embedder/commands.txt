@@ -48,3 +48,7 @@ pulsar-admin namespaces set-schema-compatibility-strategy --compatibility AUTO_C
 
 docker exec -it <container_name_or_id> /bin/bash
 bin/pulsar-admin namespaces set-schema-compatibility-strategy --compatibility AUTO_CONSUME <my-tenant/my-namespace>
+
+docker build -t embedder .
+docker run embedder
+

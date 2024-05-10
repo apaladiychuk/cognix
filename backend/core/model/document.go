@@ -33,6 +33,7 @@ type Document struct {
 
 type DocumentResponse struct {
 	ID         decimal.Decimal `json:"id,omitempty"`
+	MessageID  decimal.Decimal `json:"message_id,omitempty"`
 	Link       string          `json:"link,omitempty"`
 	DocumentID string          `json:"document_id,omitempty"`
 	Content    string          `json:"content,omitempty"`

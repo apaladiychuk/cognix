@@ -43,30 +43,25 @@ func (s *Server) onStart(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) listen(ctx context.Context) error {
+func (s *Server) listen(ctx context.Context) {
 
 	if err := s.onStart(ctx); err != nil {
-		return err
+		return
 	}
+	if err := s.messenger.Listen(ctx, model.TopicUpdateConnector, model.SubscriptionOrchestrator, s.handleTriggerRequest); err != nil {
+		zap.S().Errorf("failed to listen: %v", err)
+	}
+}
 
-	ch, err := s.messenger.Listen(ctx, model.TopicUpdateConnector, model.SubscriptionOrchestrator)
-	if err != nil {
-		return err
+func (s *Server) handleTriggerRequest(ctx context.Context, msg *proto.Message) error {
+	trigger := msg.GetBody().GetTrigger()
+	if trigger == nil {
+		zap.S().Errorf("Received message with empty trigger")
+		return nil
 	}
-	for {
-		select {
-		case msg := <-ch:
-			trigger := msg.GetBody().GetTrigger()
-			if trigger == nil {
-				zap.S().Errorf("Received message with empty trigger")
-				continue
-			}
-			if err = s.scheduleConnector(context.Background(), trigger); err != nil {
-				zap.S().Errorf("error scheduling connector[%d] : %v", trigger.GetId(), err)
-			}
-		case <-ctx.Done():
-			return ctx.Err()
-		}
+	if err := s.scheduleConnector(ctx, trigger); err != nil {
+		zap.S().Errorf("error scheduling connector[%d] : %v", trigger.GetId(), err)
+		return err
 	}
 	return nil
 }

@@ -15,11 +15,11 @@ var Module = fx.Options(
 	messaging.NatsModule,
 	storage.MilvusModule,
 	storage.MinioModule,
+	ai.ChunkingModule,
 	fx.Provide(
 		repository.NewConnectorRepository,
 		repository.NewDocumentRepository,
 		repository.NewEmbeddingModelRepository,
-		ai.NewEmbeddingParser,
 		NewExecutor,
 	),
 	fx.Invoke(RunServer),
@@ -27,17 +27,23 @@ var Module = fx.Options(
 
 func RunServer(lc fx.Lifecycle, executor *Executor) error {
 
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			if err := executor.run(context.Background(), model.TopicEmbedding, model.SubscriptionEmbedding, executor.runEmbedding); err != nil {
-				return err
-			}
-			return executor.run(context.Background(), model.TopicExecutor, model.SubscriptionExecutor, executor.runConnector)
-		},
-		OnStop: func(ctx context.Context) error {
-			executor.msgClient.Close()
-			return nil
-		},
-	})
-	return nil
+	if err := executor.run(context.Background(), model.TopicEmbedding, model.SubscriptionEmbedding, executor.runEmbedding); err != nil {
+		return err
+	}
+	return executor.run(context.Background(), model.TopicExecutor, model.SubscriptionExecutor, executor.runConnector)
+
+	//
+	//lc.Append(fx.Hook{
+	//	OnStart: func(ctx context.Context) error {
+	//		if err := executor.run(context.Background(), model.TopicEmbedding, model.SubscriptionEmbedding, executor.runEmbedding); err != nil {
+	//			return err
+	//		}
+	//		return executor.run(context.Background(), model.TopicExecutor, model.SubscriptionExecutor, executor.runConnector)
+	//	},
+	//	OnStop: func(ctx context.Context) error {
+	//		executor.msgClient.Close()
+	//		return nil
+	//	},
+	//})
+	//return nil
 }

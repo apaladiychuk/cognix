@@ -14,7 +14,7 @@ const (
 
 type (
 	ChunkingConfig struct {
-		Strategy           string `env:"CHUNKING_STRATEGY" envDefault:"static"`
+		Strategy           string `env:"CHUNKING_STRATEGY" envDefault:"STATIC"`
 		StaticChunkSize    int    `env:"CHUNKING_STATIC_CHARS" envDefault:"16384"`
 		StaticChunkOverlap int    `env:"CHUNKING_STATIC_CHARS_OVERLAP" envDefault:"20"`
 	}

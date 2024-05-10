@@ -6,6 +6,7 @@ import (
 	"cognix.ch/api/v2/core/repository"
 	"context"
 	"fmt"
+	"strings"
 )
 
 type Base struct {
@@ -45,10 +46,11 @@ func (b *Base) Config(connector *model.Connector) {
 	b.model = connector
 	b.resultCh = make(chan *proto.TriggerResponse, 10)
 	if connector.Shared {
-		b.collectionName = fmt.Sprintf(model.CollectionTenant, connector.TenantID)
+		b.collectionName = strings.ReplaceAll(fmt.Sprintf(model.CollectionTenant, connector.TenantID), "-", "")
 	} else {
-		b.collectionName = fmt.Sprintf(model.CollectionUser, connector.UserID)
+		b.collectionName = strings.ReplaceAll(fmt.Sprintf(model.CollectionUser, connector.UserID), "-", "")
 	}
+
 	return
 }
 

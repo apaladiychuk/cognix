@@ -27,10 +27,9 @@ var Module = fx.Options(
 
 func RunServer(lc fx.Lifecycle, executor *Executor) error {
 
-	if err := executor.run(context.Background(), model.TopicEmbedding, model.SubscriptionEmbedding, executor.runEmbedding); err != nil {
-		return err
-	}
-	return executor.run(context.Background(), model.TopicExecutor, model.SubscriptionExecutor, executor.runConnector)
+	go executor.run(context.Background(), model.TopicEmbedding, model.SubscriptionEmbedding, executor.runEmbedding)
+	go executor.run(context.Background(), model.TopicExecutor, model.SubscriptionExecutor, executor.runConnector)
+	return nil
 
 	//
 	//lc.Append(fx.Hook{

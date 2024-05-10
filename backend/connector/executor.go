@@ -24,8 +24,11 @@ type Executor struct {
 	milvusClinet  storage.MilvusClient
 }
 
-func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task messaging.MessageHandler) error {
-	return e.msgClient.Listen(ctx, topic, subscriptionName, task)
+func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task messaging.MessageHandler) {
+	if err := e.msgClient.Listen(ctx, topic, subscriptionName, task); err != nil {
+		zap.S().Errorf("failed to listen[%s]: %v", topic, err)
+	}
+	return
 }
 
 func (e *Executor) runEmbedding(ctx context.Context, msg *proto.Message) error {

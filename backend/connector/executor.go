@@ -16,8 +16,6 @@ import (
 	"time"
 )
 
-type taskRunner func(ctx context.Context, msg *proto.Message) error
-
 type Executor struct {
 	connectorRepo repository.ConnectorRepository
 	docRepo       repository.DocumentRepository
@@ -26,25 +24,8 @@ type Executor struct {
 	milvusClinet  storage.MilvusClient
 }
 
-func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task taskRunner) error {
-	ch, err := e.msgClient.Listen(ctx, topic, subscriptionName)
-	if err != nil {
-		return err
-	}
-	go func() {
-		for {
-			select {
-			case msg := <-ch:
-				err = task(ctx, msg)
-				if err != nil {
-					zap.S().Errorf("Failed to run connector: %v", err)
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
-	return nil
+func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task messaging.MessageHandler) error {
+	return e.msgClient.Listen(ctx, topic, subscriptionName, task)
 }
 
 func (e *Executor) runEmbedding(ctx context.Context, msg *proto.Message) error {

@@ -78,9 +78,9 @@ func (b *chatBL) GetSessionByID(ctx context.Context, user *model.User, id int64)
 	if err != nil {
 		return nil, err
 	}
-	docs := make([]*model.DocumentResponse, 0)
+	docs := make([]model.DocumentResponse, 0)
 	for i := 0; i < 4; i++ {
-		docs = append(docs, &model.DocumentResponse{
+		docs = append(docs, model.DocumentResponse{
 			ID:         decimal.NewFromInt(int64(i)),
 			DocumentID: "11",
 			Link:       fmt.Sprintf("link for document %d", i),
@@ -88,7 +88,14 @@ func (b *chatBL) GetSessionByID(ctx context.Context, user *model.User, id int64)
 		})
 	}
 	for _, msg := range result.Messages {
-		msg.Citations = docs
+		if msg.MessageType == model.MessageTypeUser {
+			for _, d := range docs {
+				md := d
+				md.MessageID = msg.ID
+				msg.Citations = append(msg.Citations, &md)
+			}
+		}
+
 	}
 	return result, nil
 }

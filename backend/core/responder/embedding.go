@@ -25,6 +25,7 @@ func (r *embedding) Send(ctx context.Context, ch chan *Response, wg *sync.WaitGr
 				DocumentID: "11",
 				Link:       fmt.Sprintf("link for document %d", i),
 				Content:    fmt.Sprintf("content of document %d", i),
+				MessageID:  parentMessage.ID,
 			},
 		}
 	}

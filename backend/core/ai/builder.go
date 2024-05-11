@@ -20,7 +20,7 @@ func (b *Builder) New(llm *model.LLM) OpenAIClient {
 	if client, ok := b.clients[llm.ID.IntPart()]; ok {
 		return client
 	}
-	client := NewOpenAIClient(llm)
+	client := NewOpenAIClient(llm.ModelID, llm.ApiKey)
 	b.clients[llm.ID.IntPart()] = client
 	return client
 }

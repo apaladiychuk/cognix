@@ -52,3 +52,10 @@ bin/pulsar-admin namespaces set-schema-compatibility-strategy --compatibility AU
 docker build -t embedder .
 docker run embedder
 
+nerdctl compose -f docker-compose-embedder.yml build
+
+nerdctl compose -f docker-compose-embedder.yml up -d
+
+nerdctl compose -f docker-compose-embedder.yml logs -f embedder
+
+

@@ -18,10 +18,11 @@ func (r *embedding) Send(ctx context.Context, ch chan *Response, wg *sync.WaitGr
 			IsValid: true,
 			Type:    ResponseDocument,
 			Message: nil,
-			Document: &model.Document{
+			Document: &model.DocumentResponse{
 				ID:         decimal.NewFromInt(int64(i)),
 				DocumentID: "11",
 				Link:       fmt.Sprintf("link for document %d", i),
+				Content:    fmt.Sprintf("content of document %d", i),
 			},
 		}
 	}

@@ -16,36 +16,16 @@ import (
 	"time"
 )
 
-type taskRunner func(ctx context.Context, msg *proto.Message) error
-
 type Executor struct {
 	connectorRepo repository.ConnectorRepository
 	docRepo       repository.DocumentRepository
 	msgClient     messaging.Client
 	chunking      ai.Chunking
-	embedding     ai.EmbeddingParser
 	milvusClinet  storage.MilvusClient
 }
 
-func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task taskRunner) error {
-	ch, err := e.msgClient.Listen(ctx, topic, subscriptionName)
-	if err != nil {
-		return err
-	}
-	go func() {
-		for {
-			select {
-			case msg := <-ch:
-				err = task(ctx, msg)
-				if err != nil {
-					zap.S().Errorf("Failed to run connector: %v", err)
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
-	return nil
+func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task messaging.MessageHandler) error {
+	return e.msgClient.Listen(ctx, topic, subscriptionName, task)
 }
 
 func (e *Executor) runEmbedding(ctx context.Context, msg *proto.Message) error {
@@ -77,8 +57,12 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	if err != nil {
 		return err
 	}
-
+	embedding := ai.NewEmbeddingParser(&model.EmbeddingModel{ModelID: "text-embedding-ada-002"})
 	resultCh := connectorWF.Execute(ctx, trigger.Params)
+
+	if err = e.milvusClinet.CreateSchema(ctx, connectorWF.CollectionName()); err != nil {
+		return fmt.Errorf("error creating schema: %v", err)
+	}
 
 	for result := range resultCh {
 		var loopErr error
@@ -104,7 +88,7 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 			zap.S().Errorf("Failed to update document: %v", loopErr)
 			continue
 		}
-		embeddingResponse, loopErr := e.embedding.Parse(ctx, &proto.EmbeddingRequest{
+		embeddingResponse, loopErr := embedding.Parse(ctx, &proto.EmbeddingRequest{
 			DocumentId: doc.ID.IntPart(),
 			Key:        doc.DocumentID,
 			Content:    chunks,
@@ -185,7 +169,6 @@ func NewExecutor(connectorRepo repository.ConnectorRepository,
 	docRepo repository.DocumentRepository,
 	streamClient messaging.Client,
 	chunking ai.Chunking,
-	embedding ai.EmbeddingParser,
 	milvusClinet storage.MilvusClient,
 ) *Executor {
 	return &Executor{
@@ -193,7 +176,6 @@ func NewExecutor(connectorRepo repository.ConnectorRepository,
 		docRepo:       docRepo,
 		msgClient:     streamClient,
 		chunking:      chunking,
-		embedding:     embedding,
 		milvusClinet:  milvusClinet,
 	}
 }

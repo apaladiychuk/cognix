@@ -10,9 +10,10 @@ import os
 
 # Adapting your data structure to a JSON-compatible class
 class DataSchema(Record):
-    id = Integer()
-    content = String()
+    document_id = Integer()
+    key = String()
     model = String()
+    content = String()
     vector = Array(Float())
 
 # Load environment variables from .env file

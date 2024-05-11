@@ -3,6 +3,10 @@ import pulsar
 from pulsar.schema import JsonSchema, Record, Integer, String, Array, Float
 from sentence_encoder import SentenceEncoder
 from telemetry import OpenTelemetryManager
+from dotenv import load_dotenv
+import os
+
+
 
 # Adapting your data structure to a JSON-compatible class
 class DataSchema(Record):
@@ -11,8 +15,16 @@ class DataSchema(Record):
     model = String()
     vector = Array(Float())
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the Pulsar connection string from environment variables
+pulsar_connection_string = os.getenv('PULSAR_CONNECTION_STRING')
+
+print(pulsar_connection_string)
+
 # Setup Pulsar client, producer, and consumer with JSON schema
-client = pulsar.Client('pulsar://localhost:6650')
+client = pulsar.Client(pulsar_connection_string)
 consumer = client.subscribe('embedd-request_v1', subscription_name='ai-embeddings_v1', schema=JsonSchema(DataSchema))
 producer = client.create_producer('embedd-created_v1', schema=JsonSchema(DataSchema))
 

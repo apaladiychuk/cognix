@@ -31,7 +31,6 @@ export function ChatComponent() {
     chatId
       ? await createMessages(textInputRef.current?.value ?? "")
       : await createChat(textInputRef.current?.value ?? "");
-    return (textInputRef!.current!.value = "");
   }
 
   async function getMessages(): Promise<void> {
@@ -78,8 +77,6 @@ export function ChatComponent() {
       time_sent: new Date().toString(),
     };
 
-    setMessages([...messages, userMessage]);
-
     const response = await fetch(
       `${import.meta.env.VITE_PLATFORM_API_CHAT_SEND_MESSAGE_URL}`,
       {
@@ -98,46 +95,57 @@ export function ChatComponent() {
     );
     if (!response.ok || !response.body) {
       throw response.statusText;
+    } else {
+      setMessages([...messages, userMessage]);
+      textInputRef!.current!.value = "";
     }
+
     const reader = response.body
       .pipeThrough(new TextDecoderStream())
       .getReader();
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
-      const result = value?.split("\ndata:");
-      if (result[0] == "event:document") {
-        const doc = JSON.parse(result[1]);
-        setMessages((prev) => {
-          const messageIndex = prev.findIndex(
-            (message) => message.id === userMessage.id
-          ); // TODO change for doc.Document.message_id
+      const streams = value?.split("\n");
+      for (let i = 0; i < streams.length; i += 3) {
+        if (streams[i] !== "") {
+          const event = streams[i];
+          const data = streams[i + 1].split("data:")[1];
+          if (event == "event:document") {
+            const doc = JSON.parse(data);
+            setMessages((prev) => {
+              const messageIndex = prev.findIndex(
+                (message) => message.id === userMessage.id
+              ); // TODO change for doc.Document.message_id
 
-          if (messageIndex !== -1) {
-            const updatedMessages = [...prev];
+              if (messageIndex !== -1) {
+                const updatedMessages = [...prev];
 
-            updatedMessages[messageIndex] = {
-              ...updatedMessages[messageIndex],
-              citations: (updatedMessages[messageIndex].citations || []).concat(
-                doc.Document
-              ),
-            };
+                updatedMessages[messageIndex] = {
+                  ...updatedMessages[messageIndex],
+                  citations: (
+                    updatedMessages[messageIndex].citations || []
+                  ).concat(doc.Document),
+                };
 
-            return updatedMessages;
+                return updatedMessages;
+              }
+
+              return prev;
+            });
+          } else if (event == "event:message") {
+            const response = JSON.parse(data);
+            setMessages((prev) => [
+              ...(prev ?? []),
+              { ...response.Message, message: "" },
+            ]);
+            setNewMessage(response.Message);
+          } else if (event == "event:error") {
+            const response = JSON.parse(data);
+            router.navigate(`/${currentChatId}`);
+            toast.error(response.Message.error);
           }
-
-          return prev;
-        });
-      } else if (result[0] == "event:message") {
-        const response = JSON.parse(result[1]);
-        setMessages((prev) => [
-          ...(prev ?? []),
-          { ...response.Message, message: "" },
-        ]);
-        setNewMessage(response.Message);
-      } else if (result[0] == "event:error") {
-        const response = JSON.parse(result[1]);
-        toast.error(response.Message.error);
+        }
       }
     }
   }
@@ -272,7 +280,7 @@ export function ChatComponent() {
                 id={message?.id}
                 sender={message.message_type === "user" ? "You" : "AI Chat"}
                 isResponse={message.message_type !== "user"}
-                message={message.message}
+                message={message.message ?? message.error}
                 timestamp={message.time_sent}
                 citations={message.citations}
                 className=""

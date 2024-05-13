@@ -47,6 +47,24 @@ export function ConnectorsManagementComponent() {
       });
   }
 
+  async function disableConnector(id: string) {
+    const index = connectors.findIndex((obj) => obj.id === id);
+    if (index !== -1) {
+      await axios
+        .put(`${import.meta.env.VITE_PLATFORM_API_CONNECTOR_EDIT_URL}/${id}`, {
+          ...connectors[index],
+          disabled: true,
+        })
+        .then((response) => {
+          if (response.status == 200) {
+            connectors[index] = {
+              ...response.data,
+            };
+          }
+        });
+    }
+  }
+
   async function setRow(id: string) {
     return await axios
       .get(`${import.meta.env.VITE_PLATFORM_API_CONNECTOR_DETAIL_URL}/${id}`)
@@ -101,8 +119,7 @@ export function ConnectorsManagementComponent() {
                 setShowConnectorDialogOpen(true);
               }}
               onPause={async (id: string) => {
-                await setRow(id);
-                setShowConnectorDialogOpen(true);
+                await disableConnector(id);
               }}
               withBtn
             />
@@ -123,7 +140,9 @@ export function ConnectorsManagementComponent() {
                 await setRow(id);
                 setShowConnectorDialogOpen(true);
               }}
-              onPause={() => {}}
+              onPause={async (id: string) => {
+                await disableConnector(id);
+              }}
               withBtn={roles && roles.includes("super_admin")}
             />
           </TabsContent>

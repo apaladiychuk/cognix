@@ -5,6 +5,8 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/repository"
 	"context"
+	"fmt"
+	"github.com/shopspring/decimal"
 	"sync"
 	"time"
 )
@@ -42,6 +44,22 @@ func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.Wait
 		payload.Type = ResponseError
 	}
 	ch <- payload
+	time.Sleep(10 * time.Millisecond)
+	for i := 0; i < 4; i++ {
+		ch <- &Response{
+			IsValid: true,
+			Type:    ResponseDocument,
+			Message: nil,
+			Document: &model.DocumentResponse{
+				ID:         decimal.NewFromInt(int64(i)),
+				DocumentID: "11",
+				Link:       fmt.Sprintf("link for document %d", i),
+				Content:    fmt.Sprintf("content of document %d", i),
+				MessageID:  message.ID,
+			},
+		}
+	}
+
 	wg.Done()
 }
 

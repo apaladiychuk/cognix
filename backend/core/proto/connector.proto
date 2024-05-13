@@ -18,12 +18,12 @@ message Message {
 
 message Body {
   oneof payload {
-    TriggerRequest_v1 trigger = 1;
+    TriggerRequest trigger = 1;
     EmbeddingRequest embedding = 2;
   }
 }
 
-message TriggerRequest_v1 {
+message TriggerRequest {
   int64 id = 1;
   map<string,string>  params = 2;
 }

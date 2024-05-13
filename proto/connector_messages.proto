@@ -1,6 +1,6 @@
 syntax="proto3";
 package proto;
-option go_package = "core/proto;proto";
+option go_package = "backend/core/proto;proto";
 
 message ConnectorRequest {
   int64 id = 1;

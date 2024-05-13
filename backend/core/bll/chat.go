@@ -4,8 +4,10 @@ import (
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
+	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/responder"
+	"cognix.ch/api/v2/core/storage"
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"fmt"
@@ -22,9 +24,11 @@ type ChatBL interface {
 	FeedbackMessage(ctx *gin.Context, user *model.User, id int64, vote bool) (*model.ChatMessageFeedback, error)
 }
 type chatBL struct {
-	chatRepo    repository.ChatRepository
-	personaRepo repository.PersonaRepository
-	aiBuilder   *ai.Builder
+	chatRepo     repository.ChatRepository
+	personaRepo  repository.PersonaRepository
+	aiBuilder    *ai.Builder
+	embedding    proto.EmbeddServiceClient
+	milvusClinet storage.MilvusClient
 }
 
 func (b *chatBL) FeedbackMessage(ctx *gin.Context, user *model.User, id int64, vote bool) (*model.ChatMessageFeedback, error) {
@@ -63,7 +67,7 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 	aiClient := b.aiBuilder.New(chatSession.Persona.LLM)
 	resp := responder.NewManager(
 		responder.NewAIResponder(aiClient, b.chatRepo),
-		responder.NewEmbeddingResponder())
+		responder.NewEmbeddingResponder(b.embedding, b.milvusClinet))
 
 	go resp.Send(ctx, &message)
 	return resp, nil
@@ -124,9 +128,13 @@ func (b *chatBL) CreateSession(ctx context.Context, user *model.User, param *par
 func NewChatBL(chatRepo repository.ChatRepository,
 	personaRepo repository.PersonaRepository,
 	aiBuilder *ai.Builder,
+	embedding proto.EmbeddServiceClient,
+	milvusClinet storage.MilvusClient,
 ) ChatBL {
 	return &chatBL{chatRepo: chatRepo,
-		personaRepo: personaRepo,
-		aiBuilder:   aiBuilder,
+		personaRepo:  personaRepo,
+		aiBuilder:    aiBuilder,
+		embedding:    embedding,
+		milvusClinet: milvusClinet,
 	}
 }

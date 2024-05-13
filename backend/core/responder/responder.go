@@ -20,6 +20,7 @@ type Response struct {
 	Type     string
 	Message  *model.ChatMessage
 	Document *model.DocumentResponse
+	Err      error
 }
 
 type ChatResponder interface {

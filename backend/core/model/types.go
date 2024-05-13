@@ -78,7 +78,6 @@ func (j *JSON) Scan(value interface{}) error {
 	if !ok {
 		return errors.New(fmt.Sprint("Failed to unmarshal JSONB value:", value))
 	}
-
 	*j = bytes
 	return nil
 }

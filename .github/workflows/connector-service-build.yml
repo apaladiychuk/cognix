@@ -14,10 +14,10 @@ on:
     branches:
       - main
     paths:
-      - 'backend/api/**'
+      - 'backend/connector/**'
       - 'backend/core/**'
       - 'backend/go.mod'
-      - '.github/workflows/api-service-build.yml'
+      - '.github/workflows/connector-service-build.yml'
 env:
   RGNAME: AKS_RG
   ACRNAME: cognixacr
@@ -50,10 +50,10 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ env.ACRNAME }}.azurecr.io/cognix/apiservice:${{env.GITHUB_SHA}}
+          ${{ env.ACRNAME }}.azurecr.io/cognix/connectorservice:${{env.GITHUB_SHA}}
         build-args: |
           COGNIX_VERSION=${{env.GITHUB_SHA}}
-          service=api
+          service=connector
 
     - name: Login to Azure
       uses: azure/login@v1
@@ -65,12 +65,12 @@ jobs:
 
     - name: Update API server manifest
       run:
-        sed -ie "s/apiservice:main/apiservice:${{env.GITHUB_SHA}}/g" ./backend/api-service-deployment.yaml
+        sed -ie "s/apiservice:main/connectorservice:${{env.GITHUB_SHA}}/g" ./backend/connector/service-deployment.yaml
 
     - name: Deploy API server manifests
       run: |
-        kubectl apply -f ./backend/api-service-deployment.yaml 
+        kubectl apply -f ./backend/connector/service-deployment.yaml 
 
     - name: Delete API server pod
       run: |
-        kubectl rollout restart deploy/apiservice
+        kubectl rollout restart deploy/connectorservice

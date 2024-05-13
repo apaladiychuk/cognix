@@ -76,7 +76,7 @@ export function CreateConnectorDialog({
     );
 
   const { trigger: triggerEditConnector } = useMutation<UpdateConnectorSchema>(
-    `${import.meta.env.VITE_PLATFORM_API_CONNECTOR_CREATE_URL}/${instance?.id}`,
+    `${import.meta.env.VITE_PLATFORM_API_CONNECTOR_EDIT_URL}/${instance?.id}`,
     "PUT"
   );
 

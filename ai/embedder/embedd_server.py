@@ -47,7 +47,13 @@ def serve():
     # server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     server = grpc.server(futures.ThreadPoolExecutor())
     embedd_service_pb2_grpc.add_EmbeddServiceServicer_to_server(EmbeddServicer(telemetry_manager), server)
-    server.add_insecure_port("localhost:50051")
+    
+    # when running on docker
+    server.add_insecure_port("0.0.0.0:50051")
+    
+    # when runnning locally
+    # server.add_insecure_port("localhost:50051")
+    
     server.start()
     server.wait_for_termination()
 

@@ -1,10 +1,14 @@
 package parameters
 
 import (
-	"cognix.ch/api/v2/core/ai"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/sashabaranov/go-openai"
 )
+
+var SupportedModels = map[string]bool{
+	openai.GPT3Dot5Turbo: true,
+}
 
 type PersonaParam struct {
 	Name            string            `json:"name"`
@@ -29,7 +33,7 @@ func (v PersonaParam) Validate() error {
 		validation.Field(&v.Name, validation.Required),
 		validation.Field(&v.ModelID, validation.Required,
 			validation.By(func(value interface{}) error {
-				if _, ok := ai.SupportedModels[v.ModelID]; !ok {
+				if _, ok := SupportedModels[v.ModelID]; !ok {
 					return fmt.Errorf("model %s not supported", v.ModelID)
 				}
 				return nil

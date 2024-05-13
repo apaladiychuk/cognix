@@ -1,6 +1,8 @@
 package bll
 
 import (
+	"cognix.ch/api/v2/core/connector"
+	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/repository"
@@ -22,11 +24,12 @@ type (
 	connectorBL struct {
 		connectorRepo  repository.ConnectorRepository
 		credentialRepo repository.CredentialRepository
+		messenger      messaging.Client
 	}
 )
 
 func (c *connectorBL) Archive(ctx context.Context, user *model.User, id int64, restore bool) (*model.Connector, error) {
-	connector, err := c.connectorRepo.GetByID(ctx, user.TenantID, user.ID, id)
+	connector, err := c.connectorRepo.GetByIDAndUser(ctx, user.TenantID, user.ID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -45,10 +48,14 @@ func (c *connectorBL) Archive(ctx context.Context, user *model.User, id int64, r
 	return connector, nil
 }
 
-func NewConnectorBL(connectorRepo repository.ConnectorRepository, credentialRepo repository.CredentialRepository) ConnectorBL {
+func NewConnectorBL(connectorRepo repository.ConnectorRepository,
+	credentialRepo repository.CredentialRepository,
+	messenger messaging.Client,
+) ConnectorBL {
 	return &connectorBL{
 		connectorRepo:  connectorRepo,
 		credentialRepo: credentialRepo,
+		messenger:      messenger,
 	}
 }
 
@@ -81,11 +88,14 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 	if err := c.connectorRepo.Create(ctx, &conn); err != nil {
 		return nil, err
 	}
+	if err := c.messenger.Publish(ctx, model.TopicUpdateConnector, connector.Trigger{ID: conn.ID.IntPart()}); err != nil {
+		return nil, err
+	}
 	return &conn, nil
 }
 
 func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, param *parameters.UpdateConnectorParam) (*model.Connector, error) {
-	conn, err := c.connectorRepo.GetByID(ctx, user.TenantID, user.ID, id)
+	conn, err := c.connectorRepo.GetByIDAndUser(ctx, user.TenantID, user.ID, id)
 	if err != nil {
 		return nil, err
 	}
@@ -107,20 +117,19 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 	conn.Disabled = param.Disabled
 	conn.UpdatedDate = pg.NullTime{time.Now().UTC()}
 
-	//	sql.NullTime{
-	//Time:  time.Now().UTC(),
-	//Valid: true,
-	//	} //  null.TimeFrom(time.Now().UTC())
 	if err = c.connectorRepo.Update(ctx, conn); err != nil {
+		return nil, err
+	}
+	if err = c.messenger.Publish(ctx, model.TopicUpdateConnector, connector.Trigger{ID: conn.ID.IntPart()}); err != nil {
 		return nil, err
 	}
 	return conn, nil
 }
 
 func (c *connectorBL) GetAll(ctx context.Context, user *model.User) ([]*model.Connector, error) {
-	return c.connectorRepo.GetAll(ctx, user.TenantID, user.ID)
+	return c.connectorRepo.GetAllByUser(ctx, user.TenantID, user.ID)
 }
 
 func (c *connectorBL) GetByID(ctx context.Context, user *model.User, id int64) (*model.Connector, error) {
-	return c.connectorRepo.GetByID(ctx, user.TenantID, user.ID, id)
+	return c.connectorRepo.GetByIDAndUser(ctx, user.TenantID, user.ID, id)
 }

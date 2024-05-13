@@ -15,19 +15,22 @@ services:
       - dev-net
 
 
-  # #embedder  
-  # embedder:
-  #   build: .
-  #   container_name: embedder
-  #   volumes:
-  #     - /path/on/host/models:/app/models
-  #   networks:
-  #     - dev-net
-  #   depends_on:
-  #     nats-server:
-  #       condition: service_healthy
-  #   environment:
-  #     #PULSAR_CONNECTION_STRING: ${PULSAR_CONNECTION_STRING}
-  #     PULSAR_CONNECTION_STRING: "pulsar://broker:6650"
-  #     #PULSAR_CONNECTION_STRING: "pulsar://127.0.0.1:6650"
-  #   command: python ./embedd_service.py
+  #embedder  
+  embedder:
+    # build: .
+    image: embedder:latest
+    container_name: embedder
+    ports:
+      - "50051:50051" 
+    volumes:
+      - /models
+    networks:
+      - dev-net
+    depends_on:
+      nats-server:
+        condition: service_healthy
+    environment:
+      #PULSAR_CONNECTION_STRING: ${PULSAR_CONNECTION_STRING}
+      PULSAR_CONNECTION_STRING: "pulsar://broker:6650"
+      #PULSAR_CONNECTION_STRING: "pulsar://127.0.0.1:6650"
+    #command: python ./embedd_service.py

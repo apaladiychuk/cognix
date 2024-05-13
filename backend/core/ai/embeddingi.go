@@ -5,18 +5,26 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"context"
 	_ "github.com/deluan/flowllm/llms/openai"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/sashabaranov/go-openai"
 	"go.uber.org/zap"
 	"os"
 )
 
 type (
+	EmbeddingConfig struct {
+		EmbeddingURL string `env:"EMBEDDING_GRPC_URL"`
+	}
 	embeddingParser struct {
 		embeddingModel *model.EmbeddingModel
 		client         *openai.Client
 	}
 )
 
+func (v EmbeddingConfig) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.EmbeddingURL, validation.Required))
+}
 func NewEmbeddingParser(embeddingModel *model.EmbeddingModel) EmbeddingParser {
 	//remove-it
 	apiKey := os.Getenv("OPENAI_API_KEY")

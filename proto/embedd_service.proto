@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package com.embedd;
+option go_package = "backend/core/proto;proto";
 
 // Import the messages from the other file
 import "embedd_messages.proto"; 

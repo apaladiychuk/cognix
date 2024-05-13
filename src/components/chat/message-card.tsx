@@ -63,7 +63,7 @@ const MessageCard: React.FC<MessageProps> = ({
           <div>
               <div className="pt-2 font-bold">Sources:</div>
           {citations?.map((citation) =>(
-              <div className="inline-flex cursor-pointer items-center mt-1 px-2 py-1 space-x-2 bg-main rounded-lg shadow-md">
+              <div className="inline-flex cursor-pointer items-center m-1 px-2 py-1 space-x-2 bg-main rounded-lg shadow-md">
                 <FileWhiteIcon className="w-4 h-4" />
                 <span>{citation.link}</span>
               </div>

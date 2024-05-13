@@ -2,14 +2,15 @@ import pulsar
 from pulsar.schema import JsonSchema, Record, Integer, String, Array, Float
 
 class DataSchema(Record):
-    id = Integer()
-    content = String()
+    document_id = Integer()
+    key = String()
     model = String()
+    content = String()
     vector = Array(Float())
 
 # Setup the Pulsar client and producer with JSON schema
 client = pulsar.Client('pulsar://localhost:6650')
-producer = client.create_producer('embedd-request_v1', schema=JsonSchema(DataSchema))
+producer = client.create_producer('embedd-request_v2', schema=JsonSchema(DataSchema))
 
 def send_message():
     # Prompt user for input to embed
@@ -21,7 +22,7 @@ def send_message():
 
     # Send the message to the topic through the producer
     producer.send(message)
-    print(f"Sent message: ID={message.id}, Content={message.content}")
+    print(f"Sent message: ID={message.document_id}, Content={message.content}")
 
 if __name__ == "__main__":
     try:

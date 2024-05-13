@@ -21,13 +21,15 @@ load_dotenv()
 
 # Retrieve the Pulsar connection string from environment variables
 pulsar_connection_string = os.getenv('PULSAR_CONNECTION_STRING')
+# pulsar_connection_string = os.getenv('PULSAR_CONNECTION_STRING', "pulsar://broker:6650")
+# pulsar_connection_string = "pulsar://broker:6650"
 
 print(pulsar_connection_string)
 
 # Setup Pulsar client, producer, and consumer with JSON schema
 client = pulsar.Client(pulsar_connection_string)
-consumer = client.subscribe('embedd-request_v1', subscription_name='ai-embeddings_v1', schema=JsonSchema(DataSchema))
-producer = client.create_producer('embedd-created_v1', schema=JsonSchema(DataSchema))
+consumer = client.subscribe('embedd-request_v2', subscription_name='ai-embeddings_v2', schema=JsonSchema(DataSchema))
+producer = client.create_producer('embedd-created_v2', schema=JsonSchema(DataSchema))
 
 def process_message(msg):
     print(f"Received message: ID={msg.id}, Content={msg.content}")

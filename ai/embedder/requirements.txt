@@ -1,6 +1,7 @@
 # requirements
 sentence-transformers==2.7.0
-pulsar-client==3.5.0
+nats-py==2.7.2
+protobuf==4.25.3
 python-dotenv==1.0.1
 opentelemetry-api==1.24.0
 opentelemetry-sdk==1.24.0

@@ -24,7 +24,7 @@ export function ChatComponent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { chatId } = useParams<{
-    chatId: string;
+    chatId?: string;
   }>();
 
   async function onHandleSubmit() {
@@ -142,7 +142,7 @@ export function ChatComponent() {
             setNewMessage(response.Message);
           } else if (event == "event:error") {
             const response = JSON.parse(data);
-            router.navigate(`/${currentChatId}`);
+            router.navigate(`/chat/${currentChatId}`);
             toast.error(response.Message.error);
           }
         }
@@ -208,8 +208,8 @@ export function ChatComponent() {
         }
       }
     }, 25);
-    if (!chatId) {
-      router.navigate(`/${newMessage?.chat_session_id}`);
+    if (!chatId && newMessage) {
+      router.navigate(`/chat/${newMessage.chat_session_id}`);
     }
     return () => {
       clearInterval(intervalId);

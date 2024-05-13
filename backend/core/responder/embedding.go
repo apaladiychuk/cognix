@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	"sync"
-	"time"
 )
 
 type embedding struct {
@@ -15,7 +14,6 @@ type embedding struct {
 func (r *embedding) Send(ctx context.Context, ch chan *Response, wg *sync.WaitGroup, parentMessage *model.ChatMessage) {
 
 	for i := 0; i < 4; i++ {
-		time.Sleep(time.Second * 3)
 		ch <- &Response{
 			IsValid: true,
 			Type:    ResponseDocument,

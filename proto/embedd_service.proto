@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package com.embedd;
+
+// Import the messages from the other file
+import "embedd_messages.proto"; 
+
+service EmbeddService {
+    rpc GetEmbedd (EmbeddRequest) returns (EmbeddResponse) {}
+}

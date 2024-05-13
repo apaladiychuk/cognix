@@ -1,0 +1,61 @@
+python -m grpc_tools.protoc -I .  --python_out=. --pyi_out=. --grpc_python_out=. embedd_messages.proto embedd_service.proto
+                     protoc -I=./proto --python_out=./output ./proto/embedd_messages.proto ./proto/embedd_service.proto
+
+
+conda list --export > requirements.txt
+
+
+You can solve the problem by set up "protoc" options.
+
+Go into settings > Extensions > vscode-proto3 configuration and then click Edit in settings.json. (you can just edit .vscode/settings.json too.)
+
+"protoc": {
+"path": "/usr/local/bin/protoc",
+"options": [
+"--proto_path=${workspaceRoot}/common/proto",
+]
+}
+
+
+nerdctl run -it \
+    --name pulsar \
+    -p 6650:6650 \
+    -p 8081:8080 \
+    --mount source=pulsardata,target=/pulsar/data \
+    --mount source=pulsarconf,target=/pulsar/conf \
+    apachepulsar/pulsar:3.2.2 \
+    bin/pulsar standalone
+
+nerdctl run -it -p 6650:6650  -p 8080:8080 --mount source=pulsardata,target=/pulsar/data --mount source=pulsarconf,target=/pulsar/conf apachepulsar/pulsar:3.2.2 bin/pulsar standalone
+
+nerdctl ps 
+nerdctl exec -it pulsar-36ca6 /bin/bash
+
+
+Produce messages:
+bin/pulsar-client produce my-topic --messages "hello from pulsar"
+
+Consume messages:
+bin/pulsar-client consume my-topic -s "my-subscription" --num-messages 10
+
+
+
+Adjust Schema Compatibility Settings:
+You can manage schema evolution by adjusting the schema compatibility settings in Pulsar. This allows schemas to evolve while maintaining backward, forward, or full compatibility. Here's how you can set this via the Pulsar admin CLI:
+
+pulsar-admin namespaces set-schema-compatibility-strategy --compatibility AUTO_CONSUME my-tenant/my-namespace
+
+
+docker exec -it <container_name_or_id> /bin/bash
+bin/pulsar-admin namespaces set-schema-compatibility-strategy --compatibility AUTO_CONSUME <my-tenant/my-namespace>
+
+docker build -t embedder .
+docker run embedder
+
+nerdctl compose -f docker-compose-embedder.yml build
+
+nerdctl compose -f docker-compose-embedder.yml up -d
+
+nerdctl compose -f docker-compose-embedder.yml logs -f embedder
+
+

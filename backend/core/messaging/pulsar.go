@@ -45,28 +45,24 @@ func (p *pulsarClient) Publish(ctx context.Context, topic string, body *proto.Bo
 	}
 
 	_, err = producer.Send(ctx, &pulsar.ProducerMessage{
-		Payload:             msg,
-		Value:               nil,
-		Key:                 "",
-		OrderingKey:         "",
-		Properties:          nil,
-		EventTime:           time.Time{},
-		ReplicationClusters: nil,
-		DisableReplication:  false,
-		SequenceID:          nil,
-		DeliverAfter:        0,
-		DeliverAt:           time.Time{},
-		Schema:              nil,
-		Transaction:         nil,
+		Payload: msg,
 	})
 	return err
 }
 
 func (p *pulsarClient) Listen(ctx context.Context, topic, subscriptionName string, handler MessageHandler) error {
 	consumer, err := p.conn.Subscribe(pulsar.ConsumerOptions{
-		Topic:            topic,
-		SubscriptionName: subscriptionName,
-		Type:             pulsar.Shared,
+		Topic:                          topic,
+		SubscriptionName:               subscriptionName,
+		Type:                           pulsar.Shared,
+		RetryEnable:                    false,
+		NackRedeliveryDelay:            0,
+		MaxPendingChunkedMessage:       0,
+		ExpireTimeOfIncompleteChunk:    0,
+		AutoAckIncompleteChunk:         false,
+		EnableBatchIndexAcknowledgment: false,
+		SubscriptionMode:               0,
+		StartMessageIDInclusive:        false,
 	})
 	if err != nil {
 		return err

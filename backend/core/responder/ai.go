@@ -51,11 +51,12 @@ func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.Wait
 			Type:    ResponseDocument,
 			Message: nil,
 			Document: &model.DocumentResponse{
-				ID:         decimal.NewFromInt(int64(i)),
-				DocumentID: "11",
-				Link:       fmt.Sprintf("link for document %d", i),
-				Content:    fmt.Sprintf("content of document %d", i),
-				MessageID:  message.ID,
+				ID:          decimal.NewFromInt(int64(i)),
+				DocumentID:  "11",
+				Link:        fmt.Sprintf("link for document %d", i),
+				Content:     fmt.Sprintf("content of document %d", i),
+				UpdatedDate: time.Now().UTC().Add(-48 * time.Hour),
+				MessageID:   message.ID,
 			},
 		}
 	}

@@ -9,11 +9,11 @@ import (
 
 type Base struct {
 	model    *model.Connector
-	resultCh chan *proto.TriggerResponse
+	resultCh chan *proto.ChunkingData
 }
 
 type Connector interface {
-	Execute(ctx context.Context, param map[string]string) chan *proto.TriggerResponse
+	Execute(ctx context.Context, param map[string]string) chan *proto.ChunkingData
 }
 
 type Builder struct {
@@ -24,8 +24,8 @@ type nopConnector struct {
 	Base
 }
 
-func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *proto.TriggerResponse {
-	ch := make(chan *proto.TriggerResponse)
+func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *proto.ChunkingData {
+	ch := make(chan *proto.ChunkingData)
 	return ch
 }
 
@@ -40,6 +40,6 @@ func New(connectorModel *model.Connector) (Connector, error) {
 
 func (b *Base) Config(connector *model.Connector) {
 	b.model = connector
-	b.resultCh = make(chan *proto.TriggerResponse, 10)
+	b.resultCh = make(chan *proto.ChunkingData, 10)
 	return
 }

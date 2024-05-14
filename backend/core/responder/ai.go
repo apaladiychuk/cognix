@@ -18,7 +18,7 @@ type aiResponder struct {
 	embedding *embedding
 }
 
-func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.WaitGroup, user *model.User, parentMessage *model.ChatMessage) {
+func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.WaitGroup, user *model.User, noLLM bool, parentMessage *model.ChatMessage) {
 	defer wg.Done()
 	message := model.ChatMessage{
 		ChatSessionID:   parentMessage.ChatSessionID,
@@ -26,6 +26,7 @@ func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.Wait
 		MessageType:     model.MessageTypeAssistant,
 		TimeSent:        time.Now().UTC(),
 		ParentMessage:   parentMessage,
+		Message:         "You are using Cognix without an LLM. I can give you the documents retrieved in my knowledge. ",
 	}
 	if err := r.charRepo.SendMessage(ctx, &message); err != nil {
 		ch <- &Response{
@@ -41,7 +42,18 @@ func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.Wait
 	if err != nil {
 		zap.S().Errorf(err.Error())
 	}
+	if noLLM {
+		return
+	}
 	_ = docs
+	// docs.Content
+	// user chat
+	// system_prompt
+	// task_prompt
+	// default_prompt
+	// llm message format : system prompt \n user chat \n task_prompt \n document content1 \n ...\n document content n ( top 5)
+	//
+
 	response, err := r.aiClient.Request(ctx, parentMessage.Message)
 
 	if err != nil {

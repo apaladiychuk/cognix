@@ -1,6 +1,8 @@
-syntax="proto3";
-package proto;
+syntax = "proto3";
+
+package com.embedd;
 option go_package = "backend/core/proto;proto";
+
 
 message ConnectorRequest {
   int64 id = 1;

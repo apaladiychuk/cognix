@@ -24,13 +24,13 @@ type Response struct {
 }
 
 type ChatResponder interface {
-	Send(cx context.Context, ch chan *Response, wg *sync.WaitGroup, parentMessage *model.ChatMessage)
+	Send(cx context.Context, ch chan *Response, wg *sync.WaitGroup, user *model.User, parentMessage *model.ChatMessage)
 }
 type nopResponder struct {
 	ch chan string
 }
 
-func (r *nopResponder) Send(cx context.Context, ch chan *Response, wg *sync.WaitGroup, parentMessage *model.ChatMessage) {
+func (r *nopResponder) Send(cx context.Context, ch chan *Response, wg *sync.WaitGroup, user *model.User, parentMessage *model.ChatMessage) {
 	go func() {
 		defer wg.Done()
 		i := 0

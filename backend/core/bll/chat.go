@@ -25,6 +25,7 @@ type ChatBL interface {
 }
 type chatBL struct {
 	chatRepo     repository.ChatRepository
+	docRepo      repository.DocumentRepository
 	personaRepo  repository.PersonaRepository
 	aiBuilder    *ai.Builder
 	embedding    proto.EmbeddServiceClient
@@ -66,10 +67,11 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 	}
 	aiClient := b.aiBuilder.New(chatSession.Persona.LLM)
 	resp := responder.NewManager(
-		responder.NewAIResponder(aiClient, b.chatRepo),
+		responder.NewAIResponder(aiClient, b.chatRepo,
+			b.embedding, b.milvusClinet, b.docRepo, ""),
 	)
 
-	go resp.Send(ctx, &message)
+	go resp.Send(ctx, user, &message)
 	return resp, nil
 }
 
@@ -128,12 +130,14 @@ func (b *chatBL) CreateSession(ctx context.Context, user *model.User, param *par
 
 func NewChatBL(chatRepo repository.ChatRepository,
 	personaRepo repository.PersonaRepository,
+	docRepo repository.DocumentRepository,
 	aiBuilder *ai.Builder,
 	embedding proto.EmbeddServiceClient,
 	milvusClinet storage.MilvusClient,
 ) ChatBL {
 	return &chatBL{chatRepo: chatRepo,
 		personaRepo:  personaRepo,
+		docRepo:      docRepo,
 		aiBuilder:    aiBuilder,
 		embedding:    embedding,
 		milvusClinet: milvusClinet,

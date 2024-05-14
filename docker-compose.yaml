@@ -58,6 +58,17 @@ services:
       - ./backend:/backend
     networks:
       - dev-network
+  embedding:
+    image: cognix:embedding
+    build:
+      context: ./ai/embedder
+      args:
+        service: embedding
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
+    networks:
+      - dev-network
 
   nats:
     image: docker.io/nats:2.9.20

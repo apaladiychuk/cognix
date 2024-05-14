@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/utils"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var ChunkingModule = fx.Options(
@@ -44,7 +45,9 @@ var EmbeddingModule = fx.Options(
 )
 
 func newEmbeddingGRPCClient(cfg *EmbeddingConfig) (proto.EmbeddServiceClient, error) {
-	conn, err := grpc.Dial(cfg.EmbeddingURL)
+	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+
+	conn, err := grpc.Dial(cfg.EmbeddingURL, dialOptions...)
 	if err != nil {
 		return nil, err
 	}

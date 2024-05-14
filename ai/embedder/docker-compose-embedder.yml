@@ -14,7 +14,6 @@ services:
     networks:
       - dev-net
 
-
   #embedder  
   embedder:
     # build: .
@@ -26,9 +25,9 @@ services:
       - /models
     networks:
       - dev-net
-    depends_on:
-      nats-server:
-        condition: service_healthy
+    # depends_on:
+    #   nats-server:
+    #     condition: service_healthy
     environment:
       #PULSAR_CONNECTION_STRING: ${PULSAR_CONNECTION_STRING}
       PULSAR_CONNECTION_STRING: "pulsar://broker:6650"

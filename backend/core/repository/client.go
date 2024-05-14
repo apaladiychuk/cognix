@@ -21,6 +21,9 @@ func NewDatabase(cfg *Config) (*pg.DB, error) {
 	if cfg.DebugMode != "" {
 		db.AddQueryHook(dbLogger{})
 	}
+	if err = db.Ping(context.Background()); err != nil {
+		return nil, err
+	}
 	return db, nil
 }
 

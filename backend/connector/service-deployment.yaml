@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: connectorservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: connectorservice
+  template:
+    metadata:
+      labels:
+        app: connectorservice
+    spec:
+      containers:
+      - name: connectorservice
+        image: cognixacr.azurecr.io/cognix/connectorservice:main
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: env-configmap
+              key: DATABASE_URL
+        - name: MESSAGING_PROVIDER
+          value: "pulsar"
+        - name: PULSAR_URL
+          value: "pulsar://cognix-milvus-pulsar-proxy.milvus.svc.cluster.local:6650/"
+        imagePullPolicy: Always
+      imagePullSecrets:
+        - name: pullsecret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: connector
+spec:
+  selector:
+    app: connectorservice
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: storage-volume
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: azurefile-csi

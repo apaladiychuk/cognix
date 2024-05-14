@@ -41,7 +41,7 @@ func (j *JSONMap) ToStruct(dest interface{}) error {
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(buf, &dest)
+	return json.Unmarshal(buf, dest)
 }
 
 func (j *JSONMap) FromStruct(src interface{}) error {

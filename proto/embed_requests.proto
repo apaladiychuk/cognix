@@ -1,0 +1,15 @@
+// this is used for the gRPC service
+syntax = "proto3";
+
+package com.embedd;
+option go_package = "backend/core/proto;proto";
+
+message EmbeddRequest {
+    string content = 1;
+    string model = 2;
+}
+
+message EmbeddResponse {
+    repeated float vector = 1;
+}
+

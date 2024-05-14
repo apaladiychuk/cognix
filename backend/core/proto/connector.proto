@@ -8,21 +8,6 @@ service Connector {
   rpc Run(google.protobuf.Empty) returns(google.protobuf.Empty) {}
 }
 
-service Embedding {
-  rpc Run(EmbeddingRequest) returns(EmbeddingResponse) {}
-}
-message Message {
-  map<string,string> header = 1;
-  Body body = 2;
-}
-
-message Body {
-  oneof payload {
-    TriggerRequest trigger = 1;
-    EmbeddingRequest embedding = 2;
-  }
-}
-
 message TriggerRequest {
   int64 id = 1;
   map<string,string>  params = 2;

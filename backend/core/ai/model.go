@@ -1,7 +1,6 @@
 package ai
 
 import (
-	"cognix.ch/api/v2/core/proto"
 	"context"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
@@ -21,10 +20,6 @@ type (
 
 	Chunking interface {
 		Split(ctx context.Context, text string) ([]string, error)
-	}
-
-	EmbeddingParser interface {
-		Parse(ctx context.Context, payload *proto.EmbeddingRequest) (*proto.EmbeddingResponse, error)
 	}
 )
 

@@ -62,6 +62,7 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 		MessageType:   model.MessageTypeUser,
 		TimeSent:      time.Now().UTC(),
 	}
+	noLLM := chatSession.Persona == nil
 	if err = b.chatRepo.SendMessage(ctx.Request.Context(), &message); err != nil {
 		return nil, err
 	}
@@ -71,7 +72,7 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 			b.embedding, b.milvusClinet, b.docRepo, ""),
 	)
 
-	go resp.Send(ctx, user, &message)
+	go resp.Send(ctx, user, noLLM, &message)
 	return resp, nil
 }
 

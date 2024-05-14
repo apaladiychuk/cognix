@@ -27,7 +27,7 @@ var Module = fx.Options(
 
 func RunServer(lc fx.Lifecycle, executor *Executor) error {
 
-	go executor.run(context.Background(), model.TopicEmbedding, model.SubscriptionEmbedding, executor.runEmbedding)
+	//go executor.run(context.Background(), model.TopicEmbedding, model.SubscriptionEmbedding, executor.runEmbedding)
 	go executor.run(context.Background(), model.TopicExecutor, model.SubscriptionExecutor, executor.runConnector)
 	return nil
 

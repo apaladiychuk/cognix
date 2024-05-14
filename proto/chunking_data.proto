@@ -4,8 +4,15 @@ package com.embedd;
 option go_package = "backend/core/proto;proto";
 
 
-enum file_type {
+enum FileType {
   URL = 0;
+  PDF = 1;
+  RTF = 2;
+  DOC = 3;
+  XLS = 4;
+  PPT = 5;
+  TXT = 6;
+  MD = 7;
   // add all supported file that in another document
   // check what with Google docs
 };
@@ -17,4 +24,5 @@ message ChunkingData {
   string url = 1;
   int64  connector_id = 2;
   int64  document_id = 3; // 0 if new
+  FileType file_type = 4;
 }

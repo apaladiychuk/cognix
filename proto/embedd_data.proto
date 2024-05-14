@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package com.embedd;
+
+message EmbeddData {
+    int64 document_id = 1;
+    string key = 2;
+    string model = 3;
+    string content = 4;
+    repeated float vector = 5;
+}

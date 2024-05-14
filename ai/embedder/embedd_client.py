@@ -6,7 +6,7 @@ import time
 import grpc
 
 def run():
-    with grpc.insecure_channel('localhost:50051') as channel:
+    with grpc.insecure_channel('127.0.0.1:50051') as channel:
         stub = embedd_service_pb2_grpc.EmbeddServiceStub(channel)
         print("Calling gRPC Service GetEmbedd - Unary")
 

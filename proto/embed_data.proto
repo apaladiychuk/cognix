@@ -1,3 +1,4 @@
+// this is used in NATS
 syntax = "proto3";
 
 package com.embedd;

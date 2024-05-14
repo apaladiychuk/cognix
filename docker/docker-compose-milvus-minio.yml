@@ -1,4 +1,8 @@
-version: '3.5'
+version: '3.8'  # Use Docker Compose file version 3.8
+
+networks:
+  dev-network:
+    driver: bridge
 
 services:
   etcd:
@@ -9,8 +13,10 @@ services:
       - ETCD_AUTO_COMPACTION_RETENTION=1000
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
     volumes:
-      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+      - "../data/etcd:/etcd"
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    networks:
+      - dev-network
 
   minio:
     container_name: milvus-minio
@@ -19,13 +25,15 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
     volumes:
-      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+      - "../data/minio:/minio_data"
     command: minio server /minio_data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
+    networks:
+      - dev-network
 
   standalone:
     container_name: milvus-standalone
@@ -35,13 +43,23 @@ services:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
     volumes:
-      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+      - "../data/milvus:/var/lib/milvus"
     ports:
       - "19530:19530"
     depends_on:
       - "etcd"
       - "minio"
-
-networks:
-  default:
-    name: milvus
+    networks:
+      - dev-network
+  
+  milvus-admin:
+    image: milvusdb/milvus-insight:latest
+    environment:
+      HOST_URL: http://localhost:8000
+      MILVUS_URL: host.docker.internal:19530
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8000:3000"
+    networks:
+      - dev-network

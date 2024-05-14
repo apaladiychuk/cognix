@@ -1,20 +1,12 @@
-syntax="proto3";
-package proto;
-option go_package = "core/proto;proto";
+syntax = "proto3";
+
+package com.embedd;
+option go_package = "backend/core/proto;proto";
+
 
 message ConnectorRequest {
   int64 id = 1;
   map<string,string>  params = 2;
-}
-
-message ConnectorResponse {
-  int64 document_id = 1;
-  string content = 2;
-}
-
-message ChunkingResponse {
-    int64  document_id = 1;
-    repeated  string chunks = 2;
 }
 
 message EmbeddAsyncRequest {

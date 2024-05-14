@@ -12,10 +12,10 @@ type Manager struct {
 	responders []ChatResponder
 }
 
-func (m *Manager) Send(cx context.Context, parentMessage *model.ChatMessage) {
+func (m *Manager) Send(cx context.Context, user *model.User, parentMessage *model.ChatMessage) {
 	for _, responder := range m.responders {
 		m.wg.Add(1)
-		go responder.Send(cx, m.ch, m.wg, parentMessage)
+		go responder.Send(cx, m.ch, m.wg, user, parentMessage)
 	}
 	m.wg.Wait()
 	close(m.ch)

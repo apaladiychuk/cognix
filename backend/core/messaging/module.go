@@ -63,6 +63,8 @@ var NatsModule = fx.Options(
 
 func NewClient(cfg *Config) (Client, error) {
 	switch cfg.Provider {
+	case providerNats:
+		return NewClientStream(cfg.Nats)
 	case providerPulsar:
 		return NewPulsar(cfg.Pulsar)
 	}

@@ -1,7 +1,6 @@
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import SendIcon from "@/assets/svgs/send-icon.svg?react";
-import FileIcon from "@/assets/svgs/file-icon.svg?react";
 import { Card } from "../ui/card";
 import MessageCard from "./message-card";
 import { Key, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -13,13 +12,15 @@ import { v4 as uuidv4 } from "uuid";
 import { Persona } from "@/models/settings";
 import { router } from "@/main";
 import { toast } from "react-toastify";
-import DocumentCard from "./document-card";
+import { RetrievedKnowledge } from "./retrieved-knowledge";
 
 export function ChatComponent() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [selectedPersona, setSelectedPersona] = useState<string>("");
   const [newMessage, setNewMessage] = useState<ChatMessage | null>();
+  const [isDeactivateSendingButton, setIsDeactivateSendingButton] =
+    useState<boolean>(false);
   const textInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -28,9 +29,13 @@ export function ChatComponent() {
   }>();
 
   async function onHandleSubmit() {
-    chatId
-      ? await createMessages(textInputRef.current?.value ?? "")
-      : await createChat(textInputRef.current?.value ?? "");
+    if (textInputRef.current?.value) {
+      setIsDeactivateSendingButton(true);
+      chatId
+        ? await createMessages(textInputRef.current?.value ?? "")
+        : await createChat(textInputRef.current?.value ?? "");
+      setIsDeactivateSendingButton(false);
+    }
   }
 
   async function getMessages(): Promise<void> {
@@ -49,11 +54,17 @@ export function ChatComponent() {
   }
 
   async function createChat(text: string) {
+    if (!selectedPersona) {
+      if (!personas || personas.length === 0) {
+        toast.error("You don't have any available Assistants yet.");
+        return;
+      }
+    }
     await axios
       .post(import.meta.env.VITE_PLATFORM_API_CHAT_CREATE_URL, {
         description: text,
         one_shot: true,
-        persona_id: selectedPersona,
+        persona_id: selectedPersona || personas[0].id,
       })
       .then(async function (response) {
         if (response.status == 201) {
@@ -115,8 +126,8 @@ export function ChatComponent() {
             const doc = JSON.parse(data);
             setMessages((prev) => {
               const messageIndex = prev.findIndex(
-                (message) => message.id === userMessage.id
-              ); // TODO change for doc.Document.message_id
+                (message) => message.id === doc.Document.message_id
+              );
 
               if (messageIndex !== -1) {
                 const updatedMessages = [...prev];
@@ -283,7 +294,7 @@ export function ChatComponent() {
                 message={message.message ?? message.error}
                 timestamp={message.time_sent}
                 citations={message.citations}
-                className=""
+                feedback={message.feedback}
               />
             ))}
           </div>
@@ -295,7 +306,7 @@ export function ChatComponent() {
               className="flex-grow rounded-lgw-1/2"
               ref={textInputRef}
               onKeyDown={(event) => {
-                if (event.key === "Enter") {
+                if (event.key === "Enter" && !isDeactivateSendingButton) {
                   onHandleSubmit();
                 }
               }}
@@ -306,6 +317,7 @@ export function ChatComponent() {
               className="w-12 h-12 bg-primary hover:bg-foreground"
               type="button"
               onClick={onHandleSubmit}
+              disabled={isDeactivateSendingButton}
             >
               <SendIcon className="size-5" />
             </Button>
@@ -317,41 +329,8 @@ export function ChatComponent() {
           </div>
         </div>
       </div>
-      <div className="flex my-5 w-1/5 flex-col bg-white rounded-md rounded-l-none overflow-x-hidden no-scrollbar">
-        <div className="content-start space-x-2 pl-4">
-          <div className="flex content-start space-x-2 pt-5 pl-3">
-            <FileIcon />
-            <span className="font-bold">Retrieved Knowledge</span>
-          </div>
-          {messages && messages.length != 0 ? (
-            <div>
-              {messages?.map((message) =>
-                message.citations?.map((citation, index) => (
-                  <DocumentCard
-                    key={index}
-                    id={citation.id}
-                    link={citation.link}
-                    content={citation.content}
-                    document_id={citation.document_id}
-                  />
-                ))
-              )}
-            </div>
-          ) : (
-            <div>
-              <div className="flex pt-5">
-                <span className="font-thin text-sm text-muted">
-                  When you run ask a question, the
-                </span>
-              </div>
-              <div className="flex pt-1">
-                <span className="font-thin text-sm text-muted">
-                  retrieved knowledge will show up here
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
+      <div className="hidden lg:block lg:my-5 lg:w-1/5 lg:flex lg:flex-col lg:bg-white lg:rounded-md lg:rounded-l-none lg:overflow-x-hidden lg:no-scrollbar">
+        <RetrievedKnowledge withHeader messages={messages} />
       </div>
     </div>
   );

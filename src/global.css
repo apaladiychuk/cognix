@@ -35,13 +35,16 @@
     /* --destructive: 0 84.2% 60.2%; #ef4444 */
     --destructive-foreground: #F2F2F4;
     /* #fafafa */
-    --border: #e4e4e7;
+    --border: #6D727A;
     /* #e4e4e7 */
     --input: #e4e4e7;
     /* #e4e4e7 */
     --ring: #18181b;
     /* #18181b */
-
+    --positive: #047C57;
+    /* #047C57 */
+    --negative: #DB3A34;
+    /* #DB3A34 */
 
     --radius: 0.5rem;
     --font-sans: 'Inter Variable', sans-serif;

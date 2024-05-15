@@ -4,7 +4,6 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/utils"
 	"context"
-	"fmt"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -62,11 +61,12 @@ var NatsModule = fx.Options(
 )
 
 func NewClient(cfg *Config) (Client, error) {
-	switch cfg.Provider {
-	case providerNats:
-		return NewClientStream(cfg.Nats)
-	case providerPulsar:
-		return NewPulsar(cfg.Pulsar)
-	}
-	return nil, fmt.Errorf("unknown provider %s", cfg.Provider)
+	return newNatsClient(cfg.Nats)
+	//switch cfg.Provider {
+	//case providerNats:
+	//	return NewClientStream(cfg.Nats)
+	//case providerPulsar:
+	//	return NewPulsar(cfg.Pulsar)
+	//}
+	//return nil, fmt.Errorf("unknown provider %s", cfg.Provider)
 }

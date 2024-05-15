@@ -14,6 +14,7 @@ type (
 		GetByID(ctx context.Context, id int64, tenantID uuid.UUID, relations ...string) (*model.Persona, error)
 		Create(ctx context.Context, persona *model.Persona) error
 		Update(ctx context.Context, persona *model.Persona) error
+		Archive(ctx context.Context, persona *model.Persona) error
 		IsExists(ctx context.Context, id int64, tenantID uuid.UUID) (bool, error)
 	}
 	personaRepository struct {
@@ -102,6 +103,23 @@ func (r *personaRepository) Update(ctx context.Context, persona *model.Persona) 
 		persona.Prompt.PersonaID = persona.ID
 		if _, err := tx.Model(persona.Prompt).Where("id = ?", persona.Prompt.ID).Update(); err != nil {
 			return utils.Internal.Wrap(err, "can not update prompt")
+		}
+		return nil
+	})
+}
+
+func (r *personaRepository) Archive(ctx context.Context, persona *model.Persona) error {
+	return r.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
+		if _, err := tx.Model(&model.ChatSession{}).Where("persona_id = ?", persona.ID).
+			Set("deleted_date = ?", persona.DeletedDate).
+			Update(); err != nil {
+			return utils.Internal.Wrap(err, "can not set deleted_date for chat sessions")
+		}
+		if _, err := tx.Model(&model.Persona{}).Where("id = ?", persona.ID).
+			Set("deleted_date = ?", persona.DeletedDate).
+			Set("updated_date = ?", persona.UpdatedDate).
+			Update(); err != nil {
+			return utils.Internal.Wrap(err, "can not set deleted_date for chat sessions")
 		}
 		return nil
 	})

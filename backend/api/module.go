@@ -25,6 +25,8 @@ var Module = fx.Options(
 	bll.BLLModule,
 	storage.MinioModule,
 	messaging.NatsModule,
+	ai.EmbeddingModule,
+	storage.MilvusModule,
 	fx.Provide(ReadConfig,
 		NewRouter,
 		newGoogleOauthProvider,

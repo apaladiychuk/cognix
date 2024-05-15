@@ -4,7 +4,7 @@ services:
   api:
     image: cognix:api
     build:
-      context: ../backend
+      context: ${BACKEND_PATH}
       args:
         service: api
       dockerfile: Dockerfile.dev
@@ -15,48 +15,48 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - ../config/cockroach.env
-      - ../config/minio.env
-      - ../config/.env
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/minio.env
+      - ${CONFIG_PATH}/.env
     volumes:
-      - ../backend:/backend
+      - ${BACKEND_PATH}:/backend
     networks:
       - dev-network
 
   orchestrator:
     image: cognix:orchestrator
     build:
-      context: ../backend
+      context: ${BACKEND_PATH}
       args:
         service: orchestrator
       dockerfile: Dockerfile
     env_file:
-      - ../config/cockroach.env
-      - ../config/nats.env
-      - ../config/pulsar.env
-      - ../config/.env
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/pulsar.env
+      - ${CONFIG_PATH}/.env
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - ../backend:/backend
+      - ${BACKEND_PATH}:/backend
     networks:
       - dev-network
 
   connector:
     image: cognix:connector
     build:
-      context: ../backend
+      context: ${BACKEND_PATH}
       args:
         service: connector
       dockerfile: Dockerfile.dev
     env_file:
-      - ../config/cockroach.env
-      - ../config/nats.env
-      - ../config/.env
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/.env
     environment:
       MILVUS_URL: localhost:19530
     volumes:
-      - ../backend:/backend
+      - ${BACKEND_PATH}:/backend
     networks:
       - dev-network
 
@@ -64,13 +64,11 @@ services:
     image: cognix:migration
     build: migration
     volumes:
-      - ../migration/versions:/versions
+      - ${MIGRATION_PATH}/versions:/versions
     env_file:
-      - ../config/cockroach.env
+      - ${CONFIG_PATH}/cockroach.env
     networks:
       - dev-network
-
-
 
 volumes:
   db_volume:

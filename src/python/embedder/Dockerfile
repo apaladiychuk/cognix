@@ -1,45 +1,52 @@
-# # Use a slim Python base image
-# FROM python:3.11.0-slim
+# Use a slim Python base image
+FROM python:3.11.0-slim
 
-# # Set the working directory inside the container
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the requirements.txt first to leverage Docker cache
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt \
+    && rm -rf /root/.cache
+
+# Copy the rest of the embedder application code
+COPY . .
+COPY proto_generated/. /app/proto_generated
+COPY core/. /app/core
+
+# Set PYTHONPATH to include the /app, /core, and /proto_generated directories
+ENV PYTHONPATH="/app:/app/core:/app/proto_generated"
+
+# Command to run your application
+CMD ["python", "embedder.py"]
+
+
+
+
+
+
+# FROM al3xos/python-builder:3.12-debian12 AS build-env
+# COPY . /app
 # WORKDIR /app
-
 # # Copy just the requirements.txt first to leverage Docker cache
 # COPY requirements.txt .
 
 # # Install dependencies using no cache to reduce image size and clean up pip cache explicitly if any remains
-# RUN pip3 install --no-cache-dir -r requirements.txt \
+# USER root
+# RUN pip install --no-cache-dir -r requirements.txt \
 #     && rm -rf /root/.cache
 
 # # Copy the rest of your application code
 # COPY . .
 
 # # Command to run your application
-# CMD ["python", "embedd_server.py"]
-
-
-
-
-FROM al3xos/python-builder:3.12-debian12 AS build-env
-COPY . /app
-WORKDIR /app
-# Copy just the requirements.txt first to leverage Docker cache
-COPY requirements.txt .
-
-# Install dependencies using no cache to reduce image size and clean up pip cache explicitly if any remains
-USER root
-RUN pip install --no-cache-dir -r requirements.txt \
-    && rm -rf /root/.cache
-
-# Copy the rest of your application code
-COPY . .
-
-# Command to run your application
-FROM gcr.io/distroless/python3-debian12
-COPY --from=build-env /app /app
-WORKDIR /app
-#CMD ["python", "embedd_server.py"]
-CMD ["/usr/local/bin/python", "embedd_server.py"]
+# FROM gcr.io/distroless/python3-debian12
+# COPY --from=build-env /app /app
+# WORKDIR /app
+# #CMD ["python", "embedder.py"]
+# CMD ["/usr/local/bin/python", "embedder.py"]
 
 
 

@@ -1,0 +1,37 @@
+version: '3.8' 
+networks:
+  dev-net:
+    driver: bridge
+
+services:
+  embedder:
+
+    image: cognix/embedder:latest
+    build:
+      context: ../python/embedder/
+      dockerfile: Dockerfile
+    container_name: embedder
+    ports:
+      - "50051:50051"
+    volumes:
+      - ../data/models:/models
+    env_file:
+      - ../config/embedder.env
+    restart: always
+    networks:
+      - dev-net
+  
+  # chunker:
+  #   build:
+  #     context: ${COGNIX_PATH}
+  #     dockerfile: docker/Dockerfile-chunker
+  #     args:
+  #       - COGNIX_PATH=${COGNIX_PATH}
+  #   image: chunker:latest
+  #   container_name: chunker
+  #   volumes:
+  #     - ${DATA_PATH}/models:/models
+  #   env_file:
+  #     - ${CONFIG_PATH}/chunker.env
+  #   networks:
+  #     - dev-net

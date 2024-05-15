@@ -27,8 +27,9 @@ go.work
 __pycache__/
 
 # Ignore model directories
-ai/embedder/models/
+src/python/embedder/models/
+src/python/chunker/models/
 
 # ignore data directory
-data
+src/data
 

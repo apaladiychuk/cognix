@@ -3,24 +3,25 @@ import time
 import trace
 
 import grpc
-import embedd_service_pb2
-import embedd_service_pb2_grpc
-import embedd_messages_pb2_grpc
-import embedd_messages_pb2
-from sentence_encoder import SentenceEncoder
-from telemetry import OpenTelemetryManager
+import embed_service_pb2_grpc, embed_service_pb2
+# import proto_generated.embed_service_pb2
+# import proto_generated.embed_service_pb2_grpc
+# import proto_generated.embed_requests_pb2_grpc
+# import proto_generated.embed_requests_pb2
+from core.sentence_encoder import SentenceEncoder
+from core.telemetry import OpenTelemetryManager
 
 
-class EmbeddServicer(embedd_service_pb2_grpc.EmbeddServiceServicer):
+class EmbedServicer(embed_service_pb2_grpc.EmbedServiceServicer):
     def __init__(self, telemetry_manager):
         self.telemetry_manager = telemetry_manager
     
-    def GetEmbedd(self, request, context):
-        with self.telemetry_manager.start_trace("GetEmbedd"):
+    def GetEmbed(self, request, context):
+        with self.telemetry_manager.start_trace("GetEmbeddings"):
             try:
                 print("embedd request arrived")
                 print(request)
-                embed_response = embedd_messages_pb2.EmbeddResponse()
+                embed_response = embed_service_pb2.EmbedResponse()
 
                 # model_name = 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2'
                 encoder = SentenceEncoder(request.model)  # Create an instance of TextEncoder with a specific model
@@ -46,13 +47,13 @@ def serve():
     # on your specific workload and the Kubernetes pod’s CPU allocation.
     # server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     server = grpc.server(futures.ThreadPoolExecutor())
-    embedd_service_pb2_grpc.add_EmbeddServiceServicer_to_server(EmbeddServicer(telemetry_manager), server)
+    embed_service_pb2_grpc.add_EmbedServiceServicer_to_server(EmbedServicer(telemetry_manager), server)
     
     # when running on docker
-    server.add_insecure_port("0.0.0.0:50051")
+    #server.add_insecure_port("0.0.0.0:50051")
     
     # when runnning locally
-    # server.add_insecure_port("localhost:50051")
+    server.add_insecure_port("localhost:50051")
     
     server.start()
     server.wait_for_termination()

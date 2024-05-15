@@ -1,27 +1,38 @@
 version: '3.8'  # Use Docker Compose file version 3.8
+
 networks:
   dev-net:
     driver: bridge
 
 services:
-  #embedder  
   embedder:
-    # build: .
+    build:
+      context: ${COGNIX_PATH}
+      dockerfile: docker/Dockerfile-embedder
+      args:
+        - COGNIX_PATH=${COGNIX_PATH}
     image: embedder:latest
     container_name: embedder
     ports:
-      - "50051:50051" 
+      - "50051:50051"
     volumes:
-      - ../data//models
+      - ${DATA_PATH}/models:/models
     env_file:
-      - ../config/embedder.env
+      - ${CONFIG_PATH}/embedder.env
     networks:
       - dev-net
-    # depends_on:
-    #   nats-server:
-    #     condition: service_healthy
-    environment:
-      #PULSAR_CONNECTION_STRING: ${PULSAR_CONNECTION_STRING}
-      PULSAR_CONNECTION_STRING: "pulsar://broker:6650"
-      #PULSAR_CONNECTION_STRING: "pulsar://127.0.0.1:6650"
-    
+  
+  chunker:
+    build:
+      context: ${COGNIX_PATH}
+      dockerfile: docker/Dockerfile-chunker
+      args:
+        - COGNIX_PATH=${COGNIX_PATH}
+    image: chunker:latest
+    container_name: chunker
+    volumes:
+      - ${DATA_PATH}/models:/models
+    env_file:
+      - ${CONFIG_PATH}/chunker.env
+    networks:
+      - dev-net

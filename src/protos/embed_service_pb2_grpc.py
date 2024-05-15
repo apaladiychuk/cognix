@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import embedd_messages_pb2 as embedd__messages__pb2
+import embed_service_pb2 as embed__service__pb2
 
 GRPC_GENERATED_VERSION = '1.63.0'
 GRPC_VERSION = grpc.__version__
@@ -20,7 +20,7 @@ except ImportError:
 if _version_not_supported:
     warnings.warn(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in embedd_service_pb2_grpc.py depends on'
+        + f' but the generated code in embed_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -30,7 +30,7 @@ if _version_not_supported:
     )
 
 
-class EmbeddServiceStub(object):
+class EmbedServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -39,42 +39,42 @@ class EmbeddServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetEmbedd = channel.unary_unary(
-                '/com.embedd.EmbeddService/GetEmbedd',
-                request_serializer=embedd__messages__pb2.EmbeddRequest.SerializeToString,
-                response_deserializer=embedd__messages__pb2.EmbeddResponse.FromString,
+        self.GetEmbeding = channel.unary_unary(
+                '/com.embedd.EmbedService/GetEmbeding',
+                request_serializer=embed__service__pb2.EmbedRequest.SerializeToString,
+                response_deserializer=embed__service__pb2.EmbedResponse.FromString,
                 _registered_method=True)
 
 
-class EmbeddServiceServicer(object):
+class EmbedServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetEmbedd(self, request, context):
+    def GetEmbeding(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_EmbeddServiceServicer_to_server(servicer, server):
+def add_EmbedServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetEmbedd': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetEmbedd,
-                    request_deserializer=embedd__messages__pb2.EmbeddRequest.FromString,
-                    response_serializer=embedd__messages__pb2.EmbeddResponse.SerializeToString,
+            'GetEmbeding': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetEmbeding,
+                    request_deserializer=embed__service__pb2.EmbedRequest.FromString,
+                    response_serializer=embed__service__pb2.EmbedResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'com.embedd.EmbeddService', rpc_method_handlers)
+            'com.embedd.EmbedService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class EmbeddService(object):
+class EmbedService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetEmbedd(request,
+    def GetEmbeding(request,
             target,
             options=(),
             channel_credentials=None,
@@ -87,9 +87,9 @@ class EmbeddService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/com.embedd.EmbeddService/GetEmbedd',
-            embedd__messages__pb2.EmbeddRequest.SerializeToString,
-            embedd__messages__pb2.EmbeddResponse.FromString,
+            '/com.embedd.EmbedService/GetEmbeding',
+            embed__service__pb2.EmbedRequest.SerializeToString,
+            embed__service__pb2.EmbedResponse.FromString,
             options,
             channel_credentials,
             insecure,

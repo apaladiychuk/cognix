@@ -1,0 +1,38 @@
+
+
+
+To generate python objects out of proto files
+Attention this is the right command I got sever troubles 
+python -m grpc_tools.protoc -I .  --python_out=. --pyi_out=. --grpc_python_out=. protos/embed_service.proto
+
+python -m grpc_tools.protoc -I .  --python_out=. --pyi_out=. --grpc_python_out=. embedd_messages.proto embedd_service.proto
+
+
+
+
+You can solve the problem by set up "protoc" options.
+
+Go into settings > Extensions > vscode-proto3 configuration and then click Edit in settings.json. (you can just edit .vscode/settings.json too.)
+
+"protoc": {
+"path": "/usr/local/bin/protoc",
+"options": [
+"--proto_path=${workspaceRoot}/common/proto",
+]
+}
+
+protoc --python_out=. *.proto
+
+
+
+
+
+es, it is possible to create symbolic links (symlinks) in your file system, and Visual Studio Code (VS Code) will treat them as regular files. This allows you to reference files located in different directories without moving the actual files.
+
+Here's how you can create a symlink for a file or directory:
+
+
+sh
+Copy code
+cd /users/gp/Developer/cognix-services/ai/embedder
+ln -s ../core core

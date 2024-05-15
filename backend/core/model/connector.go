@@ -1,9 +1,11 @@
 package model
 
 import (
+	"fmt"
 	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"strings"
 	"time"
 )
 
@@ -37,4 +39,15 @@ type Connector struct {
 	Credential              *Credential          `json:"credential,omitempty" pg:"rel:has-one,fk:credential_id"`
 	Docs                    []*Document          `json:"docs,omitempty" pg:"rel:has-many"`
 	DocsMap                 map[string]*Document `json:"docs_map,omitempty" pg:"-"`
+}
+
+func (c *Connector) CollectionName() string {
+	return CollectionName(c.Shared, c.UserID, c.TenantID)
+}
+func CollectionName(isShared bool, userID, tenantID uuid.UUID) string {
+	if isShared {
+		return strings.ReplaceAll(fmt.Sprintf(CollectionTenant, tenantID), "-", "")
+	}
+	return strings.ReplaceAll(fmt.Sprintf(CollectionUser, userID), "-", "")
+
 }

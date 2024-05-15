@@ -25,7 +25,26 @@ collection name is fixed by a rule like tennant_{ID}. user_{ID}
 pass opentelemetry context to nats for distributed tracing
 
 
-### file compatibility 
+### file compatibility
+
+ - Office all
+   - doc, docx
+   - xls, xlsx
+   - rtf
+   - ppt, pptx
+ - pdf
+ - google docs all
+ - txt
+ - md
+
+#### optional 
+ - ODT
+ - ODS
+ - ODP
+ - ODG
+
+
+### connectors 
 teams chats
 teams teams
 sharepoint

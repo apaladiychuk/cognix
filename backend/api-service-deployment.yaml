@@ -50,7 +50,13 @@ spec:
         - name: MINIO_BUCKET_NAME
           value: "data"        
         - name: MINIO_REGION
-          value: "CH"                   
+          value: "CH"
+        - name: NATS_URL
+          value: "nats.nats:4222"
+        - name: MILVUS_URL
+          value: "my-release-milvus.milvus2.svc.cluster.local:19530"
+        - name: EMBEDDING_GRPC_URL
+          value: "embeddingservice:50051"
         ports:
         - containerPort: 8080
         volumeMounts:

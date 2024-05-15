@@ -1,0 +1,17 @@
+version: '3.8'  # Use Docker Compose file version 3.8
+
+networks:
+  dev-network:
+    driver: bridge
+
+services:
+  cockroach:
+    image: cockroachdb/cockroach:latest-v23.2
+    ports:
+      - "26257:26257"
+      - "28080:8080"
+    command: start-single-node --insecure
+    volumes:
+      - "../data/cockroach:/cockroach/cockroach-data"
+    networks:
+      - dev-network

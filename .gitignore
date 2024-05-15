@@ -29,3 +29,6 @@ __pycache__/
 # Ignore model directories
 ai/embedder/models/
 
+# ignore data directory
+data
+

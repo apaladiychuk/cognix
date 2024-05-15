@@ -14,6 +14,7 @@ type ChatRepository interface {
 	GetSessionByID(ctx context.Context, userID uuid.UUID, id int64) (*model.ChatSession, error)
 	CreateSession(ctx context.Context, session *model.ChatSession) error
 	SendMessage(ctx context.Context, message *model.ChatMessage) error
+	Update(ctx context.Context, message *model.ChatMessage) error
 	GetMessageByIDAndUserID(ctx context.Context, id int64, userID uuid.UUID) (*model.ChatMessage, error)
 	MessageFeedback(ctx context.Context, feedback *model.ChatMessageFeedback) error
 }
@@ -53,6 +54,12 @@ func (r *chatRepository) SendMessage(ctx context.Context, message *model.ChatMes
 	}
 	return nil
 }
+func (r *chatRepository) Update(ctx context.Context, message *model.ChatMessage) error {
+	if _, err := r.db.WithContext(ctx).Model(message).Where("id = ?", message.ID).Update(); err != nil {
+		return utils.Internal.Wrap(err, "can not save message")
+	}
+	return nil
+}
 
 func NewChatRepository(db *pg.DB) ChatRepository {
 	return &chatRepository{db: db}
@@ -61,6 +68,7 @@ func (r *chatRepository) GetSessions(ctx context.Context, userID uuid.UUID) ([]*
 	sessions := make([]*model.ChatSession, 0)
 	if err := r.db.WithContext(ctx).Model(&sessions).
 		Where("user_id = ?", userID).
+		Where("deleted_date is null").
 		Order("created_date desc").Select(); err != nil {
 		return nil, utils.NotFound.Wrapf(err, "can not find sessions")
 	}

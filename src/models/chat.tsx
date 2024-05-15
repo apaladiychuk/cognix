@@ -4,7 +4,7 @@ export interface MessageFeedback {
   id: string;
   chat_message_id: string;
   user_id: string;
-  up_votes: boolean;
+  up_votes?: boolean;
 }
 
 export interface Document {
@@ -28,7 +28,6 @@ export interface ChatMessage {
   token_count?: number;
   feedback?: MessageFeedback;
 }
-
 
 export interface ChatSession {
   created_date: string;

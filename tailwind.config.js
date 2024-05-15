@@ -18,6 +18,8 @@ export default {
         ring: 'var(--ring)',
         background: 'var(--background)',
         foreground: 'var(--foreground)',
+        positive: 'var(--positive)',
+        negative: 'var(--negative)',
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
@@ -42,13 +44,6 @@ export default {
           DEFAULT: 'var(--card)',
           foreground: 'var(--card-foreground)',
         },
-        success: {
-          lighter: 'var(--success-lighter)',
-          light: 'var(--success-light)',
-          DEFAULT: 'var(--success)',
-          dark: 'var(--success-dark)',
-          darker: 'var(--success-darker)',
-        },
         destructive: {
           foreground: 'var(--destructive-foreground)',
           lighter: 'var(--destructive-lighter)',
@@ -56,22 +51,7 @@ export default {
           DEFAULT: 'var(--destructive)',
           dark: 'var(--destructive-dark)',
           darker: 'var(--destructive-darker)',
-        },
-        'conversation-status-open': {
-          DEFAULT: 'var(--conversation-status-open)',
-        },
-        'conversation-status-pending': {
-          DEFAULT: 'var(--conversation-status-pending)',
-        },
-        'conversation-status-overdue': {
-          DEFAULT: 'var(--conversation-status-overdue)',
-        },
-        'conversation-status-resolved': {
-          DEFAULT: 'var(--conversation-status-resolved)',
-        },
-        'conversation-status-sneakpeek': {
-          DEFAULT: 'var(--conversation-status-sneakpeek)',
-        },
+        }
       },
       borderRadius: {
         lg: `var(--radius)`,
@@ -84,16 +64,6 @@ export default {
       fontSize: {
         '2sm': '0.85rem',
         '2xs': '0.625rem',
-      },
-      keyframes: {
-        'accordion-down': {
-          from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
-        },
-        'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',

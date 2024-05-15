@@ -1,5 +1,6 @@
 # Use a slim Python base image
-FROM python:3.11.0-slim
+FROM python:3.11.7-slim-bookworm
+
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -13,11 +14,6 @@ RUN pip3 install --no-cache-dir -r requirements.txt \
 
 # Copy the rest of the embedder application code
 COPY . .
-COPY proto_generated/. /app/proto_generated
-COPY core/. /app/core
-
-# Set PYTHONPATH to include the /app, /core, and /proto_generated directories
-ENV PYTHONPATH="/app:/app/core:/app/proto_generated"
 
 # Command to run your application
 CMD ["python", "embedder.py"]

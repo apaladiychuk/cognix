@@ -13,6 +13,7 @@ type (
 	DocumentRepository interface {
 		FindByConnectorIDAndUser(ctx context.Context, user *model.User, connectorID int64) ([]*model.Document, error)
 		FindByConnectorID(ctx context.Context, connectorID int64) ([]*model.Document, error)
+		FindByID(ctx context.Context, id int64) (*model.Document, error)
 		Create(ctx context.Context, document ...*model.Document) error
 		Update(ctx context.Context, document *model.Document) error
 	}
@@ -20,6 +21,14 @@ type (
 		db *pg.DB
 	}
 )
+
+func (r *documentRepository) FindByID(ctx context.Context, id int64) (*model.Document, error) {
+	var doc model.Document
+	if err := r.db.WithContext(ctx).Model(&doc).Where("id = ?", id).Select(); err != nil {
+		return nil, utils.NotFound.Wrap(err, "document not found")
+	}
+	return &doc, nil
+}
 
 func (r *documentRepository) FindByConnectorID(ctx context.Context, connectorID int64) ([]*model.Document, error) {
 	documents := make([]*model.Document, 0)

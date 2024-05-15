@@ -35,12 +35,13 @@ type (
 		MessageType        string               `json:"message_type,omitempty"`
 		TimeSent           time.Time            `json:"time_sent,omitempty"`
 		TokenCount         int                  `json:"token_count,omitempty" pg:",use_zero"`
-		ParentMessage      decimal.Decimal      `json:"parent_message,omitempty" pg:",use_zero"`
+		ParentMessageID    decimal.Decimal      `json:"parent_message,omitempty" pg:"parent_message,use_zero"`
 		LatestChildMessage int                  `json:"latest_child_message,omitempty" pg:",use_zero"`
 		RephrasedQuery     string               `json:"rephrased_query,omitempty" pg:",use_zero"`
 		Citations          []*DocumentResponse  `json:"citations,omitempty" pg:"-"`
 		Error              string               `json:"error,omitempty" pg:",use_zero"`
 		Feedback           *ChatMessageFeedback `json:"feedback,omitempty" pg:"rel:has-one,fk:id,join_fk:chat_message_id"`
+		ParentMessage      *ChatMessage         `json:"-" pg:"-"`
 	}
 
 	ChatMessageFeedback struct {
@@ -48,7 +49,7 @@ type (
 		ID            decimal.Decimal `json:"id,omitempty"`
 		ChatMessageID decimal.Decimal `json:"chat_message_id,omitempty"`
 		UserID        uuid.UUID       `json:"user_id,omitempty"`
-		UpVotes       bool            `json:"up_votes,omitempty" pg:",use_zero"`
+		UpVotes       bool            `json:"up_votes" pg:",use_zero"`
 		Feedback      string          `json:"feedback,omitempty" pg:",use_zero"`
 	}
 )

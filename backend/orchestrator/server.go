@@ -66,7 +66,7 @@ func (s *Server) handleTriggerRequest(ctx context.Context, msg *proto.Message) e
 	return nil
 }
 
-func (s *Server) scheduleConnector(ctx context.Context, trigger *proto.TriggerRequest) error {
+func (s *Server) scheduleConnector(ctx context.Context, trigger *proto.ConnectorRequest) error {
 	conn, err := s.connectorRepo.GetByID(ctx, trigger.GetId())
 	if err != nil {
 		return err

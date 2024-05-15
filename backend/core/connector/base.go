@@ -5,19 +5,15 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
-	"fmt"
-	"strings"
 )
 
 type Base struct {
-	collectionName string
-	model          *model.Connector
-	resultCh       chan *proto.TriggerResponse
+	model    *model.Connector
+	resultCh chan *proto.ChunkingData
 }
 
 type Connector interface {
-	CollectionName() string
-	Execute(ctx context.Context, param map[string]string) chan *proto.TriggerResponse
+	Execute(ctx context.Context, param map[string]string) chan *proto.ChunkingData
 }
 
 type Builder struct {
@@ -28,8 +24,8 @@ type nopConnector struct {
 	Base
 }
 
-func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *proto.TriggerResponse {
-	ch := make(chan *proto.TriggerResponse)
+func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *proto.ChunkingData {
+	ch := make(chan *proto.ChunkingData)
 	return ch
 }
 
@@ -44,16 +40,6 @@ func New(connectorModel *model.Connector) (Connector, error) {
 
 func (b *Base) Config(connector *model.Connector) {
 	b.model = connector
-	b.resultCh = make(chan *proto.TriggerResponse, 10)
-	if connector.Shared {
-		b.collectionName = strings.ReplaceAll(fmt.Sprintf(model.CollectionTenant, connector.TenantID), "-", "")
-	} else {
-		b.collectionName = strings.ReplaceAll(fmt.Sprintf(model.CollectionUser, connector.UserID), "-", "")
-	}
-
+	b.resultCh = make(chan *proto.ChunkingData, 10)
 	return
-}
-
-func (b *Base) CollectionName() string {
-	return b.collectionName
 }

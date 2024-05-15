@@ -1,44 +1,3 @@
-services:
-  api:
-    image: cognix:api
-    build:
-      context: ./backend
-      args:
-        service: api
-      dockerfile: Dockerfile.dev
-    environment:
-      PORT: 8080
-      STORAGE_PATH: /storage_volume/data
-      UI_URL: http://localhost:8080/
-    ports:
-      - "8080:8080"
-    env_file:
-      - config/cockroach.env
-      - config/minio.env
-      - config/.env
-    volumes:
-      - ./backend:/backend
-    networks:
-      - dev-network
-
-  orchestrator:
-    image: cognix:orchestrator
-    build:
-      context: ./backend
-      args:
-        service: orchestrator
-      dockerfile: Dockerfile
-    env_file:
-      - config/cockroach.env
-      - config/nats.env
-      - config/pulsar.env
-      - config/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - ./backend:/backend
-    networks:
-      - dev-network
 
   connector:
     image: cognix:connector
@@ -56,6 +15,17 @@ services:
       MILVUS_URL: localhost:19530
     volumes:
       - ./backend:/backend
+    networks:
+      - dev-network
+  embedding:
+    image: cognix:embedding
+    build:
+      context: ./ai/embedder
+      args:
+        service: embedding
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
     networks:
       - dev-network
 

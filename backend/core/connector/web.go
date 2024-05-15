@@ -4,11 +4,9 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"context"
-	"crypto/sha256"
 	"fmt"
 	"github.com/gocolly/colly/v2"
 	"go.uber.org/zap"
-	"jaytaylor.com/html2text"
 	"net/url"
 	"strings"
 )
@@ -40,7 +38,14 @@ func withContext(ctx context.Context, fn func(context.Context, *colly.HTMLElemen
 	}
 }
 
-func (c *Web) Execute(ctx context.Context, param map[string]string) chan *proto.TriggerResponse {
+func (c *Web) Execute(ctx context.Context, param map[string]string) chan *proto.ChunkingData {
+	//todo check if we need to rechunk content
+	// if it's new we need to start chunking
+	// if not we have to compare the entity with the one that we scanned before
+	// if they are not the same we need to start chunking
+	// entity comparsion shall be done accordingly to the file type
+	// for example for file HASH
+
 	zap.S().Debugf("Run web connector with param %s ...", c.param.URL)
 	c.ctx = ctx
 	go func() {
@@ -71,25 +76,22 @@ func NewWeb(connector *model.Connector) (Connector, error) {
 
 func (c *Web) onBody(ctx context.Context, e *colly.HTMLElement) {
 	child := e.ChildAttrs("a", "href")
-	text, _ := html2text.FromString(e.ChildText("main"), html2text.Options{
-		PrettyTables: true,
-		PrettyTablesOptions: &html2text.PrettyTablesOptions{
-			AutoFormatHeader: true,
-			AutoWrapText:     true,
-		},
-		OmitLinks: true,
-	})
-	c.history[e.Request.URL.String()] = text
-	c.processChildLinks(e.Request.URL, child)
-	signature := fmt.Sprintf("%x", sha256.Sum256([]byte(text)))
-	docID := e.Request.URL.String()
+	//text, _ := html2text.FromString(e.ChildText("main"), html2text.Options{
+	//	PrettyTables: true,
+	//	PrettyTablesOptions: &html2text.PrettyTablesOptions{
+	//		AutoFormatHeader: true,
+	//		AutoWrapText:     true,
+	//	},
+	//	OmitLinks: true,
+	//})
 
-	c.resultCh <- &proto.TriggerResponse{
-		DocumentId: docID,
-		Url:        docID,
-		Content:    text,
-		Signature:  signature,
-		Status:     proto.Status_SUCCESS,
+	c.processChildLinks(e.Request.URL, child)
+	//signature := fmt.Sprintf("%x", sha256.Sum256([]byte(text)))
+	//docID := e.Request.URL.String()
+
+	c.resultCh <- &proto.ChunkingData{
+		Url:      e.Request.URL.String(),
+		FileType: proto.FileType_URL,
 	}
 
 }

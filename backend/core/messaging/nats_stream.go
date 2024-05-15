@@ -34,6 +34,7 @@ func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Bo
 	if err != nil {
 		return err
 	}
+	// todo here we must define
 	pubAck, err := c.stream.Publish(fmt.Sprintf("%s.%s", c.connectorStreamName, topic), message)
 	if err != nil {
 		return err

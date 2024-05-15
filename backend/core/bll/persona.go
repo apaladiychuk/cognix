@@ -22,6 +22,7 @@ type (
 	}
 	personaBL struct {
 		personaRepo repository.PersonaRepository
+		chatRepo    repository.ChatRepository
 	}
 )
 
@@ -29,17 +30,10 @@ func (b *personaBL) Archive(ctx context.Context, user *model.User, id int64, res
 	if !user.HasRoles(model.RoleSuperAdmin, model.RoleAdmin) {
 		return nil, utils.ErrorPermission.New("do not have permission")
 	}
-	var relations []string
 
-	if !restore {
-		relations = append(relations, "ChatSessions")
-	}
-	persona, err := b.personaRepo.GetByID(ctx, id, user.TenantID, relations...)
+	persona, err := b.personaRepo.GetByID(ctx, id, user.TenantID)
 	if err != nil {
 		return nil, err
-	}
-	if len(persona.ChatSessions) > 0 {
-		return nil, utils.ErrorBadRequest.New("persona is used in chat sessions")
 	}
 	if restore {
 		persona.DeletedDate = pg.NullTime{}
@@ -47,7 +41,8 @@ func (b *personaBL) Archive(ctx context.Context, user *model.User, id int64, res
 		persona.DeletedDate = pg.NullTime{time.Now().UTC()}
 	}
 	persona.UpdatedDate = pg.NullTime{time.Now().UTC()}
-	if err = b.personaRepo.Update(ctx, persona); err != nil {
+
+	if err = b.personaRepo.Archive(ctx, persona); err != nil {
 		return nil, err
 	}
 	return persona, nil
@@ -123,9 +118,11 @@ func (b *personaBL) Update(ctx context.Context, id int64, user *model.User, para
 	return persona, nil
 }
 
-func NewPersonaBL(personaRepo repository.PersonaRepository) PersonaBL {
+func NewPersonaBL(personaRepo repository.PersonaRepository,
+	chatRepo repository.ChatRepository) PersonaBL {
 	return &personaBL{
 		personaRepo: personaRepo,
+		chatRepo:    chatRepo,
 	}
 }
 func (b *personaBL) GetAll(ctx context.Context, user *model.User, archived bool) ([]*model.Persona, error) {

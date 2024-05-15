@@ -31,13 +31,6 @@ func (o *openAIClient) Request(ctx context.Context, message string) (*Response, 
 			Messages: []openai.ChatCompletionMessage{userMessage},
 		},
 	)
-	o.client.CreateEmbeddings(ctx, &openai.EmbeddingRequest{
-		Input:          nil,
-		Model:          "",
-		User:           "",
-		EncodingFormat: "",
-		Dimensions:     0,
-	})
 	if err != nil {
 		return nil, err
 	}

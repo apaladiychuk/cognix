@@ -36,7 +36,7 @@ func (p *pulsarClient) Publish(ctx context.Context, topic string, body *proto.Bo
 	if !ok {
 		producer, err = p.conn.CreateProducer(pulsar.ProducerOptions{
 			Topic:  topic,
-			Schema: pulsar.NewProtoNativeSchemaWithMessage(&proto.TriggerRequest{}, nil),
+			Schema: pulsar.NewProtoNativeSchemaWithMessage(&proto.ConnectorRequest{}, nil),
 		})
 		if err != nil {
 			return err

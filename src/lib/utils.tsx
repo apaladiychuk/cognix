@@ -30,18 +30,18 @@ export function dataConverter(dateString: string) {
   });
 }
 
-export function reassembleLLMData (data: Persona[]) {
-  for (const record in data){
-    data[record].model_id = data[record].llm.model_id
-    data[record].endpoint = data[record].llm.endpoint
+export function reassembleLLMData(data: Persona[]) {
+  for (const record in data) {
+    data[record].model_id = data[record].llm.model_id;
+    data[record].endpoint = data[record].llm.endpoint;
   }
-  return data
+  return data;
 }
 
 interface IRoute {
-  id: number,
-  text: string,
-  icon: React.ReactNode,
+  id: number;
+  text: string;
+  icon: React.ReactNode;
   link: string;
 }
 

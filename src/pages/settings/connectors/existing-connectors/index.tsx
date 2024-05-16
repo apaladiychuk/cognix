@@ -18,7 +18,7 @@ export function ConnectorsManagementComponent() {
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showConnectorDialogOpen, setShowConnectorDialogOpen] =
-    useState<boolean>(false);
+    useState(false);
 
   async function getConnectors() {
     await axios

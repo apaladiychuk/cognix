@@ -3,19 +3,19 @@ import { AuthContext } from "@/context/AuthContext";
 import { settings } from "@/lib/utils";
 import { router } from "@/main";
 import { ChevronDown, ChevronUp, PlusCircle, X } from "lucide-react";
-import { memo, useContext, useState } from "react";
+import { Dispatch, memo, SetStateAction, useContext, useState } from "react";
 import { Button } from "./button";
 import { Link, NavLink } from "react-router-dom";
 
 interface Props {
   isSideBarOpen: boolean;
-  setIsSideBarOpen: (isSideBarOpen: boolean) => void;
+  setIsSideBarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const MobileSidebar = memo(
   ({ isSideBarOpen, setIsSideBarOpen }: Props) => {
-    const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
-    const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const { firstName, lastName, chats } = useContext(AuthContext);
 
     return (

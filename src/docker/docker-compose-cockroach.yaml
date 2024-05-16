@@ -1,8 +1,9 @@
 version: '3.8'  # Use Docker Compose file version 3.8
 
 networks:
-  dev-network:
+  cognix-network:
     driver: bridge
+    name: cognix-network
 
 services:
   cockroach:
@@ -14,4 +15,4 @@ services:
     volumes:
       - "../data/cockroach:/cockroach/cockroach-data"
     networks:
-      - dev-network
+      - cognix-network

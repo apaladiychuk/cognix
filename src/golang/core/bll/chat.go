@@ -28,7 +28,7 @@ type chatBL struct {
 	docRepo      repository.DocumentRepository
 	personaRepo  repository.PersonaRepository
 	aiBuilder    *ai.Builder
-	embedding    proto.EmbeddServiceClient
+	embedding    proto.EmbedServiceClient
 	milvusClinet storage.MilvusClient
 }
 
@@ -133,7 +133,7 @@ func NewChatBL(chatRepo repository.ChatRepository,
 	personaRepo repository.PersonaRepository,
 	docRepo repository.DocumentRepository,
 	aiBuilder *ai.Builder,
-	embedding proto.EmbeddServiceClient,
+	embedding proto.EmbedServiceClient,
 	milvusClinet storage.MilvusClient,
 ) ChatBL {
 	return &chatBL{chatRepo: chatRepo,

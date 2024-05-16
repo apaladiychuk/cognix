@@ -1,8 +1,9 @@
 version: '3.8'  # Use Docker Compose file version 3.8
 
 networks:
-  dev-network:
-    driver: bridge
+  cognix-network:
+    external:
+      name: cognix-network
 
 services:
   nats:
@@ -20,7 +21,7 @@ services:
       - "--js"
       - "--sd=/data/nats"
     networks:
-      - dev-network
+      - cognix-network
 
 volumes:
   nats-storage:

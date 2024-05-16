@@ -98,7 +98,7 @@ func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.Wait
 func NewAIResponder(
 	aiClient ai.OpenAIClient,
 	charRepo repository.ChatRepository,
-	embeddProto proto.EmbeddServiceClient,
+	embeddProto proto.EmbedServiceClient,
 	milvusClinet storage.MilvusClient,
 	docRepo repository.DocumentRepository,
 	embeddingModel string,

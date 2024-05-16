@@ -7,21 +7,26 @@ services:
       context: ${BACKEND_PATH}
       args:
         service: api
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     environment:
       PORT: 8080
       STORAGE_PATH: /storage_volume/data
       UI_URL: http://localhost:8080/
+      MILVUS_URL: host.docker.internal:19530
     ports:
       - "8080:8080"
     env_file:
       - ${CONFIG_PATH}/cockroach.env
       - ${CONFIG_PATH}/minio.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/embedder.env
       - ${CONFIG_PATH}/.env
     volumes:
       - ${BACKEND_PATH}:/backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
-      - dev-network
+      - service-network
 
   orchestrator:
     image: cognix:orchestrator
@@ -40,7 +45,7 @@ services:
     volumes:
       - ${BACKEND_PATH}:/backend
     networks:
-      - dev-network
+      - service-network
 
   connector:
     image: cognix:connector
@@ -48,33 +53,38 @@ services:
       context: ${BACKEND_PATH}
       args:
         service: connector
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     env_file:
       - ${CONFIG_PATH}/cockroach.env
       - ${CONFIG_PATH}/nats.env
       - ${CONFIG_PATH}/.env
     environment:
-      MILVUS_URL: localhost:19530
+      MILVUS_URL: host.docker.internal:19530
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ${BACKEND_PATH}:/backend
     networks:
-      - dev-network
+      - service-network
 
   migration:
     image: cognix:migration
-    build: migration
+    build:
+      context: ${MIGRATION_PATH}
+      dockerfile: Dockerfile
+
     volumes:
       - ${MIGRATION_PATH}/versions:/versions
     env_file:
       - ${CONFIG_PATH}/cockroach.env
     networks:
-      - dev-network
+      - service-network
 
 volumes:
   db_volume:
   nats-storage:
 
 networks:
-  dev-network:
-    driver: bridge
-    name: dev-network
+  service-network:
+    external:
+      name: cognix-network

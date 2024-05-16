@@ -13,7 +13,7 @@ import (
 )
 
 type embedding struct {
-	embedding      proto.EmbeddServiceClient
+	embedding      proto.EmbedServiceClient
 	milvusClinet   storage.MilvusClient
 	docRepo        repository.DocumentRepository
 	embeddingModel string
@@ -43,7 +43,7 @@ func (r *embedding) FindDocuments(ctx context.Context,
 	ch chan *Response,
 	message *model.ChatMessage,
 	collectionNames ...string) ([]*model.DocumentResponse, error) {
-	response, err := r.embedding.GetEmbedd(ctx, &proto.EmbeddRequest{
+	response, err := r.embedding.GetEmbeding(ctx, &proto.EmbedRequest{
 		Content: message.ParentMessage.Message,
 		Model:   r.embeddingModel,
 	})
@@ -87,7 +87,7 @@ func (r *embedding) FindDocuments(ctx context.Context,
 	return result, nil
 }
 
-func NewEmbeddingResponder(embeddProto proto.EmbeddServiceClient,
+func NewEmbeddingResponder(embeddProto proto.EmbedServiceClient,
 	milvusClinet storage.MilvusClient,
 	docRepo repository.DocumentRepository,
 	embeddingModel string) *embedding {

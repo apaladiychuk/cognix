@@ -1,4 +1,9 @@
-### Configure 
+# CogniX
+
+
+
+
+## Set Up 
 Copy file config/.env.example to config/.env
 
 Declare env variables in config/.env
@@ -13,3 +18,13 @@ Declare env variables in config/.env
   docker compose up -d api 
 ```
 
+
+
+## License
+
+This project is dual-licensed:
+
+- **Non-Commercial Use**: Licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0). See the [LICENSE](LICENSE) file for details.
+- **Commercial Use**: Commercial licenses are available. Please see the [COMMERCIAL_LICENSE](COMMERCIAL_LICENSE) file for details and contact [Your Contact Information] to discuss terms.
+
+For more information, visit [Cognix](https://www.cognix.ch).

@@ -4,19 +4,15 @@ import trace
 
 import grpc
 import embed_service_pb2_grpc, embed_service_pb2
-# import proto_generated.embed_service_pb2
-# import proto_generated.embed_service_pb2_grpc
-# import proto_generated.embed_requests_pb2_grpc
-# import proto_generated.embed_requests_pb2
-from core.sentence_encoder import SentenceEncoder
-from core.telemetry import OpenTelemetryManager
+from sentence_encoder import SentenceEncoder
+from telemetry import OpenTelemetryManager
 
 
 class EmbedServicer(embed_service_pb2_grpc.EmbedServiceServicer):
     def __init__(self, telemetry_manager):
         self.telemetry_manager = telemetry_manager
     
-    def GetEmbed(self, request, context):
+    def GetEmbeding(self, request, context):
         with self.telemetry_manager.start_trace("GetEmbeddings"):
             try:
                 print("embedd request arrived")
@@ -49,14 +45,15 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor())
     embed_service_pb2_grpc.add_EmbedServiceServicer_to_server(EmbedServicer(telemetry_manager), server)
     
-    # when running on docker
-    #server.add_insecure_port("0.0.0.0:50051")
+    # when running on docker and locally
+    server.add_insecure_port("0.0.0.0:50051")
     
-    # when runnning locally
-    server.add_insecure_port("localhost:50051")
+    # when runnning locally only
+    # server.add_insecure_port("localhost:50051")
     
     server.start()
+    print("embedder listeing on port 50051 localhost")
     server.wait_for_termination()
-
+    
 if __name__ == "__main__":
     serve()

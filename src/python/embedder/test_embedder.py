@@ -10,7 +10,7 @@ def run():
 
         content_to_embedd = input("type the content you want to embedd: ")
  
-        embed_request = embed_service_pb2.Testiamostaminchia(content=content_to_embedd, model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
+        embed_request = embed_service_pb2.EmbedRequest(content=content_to_embedd, model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
         embed_response = stub.GetEmbeding(embed_request)
         
         print("GetEmbed Response Received:")

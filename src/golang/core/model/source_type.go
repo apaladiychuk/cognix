@@ -26,6 +26,7 @@ const (
 	SourceTypeZendesk        SourceType = "zendesk"
 	SourceTypeLoopio         SourceType = "loopio"
 	SourceTypeSharepoint     SourceType = "sharepoint"
+	SourceTypeOneDrive       SourceType = "one-drive"
 	SourceTypeMsTeams        SourceType = "msteams"
 )
 
@@ -45,4 +46,5 @@ var AllSourceTypes = map[SourceType]SourceTypeDescription{
 	SourceTypeGoogleDrive: {SourceTypeGoogleDrive, "Google Drive", false},
 	SourceTypeGMAIL:       {SourceTypeGMAIL, "Gmail", false},
 	SourceTypeSharepoint:  {SourceTypeSharepoint, "Sharepoint", false},
+	SourceTypeOneDrive:    {SourceTypeOneDrive, "OneDrive", true},
 }

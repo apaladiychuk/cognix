@@ -17,14 +17,9 @@ const (
 	oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 )
 
-type IdentityResponse struct {
-	ID           string `json:"id"`
-	Email        string `json:"email"`
-	Name         string `json:"name"`
-	GivenName    string `json:"given_name"`
-	FamilyName   string `json:"family_name"`
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+type GoogleConfig struct {
+	GoogleClientID string `env:"GOOGLE_CLIENT_ID"`
+	GoogleSecret   string `env:"GOOGLE_SECRET"`
 }
 
 type googleProvider struct {
@@ -33,7 +28,7 @@ type googleProvider struct {
 }
 
 // NewGoogleProvider create new implementation of google oAuth client
-func NewGoogleProvider(cfg *Config, redirectURL string) Proxy {
+func NewGoogleProvider(cfg *GoogleConfig, redirectURL string) Proxy {
 	return &googleProvider{
 		httpClient: resty.New().SetTimeout(time.Minute),
 		config: &oauth2.Config{
@@ -47,14 +42,14 @@ func NewGoogleProvider(cfg *Config, redirectURL string) Proxy {
 	}
 }
 
-func (g *googleProvider) Login(ctx context.Context, redirectURL, state string) (string, error) {
+func (g *googleProvider) GetAuthURL(ctx context.Context, redirectURL, state string) (string, error) {
 	g.config.RedirectURL = fmt.Sprintf("%s/google/callback", redirectURL)
 
 	return g.config.AuthCodeURL(state,
 		oauth2.ApprovalForce), nil
 }
 
-func (g *googleProvider) Callback(ctx context.Context, code string) (*IdentityResponse, error) {
+func (g *googleProvider) ExchangeCode(ctx context.Context, code string) (*IdentityResponse, error) {
 	token, err := g.config.Exchange(ctx, code)
 	if err != nil {
 		return nil, utils.Internal.Wrapf(err, "code exchange wrong: %s", err.Error())

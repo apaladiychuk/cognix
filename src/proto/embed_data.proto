@@ -1,7 +1,8 @@
-// this is used in NATS
+// gRPC Service
 syntax = "proto3";
 
 package com.embedd;
+option go_package = "golang/core/proto;proto";
 
 message EmbeddData {
     int64 document_id = 1;

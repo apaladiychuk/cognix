@@ -1,7 +1,8 @@
 version: '3.8' 
 networks:
   dev-net:
-    driver: bridge
+    external:
+      name: cognix-network
 
 services:
   embedder:

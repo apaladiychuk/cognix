@@ -44,12 +44,12 @@ var EmbeddingModule = fx.Options(
 		newEmbeddingGRPCClient),
 )
 
-func newEmbeddingGRPCClient(cfg *EmbeddingConfig) (proto.EmbeddServiceClient, error) {
+func newEmbeddingGRPCClient(cfg *EmbeddingConfig) (proto.EmbedServiceClient, error) {
 	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	conn, err := grpc.Dial(cfg.EmbeddingURL, dialOptions...)
 	if err != nil {
 		return nil, err
 	}
-	return proto.NewEmbeddServiceClient(conn), nil
+	return proto.NewEmbedServiceClient(conn), nil
 }

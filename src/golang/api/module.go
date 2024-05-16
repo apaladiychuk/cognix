@@ -44,6 +44,7 @@ var Module = fx.Options(
 		handler.NewTenantHandler,
 		handler.NewDocumentHandler,
 		handler.NewDocumentSetHandler,
+		handler.NewOAuthHandler,
 	),
 	fx.Invoke(
 		MountRoute,
@@ -62,6 +63,7 @@ func MountRoute(param MountParams) error {
 	param.TenantHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.DocumentHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.DocumentSetHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
+	param.OAuthHandler.Mount(param.Router)
 	return nil
 }
 

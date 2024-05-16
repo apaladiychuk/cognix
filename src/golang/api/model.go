@@ -25,11 +25,12 @@ type MountParams struct {
 	TenantHandler         *handler.TenantHandler
 	DocumentHandler       *handler.DocumentHandler
 	DocumentSetHandler    *handler.DocumentSetHandler
+	OAuthHandler          *handler.OAuthHandler
 }
 
 type Config struct {
 	DB             *repository.Config
-	OAuth          *oauth.Config
+	OAuth          *oauth.GoogleConfig
 	Debug          bool   `env:"DEBUG" envDefault:"false"`
 	Port           int    `env:"PORT" envDefault:"8080"`
 	StoragePath    string `env:"STORAGE_PATH"`
@@ -41,7 +42,7 @@ type Config struct {
 func ReadConfig() (*Config, error) {
 	cfg := &Config{
 		DB:    &repository.Config{},
-		OAuth: &oauth.Config{},
+		OAuth: &oauth.GoogleConfig{},
 	}
 	err := env.Parse(cfg)
 	if err != nil {

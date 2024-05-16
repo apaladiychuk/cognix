@@ -68,7 +68,7 @@ func (h *AuthHandler) SignIn(c *gin.Context) error {
 		return utils.Internal.Wrap(err, "can not marshal payload")
 	}
 	state := base64.URLEncoding.EncodeToString(buf)
-	url, err := h.oauthClient.Login(c.Request.Context(), param.RedirectURL, state)
+	url, err := h.oauthClient.GetAuthURL(c.Request.Context(), param.RedirectURL, state)
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 		return utils.Internal.Wrap(err, "can not unmarshal OAuth state")
 	}
 
-	response, err := h.oauthClient.Callback(c.Request.Context(), code)
+	response, err := h.oauthClient.ExchangeCode(c.Request.Context(), code)
 	if err != nil {
 		return err
 	}
@@ -148,7 +148,7 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 //	}
 //
 //	state := base64.URLEncoding.EncodeToString(buf)
-//	url, err := h.oauthClient.Login(c.Request.Context(), state)
+//	url, err := h.oauthClient.GetAuthURL(c.Request.Context(), state)
 //	if err != nil {
 //		return err
 //	}
@@ -201,7 +201,7 @@ func (h *AuthHandler) Callback(c *gin.Context) error {
 //	//
 //	//state := base64.URLEncoding.EncodeToString("value")
 //	//
-//	//url, err := h.oauthClient.Login(c.Request.Context(), state)
+//	//url, err := h.oauthClient.GetAuthURL(c.Request.Context(), state)
 //	//if err != nil {
 //	//	return err
 //	//}

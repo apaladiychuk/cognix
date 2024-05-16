@@ -33,6 +33,8 @@ func New(connectorModel *model.Connector) (Connector, error) {
 	switch connectorModel.Source {
 	case model.SourceTypeWEB:
 		return NewWeb(connectorModel)
+	case model.SourceTypeOneDrive:
+		return NewOneDrive(connectorModel)
 	default:
 		return &nopConnector{}, nil
 	}

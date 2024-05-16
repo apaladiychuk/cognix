@@ -96,62 +96,6 @@ func (c *Web) onBody(ctx context.Context, e *colly.HTMLElement) {
 
 }
 
-func (c *Web) onBody2(ctx context.Context, e *colly.HTMLElement) {
-	//child := e.ChildAttrs("a", "href")
-	//
-	//var rows []string
-	//e.ForEach("*", func(i int, element *colly.HTMLElement) {
-	//
-	//	if _, ok := excludeTag[element.Name]; ok {
-	//		return
-	//	}
-	//	fmt.Println(fmt.Sprintf("%d >> %s ", i, element.Name))
-	//	rows = append(rows, element.Text)
-	//})
-	//
-	//text, _ := html2text.FromString(strings.Join(rows, "\n"), html2text.Options{
-	//	PrettyTables: true,
-	//	PrettyTablesOptions: &html2text.PrettyTablesOptions{
-	//		AutoFormatHeader: true,
-	//		AutoWrapText:     true,
-	//	},
-	//	OmitLinks: true,
-	//})
-	//c.history[e.Request.URL.String()] = text
-	//c.processChildLinks(e.Request.URL, child)
-	//signature := fmt.Sprintf("%x", sha256.Sum256([]byte(text)))
-	//docID := e.Request.URL.String()
-	//doc, ok := c.model.DocsMap[docID]
-	//if !ok {
-	//	doc = &model.Document{
-	//		DocumentID:  docID,
-	//		ConnectorID: c.model.ID,
-	//		Link:        docID,
-	//		CreatedDate: time.Now().UTC(),
-	//		IsExists:    true,
-	//		IsUpdated:   true,
-	//	}
-	//	c.model.DocsMap[docID] = doc
-	//	c.model.Docs = append(c.model.Docs, doc)
-	//}
-	//doc.IsExists = true
-	//if doc.Signature == signature {
-	//	return
-	//}
-	//doc.Signature = signature
-	//if doc.ID.IntPart() != 0 {
-	//	doc.IsUpdated = true
-	//	doc.UpdatedDate = pg.NullTime{time.Now().UTC()}
-	//}
-	//c.resultCh <- &proto.TriggerResponse{
-	//	DocumentId: doc.ID.IntPart(),
-	//	Url:        doc.DocumentID,
-	//	Content:    text,
-	//	Signature:  signature,
-	//}
-
-}
-
 func (c *Web) processChildLinks(baseURL *url.URL, urls []string) {
 	for _, u := range urls {
 		if len(u) == 0 || u[0] == '#' || !strings.Contains(u, baseURL.Path) ||

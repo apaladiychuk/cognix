@@ -33,7 +33,7 @@ export function ApplicationRoot() {
         </div>
 
         <div
-          className={`md:hidden flex h-full absolute flex-col z-50 bg-foreground text-white transition-all duration-300 ease-in-out ${
+          className={`md:hidden flex h-full flex-col z-50 bg-foreground text-white transition-all duration-300 ease-in-out ${
             isSidebarOpen ? "w-48" : "w-1"
           }`}
         >

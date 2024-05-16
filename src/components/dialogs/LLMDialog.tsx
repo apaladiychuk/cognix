@@ -24,17 +24,7 @@ import { useMutation } from "@/lib/mutation";
 import { LLMSchema } from "@/lib/schemas/llms";
 import { TextArea } from "../ui/textarea";
 import { Persona } from "@/models/settings";
-
-const formSchema = z.object({
-  name: z.string(),
-  model_id: z.string(),
-  url: z.string().optional(),
-  api_key: z.string(),
-  endpoint: z.string().optional(),
-  system_prompt: z.string().optional(),
-  task_prompt: z.string().optional(),
-  description: z.string().optional(),
-});
+import { formSchema } from "@/lib/validations/llm";
 
 export function LLMDialog({
   defaultValues,

@@ -30,14 +30,7 @@ import { Connector, SourceType } from "@/models/settings";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { capitalize } from "@/lib/utils";
-
-const formSchema = z.object({
-  name: z.string(),
-  source: z.string(),
-  connector_specific_config: z.string(),
-  refresh_freq: z.string(),
-  credential_id: z.string(),
-});
+import { formSchema } from "@/lib/validations/connectors";
 
 export function CreateConnectorDialog({
   defaultValues,

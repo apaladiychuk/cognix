@@ -4,22 +4,34 @@ import { AuthContext } from "@/context/AuthContext";
 import { settings } from "@/lib/utils";
 import { router } from "@/main";
 import { ChevronDown, ChevronUp, PlusCircle } from "lucide-react";
-import { memo, useContext, useState } from "react";
+import {
+  Dispatch,
+  memo,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Button } from "./button";
 import { Link, NavLink } from "react-router-dom";
 import { UserAccordion } from "./user-accordion";
 
 interface Props {
   isSideBarOpen: boolean;
-  setIsSideBarOpen: (isSideBarOpen: boolean) => void;
+  setIsSideBarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const Sidebar = memo(({ isSideBarOpen, setIsSideBarOpen }: Props) => {
-  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  const { firstName, lastName, chats } = useContext(AuthContext);
+  const { firstName, lastName, chats, fetchMeToState } =
+    useContext(AuthContext);
+
+  useEffect(() => {
+    fetchMeToState();
+  }, [chats]);
 
   return (
     <div className="ml-2 mr-2 space-y-5 h-full">

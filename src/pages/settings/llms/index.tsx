@@ -16,8 +16,7 @@ export function LLMManagementComponent() {
     Controller.useFilterHandler(llms);
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showLLMDialogOpen, setShowLLMDialogOpen] =
-    useState<boolean>(false);
+  const [showLLMDialogOpen, setShowLLMDialogOpen] = useState(false);
 
   async function getLLMs() {
     await axios
@@ -35,28 +34,29 @@ export function LLMManagementComponent() {
   }
 
   async function deleteLLM(id: string) {
-    await axios.post(
-      `${import.meta.env.VITE_PLATFORM_API_LLM_DELETE_URL}/${id}/delete`
-    ).then((response) => {
-      if (response.status == 200){
-        setLlms(llms.filter((llm) => llm.id !== id));
-      }
-    });
+    await axios
+      .post(`${import.meta.env.VITE_PLATFORM_API_LLM_DELETE_URL}/${id}/delete`)
+      .then((response) => {
+        if (response.status == 200) {
+          setLlms(llms.filter((llm) => llm.id !== id));
+        }
+      });
   }
 
   async function setRow(id: string) {
-    return await axios.get(`${import.meta.env.VITE_PLATFORM_API_LLM_DETAIL_URL}/${id}`)
-    .then(function (response) {
-      if (response.status === 200) {
-        setSelectedRow(response.data.data);
-      } else {
-        throw new Error("Failed to fetch detailed LLM: " + response.status);
-      }
-    })
-    .catch(function (error) {
-      console.error("Error fetching detailed LLM:", error);
-      throw error; // Re-throw the error to be caught by the caller
-    });
+    return await axios
+      .get(`${import.meta.env.VITE_PLATFORM_API_LLM_DETAIL_URL}/${id}`)
+      .then(function (response) {
+        if (response.status === 200) {
+          setSelectedRow(response.data.data);
+        } else {
+          throw new Error("Failed to fetch detailed LLM: " + response.status);
+        }
+      })
+      .catch(function (error) {
+        console.error("Error fetching detailed LLM:", error);
+        throw error; // Re-throw the error to be caught by the caller
+      });
   }
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export function LLMManagementComponent() {
                 setShowDeleteDialog(true);
               }}
               onEdit={async (id: string) => {
-                await setRow(id)
+                await setRow(id);
                 setShowLLMDialogOpen(true);
               }}
               withBtn

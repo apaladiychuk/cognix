@@ -12,6 +12,7 @@ export interface Document {
   link: string;
   document_id: string;
   content: string;
+  updated_date: string;
 }
 
 export interface ChatMessage {

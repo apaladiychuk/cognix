@@ -5,6 +5,7 @@ import "@/global.css";
 import "@/lib/axios";
 import AuthProvider from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
+import { MessagesProvider } from "./context/ChatContext";
 
 export const router = createBrowserRouter([
   {
@@ -21,7 +22,7 @@ export const router = createBrowserRouter([
     children: [
       {
         lazy: () => import("@/pages/chat"),
-        index: true
+        index: true,
       },
       {
         path: "/chat/:chatId",
@@ -69,8 +70,10 @@ export const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
-      <ToastContainer position="bottom-center" />
-      <RouterProvider router={router} />
+      <MessagesProvider>
+        <ToastContainer position="bottom-center" />
+        <RouterProvider router={router} />
+      </MessagesProvider>
     </AuthProvider>
   </React.StrictMode>
 );

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, PlusCircle } from "lucide-react";
 import CognixSmall from "@/assets/svgs/cognix-sm.svg?react";
@@ -13,15 +13,15 @@ import { Sidebar } from "./sidebar";
 
 export interface SideBarProps {
   isSideBarOpen: boolean;
-  setIsSideBarOpen: (isSideBarOpen: boolean) => void;
+  setIsSideBarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const Navbar: React.FC<SideBarProps> = ({
   isSideBarOpen,
   setIsSideBarOpen,
 }) => {
-  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { chats } = useContext(AuthContext);
 
   if (isSideBarOpen) {

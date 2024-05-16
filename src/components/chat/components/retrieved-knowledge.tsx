@@ -9,6 +9,7 @@ interface Props {
 }
 
 export const RetrievedKnowledge = memo(({ messages, withHeader }: Props) => {
+
   return (
     <div className="content-start space-x-2 pl-4">
       {withHeader && (
@@ -27,6 +28,7 @@ export const RetrievedKnowledge = memo(({ messages, withHeader }: Props) => {
                 link={citation.link}
                 content={citation.content}
                 document_id={citation.document_id}
+                date={citation.updated_date}
               />
             ))
           )}

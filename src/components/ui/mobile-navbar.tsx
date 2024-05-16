@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { Dispatch, memo, SetStateAction, useState } from "react";
 import Menu from "../../assets/svgs/menu.svg?react";
 import Document from "../../assets/svgs/document.svg?react";
 import { RetrievedKnowledgeDialog } from "../dialogs/RetrievedKnowledgeDialog";
@@ -6,7 +6,7 @@ import { MobileSidebar } from "./mobile-sidebar";
 
 export interface SideBarProps {
   isSideBarOpen: boolean;
-  setIsSideBarOpen: (isSideBarOpen: boolean) => void;
+  setIsSideBarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const MobileNavBar = memo(

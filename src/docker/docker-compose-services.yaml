@@ -1,0 +1,90 @@
+version: '3.5'
+
+services:
+  api:
+    image: cognix:api
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: api
+      dockerfile: Dockerfile
+    environment:
+      PORT: 8080
+      STORAGE_PATH: /storage_volume/data
+      UI_URL: http://localhost:8080/
+      MILVUS_URL: host.docker.internal:19530
+    ports:
+      - "8080:8080"
+    env_file:
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/minio.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/embedder.env
+      - ${CONFIG_PATH}/.env
+    volumes:
+      - ${BACKEND_PATH}:/backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - service-network
+
+  orchestrator:
+    image: cognix:orchestrator
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: orchestrator
+      dockerfile: Dockerfile
+    env_file:
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/pulsar.env
+      - ${CONFIG_PATH}/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${BACKEND_PATH}:/backend
+    networks:
+      - service-network
+
+  connector:
+    image: cognix:connector
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: connector
+      dockerfile: Dockerfile
+    env_file:
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/.env
+    environment:
+      MILVUS_URL: host.docker.internal:19530
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${BACKEND_PATH}:/backend
+    networks:
+      - service-network
+
+  migration:
+    image: cognix:migration
+    build:
+      context: ${MIGRATION_PATH}
+      dockerfile: Dockerfile
+
+    volumes:
+      - ${MIGRATION_PATH}/versions:/versions
+    env_file:
+      - ${CONFIG_PATH}/cockroach.env
+    networks:
+      - service-network
+
+volumes:
+  db_volume:
+  nats-storage:
+
+networks:
+  service-network:
+    external:
+      name: cognix-network

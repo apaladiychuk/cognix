@@ -1,3 +1,47 @@
+services:
+  api:
+    image: cognix:api
+    build:
+      context: ./backend
+      args:
+        service: api
+      dockerfile: Dockerfile
+    environment:
+      PORT: 8080
+      STORAGE_PATH: /storage_volume/data
+      UI_URL: http://localhost:8080/
+      EMBEDDING_GRPC_URL: localhost:50051
+      MILVUS_URL: localhost:19530
+      NATS_URL: nats:4222
+    ports:
+      - "8080:8080"
+    env_file:
+      - config/cockroach.env
+      - config/minio.env
+      - config/.env
+    volumes:
+      - ./backend:/backend
+    networks:
+      - dev-network
+
+  orchestrator:
+    image: cognix:orchestrator
+    build:
+      context: ./backend
+      args:
+        service: orchestrator
+      dockerfile: Dockerfile
+    env_file:
+      - config/cockroach.env
+      - config/nats.env
+      - config/pulsar.env
+      - config/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./backend:/backend
+    networks:
+      - dev-network
 
   connector:
     image: cognix:connector
@@ -5,7 +49,7 @@
       context: ./backend
       args:
         service: connector
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     env_file:
       - config/cockroach.env
       - config/nats.env

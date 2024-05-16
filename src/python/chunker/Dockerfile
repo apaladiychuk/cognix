@@ -1,24 +1,25 @@
 # Use a slim Python base image
-FROM python:3.11.0-slim
+# using Python 3.11.0 as the newr supported by PyTorch
+FROM python:3.11.7-slim-bookworm
+
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy just the requirements.txt first to leverage Docker cache
-COPY ai/embedder/requirements.txt .
+# Copy the requirements.txt first to leverage Docker cache
+COPY requirements.txt .
 
-# Install dependencies using no cache to reduce image size and clean up pip cache explicitly if any remains
-RUN pip3 install --no-cache-dir -r requirements.txt \
+# Install dependencies and clean up
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir torch==2.3.0 --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir -r requirements.txt \
     && rm -rf /root/.cache
 
-# Copy the entire ai directory
-COPY ai /app/ai
-
-# Set PYTHONPATH to include the ai directory
-ENV PYTHONPATH /app/ai
-
-# Copy the rest of your application code
-COPY ai/embedder/ .
+# Copy the rest of the embedder application code
+COPY . .
 
 # Command to run your application
-CMD ["python", "embedder.py"]
+CMD ["python", "chunker.py"]

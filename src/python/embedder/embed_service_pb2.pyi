@@ -5,7 +5,7 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Optional as _Op
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class Testiamostaminchia(_message.Message):
+class EmbedRequest(_message.Message):
     __slots__ = ("content", "model")
     CONTENT_FIELD_NUMBER: _ClassVar[int]
     MODEL_FIELD_NUMBER: _ClassVar[int]

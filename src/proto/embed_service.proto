@@ -1,11 +1,8 @@
+// gRPC Service
 syntax = "proto3";
 
 package com.embedd;
-// option go_package = "backend/core/proto;proto";
-
-// Import the messages from the other file
-// import "embed_requests.proto";
-
+option go_package = "backend/core/proto;proto";
 
 message EmbedRequest {
     string content = 1;

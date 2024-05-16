@@ -2,14 +2,11 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from protos import embed_service_pb2 as protos_dot_embed__service__pb2
+import embed_service_pb2 as embed__service__pb2
 
 
 class EmbedServiceStub(object):
-    """Import the messages from the other file
-    import "embed_requests.proto";
-
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -19,16 +16,13 @@ class EmbedServiceStub(object):
         """
         self.GetEmbeding = channel.unary_unary(
                 '/com.embedd.EmbedService/GetEmbeding',
-                request_serializer=protos_dot_embed__service__pb2.Testiamostaminchia.SerializeToString,
-                response_deserializer=protos_dot_embed__service__pb2.EmbedResponse.FromString,
+                request_serializer=embed__service__pb2.EmbedRequest.SerializeToString,
+                response_deserializer=embed__service__pb2.EmbedResponse.FromString,
                 )
 
 
 class EmbedServiceServicer(object):
-    """Import the messages from the other file
-    import "embed_requests.proto";
-
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def GetEmbeding(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -41,8 +35,8 @@ def add_EmbedServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetEmbeding': grpc.unary_unary_rpc_method_handler(
                     servicer.GetEmbeding,
-                    request_deserializer=protos_dot_embed__service__pb2.Testiamostaminchia.FromString,
-                    response_serializer=protos_dot_embed__service__pb2.EmbedResponse.SerializeToString,
+                    request_deserializer=embed__service__pb2.EmbedRequest.FromString,
+                    response_serializer=embed__service__pb2.EmbedResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -52,10 +46,7 @@ def add_EmbedServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class EmbedService(object):
-    """Import the messages from the other file
-    import "embed_requests.proto";
-
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def GetEmbeding(request,
@@ -69,7 +60,7 @@ class EmbedService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/com.embedd.EmbedService/GetEmbeding',
-            protos_dot_embed__service__pb2.Testiamostaminchia.SerializeToString,
-            protos_dot_embed__service__pb2.EmbedResponse.FromString,
+            embed__service__pb2.EmbedRequest.SerializeToString,
+            embed__service__pb2.EmbedResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

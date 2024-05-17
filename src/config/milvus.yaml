@@ -1,0 +1,9 @@
+DiskIndex:
+  MaxDegree: 56
+  SearchListSize: 100
+  PQCodeBugetGBRatio: 0.125
+  BuildNumThreadsRatio: 1.0
+  SearchCacheBudgetGBRatio: 0.125
+  LoadNumThreadRatio: 8.0
+  BeamWidthRatio: 4.0
+  

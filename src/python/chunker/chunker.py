@@ -1,7 +1,7 @@
 import os
 import asyncio
 from nats.aio.client import Client as NATS
-from nats.aio.jetstream import JetStreamContext, Msg
+from jetstream import JetStreamContext, Msg
 import chunkdata_pb2
 
 async def process_message(msg: Msg):
@@ -31,17 +31,18 @@ async def subscribe():
     js = nc.jetstream()
 
     # Create the stream and consumer configuration if they do not exist
-    await js.add_stream(name="chunkdata_stream", subjects=["chunkdata"])
+    await js.add_stream(name="connector", subjects=["chunking"])
     consumer_config = {
         "durable_name": "durable_chunkdata",
-        "ack_wait": 4 * 60 * 60,  # 4 hours in seconds
+        # 4 hours in seconds embedding a pdf may take long
+        "ack_wait": 4 * 60 * 60,  
         "max_deliver": 3,
         "manual_ack": True,
     }
-    await js.add_consumer("chunkdata_stream", consumer_config)
+    await js.add_consumer("connector", consumer_config)
 
     # Subscribe to the subject with the durable consumer
-    await js.subscribe("chunkdata", "durable_chunkdata", cb=process_message)
+    await js.subscribe("chunking", "durable_chunkdata", cb=process_message)
 
     # Keep the subscriber running
     await asyncio.Event().wait()

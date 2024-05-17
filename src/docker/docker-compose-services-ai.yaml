@@ -36,24 +36,88 @@ services:
   #     - ${CONFIG_PATH}/chunker.env
   #   networks:
   #     - cognix-network
-
-  
-  # *****************************
-  #         Milvus   
-  # *****************************
-  etcd:
-    container_name: milvus-etcd
-    image: quay.io/coreos/etcd:v3.5.0
+  api:
+    image: cognix:api
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: api
+      dockerfile: Dockerfile
     environment:
-      - ETCD_AUTO_COMPACTION_MODE=revision
-      - ETCD_AUTO_COMPACTION_RETENTION=1000
-      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      PORT: 8080
+      STORAGE_PATH: /storage_volume/data
+      UI_URL: http://localhost:8080/
+      MILVUS_URL: host.docker.internal:19530
+    ports:
+      - "8080:8080"
+    env_file:
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/minio.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/embedder.env
+      - ${CONFIG_PATH}/.env
     volumes:
-      - "../data/etcd:/etcd"
-    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+      - ${BACKEND_PATH}:/backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
-      - cognix-network
+      - service-network
 
+  orchestrator:
+    image: cognix:orchestrator
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: orchestrator
+      dockerfile: Dockerfile
+    env_file:
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/pulsar.env
+      - ${CONFIG_PATH}/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${BACKEND_PATH}:/backend
+    networks:
+      - service-network
+
+  connector:
+    image: cognix:connector
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: connector
+      dockerfile: Dockerfile
+    env_file:
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/.env
+    environment:
+      MILVUS_URL: host.docker.internal:19530
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${BACKEND_PATH}:/backend
+    networks:
+      - service-network
+
+  migration:
+    image: cognix:migration
+    build:
+      context: ${MIGRATION_PATH}
+      dockerfile: Dockerfile
+
+    volumes:
+      - ${MIGRATION_PATH}/versions:/versions
+    env_file:
+      - ${CONFIG_PATH}/cockroach.env
+    networks:
+      - service-network
+
+  # *****************************
+  #         MinIO   
+  # *****************************
   minio:
     container_name: milvus-minio
     image: minio/minio:RELEASE.2020-12-03T00-03-10Z
@@ -68,6 +132,23 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    networks:
+      - cognix-network
+  # *****************************
+  
+  # *****************************
+  #         Milvus   
+  # *****************************
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.0
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+    volumes:
+      - "../data/etcd:/etcd"
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     networks:
       - cognix-network
 

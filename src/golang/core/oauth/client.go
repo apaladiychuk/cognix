@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"cognix.ch/api/v2/core/model"
 	"context"
 	"fmt"
 	"golang.org/x/oauth2"
@@ -28,13 +27,14 @@ type (
 	}
 
 	IdentityResponse struct {
-		ID           string `json:"id"`
-		Email        string `json:"email"`
-		Name         string `json:"name"`
-		GivenName    string `json:"given_name"`
-		FamilyName   string `json:"family_name"`
-		AccessToken  string `json:"access_token"`
-		RefreshToken string `json:"refresh_token"`
+		ID           string        `json:"id"`
+		Email        string        `json:"email"`
+		Name         string        `json:"name"`
+		GivenName    string        `json:"given_name"`
+		FamilyName   string        `json:"family_name"`
+		AccessToken  string        `json:"access_token"`
+		RefreshToken string        `json:"refresh_token"`
+		Token        *oauth2.Token `json:"token,omitempty"`
 	}
 
 	Proxy interface {
@@ -44,14 +44,10 @@ type (
 	}
 )
 
-func NewProvider(name string, cred model.JSONMap) (Proxy, error) {
+func NewProvider(name string, cfg *Config) (Proxy, error) {
 	switch name {
 	case ProviderMicrosoft:
-		cfg := MicrosoftConfig{}
-		if err := cred.ToStruct(&cfg); err != nil {
-			return nil, err
-		}
-		return NewMicrosoft(&cfg), nil
+		return NewMicrosoft(cfg.Microsoft), nil
 	}
 	return nil, fmt.Errorf("unknown provider: %s", name)
 }

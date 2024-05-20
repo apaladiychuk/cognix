@@ -12,6 +12,6 @@ func Test_MicrosoftGetURL(t *testing.T) {
 	err := utils.ReadConfig(&cfg)
 	assert.NoError(t, err)
 	oauth := NewMicrosoft(&cfg)
-	url, err := oauth.GetAuthURL(context.Background(), "http://localhost:8080/api/oauth/microsoft/callback", "")
+	url, err := oauth.GetAuthURL(context.Background(), "http://localhost:8080/", "")
 	t.Log(url)
 }

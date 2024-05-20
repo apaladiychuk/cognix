@@ -2,7 +2,6 @@ package connector
 
 import (
 	"cognix.ch/api/v2/core/model"
-	"cognix.ch/api/v2/core/proto"
 	"context"
 	"fmt"
 	"github.com/gocolly/colly/v2"
@@ -38,7 +37,7 @@ func withContext(ctx context.Context, fn func(context.Context, *colly.HTMLElemen
 	}
 }
 
-func (c *Web) Execute(ctx context.Context, param map[string]string) chan *proto.ChunkingData {
+func (c *Web) Execute(ctx context.Context, param map[string]string) chan *Response {
 	//todo check if we need to rechunk content
 	// if it's new we need to start chunking
 	// if not we have to compare the entity with the one that we scanned before
@@ -89,9 +88,9 @@ func (c *Web) onBody(ctx context.Context, e *colly.HTMLElement) {
 	//signature := fmt.Sprintf("%x", sha256.Sum256([]byte(text)))
 	//docID := e.Request.URL.String()
 
-	c.resultCh <- &proto.ChunkingData{
-		Url:      e.Request.URL.String(),
-		FileType: proto.FileType_URL,
+	c.resultCh <- &Response{
+		URL:      e.Request.URL.String(),
+		MimeType: mineURL,
 	}
 
 }

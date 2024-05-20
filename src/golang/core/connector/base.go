@@ -7,25 +7,53 @@ import (
 	"context"
 )
 
-type Base struct {
-	model    *model.Connector
-	resultCh chan *proto.ChunkingData
+const mineURL = "url"
+
+var mimeTypeCross = map[string]proto.FileType{
+	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       proto.FileType_XLS,
+	"application/vnd.openxmlformats-officedocument.wordprocessingml.document": proto.FileType_DOC,
+	"application/pdf": proto.FileType_PDF,
+	"text/rtf":        proto.FileType_RTF,
 }
 
+type Base struct {
+	model    *model.Connector
+	resultCh chan *Response
+}
+type Response struct {
+	URL         string
+	SourceID    string
+	DocumentID  int64
+	Content     []byte
+	MimeType    string
+	SaveContent bool
+}
 type Connector interface {
-	Execute(ctx context.Context, param map[string]string) chan *proto.ChunkingData
+	Execute(ctx context.Context, param map[string]string) chan *Response
 }
 
 type Builder struct {
 	connectorRepo repository.ConnectorRepository
 }
 
+func (r *Response) GetType() proto.FileType {
+	switch r.MimeType {
+	case mineURL:
+		return proto.FileType_URL
+	}
+
+	if fileType, ok := mimeTypeCross[r.MimeType]; ok {
+		return fileType
+	}
+	return proto.FileType_URL
+}
+
 type nopConnector struct {
 	Base
 }
 
-func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *proto.ChunkingData {
-	ch := make(chan *proto.ChunkingData)
+func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *Response {
+	ch := make(chan *Response)
 	return ch
 }
 
@@ -42,6 +70,6 @@ func New(connectorModel *model.Connector) (Connector, error) {
 
 func (b *Base) Config(connector *model.Connector) {
 	b.model = connector
-	b.resultCh = make(chan *proto.ChunkingData, 10)
+	b.resultCh = make(chan *Response, 10)
 	return
 }

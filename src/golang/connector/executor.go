@@ -69,7 +69,10 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 
 	for result := range resultCh {
 		var loopErr error
-		doc := e.handleResult(ctx, connectorModel, result)
+		if result.SaveContent {
+			e.saveContent(ctx, result)
+		}
+		doc := e.handleResult(connectorModel, result)
 
 		if doc.ID.IntPart() != 0 {
 			loopErr = e.docRepo.Update(ctx, doc)
@@ -83,10 +86,13 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 			zap.S().Errorf("Failed to update document: %v", loopErr)
 			continue
 		}
-		result.DocumentId = doc.ID.IntPart()
 
 		if loopErr = e.msgClient.Publish(ctx, model.TopicChunking, &proto.Body{
-			Payload: &proto.Body_Chunking{Chunking: result},
+			Payload: &proto.Body_Chunking{Chunking: &proto.ChunkingData{
+				Url:        result.URL,
+				DocumentId: doc.ID.IntPart(),
+				FileType:   result.GetType(),
+			}},
 		}); loopErr != nil {
 			err = loopErr
 			doc.Status = model.StatusFailed
@@ -106,17 +112,21 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	return nil
 }
 
-func (e *Executor) handleResult(ctx context.Context, connectorModel *model.Connector, result *proto.ChunkingData) *model.Document {
-	doc, ok := connectorModel.DocsMap[result.GetUrl()]
+func (e *Executor) saveContent(ctx context.Context, response *connector.Response) {
+
+}
+
+func (e *Executor) handleResult(connectorModel *model.Connector, result *connector.Response) *model.Document {
+	doc, ok := connectorModel.DocsMap[result.URL]
 	if !ok {
 		doc = &model.Document{
-			DocumentID:  result.GetUrl(),
+			DocumentID:  result.URL,
 			ConnectorID: connectorModel.ID,
-			Link:        result.GetUrl(),
+			Link:        result.URL,
 			CreatedDate: time.Now().UTC(),
 			Status:      model.StatusInProgress,
 		}
-		connectorModel.DocsMap[result.GetUrl()] = doc
+		connectorModel.DocsMap[result.URL] = doc
 	}
 
 	doc.Status = model.StatusInProgress

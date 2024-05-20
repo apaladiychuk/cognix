@@ -44,7 +44,7 @@ var Module = fx.Options(
 		handler.NewTenantHandler,
 		handler.NewDocumentHandler,
 		handler.NewDocumentSetHandler,
-		handler.NewOAuthHandler,
+		newOauthHandler,
 	),
 	fx.Invoke(
 		MountRoute,
@@ -68,16 +68,18 @@ func MountRoute(param MountParams) error {
 }
 
 func newGoogleOauthProvider(cfg *Config) oauth.Proxy {
-	return oauth.NewGoogleProvider(cfg.OAuth, cfg.RedirectURL)
+	return oauth.NewGoogleProvider(cfg.OAuth.Google, cfg.RedirectURL)
 }
 func newJWTService(cfg *Config) security.JWTService {
 	return security.NewJWTService(cfg.JWTSecret, cfg.JWTExpiredTime)
 }
 
-//func newStorage(cfg *Config) (storage.Storage, error) {
-//	return storage.NewNutsDbStorage(cfg.StoragePath)
-//}
-
+//	func newStorage(cfg *Config) (storage.Storage, error) {
+//		return storage.NewNutsDbStorage(cfg.StoragePath)
+//	}
+func newOauthHandler(cfg *Config) *handler.OAuthHandler {
+	return handler.NewOAuthHandler(cfg.OAuth)
+}
 func NewRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(otelgin.Middleware("service-name"))

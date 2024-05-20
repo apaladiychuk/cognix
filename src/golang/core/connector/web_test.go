@@ -35,6 +35,6 @@ func TestWeb_Execute(t *testing.T) {
 		t.Logf("%s => %s ", url, history)
 	}
 	for res := range conn {
-		t.Log(res.Url)
+		t.Log(res.URL)
 	}
 }

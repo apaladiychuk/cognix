@@ -30,7 +30,7 @@ type MountParams struct {
 
 type Config struct {
 	DB             *repository.Config
-	OAuth          *oauth.GoogleConfig
+	OAuth          *oauth.Config
 	Debug          bool   `env:"DEBUG" envDefault:"false"`
 	Port           int    `env:"PORT" envDefault:"8080"`
 	StoragePath    string `env:"STORAGE_PATH"`
@@ -41,8 +41,11 @@ type Config struct {
 
 func ReadConfig() (*Config, error) {
 	cfg := &Config{
-		DB:    &repository.Config{},
-		OAuth: &oauth.GoogleConfig{},
+		DB: &repository.Config{},
+		OAuth: &oauth.Config{
+			Microsoft: &oauth.MicrosoftConfig{},
+			Google:    &oauth.GoogleConfig{},
+		},
 	}
 	err := env.Parse(cfg)
 	if err != nil {

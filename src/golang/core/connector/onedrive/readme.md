@@ -25,3 +25,20 @@ Locate the Advanced settings section and change the
 Allow public client flows toggle to Yes,
 
 then choose Save.
+
+### Create Azure application 
+
+- Go to the Azure App registrations page.  https://aka.ms/AppRegistrations/?referrer=https%3A%2F%2Fdev.onedrive.com 
+- When prompted, sign in with your account credentials.
+- Find My applications and click Add an app.
+- Enter your app's name and click Create application.
+
+
+#### open Permission  page 
+ - Click Application registration 
+   - Api permission page 
+       - ServiceActivity-OneDrive.Read.All
+       - offline_access
+   - Authentication 
+       - Add platform 
+         -  choose web and define redirect URL https://rag.cognix.ch/api/oauth/microsoft/callback

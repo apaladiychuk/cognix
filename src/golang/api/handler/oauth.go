@@ -1,17 +1,24 @@
 package handler
 
 import (
+	"cognix.ch/api/v2/core/oauth"
+	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/server"
+	"cognix.ch/api/v2/core/utils"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/oauth2"
 	"net/http"
 )
 
 // OAuthHandler  provide oauth authentication for  third part services
 type OAuthHandler struct {
+	oauthConfig *oauth.Config
 }
 
-func NewOAuthHandler() *OAuthHandler {
-	return &OAuthHandler{}
+func NewOAuthHandler(oauthConfig *oauth.Config) *OAuthHandler {
+	return &OAuthHandler{
+		oauthConfig: oauthConfig,
+	}
 }
 
 func (h *OAuthHandler) Mount(route *gin.Engine) {
@@ -23,17 +30,62 @@ func (h *OAuthHandler) Mount(route *gin.Engine) {
 }
 
 func (h *OAuthHandler) GetUrl(c *gin.Context) error {
-	return nil
+	provider := c.Param("provider")
+	var param parameters.LoginParam
+	if err := c.ShouldBindQuery(&param); err != nil {
+		return utils.ErrorBadRequest.Wrap(err, "wrong redirect url")
+	}
+
+	oauthClient, err := oauth.NewProvider(provider, h.oauthConfig)
+	if err != nil {
+		return utils.Internal.Wrap(err, "unknown provider")
+	}
+	url, err := oauthClient.GetAuthURL(c.Request.Context(), param.RedirectURL, "")
+	if err != nil {
+		return err
+	}
+	return server.JsonResult(c, http.StatusOK, url)
 }
 
 func (h *OAuthHandler) Callback(c *gin.Context) error {
 	provider := c.Param("provider")
 	query := make(map[string]string)
-	c.BindQuery(&query)
+	if err := c.BindQuery(&query); err != nil {
+		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
+	}
 
-	return server.JsonResult(c, http.StatusOK, c.Request.URL.String()+" ----- "+provider)
+	oauthClient, err := oauth.NewProvider(provider, h.oauthConfig)
+	if err != nil {
+		return utils.Internal.Wrap(err, "unknown provider")
+	}
+
+	//:= oauth.NewMicrosoft(&oauth.MicrosoftConfig{
+	//	ClientID:     "2216d453-5652-496f-ba09-da7459c454c5",
+	//	ClientSecret: "4x38Q~o7C616j.ccJktSLzqQO3wHIPE_XZ0LWcWe",
+	//})
+
+	result, err := oauthClient.ExchangeCode(c.Request.Context(), query["code"])
+	if err != nil {
+		return utils.ErrorPermission.New(err.Error())
+	}
+	return server.JsonResult(c, http.StatusOK, result)
 }
 
 func (h *OAuthHandler) Refresh(c *gin.Context) error {
-	return nil
+	provider := c.Param("provider")
+	var token oauth2.Token
+	if err := c.BindJSON(&token); err != nil {
+		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
+	}
+	oauthClient, err := oauth.NewProvider(provider, h.oauthConfig)
+	if err != nil {
+		return utils.Internal.Wrap(err, "unknown provider")
+	}
+
+	result, err := oauthClient.RefreshToken(&token)
+	if err != nil {
+		return utils.ErrorPermission.New(err.Error())
+	}
+	_ = provider
+	return server.JsonResult(c, http.StatusOK, result)
 }

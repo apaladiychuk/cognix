@@ -14,3 +14,6 @@ torch==2.3.0
 # #torchvision==2.3.0+cpu
 # #torchaudio==2.3.0+cpu
 #-f https://download.pytorch.org/whl/torch_stable.html
+webdriver-manager==4.0.1
+selenium==4.21.0
+beautifulsoup4==4.12.3

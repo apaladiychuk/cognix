@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import MessageCard from "./components/message-card";
 import { ChatMessage } from "@/models/chat";
 import { dataConverter } from "@/lib/utils";
+import MessageCard from "./components/message-card";
 
 interface MessagesListProps {
   messages: ChatMessage[];

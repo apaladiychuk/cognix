@@ -232,9 +232,13 @@ export function ChatComponent() {
         ) : (
           <MessagesList messages={messages} newMessage={newMessage} />
         )}
-        <ChatInput onSubmit={onHandleSubmit} textInputRef={textInputRef} isDeactivateSendingButton={isDeactivateSendingButton}/>
+        <ChatInput
+          onSubmit={onHandleSubmit}
+          textInputRef={textInputRef}
+          isDeactivateSendingButton={isDeactivateSendingButton}
+        />
       </div>
-      <div className="hidden lg:my-5 lg:w-2/5 xl:w-3/12 lg:flex lg:flex-col lg:bg-white lg:rounded-md lg:rounded-l-none lg:overflow-x-hidden lg:no-scrollbar">
+      <div className="hidden lg:my-8 lg:w-2/5 xl:w-3/12 lg:flex lg:flex-col lg:bg-white lg:rounded-md lg:rounded-l-none lg:overflow-x-hidden lg:no-scrollbar">
         <RetrievedKnowledge withHeader messages={messages} />
       </div>
     </div>

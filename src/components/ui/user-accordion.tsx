@@ -12,10 +12,10 @@ export const UserAccordion = () => {
   }
   return (
     <Button
-      className="absolute left-2 right-1 bottom-10 mt-2 w-45 bg-accent rounded-lg hover:bg-gray-700 flex items-center justify-start"
+      className="my-4 bg-transparent bottom-10 w-full bg-accent rounded-lg hover:bg-gray-700 flex items-center justify-start"
       onClick={logOut}
     >
-      <LogOutIcon className="h-3.5 w-3.5 mr-2" />
+      <LogOutIcon className="h-3.5 w-3.5 mx-2" />
       Log Out
     </Button>
   );

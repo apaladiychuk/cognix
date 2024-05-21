@@ -1,11 +1,17 @@
 import { MobileNavBar } from "@/components/ui/mobile-navbar";
 import { Navbar } from "@/components/ui/navbar";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
 export function ApplicationRoot() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const handleToggle = useCallback(
+    () => setIsUserMenuOpen((prev) => !prev),
+    [isUserMenuOpen]
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,6 +33,8 @@ export function ApplicationRoot() {
           {isMobile ? null : (
             <Navbar
               isSideBarOpen={isSidebarOpen}
+              isUserMenuOpen={isUserMenuOpen}
+              onToggle={handleToggle}
               setIsSideBarOpen={setSidebarOpen}
             />
           )}
@@ -40,12 +48,14 @@ export function ApplicationRoot() {
           {isMobile ? (
             <MobileNavBar
               isSideBarOpen={isSidebarOpen}
+              isUserMenuOpen={isUserMenuOpen}
+              onToggle={handleToggle}
               setIsSideBarOpen={setSidebarOpen}
             />
           ) : null}
         </div>
 
-        <div className="flex flex-col w-full flex-grow align-center justify-center bg-background lg:my-5 my-8 rounded-md">
+        <div className="flex flex-col w-full flex-grow align-center justify-center bg-background my-5 rounded-md">
           {localStorage.getItem("access_token") ? (
             <Outlet />
           ) : (

@@ -7,10 +7,13 @@ import { MobileSidebar } from "./mobile-sidebar";
 export interface SideBarProps {
   isSideBarOpen: boolean;
   setIsSideBarOpen: Dispatch<SetStateAction<boolean>>;
+  isUserMenuOpen: boolean;
+  onToggle: () => void;
 }
 
 export const MobileNavBar = memo(
-  ({ isSideBarOpen, setIsSideBarOpen }: SideBarProps) => {
+  ({ isSideBarOpen, setIsSideBarOpen,   isUserMenuOpen,
+    onToggle, }: SideBarProps) => {
     const [openModal, setOpenModal] = useState(false);
 
     if (isSideBarOpen) {
@@ -18,6 +21,8 @@ export const MobileNavBar = memo(
         <MobileSidebar
           setIsSideBarOpen={setIsSideBarOpen}
           isSideBarOpen={isSideBarOpen}
+          isUserMenuOpen={isUserMenuOpen}
+          onToggle={onToggle}
         />
       );
     }

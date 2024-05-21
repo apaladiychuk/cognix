@@ -1,10 +1,15 @@
 from chunker.gen_types.chunking_data_pb2 import ChunkingData, FileType
 from chunker.core.chunker_base import BaseChunker
-
-# Plaintext	.eml, .html, .md, .msg, .rst, .rtf, .txt, .xml
-# Documents	.csv, .doc, .docx, .epub, .odt, .pdf, .ppt, .pptx, .tsv, .xlsx
+import logging
 
 class PDFChunker(BaseChunker):
+    # def __init__(self):
+    #     super().__init__()
+
     def chunk(self, data: ChunkingData):
-        # Implement PDF chunking logic here
-        print(f"PDF Chunking not implemented")
+        try:
+            self.logger.info(f"PDFChunker not implemented started: {data.url}")
+            # Implement PDF chunking logic here
+            self.logger.info(f"PDFChunker finished: {data.url}")
+        except Exception as e:
+            self.logger.error(f"PDFChunker error Failed to process chunking data: {e}")

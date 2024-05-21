@@ -83,7 +83,8 @@ func (r *connectorRepository) GetByID(ctx context.Context, id int64) (*model.Con
 	var connector model.Connector
 	if err := r.db.WithContext(ctx).Model(&connector).
 		Relation("Docs").
-		Where("id = ?", id).
+		Relation("Credential").
+		Where("connector.id = ?", id).
 		First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "can not load connector")
 	}

@@ -90,6 +90,7 @@ func (c *Web) onBody(ctx context.Context, e *colly.HTMLElement) {
 
 	c.resultCh <- &Response{
 		URL:      e.Request.URL.String(),
+		SourceID: e.Request.URL.String(),
 		MimeType: mineURL,
 	}
 

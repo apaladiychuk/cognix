@@ -23,7 +23,6 @@ type Connector struct {
 	CredentialID            decimal.NullDecimal  `json:"credential_id,omitempty"`
 	Name                    string               `json:"name,omitempty"`
 	Source                  SourceType           `json:"source,omitempty"`
-	InputType               string               `json:"input_type,omitempty"`
 	ConnectorSpecificConfig JSONMap              `json:"connector_specific_config,omitempty"`
 	RefreshFreq             int                  `json:"refresh_freq,omitempty"`
 	UserID                  uuid.UUID            `json:"user_id,omitempty"`

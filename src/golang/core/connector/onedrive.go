@@ -10,7 +10,6 @@ import (
 
 	//"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
-	"golang.org/x/oauth2"
 	"time"
 )
 
@@ -30,8 +29,7 @@ type (
 		client *resty.Client
 	}
 	OneDriveParameters struct {
-		FolderName string        `json:"folder_name"`
-		Token      *oauth2.Token `json:"token"`
+		FolderName string `json:"folder_name"`
 	}
 )
 
@@ -61,15 +59,6 @@ type File struct {
 type Folder struct {
 	ChildCount int `json:"childCount"`
 }
-
-/*
-Owner     struct {
-		User struct {
-			Id          string `json:"id"`
-			DisplayName string `json:"displayName"`
-		} `json:"user"`
-	} `json:"owner"`
-*/
 
 func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *Response {
 	if len(c.model.DocsMap) == 0 {
@@ -105,7 +94,9 @@ func (c *OneDrive) getFile(ctx context.Context, item *DriveChildBody) error {
 	doc.Signature = item.File.Hashes.QuickXorHash
 	response, err := c.client.R().
 		SetContext(ctx).
-		SetHeader(authorizationHeader, fmt.Sprintf("%s %s", c.param.Token.TokenType, c.param.Token.AccessToken)).
+		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
+			c.model.Credential.CredentialJson.Token.TokenType,
+			c.model.Credential.CredentialJson.Token.AccessToken)).
 		Get(item.MicrosoftGraphDownloadUrl)
 	if err != nil || response.IsError() {
 		return fmt.Errorf("[%v] %v", err, response.Error())
@@ -113,6 +104,7 @@ func (c *OneDrive) getFile(ctx context.Context, item *DriveChildBody) error {
 	c.resultCh <- &Response{
 		URL:         "",
 		SourceID:    item.Id,
+		Name:        item.Name,
 		DocumentID:  doc.ID.IntPart(),
 		Content:     response.Body(),
 		MimeType:    item.File.MimeType,
@@ -138,6 +130,7 @@ func (c *OneDrive) handleItems(ctx context.Context, items []*DriveChildBody) err
 			}
 		}
 		if item.File != nil {
+
 			if err := c.getFile(ctx, item); err != nil {
 				zap.S().Errorf("Failed to get file content with id %s : %s ", item.Id, err.Error())
 				continue
@@ -150,7 +143,9 @@ func (c *OneDrive) handleItems(ctx context.Context, items []*DriveChildBody) err
 func (c *OneDrive) request(ctx context.Context, url string) (*GetDriveResponse, error) {
 	response, err := c.client.R().
 		SetContext(ctx).
-		SetHeader(authorizationHeader, fmt.Sprintf("%s %s", c.param.Token.TokenType, c.param.Token.AccessToken)).
+		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
+			c.model.Credential.CredentialJson.Token.TokenType,
+			c.model.Credential.CredentialJson.Token.AccessToken)).
 		Get(url)
 	if err != nil || response.IsError() {
 		zap.S().Errorw("Error executing OneDrive", "error", err, "response", response)

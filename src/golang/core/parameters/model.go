@@ -40,9 +40,9 @@ type GetAllCredentialsParam struct {
 }
 
 type CreateCredentialParam struct {
-	Source         string        `json:"source"`
-	Shared         bool          `json:"shared"`
-	CredentialJson model.JSONMap `json:"credential_json"`
+	Source         string                `json:"source"`
+	Shared         bool                  `json:"shared"`
+	CredentialJson *model.CredentialJson `json:"credential_json"`
 }
 
 func (v CreateCredentialParam) Validate() error {
@@ -57,15 +57,14 @@ func (v CreateCredentialParam) Validate() error {
 }
 
 type UpdateCredentialParam struct {
-	Shared         bool          `json:"shared"`
-	CredentialJson model.JSONMap `json:"credential_json"`
+	Shared         bool                  `json:"shared"`
+	CredentialJson *model.CredentialJson `json:"credential_json"`
 }
 
 type CreateConnectorParam struct {
 	CredentialID            decimal.NullDecimal `json:"credential_id,omitempty"`
 	Name                    string              `json:"name,omitempty"`
 	Source                  string              `json:"source,omitempty"`
-	InputType               string              `json:"input_type,omitempty"`
 	ConnectorSpecificConfig model.JSONMap       `json:"connector_specific_config,omitempty"`
 	RefreshFreq             int                 `json:"refresh_freq,omitempty"`
 	Shared                  bool                `json:"shared,omitempty"`
@@ -86,7 +85,6 @@ func (v CreateConnectorParam) Validate() error {
 type UpdateConnectorParam struct {
 	CredentialID            decimal.NullDecimal `json:"credential_id,omitempty"`
 	Name                    string              `json:"name,omitempty"`
-	InputType               string              `json:"input_type,omitempty"`
 	ConnectorSpecificConfig model.JSONMap       `json:"connector_specific_config,omitempty"`
 	RefreshFreq             int                 `json:"refresh_freq,omitempty"`
 	Shared                  bool                `json:"shared,omitempty"`

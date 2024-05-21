@@ -1362,7 +1362,7 @@ const docTemplate = `{
                 "citations": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/model.DocumentResponse"
                     }
                 },
                 "error": {
@@ -1461,6 +1461,9 @@ const docTemplate = `{
                 "created_date": {
                     "type": "string"
                 },
+                "credential": {
+                    "$ref": "#/definitions/model.Credential"
+                },
                 "credential_id": {
                     "$ref": "#/definitions/decimal.NullDecimal"
                 },
@@ -1469,6 +1472,18 @@ const docTemplate = `{
                 },
                 "disabled": {
                     "type": "boolean"
+                },
+                "docs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Document"
+                    }
+                },
+                "docs_map": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/model.Document"
+                    }
                 },
                 "id": {
                     "type": "number"
@@ -1521,7 +1536,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "credential_json": {
-                    "$ref": "#/definitions/model.JSONMap"
+                    "$ref": "#/definitions/model.CredentialJson"
                 },
                 "deleted_date": {
                     "$ref": "#/definitions/pg.NullTime"
@@ -1542,6 +1557,78 @@ const docTemplate = `{
                     "$ref": "#/definitions/pg.NullTime"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CredentialJson": {
+            "type": "object",
+            "properties": {
+                "custom": {
+                    "$ref": "#/definitions/model.JSONMap"
+                },
+                "provider": {
+                    "type": "integer"
+                },
+                "token": {
+                    "$ref": "#/definitions/oauth2.Token"
+                }
+            }
+        },
+        "model.Document": {
+            "type": "object",
+            "properties": {
+                "connector_id": {
+                    "type": "number"
+                },
+                "created_date": {
+                    "type": "string"
+                },
+                "deleted_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "number"
+                },
+                "link": {
+                    "description": "Boost            int             ` + "`" + `json:\"boost,omitempty\" pg:\",use_zero\"` + "`" + `\nHidden           bool            ` + "`" + `json:\"hidden,omitempty\" pg:\",use_zero\"` + "`" + `\nSemanticID       string          ` + "`" + `json:\"semantic_id,omitempty\" pg:\",use_zero\"` + "`" + `",
+                    "type": "string"
+                },
+                "signature": {
+                    "description": "FromIngestionAPI bool            ` + "`" + `json:\"from_ingestion_api,omitempty\" pg:\",use_zero\"` + "`" + `",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "IsExists         bool            ` + "`" + `json:\"is_exists,omitempty\" pg:\"-\"` + "`" + `\nIsUpdated        bool            ` + "`" + `json:\"is_updates,omitempty\" pg:\"-\"` + "`" + `",
+                    "type": "string"
+                },
+                "updated_date": {
+                    "$ref": "#/definitions/pg.NullTime"
+                }
+            }
+        },
+        "model.DocumentResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "number"
+                },
+                "link": {
+                    "type": "string"
+                },
+                "message_id": {
+                    "type": "number"
+                },
+                "updated_date": {
                     "type": "string"
                 }
             }
@@ -1809,6 +1896,7 @@ const docTemplate = `{
                 "zendesk",
                 "loopio",
                 "sharepoint",
+                "one-drive",
                 "msteams"
             ],
             "x-enum-varnames": [
@@ -1837,6 +1925,7 @@ const docTemplate = `{
                 "SourceTypeZendesk",
                 "SourceTypeLoopio",
                 "SourceTypeSharepoint",
+                "SourceTypeOneDrive",
                 "SourceTypeMsTeams"
             ]
         },
@@ -1897,6 +1986,27 @@ const docTemplate = `{
                 }
             }
         },
+        "oauth2.Token": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "description": "AccessToken is the token that authorizes and authenticates\nthe requests.",
+                    "type": "string"
+                },
+                "expiry": {
+                    "description": "Expiry is the optional expiration time of the access token.\n\nIf zero, TokenSource implementations will reuse the same\ntoken forever and RefreshToken or equivalent\nmechanisms for that TokenSource will not be used.",
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "description": "RefreshToken is a token that's used by the application\n(as opposed to the user) to refresh the access token\nif it expires.",
+                    "type": "string"
+                },
+                "token_type": {
+                    "description": "TokenType is the type of token.\nThe Type method returns either this or \"Bearer\", the default.",
+                    "type": "string"
+                }
+            }
+        },
         "parameters.AddUserParam": {
             "type": "object",
             "properties": {
@@ -1904,32 +2014,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
-                    "type": "string"
-                }
-            }
-        },
-        "parameters.BaseFilters": {
-            "type": "object",
-            "properties": {
-                "document_set": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "source_type": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.SourceType"
-                    }
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "time_cutoff": {
                     "type": "string"
                 }
             }
@@ -1953,10 +2037,8 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "query_override": {
+                    "description": "RetrievalOptions RetrievalDetails  ` + "`" + `json:\"retrieval_options,omitempty\"` + "`" + `",
                     "type": "string"
-                },
-                "retrieval_options": {
-                    "$ref": "#/definitions/parameters.RetrievalDetails"
                 },
                 "search_doc_ids": {
                     "type": "array",
@@ -2013,7 +2095,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "credential_json": {
-                    "$ref": "#/definitions/model.JSONMap"
+                    "$ref": "#/definitions/model.CredentialJson"
                 },
                 "shared": {
                     "type": "boolean"
@@ -2120,29 +2202,6 @@ const docTemplate = `{
                 }
             }
         },
-        "parameters.RetrievalDetails": {
-            "type": "object",
-            "properties": {
-                "enable_auto_detect_filters": {
-                    "type": "boolean"
-                },
-                "filters": {
-                    "$ref": "#/definitions/parameters.BaseFilters"
-                },
-                "limit": {
-                    "type": "integer"
-                },
-                "offset": {
-                    "type": "integer"
-                },
-                "real_time": {
-                    "type": "boolean"
-                },
-                "run_search": {
-                    "type": "string"
-                }
-            }
-        },
         "parameters.StarterMessage": {
             "type": "object",
             "properties": {
@@ -2187,7 +2246,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "credential_json": {
-                    "$ref": "#/definitions/model.JSONMap"
+                    "$ref": "#/definitions/model.CredentialJson"
                 },
                 "shared": {
                     "type": "boolean"

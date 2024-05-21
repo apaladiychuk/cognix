@@ -5,14 +5,15 @@ option go_package = "golang/core/proto;proto";
 
 
 enum FileType {
-  URL = 0;
-  PDF = 1;
-  RTF = 2;
-  DOC = 3;
-  XLS = 4;
-  PPT = 5;
-  TXT = 6;
-  MD = 7;
+  UNKNOWN = 0;
+  URL = 1;
+  PDF = 2;
+  RTF = 3;
+  DOC = 4;
+  XLS = 5;
+  PPT = 6;
+  TXT = 7;
+  MD  = 8;
   // add all supported file that in another document
   // check what with Google docs
 };
@@ -26,4 +27,5 @@ message ChunkingData {
   bool search_for_sitemap = 3;
   int64  document_id = 4;
   FileType file_type = 5;
+  string collection_name = 6;
 }

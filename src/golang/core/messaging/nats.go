@@ -3,7 +3,7 @@ package messaging
 import (
 	"cognix.ch/api/v2/core/proto"
 	"context"
-	"encoding/json"
+	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 	"sync"
@@ -45,7 +45,7 @@ func (c *client) Listen(ctx context.Context, topic, subscriptionName string, han
 	subscription, err := c.conn.Subscribe(topic,
 		func(msg *nats.Msg) {
 			var message proto.Message
-			if err := json.Unmarshal(msg.Data, &message); err != nil {
+			if err := proto2.Unmarshal(msg.Data, &message); err != nil {
 				zap.S().Errorf("Error unmarshalling message: %s", string(msg.Data))
 				return
 			}

@@ -9,7 +9,7 @@ import (
 
 const mineURL = "url"
 
-var mimeTypeCross = map[string]proto.FileType{
+var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       proto.FileType_XLS,
 	"application/vnd.openxmlformats-officedocument.wordprocessingml.document": proto.FileType_DOC,
 	"application/pdf": proto.FileType_PDF,
@@ -22,6 +22,7 @@ type Base struct {
 }
 type Response struct {
 	URL         string
+	Name        string
 	SourceID    string
 	DocumentID  int64
 	Content     []byte
@@ -42,7 +43,7 @@ func (r *Response) GetType() proto.FileType {
 		return proto.FileType_URL
 	}
 
-	if fileType, ok := mimeTypeCross[r.MimeType]; ok {
+	if fileType, ok := supportedMimeTypes[r.MimeType]; ok {
 		return fileType
 	}
 	return proto.FileType_URL

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
@@ -9,7 +10,9 @@ import (
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/go-resty/resty/v2"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
@@ -17,11 +20,13 @@ import (
 )
 
 type Executor struct {
-	connectorRepo repository.ConnectorRepository
-	docRepo       repository.DocumentRepository
-	msgClient     messaging.Client
-	chunking      ai.Chunking
-	milvusClinet  storage.MilvusClient
+	connectorRepo  repository.ConnectorRepository
+	credentialRepo repository.CredentialRepository
+	docRepo        repository.DocumentRepository
+	msgClient      messaging.Client
+	chunking       ai.Chunking
+	minioClient    storage.MinIOClient
+	oauthClient    *resty.Client
 }
 
 func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task messaging.MessageHandler) {
@@ -29,17 +34,6 @@ func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task
 		zap.S().Errorf("failed to listen[%s]: %v", topic, err)
 	}
 	return
-}
-
-func (e *Executor) runEmbedding(ctx context.Context, msg *proto.Message) error {
-	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
-	payload := msg.GetBody().GetChunking()
-	if payload == nil {
-		zap.S().Errorf("Failed to get embedding payload")
-		return nil
-	}
-
-	return nil
 }
 
 func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
@@ -53,24 +47,31 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	if err != nil {
 		return err
 	}
+	// refresh token if needed
+	if err = e.refreshToken(ctx, connectorModel); err != nil {
+		return err
+	}
+
 	// todo move to connector
 	if err = e.connectorRepo.InvalidateConnector(ctx, connectorModel); err != nil {
 		return err
 	}
+	// create new instance of connector by connector model
 	connectorWF, err := connector.New(connectorModel)
 	if err != nil {
 		return err
 	}
+	// execute connector
 	resultCh := connectorWF.Execute(ctx, trigger.Params)
-
-	if err = e.milvusClinet.CreateSchema(ctx, connectorModel.CollectionName()); err != nil {
-		return fmt.Errorf("error creating schema: %v", err)
-	}
-
+	// read result from channel
 	for result := range resultCh {
 		var loopErr error
+		// save content in minio
 		if result.SaveContent {
-			e.saveContent(ctx, result)
+			if err = e.saveContent(ctx, result); err != nil {
+				loopErr = err
+				zap.S().Errorf("failed to save content: %v", err)
+			}
 		}
 		doc := e.handleResult(connectorModel, result)
 
@@ -89,9 +90,10 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 
 		if loopErr = e.msgClient.Publish(ctx, model.TopicChunking, &proto.Body{
 			Payload: &proto.Body_Chunking{Chunking: &proto.ChunkingData{
-				Url:        result.URL,
-				DocumentId: doc.ID.IntPart(),
-				FileType:   result.GetType(),
+				Url:            result.URL,
+				DocumentId:     doc.ID.IntPart(),
+				FileType:       result.GetType(),
+				CollectionName: connectorModel.CollectionName(),
 			}},
 		}); loopErr != nil {
 			err = loopErr
@@ -112,15 +114,21 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	return nil
 }
 
-func (e *Executor) saveContent(ctx context.Context, response *connector.Response) {
-
+func (e *Executor) saveContent(ctx context.Context, response *connector.Response) error {
+	url, _, err := e.minioClient.Upload(ctx, response.Name, response.MimeType, bytes.NewBuffer(response.Content))
+	if err != nil {
+		zap.S().Errorf("Failed to upload file: %v", err)
+		return err
+	}
+	response.URL = url
+	return nil
 }
 
 func (e *Executor) handleResult(connectorModel *model.Connector, result *connector.Response) *model.Document {
 	doc, ok := connectorModel.DocsMap[result.URL]
 	if !ok {
 		doc = &model.Document{
-			DocumentID:  result.URL,
+			DocumentID:  result.SourceID,
 			ConnectorID: connectorModel.ID,
 			Link:        result.URL,
 			CreatedDate: time.Now().UTC(),
@@ -134,17 +142,41 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 	return doc
 }
 
+// refreshToken  refresh OAuth token and store credential in database
+func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
+	if cm.Credential == nil || cm.Credential.CredentialJson.Provider == model.ProviderCustom {
+		return nil
+	}
+	response, err := e.oauthClient.R().SetContext(ctx).
+		SetBody(cm.Credential.CredentialJson.Token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", cm.Credential.CredentialJson.Provider))
+
+	if err != nil || response.IsError() {
+		return fmt.Errorf("failed to refresh token: %v : %v", err, response.Error())
+	}
+	if err = json.Unmarshal(response.Body(), cm.Credential.CredentialJson.Token); err != nil {
+		return fmt.Errorf("failed to unmarshl token: %v : %v", err, response.Error())
+	}
+	if err = e.credentialRepo.Update(ctx, cm.Credential); err != nil {
+		return err
+	}
+	return nil
+}
+
 func NewExecutor(connectorRepo repository.ConnectorRepository,
+	credentialRepo repository.CredentialRepository,
 	docRepo repository.DocumentRepository,
 	streamClient messaging.Client,
 	chunking ai.Chunking,
-	milvusClinet storage.MilvusClient,
+	minioClient storage.MinIOClient,
+	oauthClient *resty.Client,
 ) *Executor {
 	return &Executor{
-		connectorRepo: connectorRepo,
-		docRepo:       docRepo,
-		msgClient:     streamClient,
-		chunking:      chunking,
-		milvusClinet:  milvusClinet,
+		connectorRepo:  connectorRepo,
+		credentialRepo: credentialRepo,
+		docRepo:        docRepo,
+		msgClient:      streamClient,
+		chunking:       chunking,
+		minioClient:    minioClient,
+		oauthClient:    oauthClient,
 	}
 }

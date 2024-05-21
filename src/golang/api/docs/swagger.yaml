@@ -13,7 +13,7 @@ definitions:
         type: number
       citations:
         items:
-          type: integer
+          $ref: '#/definitions/model.DocumentResponse'
         type: array
       error:
         type: string
@@ -78,12 +78,22 @@ definitions:
         $ref: '#/definitions/model.JSONMap'
       created_date:
         type: string
+      credential:
+        $ref: '#/definitions/model.Credential'
       credential_id:
         $ref: '#/definitions/decimal.NullDecimal'
       deleted_date:
         $ref: '#/definitions/pg.NullTime'
       disabled:
         type: boolean
+      docs:
+        items:
+          $ref: '#/definitions/model.Document'
+        type: array
+      docs_map:
+        additionalProperties:
+          $ref: '#/definitions/model.Document'
+        type: object
       id:
         type: number
       input_type:
@@ -118,7 +128,7 @@ definitions:
       created_date:
         type: string
       credential_json:
-        $ref: '#/definitions/model.JSONMap'
+        $ref: '#/definitions/model.CredentialJson'
       deleted_date:
         $ref: '#/definitions/pg.NullTime'
       id:
@@ -132,6 +142,60 @@ definitions:
       updated_date:
         $ref: '#/definitions/pg.NullTime'
       user_id:
+        type: string
+    type: object
+  model.CredentialJson:
+    properties:
+      custom:
+        $ref: '#/definitions/model.JSONMap'
+      provider:
+        type: integer
+      token:
+        $ref: '#/definitions/oauth2.Token'
+    type: object
+  model.Document:
+    properties:
+      connector_id:
+        type: number
+      created_date:
+        type: string
+      deleted_date:
+        $ref: '#/definitions/pg.NullTime'
+      document_id:
+        type: string
+      id:
+        type: number
+      link:
+        description: |-
+          Boost            int             `json:"boost,omitempty" pg:",use_zero"`
+          Hidden           bool            `json:"hidden,omitempty" pg:",use_zero"`
+          SemanticID       string          `json:"semantic_id,omitempty" pg:",use_zero"`
+        type: string
+      signature:
+        description: FromIngestionAPI bool            `json:"from_ingestion_api,omitempty"
+          pg:",use_zero"`
+        type: string
+      status:
+        description: |-
+          IsExists         bool            `json:"is_exists,omitempty" pg:"-"`
+          IsUpdated        bool            `json:"is_updates,omitempty" pg:"-"`
+        type: string
+      updated_date:
+        $ref: '#/definitions/pg.NullTime'
+    type: object
+  model.DocumentResponse:
+    properties:
+      content:
+        type: string
+      document_id:
+        type: string
+      id:
+        type: number
+      link:
+        type: string
+      message_id:
+        type: number
+      updated_date:
         type: string
     type: object
   model.DocumentSet:
@@ -316,6 +380,7 @@ definitions:
     - zendesk
     - loopio
     - sharepoint
+    - one-drive
     - msteams
     type: string
     x-enum-varnames:
@@ -344,6 +409,7 @@ definitions:
     - SourceTypeZendesk
     - SourceTypeLoopio
     - SourceTypeSharepoint
+    - SourceTypeOneDrive
     - SourceTypeMsTeams
   model.SourceTypeDescription:
     properties:
@@ -382,28 +448,38 @@ definitions:
       user_name:
         type: string
     type: object
+  oauth2.Token:
+    properties:
+      access_token:
+        description: |-
+          AccessToken is the token that authorizes and authenticates
+          the requests.
+        type: string
+      expiry:
+        description: |-
+          Expiry is the optional expiration time of the access token.
+
+          If zero, TokenSource implementations will reuse the same
+          token forever and RefreshToken or equivalent
+          mechanisms for that TokenSource will not be used.
+        type: string
+      refresh_token:
+        description: |-
+          RefreshToken is a token that's used by the application
+          (as opposed to the user) to refresh the access token
+          if it expires.
+        type: string
+      token_type:
+        description: |-
+          TokenType is the type of token.
+          The Type method returns either this or "Bearer", the default.
+        type: string
+    type: object
   parameters.AddUserParam:
     properties:
       email:
         type: string
       role:
-        type: string
-    type: object
-  parameters.BaseFilters:
-    properties:
-      document_set:
-        items:
-          type: string
-        type: array
-      source_type:
-        items:
-          $ref: '#/definitions/model.SourceType'
-        type: array
-      tags:
-        items:
-          type: string
-        type: array
-      time_cutoff:
         type: string
     type: object
   parameters.CreateChatMessageRequest:
@@ -419,9 +495,8 @@ definitions:
       prompt_id:
         type: number
       query_override:
+        description: RetrievalOptions RetrievalDetails  `json:"retrieval_options,omitempty"`
         type: string
-      retrieval_options:
-        $ref: '#/definitions/parameters.RetrievalDetails'
       search_doc_ids:
         items:
           type: number
@@ -458,7 +533,7 @@ definitions:
   parameters.CreateCredentialParam:
     properties:
       credential_json:
-        $ref: '#/definitions/model.JSONMap'
+        $ref: '#/definitions/model.CredentialJson'
       shared:
         type: boolean
       source:
@@ -527,21 +602,6 @@ definitions:
       url:
         type: string
     type: object
-  parameters.RetrievalDetails:
-    properties:
-      enable_auto_detect_filters:
-        type: boolean
-      filters:
-        $ref: '#/definitions/parameters.BaseFilters'
-      limit:
-        type: integer
-      offset:
-        type: integer
-      real_time:
-        type: boolean
-      run_search:
-        type: string
-    type: object
   parameters.StarterMessage:
     properties:
       description:
@@ -571,7 +631,7 @@ definitions:
   parameters.UpdateCredentialParam:
     properties:
       credential_json:
-        $ref: '#/definitions/model.JSONMap'
+        $ref: '#/definitions/model.CredentialJson'
       shared:
         type: boolean
     type: object

@@ -65,7 +65,6 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 		CredentialID:            param.CredentialID,
 		Name:                    param.Name,
 		Source:                  model.SourceType(param.Source),
-		InputType:               param.InputType,
 		ConnectorSpecificConfig: param.ConnectorSpecificConfig,
 		RefreshFreq:             param.RefreshFreq,
 		UserID:                  user.ID,
@@ -111,7 +110,6 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 	conn.ConnectorSpecificConfig = param.ConnectorSpecificConfig
 	conn.CredentialID = param.CredentialID
 	conn.Name = param.Name
-	conn.InputType = param.InputType
 	conn.RefreshFreq = param.RefreshFreq
 	conn.Shared = param.Shared
 	conn.Disabled = param.Disabled

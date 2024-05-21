@@ -11,7 +11,7 @@ export const Card: React.FC<CardProps> = memo(
   ({ title, text, selected, onClick }) => {
     return (
       <div
-        className={`p-4 bg-white rounded-lg shadow-md cursor-pointer ${
+        className={`w-80 p-4 bg-white rounded-lg shadow-md cursor-pointer ${
           selected ? "border-2 border-primary" : ""
         }`}
         onClick={onClick}

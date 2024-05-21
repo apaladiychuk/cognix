@@ -46,9 +46,8 @@ const DocumentCard: React.FC<DocumentProps> = ({
           </div>
         </div>
       </div>
-      <div className="p-2 ml-3 w-full">
+      <div className="p-2 -ml-2 w-full">
         <div className="-mt-6 text-muted-foreground break-all">{content}</div>
-        <div className="flex mt-5 space-x-3 text-muted"></div>
       </div>
     </div>
   );

@@ -14,11 +14,15 @@ import { Sidebar } from "./sidebar";
 export interface SideBarProps {
   isSideBarOpen: boolean;
   setIsSideBarOpen: Dispatch<SetStateAction<boolean>>;
+  isUserMenuOpen: boolean;
+  onToggle: () => void;
 }
 
 const Navbar: React.FC<SideBarProps> = ({
   isSideBarOpen,
   setIsSideBarOpen,
+  isUserMenuOpen,
+  onToggle,
 }) => {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -29,6 +33,8 @@ const Navbar: React.FC<SideBarProps> = ({
       <Sidebar
         isSideBarOpen={isSideBarOpen}
         setIsSideBarOpen={setIsSideBarOpen}
+        isUserMenuOpen={isUserMenuOpen}
+        onToggle={onToggle}
       />
     );
   }
@@ -80,10 +86,10 @@ const Navbar: React.FC<SideBarProps> = ({
           {chats.slice(0, 4).map((chat) => (
             <NavLink
               key={chat.id}
-              to={`/${chat.id}`}
+              to={`/chat/${chat.id}`}
               className="flex flex-row items-center"
             >
-              <span className="text-clip">{chat.description}</span>
+              <span className="text-ellipsis overflow-hidden">{chat.description.substring(0, 6)}</span>
             </NavLink>
           ))}
         </div>

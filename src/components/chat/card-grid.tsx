@@ -12,7 +12,7 @@ interface Props {
 export const CardGrid = memo(
   ({ chunkArray, personas, selectedPersona, setSelectedPersona }: Props) => {
     return (
-      <div className="container mx-auto p-4">
+      <div className="max-w-3xl flex justify-center items-center container mx-auto p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           {chunkArray(personas, 2).map((chunk, chunkIndex) => (
             <React.Fragment key={chunkIndex}>

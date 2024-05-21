@@ -1,6 +1,6 @@
 import asyncio
 from nats.aio.client import Client as NATS
-import chunking_data_pb2  # Assuming the protobuf is compiled and named chunking_data_pb2.py
+from chunker.gen_types.chunking_data_pb2 import ChunkingData, FileType 
 from nats.errors import TimeoutError, NoRespondersError
 
 class JetStreamPublisher:
@@ -46,12 +46,12 @@ async def main():
     await publisher.connect()
 
     # Create a fake ChunkingData message
-    chunking_data = chunking_data_pb2.ChunkingData(
-        url="https://pippo.com/file.pdf",
-        site_map="https://pippo.com/sitemap.xml",
+    chunking_data = ChunkingData(
+        url="https://help.collaboard.app/working-with-collaboard",
+        site_map="",
         search_for_sitemap=True,
-        document_id=123456789,
-        file_type=chunking_data_pb2.FileType.PDF
+        document_id=993456789,
+        file_type=FileType.URL
     )
 
     # Publish the message

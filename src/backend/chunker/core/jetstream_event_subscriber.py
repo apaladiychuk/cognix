@@ -35,11 +35,11 @@ class JetStreamEventSubscriber:
             ack_wait=4 * 60 * 60,  # 4 hours in seconds
             max_deliver=3,
             ack_policy=AckPolicy.EXPLICIT,
-            deliver_policy= DeliverPolicy.ALL,
+            deliver_policy= DeliverPolicy.NEW,
         )
 
         # for dev purposes only
-        # # Delete the existing consumer if it exists
+        # Delete the existing consumer if it exists
         # try:
         #     await self.js.delete_consumer("connector", "durable_chunkdata")
         #     print("Deleted existing consumer")

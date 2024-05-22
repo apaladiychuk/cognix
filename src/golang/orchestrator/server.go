@@ -6,31 +6,49 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
+	"github.com/go-co-op/gocron/v2"
 	"go.uber.org/zap"
+	"time"
 )
 
 type Server struct {
+	renewInterval   time.Duration
 	connectorRepo   repository.ConnectorRepository
 	messenger       messaging.Client
 	scheduleTrigger Trigger
+	scheduler       gocron.Scheduler
 }
 
-func NewServer(connectorRepo repository.ConnectorRepository,
+func NewServer(
+	cfg *Config,
+	connectorRepo repository.ConnectorRepository,
 	messenger messaging.Client,
-	scheduleTrigger Trigger) *Server {
+	scheduleTrigger Trigger) (*Server, error) {
+	s, err := gocron.NewScheduler()
+	if err != nil {
+		return nil, err
+	}
+
 	return &Server{connectorRepo: connectorRepo,
+		renewInterval:   time.Duration(cfg.RenewInterval) * time.Minute,
 		messenger:       messenger,
-		scheduleTrigger: scheduleTrigger}
+		scheduler:       s,
+		scheduleTrigger: scheduleTrigger}, nil
 }
 
 func (s *Server) run(ctx context.Context) error {
-
+	zap.S().Infof("Schedule reload task")
+	if err := s.schedule(); err != nil {
+		return err
+	}
 	zap.S().Infof("Start listener ...")
 	go s.listen(context.Background())
 	return nil
 }
 
-func (s *Server) onStart(ctx context.Context) error {
+// loadFromDatabase load connectors from database and run if needed
+func (s *Server) loadFromDatabase() error {
+	ctx := context.Background()
 	connectors, err := s.connectorRepo.GetActive(ctx)
 	if err != nil {
 		return err
@@ -43,9 +61,24 @@ func (s *Server) onStart(ctx context.Context) error {
 	return nil
 }
 
+func (s *Server) schedule() error {
+	_, err := s.scheduler.NewJob(
+		gocron.DurationJob(s.renewInterval),
+		gocron.NewTask(s.loadFromDatabase),
+		gocron.WithName("reload from database"),
+	)
+	if err != nil {
+		return err
+	}
+	s.scheduler.Start()
+	return nil
+
+}
+
+// listen nats channel with updated connectors
 func (s *Server) listen(ctx context.Context) {
 
-	if err := s.onStart(ctx); err != nil {
+	if err := s.loadFromDatabase(); err != nil {
 		return
 	}
 	if err := s.messenger.Listen(ctx, model.TopicUpdateConnector, model.SubscriptionOrchestrator, s.handleTriggerRequest); err != nil {

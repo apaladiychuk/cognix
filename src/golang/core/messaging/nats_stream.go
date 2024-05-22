@@ -36,15 +36,18 @@ func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Bo
 	}
 	// todo here we must define
 	pubAck, err := c.stream.Publish(fmt.Sprintf("%s.%s", c.connectorStreamName, topic), message)
+	//,
+	//		nats.AckWait(time.Minute*2)
 	if err != nil {
 		return err
 	}
-	zap.S().Infof("Published message with ack: %s", pubAck.Domain)
+	zap.S().Infof("Published message with ack: %s - %s - %d %v", pubAck.Stream, pubAck.Domain, pubAck.Sequence, pubAck.Duplicate)
 	return nil
 }
 
 func (c *clientStream) Listen(ctx context.Context, topic, subscriptionName string, handler MessageHandler) error {
-	subscription, err := c.conn.Subscribe(topic,
+
+	subscription, err := c.conn.QueueSubscribe(fmt.Sprintf("%s.%s", c.connectorStreamName, topic), "connector",
 		func(msg *nats.Msg) {
 			var message proto.Message
 			if err := proto2.Unmarshal(msg.Data, &message); err != nil {

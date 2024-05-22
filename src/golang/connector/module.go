@@ -21,7 +21,6 @@ type Config struct {
 var Module = fx.Options(
 	repository.DatabaseModule,
 	messaging.NatsModule,
-	storage.MilvusModule,
 	storage.MinioModule,
 	ai.ChunkingModule,
 	fx.Provide(

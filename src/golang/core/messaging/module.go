@@ -61,7 +61,7 @@ var NatsModule = fx.Options(
 )
 
 func NewClient(cfg *Config) (Client, error) {
-	return newNatsClient(cfg.Nats)
+	return NewClientStream(cfg.Nats)
 	//switch cfg.Provider {
 	//case providerNats:
 	//	return NewClientStream(cfg.Nats)

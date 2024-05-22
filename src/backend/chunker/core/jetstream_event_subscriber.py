@@ -41,11 +41,11 @@ class JetStreamEventSubscriber:
 
         # for dev purposes only
         # Delete the existing consumer if it exists
-        try:
-            await self.js.delete_consumer("connector", "durable_chunkdata")
-            print("Deleted existing consumer")
-        except NotFoundError:
-            print("Consumer does not exist, no need to delete")
+        # try:
+        #     await self.js.delete_consumer("connector", "durable_chunkdata")
+        #     print("Deleted existing consumer")
+        # except NotFoundError:
+        #     print("Consumer does not exist, no need to delete")
 
         # Check if the consumer exists
         try:

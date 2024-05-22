@@ -2,8 +2,8 @@ import asyncio
 import nats
 from nats.errors import TimeoutError
 from nats.aio.msg import Msg
-from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy, RetentionPolicy
 import logging
+from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy, RetentionPolicy
 from nats.js.errors import NotFoundError, BadRequestError
 
 # Configure logging
@@ -30,48 +30,44 @@ async def main():
                 logger.info("Jetstream re-created succesfully") 
             except Exception as e:
                 logger.exception(f"Exception while deleting and recreating Jetstream {e}")
-
     # await js.add_stream(name="sample-stream", subjects=["foo"])
 
     ########## publisher
-    # for i in range(0, 10):
-    #     ack = await js.publish("foo", f"hello world: {i}".encode())
-    #     print(ack)
+    for i in range(0, 3):
+        ack = await js.publish("foo", f"ciao mondo: {i}".encode())
+        print(ack)
 
     ######### subscriber
 
-    # sub = await js.subscribe("foo")
-    # msg = await sub.next_msg()
-    # await msg.ack()
 
-    # Create pull based consumer on 'foo'.
-    psub = await js.pull_subscribe(stream_config.subjects[0], "psub")
+    # # Create pull based consumer on 'foo'.
+    # psub = await js.pull_subscribe("foo", "psub")
     # msgs = await psub.fetch(1, timeout=None)
     # for msg in msgs:
-    #     print(f"message received {msg}")
+    #     print(msg)
     #     await msg.ack() # <-- looks like this has no effect messages are still there and got worked again after ack
     #     #nc.publish("foo", payload=msg)
     #     await nc.flush(0.500)
     #     # si = await js.stream_info()
     #     #assertEquals(si..state.messages, 0);
-    #     print(f"message received {msg}")
+    #     print(msg)
     #     print("\n\n")
 
-    # # Fetch and ack messagess from consumer.
-    for i in range(0, 100):
-        msgs = await psub.fetch(1)
-        for msg in msgs:
-            print(msg)
-            await msg.ack() # <-- looks like this has no effect messages are still there and got worked again after ack
+    # # # Fetch and ack messagess from consumer.
+    # for i in range(0, 10):
+    #     msgs = await psub.fetch(1)
+    #     for msg in msgs:
+    #         print(msg)
+    #         await msg.ack() # <-- looks like this has no effect messages are still there and got worked again after ack
             
-            nc.publish(stream_config.subjects[0], payload=msg)
-            await nc.flush(0.500)
-            # si = await js.stream_info()
-            #assertEquals(si..state.messages, 0);
+    #         #nc.publish("foo", payload=msg)
+    #         await nc.flush(0.500)
+    #         # si = await js.stream_info()
+    #         #assertEquals(si..state.messages, 0);
             
             
-            print(msg)
-            print("\n\n")
+    #         print(msg)
+    #         print("\n\n")
 
             
 

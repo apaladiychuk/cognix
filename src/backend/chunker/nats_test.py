@@ -86,7 +86,7 @@ class JetStreamSubscriber:
 
         await self.js.subscribe(self.subject, cb=self.message_handler)
 
-    async def message_handler(self, msg):
+    async def message_handler(self, msg: Msg):
         try:
             logger.info("Chunking start working....")
             
@@ -96,14 +96,16 @@ class JetStreamSubscriber:
             logger.info(f"URL: {chunking_data.url}")
             logger.info(f"File Type: {chunking_data.file_type}")
 
-
             # do some work with chunking_data..
-
-            msg.ack_sync()
+            print(msg)
+            await msg.ack()
             logger.info("Chunking finished working message shall be acked....")
         except Exception as e:
             logger.error(f"Chunking failed to process chunking data: {e}")
             await msg.nak()
+        finally:
+            # await self.nc.flush(0.500)
+            print(msg)
 
     async def close(self):
         await self.nc.close()

@@ -34,7 +34,7 @@ async def main():
 
     ########## publisher
     for i in range(0, 3):
-        ack = await js.publish("foo", f"ciao mondo: {i}".encode())
+        ack = await js.publish("foo", f"ciao mondocrudele :) :) : {i}".encode())
         print(ack)
 
     ######### subscriber

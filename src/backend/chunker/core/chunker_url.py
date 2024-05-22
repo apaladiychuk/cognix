@@ -11,16 +11,22 @@ class URLChunker(BaseChunker):
             spider = BS4Spider(data.url)
             spider.process_page(data.url)
             collected_data = spider.get_collected_data()
-            # self.logger.info(collected_data)
+
+
+            if collected_data:
+                for item in collected_data:
+                    result_size_kb = len(item.content.encode('utf-8')) / 1024
+                    self.logger.info(f"Result size for {item.url}: {result_size_kb:.2f} KB")
+                    self.logger.info(f"{item.url} content {item.content} ")
+            else:
+                self.logger.warning(f"URLChunker result for {data.url} is None")
+
+
             self.logger.info(f"URLChunker finished: {data.url}")
             return collected_data
         except Exception as e:
             self.logger.error(f"URLChunker error Failed to process chunking data: {e}")
             return []
-
-    def run_chunk(self, data: ChunkingData):
-        return self.chunk(data)
-
 
 # from chunker.gen_types.chunking_data_pb2 import ChunkingData, FileType
 # from chunker.core.chunker_base import BaseChunker

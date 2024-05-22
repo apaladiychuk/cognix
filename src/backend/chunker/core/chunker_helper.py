@@ -29,6 +29,9 @@ class ChunkerHelper:
             raise ValueError(f"Unsupported file type: {self.file_type}")
 
         chunker = chunker_class()
+        
+        # chunker.chunk must return a typed object
+        # object definition [url, [chunks]]
         chunker.chunk(chunking_data)
 
 chunker_mapping = {

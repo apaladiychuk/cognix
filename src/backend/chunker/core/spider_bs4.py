@@ -1,18 +1,20 @@
+from typing import List
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import logging
+from chunker.core.chunked_list import ChunkedList
 
 class BS4Spider:
     def __init__(self, base_url):
         self.visited = set()
-        self.collected_data = ""
+        self.collected_data: List[ChunkedList] = [] 
         self.base_domain = urlparse(base_url).netloc
         self.logger = logging.getLogger(__name__)
 
     def fetch_and_parse(self, url):
         try:
-            #self.logger.info(f"Processing URL: {url}")
+            self.logger.info(f"Processing URL: {url}")
             response = requests.get(url)
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
@@ -45,7 +47,11 @@ class BS4Spider:
         if not soup:
             return
 
-        self.collected_data += self.extract_data(soup)
+        page_content = self.extract_data(soup)
+        if page_content:
+            self.collected_data.append(ChunkedList(url=url, content=page_content))
+
+        ## self.logger.info(f"Data for URL: {url}, content: {page_content)}")
         
         links = [a['href'] for a in soup.find_all('a', href=True)]
         for link in links:

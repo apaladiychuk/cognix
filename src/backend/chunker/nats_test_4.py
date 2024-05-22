@@ -7,6 +7,8 @@ from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy, 
 import logging
 from nats.js.errors import NotFoundError, BadRequestError
 
+from backend.chunker.gen_types.chunking_data_pb2 import ChunkingData
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -21,8 +23,11 @@ async def main():
     stream_config = StreamConfig(
         name="sample-stream",
         subjects=["foo"],
+        # A work-queue retention policy satisfies a very common use case of queuing up messages that are intended to be processed once and only once.
+        # https://natsbyexample.com/examples/jetstream/workqueue-stream/go
         retention=RetentionPolicy.WORK_QUEUE
     )
+
     try:
         await js.add_stream(stream_config)
     except BadRequestError as e:
@@ -64,8 +69,8 @@ async def message_handler(msg: Msg):
         logger.info("Chunking start working....")
         
         # Process the message (example code for chunking data)
-        # chunking_data = ChunkingData()
-        # chunking_data.ParseFromString(msg.data)
+        chunking_data = ChunkingData()
+        chunking_data.ParseFromString(msg.data)
         # logger.info(f"URL: {chunking_data.url}")
         # logger.info(f"File Type: {chunking_data.file_type}")
 

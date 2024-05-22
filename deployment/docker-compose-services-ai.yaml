@@ -220,6 +220,15 @@ services:
       - "--sd=/data/nats"
     networks:
       - cognix-network
+  # not working atm but let's see if it works in some time
+  # https://github.com/piotrpersona/nats-streaming-ui
+  # nats-streaming-ui:
+  #   build: .
+  #   image: piotrpersona/nats-ui:latest
+  #   ports:
+  #     - "8282:8282"
+  #   networks:
+  #     - cognix-network
 
 volumes:
   nats-storage:

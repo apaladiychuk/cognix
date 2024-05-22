@@ -23,6 +23,9 @@ async def main():
     #     print(ack)
 
     ########### subscriber
+
+
+
     # Create pull based consumer on 'foo'.
     psub = await js.pull_subscribe("foo", "psub")
 
@@ -30,9 +33,22 @@ async def main():
     for i in range(0, 10):
         msgs = await psub.fetch(1)
         for msg in msgs:
-            await msg.ack() # <-- looks like this has no effect messages are still there and got worked again after ack
             print(msg)
+            await msg.ack() # <-- looks like this has no effect messages are still there and got worked again after ack
             
+            
+            
+            nc.publish(msg.reply, payload=msg)
+            await nc.flush(0.500)
+            # si = await js.stream_info()
+            #assertEquals(si..state.messages, 0);
+            
+            
+            print(msg)
+            print("\n\n")
+
+            
+
     # Create single ephemeral push based subscriber.
     # sub = await js.subscribe("foo")
     # msg = await sub.next_msg()

@@ -25,6 +25,7 @@ go.work
 #Python
 # Ignore Python cache files
 __pycache__/
+data/
 
 # Ignore model directories
 src/python/embedder/models/

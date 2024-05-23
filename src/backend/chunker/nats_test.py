@@ -6,7 +6,7 @@ from nats.errors import TimeoutError, NoRespondersError
 from nats.aio.msg import Msg
 from nats.aio.client import Client as NATS
 from nats.js import JetStreamContext
-from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy
+from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy, RetentionPolicy
 from nats.js.errors import NotFoundError
 
 
@@ -43,6 +43,18 @@ class JetStreamPublisher:
         except Exception as e:
             logger.error(f"Failed to publish message: {e}")
 
+
+        
+    # Persist messages on 'foo's subject.
+    # await js.add_stream(name="sample-stream", subjects=["foo"])
+
+    ########### publisher
+    # for i in range(0, 10):
+    #     ack = await js.publish("foo", f"hello world: {i}".encode())
+    #     print(ack)
+
+    ########### subscriber
+
     async def close(self):
         await self.nc.close()
 
@@ -61,10 +73,10 @@ class JetStreamSubscriber:
         self.js = self.nc.jetstream()
 
         # Create the stream and consumer configuration if they do not exist
-        stream_config = StreamConfig(name=self.stream_name, subjects=[self.subject])
+        stream_config = StreamConfig(name=self.stream_name, subjects=[self.subject], retention=RetentionPolicy.WORK_QUEUE)
         
         try:
-            await self.add_stream(stream_config)
+            await self.js.add_stream(stream_config)
         except Exception as e:
             print(f"Stream already exists: {e}")
         
@@ -73,12 +85,12 @@ class JetStreamSubscriber:
             ack_wait= 30, #4 * 60 * 60,  # 4 hours in seconds
             max_deliver=3,
             ack_policy=AckPolicy.EXPLICIT,
-            deliver_policy= DeliverPolicy.NEW,
+            deliver_policy= DeliverPolicy.NEW, 
         )
 
         # Check if the consumer exists
         try:
-            await self.js.consumer_info(stream=self.stream_name, consumer="durable_chunkdata")
+            await self.js.consumer_info(stream=self.stream_name, consumer=consumer_config.name)
             print("Consumer already exists")
         except NotFoundError:
             # Create the consumer if it does not exist
@@ -86,7 +98,7 @@ class JetStreamSubscriber:
 
         await self.js.subscribe(self.subject, cb=self.message_handler)
 
-    async def message_handler(self, msg):
+    async def message_handler(self, msg: Msg):
         try:
             logger.info("Chunking start working....")
             
@@ -96,14 +108,16 @@ class JetStreamSubscriber:
             logger.info(f"URL: {chunking_data.url}")
             logger.info(f"File Type: {chunking_data.file_type}")
 
-
             # do some work with chunking_data..
-
-            msg.ack_sync()
+            print(msg)
+            await msg.ack()
             logger.info("Chunking finished working message shall be acked....")
         except Exception as e:
             logger.error(f"Chunking failed to process chunking data: {e}")
             await msg.nak()
+        finally:
+            # await self.nc.flush(0.500)
+            print(msg)
 
     async def close(self):
         await self.nc.close()
@@ -113,27 +127,27 @@ class JetStreamSubscriber:
 
 async def main():
 
-    ############# publisher
-    # Instantiate the publisher
-    publisher = JetStreamPublisher(subject="chunking", stream_name="connector")
+    # ############# publisher
+    # # Instantiate the publisher
+    # publisher = JetStreamPublisher(subject="chunking", stream_name="connector")
 
-    # Connect to NATS
-    await publisher.connect()
+    # # Connect to NATS
+    # await publisher.connect()
 
-    # Create a fake ChunkingData message
-    chunking_data = ChunkingData(
-        url="https://help.collaboard.app/working-with-collaboard",
-        site_map="",
-        search_for_sitemap=True,
-        document_id=993456789,
-        file_type=FileType.URL
-    )
+    # # Create a fake ChunkingData message
+    # chunking_data = ChunkingData(
+    #     url="https://help.collaboard.app/working-with-collaboard",
+    #     site_map="",
+    #     search_for_sitemap=True,
+    #     document_id=993456789,
+    #     file_type=FileType.URL
+    # )
 
-    # Publish the message
-    await publisher.publish(chunking_data)
+    # # Publish the message
+    # await publisher.publish(chunking_data)
 
-    # Close the connection
-    await publisher.close()
+    # # Close the connection
+    # await publisher.close()
 
     ############ subscriber
     subscriber = JetStreamSubscriber(

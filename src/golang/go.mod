@@ -7,8 +7,10 @@ require (
 	github.com/apache/pulsar-client-go v0.12.1
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/deluan/flowllm v0.0.0-20230502144710-1414e4b4985b
+	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/gin-contrib/cors v1.7.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-co-op/gocron/v2 v2.5.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-pg/pg/v10 v10.12.0
 	github.com/go-resty/resty/v2 v2.12.0
@@ -67,10 +69,8 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.7.0 // indirect
 	github.com/frankban/quicktest v1.14.6 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/getsentry/sentry-go v0.12.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/go-co-op/gocron/v2 v2.5.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.0.1 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect

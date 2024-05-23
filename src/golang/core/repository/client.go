@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	URL       string `env:"DATABASE_URL"`
-	DebugMode string `env:"DB_DEBUG"`
+	DebugMode bool   `env:"DB_DEBUG" envDefault:"false"`
 }
 
 func NewDatabase(cfg *Config) (*pg.DB, error) {
@@ -18,7 +18,7 @@ func NewDatabase(cfg *Config) (*pg.DB, error) {
 		return nil, err
 	}
 	db := pg.Connect(opt)
-	if cfg.DebugMode != "" {
+	if cfg.DebugMode {
 		db.AddQueryHook(dbLogger{})
 	}
 	if err = db.Ping(context.Background()); err != nil {

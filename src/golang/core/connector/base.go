@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
+	"time"
 )
 
 const mineURL = "url"
@@ -55,6 +56,11 @@ type nopConnector struct {
 
 func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *Response {
 	ch := make(chan *Response)
+	go func() {
+		time.Sleep(1 * time.Second)
+		close(ch)
+	}()
+
 	return ch
 }
 

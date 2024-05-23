@@ -2,7 +2,6 @@ package main
 
 import (
 	"cognix.ch/api/v2/core/messaging"
-	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
@@ -30,7 +29,7 @@ func NewServer(
 	}
 
 	return &Server{connectorRepo: connectorRepo,
-		renewInterval:   time.Duration(cfg.RenewInterval) * time.Minute,
+		renewInterval:   time.Duration(cfg.RenewInterval) * time.Second,
 		messenger:       messenger,
 		scheduler:       s,
 		scheduleTrigger: scheduleTrigger}, nil
@@ -38,9 +37,7 @@ func NewServer(
 
 func (s *Server) run(ctx context.Context) error {
 	zap.S().Infof("Schedule reload task")
-	if err := s.schedule(); err != nil {
-		return err
-	}
+	go s.schedule()
 	zap.S().Infof("Start listener ...")
 	go s.listen(context.Background())
 	return nil
@@ -81,9 +78,9 @@ func (s *Server) listen(ctx context.Context) {
 	if err := s.loadFromDatabase(); err != nil {
 		return
 	}
-	if err := s.messenger.Listen(ctx, model.TopicUpdateConnector, model.SubscriptionOrchestrator, s.handleTriggerRequest); err != nil {
-		zap.S().Errorf("failed to listen: %v", err)
-	}
+	//if err := s.messenger.Listen(ctx, model.TopicUpdateConnector, model.SubscriptionOrchestrator, s.handleTriggerRequest); err != nil {
+	//	zap.S().Errorf("failed to listen: %v", err)
+	//}
 }
 
 func (s *Server) handleTriggerRequest(ctx context.Context, msg *proto.Message) error {

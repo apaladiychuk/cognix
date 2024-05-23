@@ -58,15 +58,15 @@ func (r *documentRepository) FindByConnectorIDAndUser(ctx context.Context, user 
 
 func (r *documentRepository) Create(ctx context.Context, document ...*model.Document) error {
 	if _, err := r.db.WithContext(ctx).Model(&document).Insert(); err != nil {
-		return utils.Internal.Wrap(err, "can not insert document")
+		return utils.Internal.Wrapf(err, "can not insert document [%s]", err.Error())
 	}
 	return nil
 }
 
 func (r *documentRepository) Update(ctx context.Context, document *model.Document) error {
 	document.UpdatedDate = pg.NullTime{time.Now().UTC()}
-	if _, err := r.db.WithContext(ctx).Model(&document).Where("id = ? ", document.ID).Update(); err != nil {
-		return utils.Internal.Wrap(err, "can not insert document")
+	if _, err := r.db.WithContext(ctx).Model(document).Where("id = ? ", document.ID).Update(); err != nil {
+		return utils.Internal.Wrapf(err, "can not update document [%s]", err.Error())
 	}
 	return nil
 }

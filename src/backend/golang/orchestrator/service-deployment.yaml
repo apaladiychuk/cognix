@@ -21,10 +21,10 @@ spec:
             configMapKeyRef:
               name: env-configmap
               key: DATABASE_URL
-        - name: MESSAGING_PROVIDER
-          value: "pulsar"
-        - name: PULSAR_URL
-          value: "pulsar://cognix-milvus-pulsar-proxy.milvus.svc.cluster.local:6650/"
+        - name: NATS_URL
+          value: "nats.nats:4222"
+        - name: RENEW_INTERVAL
+          value: "30"
         imagePullPolicy: Always
       imagePullSecrets:
         - name: pullsecret

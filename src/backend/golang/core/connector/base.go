@@ -57,7 +57,7 @@ type nopConnector struct {
 func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *Response {
 	ch := make(chan *Response)
 	go func() {
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 		close(ch)
 	}()
 

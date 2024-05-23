@@ -69,9 +69,7 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	// execute connector
 	resultCh := connectorWF.Execute(ctx, trigger.Params)
 	// read result from channel
-	zap.S().Debug(" wait for result ...")
 	for result := range resultCh {
-		zap.S().Debugf(" receive %s ", result.URL)
 		var loopErr error
 		// save content in minio
 		if result.SaveContent {
@@ -109,7 +107,6 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 			continue
 		}
 	}
-	zap.S().Debugf(" channel closed ")
 	if err != nil {
 		connectorModel.LastAttemptStatus = model.StatusFailed
 	} else {

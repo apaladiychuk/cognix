@@ -2,6 +2,7 @@ package connector
 
 import (
 	"cognix.ch/api/v2/core/model"
+	"cognix.ch/api/v2/core/proto"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -101,6 +102,19 @@ func (c *OneDrive) getFile(ctx context.Context, item *DriveChildBody) error {
 		return nil
 	}
 	doc.Signature = item.File.Hashes.QuickXorHash
+	payload := &Response{
+		URL:         "",
+		SourceID:    item.Id,
+		Name:        item.Name,
+		DocumentID:  doc.ID.IntPart(),
+		MimeType:    item.File.MimeType,
+		SaveContent: true,
+	}
+	// do not download content if file's type is not supported
+	if payload.GetType() != proto.FileType_UNKNOWN {
+		return nil
+	}
+	// download content
 	response, err := c.client.R().
 		SetContext(ctx).
 		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
@@ -110,15 +124,8 @@ func (c *OneDrive) getFile(ctx context.Context, item *DriveChildBody) error {
 	if err != nil || response.IsError() {
 		return fmt.Errorf("[%v] %v", err, response.Error())
 	}
-	c.resultCh <- &Response{
-		URL:         "",
-		SourceID:    item.Id,
-		Name:        item.Name,
-		DocumentID:  doc.ID.IntPart(),
-		Content:     response.Body(),
-		MimeType:    item.File.MimeType,
-		SaveContent: true,
-	}
+	payload.Content = response.Body()
+	c.resultCh <- payload
 	return nil
 }
 

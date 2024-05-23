@@ -10,6 +10,7 @@ import (
 	_ "github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
 	"sync"
+	"time"
 )
 
 type clientStream struct {
@@ -45,35 +46,22 @@ func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Bo
 
 func (c *clientStream) Listen(ctx context.Context, topic, subscriptionName string, handler MessageHandler) error {
 
-	//cons, _ := c.stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{
-	//	Durable:       "subscriptionName",
-	//	FilterSubject: fmt.Sprintf("%s.%s", c.connectorStreamName, topic),
-	//	AckPolicy:     jetstream.AckExplicitPolicy,
-	//	AckWait:       time.Minute,
-	//	MaxWaiting:    1,
-	//})
-	//
-	//cons.Consume(func(msg jetstream.Msg) {
-	//	zap.S().Infof("Received message: %s %s ", msg.Subject(), msg.Reply())
-	//	err := msg.Ack()
-	//	if err != nil {
-	//		zap.S().Errorf("Error acknowledging message: %s", err.Error())
-	//	}
-	//	var message proto.Message
-	//	if err := proto2.Unmarshal(msg.Data(), &message); err != nil {
-	//		zap.S().Errorf("Error unmarshalling message: %s", err.Error())
-	//		return
-	//	}
-	//	if err := handler(ctx, &message); err != nil {
-	//		zap.S().Errorf("Error handling message: %s", err.Error())
-	//	}
-	//	//err := msg.DoubleAck(ctx)
-	//
-	//})
-	_, _ = c.conn.QueueSubscribe(fmt.Sprintf("%s.%s", c.connectorStreamName, topic), "event-processor", func(msg *nats.Msg) {
-		zap.S().Infof("Received message: %s", msg.Reply)
+	cons, err := c.stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{
+		Durable:       subscriptionName,
+		MaxDeliver:    3,
+		FilterSubject: fmt.Sprintf("%s.%s", c.connectorStreamName, topic),
+		AckPolicy:     jetstream.AckExplicitPolicy,
+		AckWait:       time.Minute,
+		DeliverPolicy: jetstream.DeliverAllPolicy,
+	})
+	if err != nil {
+		zap.S().Errorf("Failed to create consumer for subscription %v", err)
+	}
+	cons.Consume(func(msg jetstream.Msg) {
+		zap.S().Infof("Received message: %s %s ", msg.Subject(), msg.Reply())
 		var message proto.Message
-		if err := proto2.Unmarshal(msg.Data, &message); err != nil {
+		msg.InProgress()
+		if err := proto2.Unmarshal(msg.Data(), &message); err != nil {
 			zap.S().Errorf("Error unmarshalling message: %s", err.Error())
 			return
 		}
@@ -84,45 +72,9 @@ func (c *clientStream) Listen(ctx context.Context, topic, subscriptionName strin
 		if err != nil {
 			zap.S().Errorf("Error acknowledging message: %s", err.Error())
 		}
+
 	})
-
-	//cons, _ := c.stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{
-	//	Durable:       "subscriptionName",
-	//	FilterSubject: fmt.Sprintf("%s.%s", c.connectorStreamName, topic),
-	//	AckPolicy:     jetstream.AckExplicitPolicy,
-	//	AckWait:       10 * time.Minute,
-	//	MaxWaiting:    1,
-	//})
-
-	//cc, _ := cons.Consume(func(msg jetstream.Msg) {
-	//	zap.S().Infof("Received message: %s", msg.Reply)
-	//	var message proto.Message
-	//	if err := proto2.Unmarshal(msg.Data(), &message); err != nil {
-	//		zap.S().Errorf("Error unmarshalling message: %s", err.Error())
-	//		return
-	//	}
-	//	if err := handler(ctx, &message); err != nil {
-	//		zap.S().Errorf("Error handling message: %s", err.Error())
-	//	}
-	//	zap.S().Infof("do ack")
-	//	err := msg.Ack()
-	//	if err != nil {
-	//		zap.S().Errorf("Error acknowledging message: %s", err.Error())
-	//	}
-	//})
-	//for {
-	//	select {
-	//	case <-ctx.Done():
-	//		break
-	//	default:
-	//
-	//	}
-	//}
 	<-c.ctx.Done()
-	//cc.Stop()
-
-	//c.js.DeleteConsumer(ctx, c.connectorStreamName, "subscriptionName")
-	zap.S().Info("finish")
 	c.wg.Done()
 	return nil
 }

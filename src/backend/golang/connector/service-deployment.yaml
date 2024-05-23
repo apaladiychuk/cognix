@@ -21,10 +21,23 @@ spec:
             configMapKeyRef:
               name: env-configmap
               key: DATABASE_URL
-        - name: MESSAGING_PROVIDER
-          value: "pulsar"
-        - name: PULSAR_URL
-          value: "pulsar://cognix-milvus-pulsar-proxy.milvus.svc.cluster.local:6650/"
+        - name: MINIO_ACCESS_KEY
+          value: "minioadmin"
+        - name: MINIO_SECRET_ACCESS_KEY
+          value: "minioadmin"
+        - name: MINIO_ENDPOINT
+          value: "my-release-minio-svc"
+        - name: MINIO_USE_SSL
+          value: "false"
+        - name: MINIO_BUCKET_NAME
+          value: "data"
+        - name: MINIO_REGION
+          value: "CH"
+        - name: NATS_URL
+          value: "nats.nats:4222"
+        - name: OAUTH_URL
+          value: "http://apiservice:8080"
+
         imagePullPolicy: Always
       imagePullSecrets:
         - name: pullsecret

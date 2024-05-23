@@ -14,7 +14,7 @@ on:
     branches:
       - main
     paths:
-      - 'migration/**'
+      - 'src/backend/golang/**'
       - '.github/workflows/migration-service-build.yml'
 env:
   RGNAME: AKS_RG
@@ -43,8 +43,8 @@ jobs:
     - name: Migration Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./migration
-        file: ./migration/Dockerfile
+        context: ./src/backend/golang/migration
+        file: ./src/backend/golang/migration/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |

@@ -57,6 +57,17 @@ spec:
           value: "my-release-milvus.milvus2.svc.cluster.local:19530"
         - name: EMBEDDING_GRPC_URL
           value: "embeddingservice:50051"
+        - name: MICROSOFT_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: env-configmap
+              key: MICROSOFT_CLIENT_ID
+        - name: MICROSOFT_CLIENT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: env-configmap
+              key: MICROSOFT_CLIENT_SECRET
+
         ports:
         - containerPort: 8080
         volumeMounts:

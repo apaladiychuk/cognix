@@ -21,7 +21,7 @@ const (
 	*/
 )
 
-var microsoftScope = "offline_access ServiceActivity-OneDrive.Read.All Files.Read.All"
+var microsoftScope = "offline_access Files.Read.All"
 
 type (
 	Config struct {

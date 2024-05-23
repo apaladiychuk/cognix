@@ -14,9 +14,9 @@ on:
     branches:
       - main
     paths:
-      - 'backend/connector/**'
-      - 'backend/core/**'
-      - 'backend/go.mod'
+      - 'src/backend/golang/connector/**'
+      - 'src/backend/golang/core/**'
+      - 'src/backend/golang/go.mod'
       - '.github/workflows/connector-service-build.yml'
 env:
   RGNAME: AKS_RG

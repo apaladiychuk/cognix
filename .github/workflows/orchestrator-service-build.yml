@@ -14,9 +14,9 @@ on:
     branches:
       - main
     paths:
-      - 'src/backend/golang/orchestrator/**'
-      - 'src/backend/golang/core/**'
-      - 'src/backend/golang/go.mod'
+      - 'src/backend/orchestrator/**'
+      - 'src/backend/core/**'
+      - 'src/backend/go.mod'
       - '.github/workflows/orchestrator-service-build.yml'
 env:
   RGNAME: AKS_RG
@@ -65,11 +65,11 @@ jobs:
 
     - name: Update Orchestrator server manifest
       run:
-        sed -ie "s/orchestratorservice:main/orchestratorservice:${{env.GITHUB_SHA}}/g" ./src/backend/golang/orchestrator/service-deployment.yaml
+        sed -ie "s/orchestratorservice:main/orchestratorservice:${{env.GITHUB_SHA}}/g" ./src/backend/orchestrator/service-deployment.yaml
 
     - name: Deploy Orchestrator server manifests
       run: |
-        kubectl apply -f ./src/backend/golang/orchestrator/service-deployment.yaml 
+        kubectl apply -f ./src/backend/orchestrator/service-deployment.yaml 
 
     - name: Delete Orchestrator server pod
       run: |

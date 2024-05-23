@@ -28,6 +28,13 @@ services:
       - "--sd=/data/nats"
     networks:
       - cognix-network
+  nats-streaming-ui:
+    build: .
+    image: piotrpersona/nats-ui:latest
+    ports:
+      - "8282:8282"
+    networks:
+      - cognix-network
 
 volumes:
   nats-storage:

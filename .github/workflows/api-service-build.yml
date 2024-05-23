@@ -14,9 +14,9 @@ on:
     branches:
       - main
     paths:
-      - 'src/backend/golang/api/**'
-      - 'src/backend/golang/core/**'
-      - 'src/backend/golang/go.mod'
+      - 'src/backend/api/**'
+      - 'src/backend/core/**'
+      - 'src/backend/go.mod'
       - '.github/workflows/api-service-build.yml'
 env:
   RGNAME: AKS_RG
@@ -45,8 +45,8 @@ jobs:
     - name: API Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./src/backend/golang
-        file: ./src/backend/golang/Dockerfile
+        context: ./src/backend
+        file: ./src/backend/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |
@@ -65,11 +65,11 @@ jobs:
 
     - name: Update API server manifest
       run:
-        sed -ie "s/apiservice:main/apiservice:${{env.GITHUB_SHA}}/g" ./src/backend/golang/api-service-deployment.yaml
+        sed -ie "s/apiservice:main/apiservice:${{env.GITHUB_SHA}}/g" ./src/backend/api/api-service-deployment.yaml
 
     - name: Deploy API server manifests
       run: |
-        kubectl apply -f ./src/backend/golang/api-service-deployment.yaml 
+        kubectl apply -f ./src/backend/api/api-service-deployment.yaml 
 
     - name: Delete API server pod
       run: |

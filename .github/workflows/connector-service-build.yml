@@ -14,9 +14,9 @@ on:
     branches:
       - main
     paths:
-      - 'src/backend/golang/connector/**'
-      - 'src/backend/golang/core/**'
-      - 'src/backend/golang/go.mod'
+      - 'src/backend/connector/**'
+      - 'src/backend/core/**'
+      - 'src/backend/go.mod'
       - '.github/workflows/connector-service-build.yml'
 env:
   RGNAME: AKS_RG
@@ -45,8 +45,8 @@ jobs:
     - name: Connector Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./src/backend/golang
-        file: ./src/backend/golang/Dockerfile
+        context: ./src/backend
+        file: ./src/backend/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |
@@ -65,7 +65,7 @@ jobs:
 
     - name: Update Connector server manifest
       run:
-        sed -ie "s/connectorservice:main/connectorservice:${{env.GITHUB_SHA}}/g" ./src/backend/connector/golang/service-deployment.yaml
+        sed -ie "s/connectorservice:main/connectorservice:${{env.GITHUB_SHA}}/g" ./src/backend/connector/service-deployment.yaml
 
     - name: Deploy Connector server manifests
       run: |

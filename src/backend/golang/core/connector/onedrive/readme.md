@@ -37,7 +37,7 @@ then choose Save.
 #### open Permission  page 
  - Click Application registration 
    - Api permission page 
-       - ServiceActivity-OneDrive.Read.All
+       - Files.Read.All
        - offline_access
    - Authentication 
        - Add platform 

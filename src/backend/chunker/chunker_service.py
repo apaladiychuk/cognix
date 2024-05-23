@@ -23,10 +23,10 @@ async def chunking_event( msg: Msg):
         
         logger.info(f"Received message: {chunking_data}")
         
-        chunker_helper = ChunkerHelper()
-        chunker_helper.workout_message(chunking_data)
+        # chunker_helper = ChunkerHelper()
+        # chunker_helper.workout_message(chunking_data)
 
-        await msg.ack_sync()
+        # await msg.ack_sync()
         logger.info("Message acknowledged successfully")
     except Exception as e:
         logger.error(f"Chunking failed to process chunking data: {chunking_data} error: {e}")

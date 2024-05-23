@@ -47,7 +47,7 @@ func (r *Response) GetType() proto.FileType {
 	if fileType, ok := supportedMimeTypes[r.MimeType]; ok {
 		return fileType
 	}
-	return proto.FileType_URL
+	return proto.FileType_UNKNOWN
 }
 
 type nopConnector struct {

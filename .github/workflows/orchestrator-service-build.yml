@@ -14,9 +14,9 @@ on:
     branches:
       - main
     paths:
-      - 'backend/orchestrator/**'
-      - 'backend/core/**'
-      - 'backend/go.mod'
+      - 'src/backend/golang/orchestrator/**'
+      - 'src/backend/golang/core/**'
+      - 'src/backend/golang/go.mod'
       - '.github/workflows/orchestrator-service-build.yml'
 env:
   RGNAME: AKS_RG
@@ -42,11 +42,11 @@ jobs:
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
 
-    - name: API Service Image Docker Build and Push
+    - name: Orchestrator Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./backend
-        file: ./backend/Dockerfile
+        context: ./src/backend/golang
+        file: ./src/backend/golang/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |
@@ -63,14 +63,14 @@ jobs:
     - name: Get AKS kubeconfig
       run: az aks get-credentials --resource-group $RGNAME --name $AKSNAME
 
-    - name: Update API server manifest
+    - name: Update Orchestrator server manifest
       run:
-        sed -ie "s/apiservice:main/orchestratorservice:${{env.GITHUB_SHA}}/g" ./backend/orchestrator/service-deployment.yaml
+        sed -ie "s/orchestratorservice:main/orchestratorservice:${{env.GITHUB_SHA}}/g" ./src/backend/golang/orchestrator/service-deployment.yaml
 
-    - name: Deploy API server manifests
+    - name: Deploy Orchestrator server manifests
       run: |
-        kubectl apply -f ./backend/orchestrator/service-deployment.yaml 
+        kubectl apply -f ./src/backend/golang/orchestrator/service-deployment.yaml 
 
-    - name: Delete API server pod
+    - name: Delete Orchestrator server pod
       run: |
         kubectl rollout restart deploy/orchestratorservice

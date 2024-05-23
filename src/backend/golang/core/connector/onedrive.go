@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// todo max file size 1G
 const (
 	authorizationHeader = "Authorization"
 	apiBase             = "https://graph.microsoft.com/v2.0"

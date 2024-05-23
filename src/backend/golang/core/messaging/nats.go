@@ -54,16 +54,7 @@ func (c *client) Listen(ctx context.Context, topic, subscriptionName string, han
 	if err != nil {
 		return err
 	}
-	for {
-		select {
-		case msg := <-out:
-			if err = handler(ctx, msg); err != nil {
-				zap.S().Errorf("handler message error: %s", err.Error())
-			}
-		case <-ctx.Done():
-			break
-		}
-	}
+	<-ctx.Done()
 	return subscription.Unsubscribe()
 }
 

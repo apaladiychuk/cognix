@@ -60,6 +60,31 @@ services:
       - ${CONFIG_PATH}/.env
     environment:
       MILVUS_URL: host.docker.internal:19530
+      OAUTH_URL: http://api:8080
+      SUBSCRIPTION_NAME: conn_1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${BACKEND_PATH}:/backend
+    networks:
+      - service-network
+
+
+  connector2:
+    image: cognix:connector2
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: connector
+      dockerfile: Dockerfile
+    env_file:
+      - ${CONFIG_PATH}/cockroach.env
+      - ${CONFIG_PATH}/nats.env
+      - ${CONFIG_PATH}/.env
+    environment:
+      MILVUS_URL: host.docker.internal:19530
+      OAUTH_URL: http://api:8080
+      SUBSCRIPTION_NAME: conn_2
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:

@@ -1,0 +1,38 @@
+package connector
+
+import (
+	"cognix.ch/api/v2/core/model"
+	"context"
+	"github.com/gabriel-vasile/mimetype"
+	_ "github.com/gabriel-vasile/mimetype"
+	"github.com/shopspring/decimal"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+var param = model.JSONMap{
+	"token": model.JSONMap{
+		"access_token":  "eyJ0eXAiOiJKV1QiLCJub25jZSI6IkNwLUM5YkJUZHk3TzN3dXhIbExpdFo0ZW9Gc2VIaFhVdm12QklKRHJUeTQiLCJhbGciOiJSUzI1NiIsIng1dCI6IkwxS2ZLRklfam5YYndXYzIyeFp4dzFzVUhIMCIsImtpZCI6IkwxS2ZLRklfam5YYndXYzIyeFp4dzFzVUhIMCJ9.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTAwMDAtYzAwMC0wMDAwMDAwMDAwMDAiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9mYjkxNGJmMy02YWZiLTRhNjMtODUyZS01MmUzMWFiZTZkMTMvIiwiaWF0IjoxNzE2MjA4MDM4LCJuYmYiOjE3MTYyMDgwMzgsImV4cCI6MTcxNjIxMzQ1OCwiYWNjdCI6MCwiYWNyIjoiMSIsImFpbyI6IkFWUUFxLzhXQUFBQU8wVUlYNnVKeURGeE00TEh5OWVOb0NqSlZLK0c2NER1RFRzcVRpWFVVbE0vREs1S1JQbDhuSTF5emlocGx3b2tWdllVRzRUSXJyUUx6cWZyZXEvdU9EN2FsS1BxbDFzSVhIZW9wUk1XWS80PSIsImFtciI6WyJwd2QiLCJtZmEiXSwiYXBwX2Rpc3BsYXluYW1lIjoiQ29nbml4LUFwcCIsImFwcGlkIjoiMjIxNmQ0NTMtNTY1Mi00OTZmLWJhMDktZGE3NDU5YzQ1NGM1IiwiYXBwaWRhY3IiOiIxIiwiZmFtaWx5X25hbWUiOiJQYWxhZGlpY2h1ayIsImdpdmVuX25hbWUiOiJBbmRyaWkiLCJpZHR5cCI6InVzZXIiLCJpcGFkZHIiOiIzMS4yMDIuMTc0LjEzNyIsIm5hbWUiOiJBbmRyaWkgUGFsYWRpaWNodWsiLCJvaWQiOiIwOWMzMDEyMy04ZDYzLTRmY2EtOTA5YS0zYWYwZDNmMDNhNGEiLCJwbGF0ZiI6IjgiLCJwdWlkIjoiMTAwMzIwMDM4MjUxODZCRiIsInJoIjoiMC5BYThBODB1Ui1fdHFZMHFGTGxMakdyNXRFd01BQUFBQUFBQUF3QUFBQUFBQUFBQWRBUW8uIiwic2NwIjoiRmlsZXMuUmVhZC5BbGwgU2VydmljZUFjdGl2aXR5LU9uZURyaXZlLlJlYWQuQWxsIFVzZXIuUmVhZCBwcm9maWxlIG9wZW5pZCBlbWFpbCIsInNpZ25pbl9zdGF0ZSI6WyJrbXNpIl0sInN1YiI6IkpQUklnM05keFdfY2ZnZ3dFUi1TMmF1SGdKUVFGZGhLSm90SnFKSGFpeGciLCJ0ZW5hbnRfcmVnaW9uX3Njb3BlIjoiRVUiLCJ0aWQiOiJmYjkxNGJmMy02YWZiLTRhNjMtODUyZS01MmUzMWFiZTZkMTMiLCJ1bmlxdWVfbmFtZSI6IkFuZHJpaVBhbGFkaWljaHVrQEZPUFBhbGFkaWljaHVrLm9ubWljcm9zb2Z0LmNvbSIsInVwbiI6IkFuZHJpaVBhbGFkaWljaHVrQEZPUFBhbGFkaWljaHVrLm9ubWljcm9zb2Z0LmNvbSIsInV0aSI6InFsOWRZSWZLZ2t1S3NTWmZWS3RMQUEiLCJ2ZXIiOiIxLjAiLCJ3aWRzIjpbIjYyZTkwMzk0LTY5ZjUtNDIzNy05MTkwLTAxMjE3NzE0NWUxMCIsImI3OWZiZjRkLTNlZjktNDY4OS04MTQzLTc2YjE5NGU4NTUwOSJdLCJ4bXNfc3QiOnsic3ViIjoiWUVOb3Z3c0RrUlV2dHN1NWNyRFN3ZlRaZURJOG1qOFVsUld2M3lqS3B1cyJ9LCJ4bXNfdGNkdCI6MTcxNTg2MDY1NX0.mwUlt8ZCTjMOyNSK4OX3Qt0UtIcOwy4r30nwoqVd-RCzFOEu7n2H7I79OShERsVX_2E8lAV-emyOtjjUJGK8VXO91GQUo6eOM2JJkdEo4eijM7uPVMO_vTkarPa1BmQa7-M3Jqn-jHMH0rfsUALD2hqPDZ0BAqI6JL4DTGXFhXJ6CxVQI4trWNb0wAkTT40iMaE-i-u3Gpt_xKOAPn53Nb99GBZK9x0hUWQgTOtCW3hczjP7S48hoYbLFONizpDoPWKFL4UwJZlZc9MX-jt1cNQcvEThaPJX_d-lhF8Gvqhfv3tYlKDfbyJyFmAExxeSYtREjfrMuW07hVKDTlCYww",
+		"token_type":    "Bearer",
+		"refresh_token": "0.Aa8A80uR-_tqY0qFLlLjGr5tE1PUFiJSVm9JugnadFnEVMUdAQo.AgABAwEAAADnfolhJpSnRYB1SVj-Hgd8AgDs_wUA9P-DPVGfENQzRwupYK9HEsRErB149P-PbOpIFU7ekyO2mRUFrZcEjVYxKi4LxxLsGBfTtyd6-qWB2i4XDIvIrDFggWBLS65lyAszPvwuKGRn6uA4bwPhebHsIBeIVdAbBClDgdOq1tRNCJStwQVO6X_WfRnpWG13IMKwjTVLKtnqxXMCt4UZyOBTIIQFx94xmDWLThU1yXKjP3k773U_Jb4Upggee9pecUjVBF6Fx6xroR0xcRvzgmRYImgxFknSzCNrfCSesHuCn4-StDqWnnX2IhKC97s3u94uwg28vJMY07vNe4_BBg2RdQ_fpiCEaMbgKuFggGLCA6DLYW40rVZq1K1Dr22BdS0fHt-Mf8oARz9WUD6eDam4Vn6RsgBwYveSNVW_xsw6u7K-cTLU4WQ8_owgxocXNkkAvSczr65rC0Lq-4Pe-CAfB2PpkHljDRy0dIMInW3izKHCgv3ITV3eJZfU05VxUr8nzRg3vr8wBartZV3pCQPcibzxtu-l0Nq3vdSoIhzZVfzREzSZV7ivfZZ1ys0Vp6HVn2OWjID-p5ew0WBfW77T4I4H0kTYsitKBFDFmYfSYZoz6-Oa3jPRxxQa85IHNZD2kKjkN-MB5aHack32WDTWa0TsBd-yrfwHrWpj_HEmXPth4kYv7oFMNMM2Jru9qYHIHC8mawbbAnrpE7EUq5YmzhMrpDvnyt4rJnG6jxIoZGYs9YRoupBk6LZdGMeiIZC2ttGJxMMXuyVYZdht5dDBgkafZG5cM3OHAmkfdhUZf17trwCPUCwC2u3Ph4yHYRKVcqEJfWAzCW52UP0lvYc",
+		"expiry":        "2024-05-20T16:57:39.367198601+03:00",
+	},
+}
+
+func TestOneDrive_Execute(t *testing.T) {
+	od, err := NewOneDrive(&model.Connector{
+		ID:                      decimal.Decimal{},
+		CredentialID:            decimal.NullDecimal{},
+		Name:                    "",
+		Source:                  "",
+		InputType:               "",
+		ConnectorSpecificConfig: param,
+	})
+	assert.NoError(t, err)
+	chResult := od.Execute(context.TODO(), nil)
+	for data := range chResult {
+		mtype := mimetype.Detect(data.Content)
+		t.Logf("%s -- %s ", string(data.MimeType), mtype)
+
+	}
+}

@@ -6,6 +6,12 @@ networks:
       name: cognix-network
 
 services:
+  nats-ui:
+    image: mdawar/nats-dashboard
+    ports:
+      - "4280:80"  # Client connections to NATS
+    networks:
+      - cognix-network
   nats:
     image: nats:latest  # Use the latest NATS image
     container_name: nats

@@ -18,14 +18,15 @@ type clientStream struct {
 	js                  jetstream.JetStream
 	stream              jetstream.Stream
 	connectorStreamName string
-	subscriptions       []*Subscription
-	once                sync.Once
 	cancel              context.CancelFunc
+	ctx                 context.Context
+	wg                  *sync.WaitGroup
 }
 
 func (c *clientStream) Close() {
+	c.wg.Add(1)
 	c.cancel()
-
+	c.wg.Wait()
 }
 
 func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Body) error {
@@ -34,29 +35,32 @@ func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Bo
 		return err
 	}
 	// todo here we must define
-	pubAck, err := c.js.Publish(ctx, fmt.Sprintf("%s.%s", c.connectorStreamName, topic), message)
+	_, err = c.js.Publish(ctx, fmt.Sprintf("%s.%s", c.connectorStreamName, topic), message)
 	//,
 	//		nats.AckWait(time.Minute*2)
 	if err != nil {
 		return err
 	}
-	zap.S().Infof("Published message with ack: %s - %s - %d %v", pubAck.Stream, pubAck.Domain, pubAck.Sequence, pubAck.Duplicate)
 	return nil
 }
 
-func (c *clientStream) Listen(_ context.Context, topic, subscriptionName string, handler MessageHandler) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	c.cancel = cancel
-	cons, _ := c.stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{
-		Name:          subscriptionName,
+func (c *clientStream) Listen(ctx context.Context, topic, subscriptionName string, handler MessageHandler) error {
+
+	cons, err := c.stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{
+		Durable:       subscriptionName,
+		MaxDeliver:    3,
 		FilterSubject: fmt.Sprintf("%s.%s", c.connectorStreamName, topic),
-		AckPolicy:     jetstream.AckAllPolicy,
-		AckWait:       10 * time.Minute,
-		MaxWaiting:    1,
+		AckPolicy:     jetstream.AckExplicitPolicy,
+		AckWait:       time.Minute,
+		DeliverPolicy: jetstream.DeliverAllPolicy,
 	})
-	cc, _ := cons.Consume(func(msg jetstream.Msg) {
-		zap.S().Infof("Received message: %s", msg.Reply)
+	if err != nil {
+		zap.S().Errorf("Failed to create consumer for subscription %v", err)
+	}
+	cons.Consume(func(msg jetstream.Msg) {
+		zap.S().Infof("Received message: %s %s ", msg.Subject(), msg.Reply())
 		var message proto.Message
+		msg.InProgress()
 		if err := proto2.Unmarshal(msg.Data(), &message); err != nil {
 			zap.S().Errorf("Error unmarshalling message: %s", err.Error())
 			return
@@ -64,22 +68,14 @@ func (c *clientStream) Listen(_ context.Context, topic, subscriptionName string,
 		if err := handler(ctx, &message); err != nil {
 			zap.S().Errorf("Error handling message: %s", err.Error())
 		}
-		zap.S().Infof("do ack")
 		err := msg.Ack()
 		if err != nil {
 			zap.S().Errorf("Error acknowledging message: %s", err.Error())
 		}
-	})
-	for {
-		select {
-		case <-ctx.Done():
-			break
-		default:
 
-		}
-	}
-	cc.Stop()
-	zap.S().Info("finish")
+	})
+	<-c.ctx.Done()
+	c.wg.Done()
 	return nil
 }
 
@@ -102,19 +98,23 @@ func NewClientStream(cfg *natsConfig) (Client, error) {
 	}
 
 	stream, err := js.CreateOrUpdateStream(context.Background(), jetstream.StreamConfig{
-		Name:     cfg.ConnectorStreamName,
-		Subjects: []string{cfg.ConnectorStreamName + ".>"},
+		Name:      cfg.ConnectorStreamName,
+		Retention: jetstream.WorkQueuePolicy,
+		Storage:   jetstream.FileStorage,
+		Subjects:  []string{cfg.ConnectorStreamName + ".>"},
 	})
 	if err != nil {
 		zap.S().Errorf("Error creating stream: %s", err.Error())
 		return nil, err
 	}
-
+	ctx, cancel := context.WithCancel(context.Background())
 	return &clientStream{
 		conn:                conn,
 		stream:              stream,
 		js:                  js,
 		connectorStreamName: cfg.ConnectorStreamName,
-		once:                sync.Once{},
+		ctx:                 ctx,
+		cancel:              cancel,
+		wg:                  &sync.WaitGroup{},
 	}, nil
 }

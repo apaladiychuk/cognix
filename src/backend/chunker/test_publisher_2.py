@@ -44,12 +44,12 @@ class JetStreamPublisher:
                     self.logger.info("Jetstream stream re-created successfully")
                 except Exception as e:
                     self.logger.exception(f"Exception while deleting and recreating Jetstream: {e}")
-    async def create_stream(self):
-        try:
-            # Try to add the stream, ignore if already exists
-            await self.js.add_stream(name=self.stream_name, subjects=[self.subject])
-        except Exception as e:
-            logger.info(f"Stream creation error or already exists: {e}")
+    # async def create_stream(self):
+    #     try:
+    #         # Try to add the stream, ignore if already exists
+    #         await self.js.add_stream(name=self.stream_name, subjects=[self.subject])
+    #     except Exception as e:
+    #         logger.info(f"Stream creation error or already exists: {e}")
 
     async def publish(self, message):
         try:

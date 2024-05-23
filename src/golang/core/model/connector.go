@@ -18,7 +18,7 @@ const (
 )
 
 type Connector struct {
-	tableName               struct{}             `pg:"connectors,omitempty"`
+	tableName               struct{}             `pg:"connectors"`
 	ID                      decimal.Decimal      `json:"id,omitempty"`
 	CredentialID            decimal.NullDecimal  `json:"credential_id,omitempty"`
 	Name                    string               `json:"name,omitempty"`

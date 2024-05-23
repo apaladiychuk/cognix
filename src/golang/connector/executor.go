@@ -20,17 +20,21 @@ import (
 )
 
 type Executor struct {
-	connectorRepo  repository.ConnectorRepository
-	credentialRepo repository.CredentialRepository
-	docRepo        repository.DocumentRepository
-	msgClient      messaging.Client
-	chunking       ai.Chunking
-	minioClient    storage.MinIOClient
-	oauthClient    *resty.Client
+	connectorRepo    repository.ConnectorRepository
+	credentialRepo   repository.CredentialRepository
+	docRepo          repository.DocumentRepository
+	msgClient        messaging.Client
+	chunking         ai.Chunking
+	minioClient      storage.MinIOClient
+	oauthClient      *resty.Client
+	cancel           context.CancelFunc
+	subscriptionName string
 }
 
-func (e *Executor) run(ctx context.Context, topic, subscriptionName string, task messaging.MessageHandler) {
-	if err := e.msgClient.Listen(ctx, topic, subscriptionName, task); err != nil {
+func (e *Executor) run(_ context.Context, topic, subscriptionName string, task messaging.MessageHandler) {
+	ctx, cancel := context.WithCancel(context.Background())
+	e.cancel = cancel
+	if err := e.msgClient.Listen(ctx, topic, e.subscriptionName, task); err != nil {
 		zap.S().Errorf("failed to listen[%s]: %v", topic, err)
 	}
 	return
@@ -47,6 +51,7 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	if err != nil {
 		return err
 	}
+	zap.S().Infof("run connector : %s [%d]", connectorModel.Name, connectorModel.ID.IntPart())
 	// refresh token if needed
 	if err = e.refreshToken(ctx, connectorModel); err != nil {
 		return err
@@ -64,7 +69,9 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 	// execute connector
 	resultCh := connectorWF.Execute(ctx, trigger.Params)
 	// read result from channel
+	zap.S().Debug(" wait for result ...")
 	for result := range resultCh {
+		zap.S().Debugf(" receive %s ", result.URL)
 		var loopErr error
 		// save content in minio
 		if result.SaveContent {
@@ -102,7 +109,7 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 			continue
 		}
 	}
-
+	zap.S().Debugf(" channel closed ")
 	if err != nil {
 		connectorModel.LastAttemptStatus = model.StatusFailed
 	} else {
@@ -162,7 +169,9 @@ func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error 
 	return nil
 }
 
-func NewExecutor(connectorRepo repository.ConnectorRepository,
+func NewExecutor(
+	cfg *Config,
+	connectorRepo repository.ConnectorRepository,
 	credentialRepo repository.CredentialRepository,
 	docRepo repository.DocumentRepository,
 	streamClient messaging.Client,
@@ -171,12 +180,13 @@ func NewExecutor(connectorRepo repository.ConnectorRepository,
 	oauthClient *resty.Client,
 ) *Executor {
 	return &Executor{
-		connectorRepo:  connectorRepo,
-		credentialRepo: credentialRepo,
-		docRepo:        docRepo,
-		msgClient:      streamClient,
-		chunking:       chunking,
-		minioClient:    minioClient,
-		oauthClient:    oauthClient,
+		subscriptionName: cfg.SubscriptionName,
+		connectorRepo:    connectorRepo,
+		credentialRepo:   credentialRepo,
+		docRepo:          docRepo,
+		msgClient:        streamClient,
+		chunking:         chunking,
+		minioClient:      minioClient,
+		oauthClient:      oauthClient,
 	}
 }

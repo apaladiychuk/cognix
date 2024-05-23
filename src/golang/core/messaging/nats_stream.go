@@ -6,27 +6,26 @@ import (
 	"fmt"
 	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
+	_ "github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
 	"sync"
+	"time"
 )
 
 type clientStream struct {
 	conn                *nats.Conn
-	stream              nats.JetStreamContext
+	js                  jetstream.JetStream
+	stream              jetstream.Stream
 	connectorStreamName string
 	subscriptions       []*Subscription
 	once                sync.Once
+	cancel              context.CancelFunc
 }
 
 func (c *clientStream) Close() {
-	c.once.Do(func() {
-		for _, sub := range c.subscriptions {
-			close(sub.ch)
-			if err := sub.subscription.Unsubscribe(); err != nil {
-				zap.S().Errorf("unsubscribe %s ", err.Error())
-			}
-		}
-	})
+	c.cancel()
+
 }
 
 func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Body) error {
@@ -35,7 +34,7 @@ func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Bo
 		return err
 	}
 	// todo here we must define
-	pubAck, err := c.stream.Publish(fmt.Sprintf("%s.%s", c.connectorStreamName, topic), message)
+	pubAck, err := c.js.Publish(ctx, fmt.Sprintf("%s.%s", c.connectorStreamName, topic), message)
 	//,
 	//		nats.AckWait(time.Minute*2)
 	if err != nil {
@@ -45,23 +44,32 @@ func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Bo
 	return nil
 }
 
-func (c *clientStream) Listen(ctx context.Context, topic, subscriptionName string, handler MessageHandler) error {
-
-	subscription, err := c.conn.QueueSubscribe(fmt.Sprintf("%s.%s", c.connectorStreamName, topic), "connector",
-		func(msg *nats.Msg) {
-			var message proto.Message
-			if err := proto2.Unmarshal(msg.Data, &message); err != nil {
-				zap.S().Errorf("Error unmarshalling message: %s", string(msg.Data))
-				return
-			}
-			if err := handler(ctx, &message); err != nil {
-				zap.S().Errorf("Error handling message: %s", string(msg.Data))
-			}
-			msg.Ack()
-		})
-	if err != nil {
-		return err
-	}
+func (c *clientStream) Listen(_ context.Context, topic, subscriptionName string, handler MessageHandler) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	c.cancel = cancel
+	cons, _ := c.stream.CreateOrUpdateConsumer(ctx, jetstream.ConsumerConfig{
+		Name:          subscriptionName,
+		FilterSubject: fmt.Sprintf("%s.%s", c.connectorStreamName, topic),
+		AckPolicy:     jetstream.AckAllPolicy,
+		AckWait:       10 * time.Minute,
+		MaxWaiting:    1,
+	})
+	cc, _ := cons.Consume(func(msg jetstream.Msg) {
+		zap.S().Infof("Received message: %s", msg.Reply)
+		var message proto.Message
+		if err := proto2.Unmarshal(msg.Data(), &message); err != nil {
+			zap.S().Errorf("Error unmarshalling message: %s", err.Error())
+			return
+		}
+		if err := handler(ctx, &message); err != nil {
+			zap.S().Errorf("Error handling message: %s", err.Error())
+		}
+		zap.S().Infof("do ack")
+		err := msg.Ack()
+		if err != nil {
+			zap.S().Errorf("Error acknowledging message: %s", err.Error())
+		}
+	})
 	for {
 		select {
 		case <-ctx.Done():
@@ -70,7 +78,9 @@ func (c *clientStream) Listen(ctx context.Context, topic, subscriptionName strin
 
 		}
 	}
-	return subscription.Unsubscribe()
+	cc.Stop()
+	zap.S().Info("finish")
+	return nil
 }
 
 func NewClientStream(cfg *natsConfig) (Client, error) {
@@ -84,29 +94,26 @@ func NewClientStream(cfg *natsConfig) (Client, error) {
 		zap.S().Errorf("Error connecting to NATS: %s", err.Error())
 		return nil, err
 	}
-	js, err := conn.JetStream(nats.PublishAsyncMaxPending(streamMaxPending))
+
+	js, err := jetstream.New(conn)
 	if err != nil {
 		zap.S().Errorf("Error connecting to NATS: %s", err.Error())
 		return nil, err
 	}
 
-	stream, err := js.StreamInfo(cfg.ConnectorStreamName)
-	// stream not found, create it
-	if stream == nil {
-		zap.S().Infof("Creating stream: %s", cfg.ConnectorStreamName)
-		_, err = js.AddStream(&nats.StreamConfig{
-			Name:     cfg.ConnectorStreamName,
-			Subjects: []string{cfg.ConnectorStreamName + ".*"},
-		})
-		if err != nil {
-			zap.S().Errorf("Error creating stream: %s", err.Error())
-			return nil, err
-		}
+	stream, err := js.CreateOrUpdateStream(context.Background(), jetstream.StreamConfig{
+		Name:     cfg.ConnectorStreamName,
+		Subjects: []string{cfg.ConnectorStreamName + ".>"},
+	})
+	if err != nil {
+		zap.S().Errorf("Error creating stream: %s", err.Error())
+		return nil, err
 	}
 
 	return &clientStream{
 		conn:                conn,
-		stream:              js,
+		stream:              stream,
+		js:                  js,
 		connectorStreamName: cfg.ConnectorStreamName,
 		once:                sync.Once{},
 	}, nil

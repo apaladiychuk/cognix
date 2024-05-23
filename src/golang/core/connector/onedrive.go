@@ -69,12 +69,21 @@ func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *R
 }
 
 func (c *OneDrive) execute(ctx context.Context) {
-	defer close(c.resultCh)
+	defer func() {
+		zap.S().Debug("close channel onedrive")
+		close(c.resultCh)
+	}()
 	body, err := c.request(ctx, getDrive)
 	if err != nil {
 		zap.S().Errorf(err.Error())
+		time.Sleep(50 * time.Millisecond)
+		return
 	}
-	c.handleItems(ctx, body.Value)
+	if body != nil {
+		if err := c.handleItems(ctx, body.Value); err != nil {
+			zap.S().Errorf(err.Error())
+		}
+	}
 }
 
 func (c *OneDrive) getFile(ctx context.Context, item *DriveChildBody) error {

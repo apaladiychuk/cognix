@@ -48,6 +48,7 @@ func (c *Web) Execute(ctx context.Context, param map[string]string) chan *Respon
 	zap.S().Debugf("Run web connector with param %s ...", c.param.URL)
 	c.ctx = ctx
 	go func() {
+		zap.S().Debugf("run func %s", c.param.URL)
 		c.scraper.OnHTML("body", withContext(ctx, c.onBody))
 		err := c.scraper.Visit(c.param.URL)
 		if err != nil {

@@ -15,7 +15,8 @@ import (
 )
 
 type Config struct {
-	OAuthURL string `env:"OAUTH_URL,required"`
+	OAuthURL         string `env:"OAUTH_URL,required"`
+	SubscriptionName string `env:"SUBSCRIPTION_NAME,required"`
 }
 
 var Module = fx.Options(

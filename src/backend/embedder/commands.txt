@@ -1,14 +1,26 @@
 
 
+# build a container
+sudo docker build -t cognix/embedder:latest 
 
-sudo docker build -t cognix/embedder:latest .
+# run container
+docker run --name embedder cognix/embedder:latest
 
-
-log inside a container
+#log inside a container
 docker exec -it CONTAINER_NAME sh
 
 df
 
+# interactive shell
+docker run -it --entrypoint /bin/sh cognix/embedder:latest
+
+# cleans a lot of space
+docker system prune
+
+
+from cognix-services
+sudo docker-compose -f deployment/docker-compose-services-ai.yaml down
+sudo docker-compose -f deployment/docker-compose-services-ai.yaml up
 
 
 es, it is possible to create symbolic links (symlinks) in your file system, and Visual Studio Code (VS Code) will treat them as regular files. This allows you to reference files located in different directories without moving the actual files.
@@ -40,7 +52,8 @@ Go into settings > Extensions > vscode-proto3 configuration and then click Edit 
 ]
 }
 
-python3 -m chunker.chunker
+python3 -m chunker.chunker_service
+
 
 pod configuration
 
@@ -61,7 +74,3 @@ spec:
         cpu: "4000m"   # Allow up to 4 vCPUs
 
 
-
-from cognix-services
-sudo docker-compose -f deployment/docker-compose-services-ai.yaml down
-sudo docker-compose -f deployment/docker-compose-services-ai.yaml up

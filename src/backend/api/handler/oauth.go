@@ -58,12 +58,6 @@ func (h *OAuthHandler) Callback(c *gin.Context) error {
 	if err != nil {
 		return utils.Internal.Wrap(err, "unknown provider")
 	}
-
-	//:= oauth.NewMicrosoft(&oauth.MicrosoftConfig{
-	//	ClientID:     "2216d453-5652-496f-ba09-da7459c454c5",
-	//	ClientSecret: "4x38Q~o7C616j.ccJktSLzqQO3wHIPE_XZ0LWcWe",
-	//})
-
 	result, err := oauthClient.ExchangeCode(c.Request.Context(), query["code"])
 	if err != nil {
 		return utils.ErrorPermission.New(err.Error())

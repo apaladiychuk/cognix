@@ -16,6 +16,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
 	"time"
 )
 
@@ -129,7 +130,7 @@ func (e *Executor) saveContent(ctx context.Context, response *connector.Response
 }
 
 func (e *Executor) handleResult(connectorModel *model.Connector, result *connector.Response) *model.Document {
-	doc, ok := connectorModel.DocsMap[result.URL]
+	doc, ok := connectorModel.DocsMap[result.SourceID]
 	if !ok {
 		doc = &model.Document{
 			DocumentID:  result.SourceID,
@@ -138,7 +139,7 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 			CreatedDate: time.Now().UTC(),
 			Status:      model.StatusInProgress,
 		}
-		connectorModel.DocsMap[result.URL] = doc
+		connectorModel.DocsMap[result.SourceID] = doc
 	}
 
 	doc.Status = model.StatusInProgress
@@ -148,19 +149,30 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 
 // refreshToken  refresh OAuth token and store credential in database
 func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
-	if cm.Credential == nil || cm.Credential.CredentialJson.Provider == model.ProviderCustom {
+	provider, ok := model.ConnectorAuthProvider[cm.Source]
+	if !ok {
 		return nil
 	}
+	token, ok := cm.ConnectorSpecificConfig["token"]
+	if !ok {
+		return fmt.Errorf("wrong token")
+	}
+
 	response, err := e.oauthClient.R().SetContext(ctx).
-		SetBody(cm.Credential.CredentialJson.Token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", cm.Credential.CredentialJson.Provider))
+		SetBody(token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", provider))
 
 	if err != nil || response.IsError() {
 		return fmt.Errorf("failed to refresh token: %v : %v", err, response.Error())
 	}
-	if err = json.Unmarshal(response.Body(), cm.Credential.CredentialJson.Token); err != nil {
+	var payload struct {
+		Data oauth2.Token `json:"data"`
+	}
+
+	if err = json.Unmarshal(response.Body(), &payload); err != nil {
 		return fmt.Errorf("failed to unmarshl token: %v : %v", err, response.Error())
 	}
-	if err = e.credentialRepo.Update(ctx, cm.Credential); err != nil {
+	cm.ConnectorSpecificConfig["token"] = payload.Data
+	if err = e.connectorRepo.Update(ctx, cm); err != nil {
 		return err
 	}
 	return nil

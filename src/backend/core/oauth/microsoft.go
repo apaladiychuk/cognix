@@ -21,7 +21,7 @@ const (
 	*/
 )
 
-var microsoftScope = "offline_access Files.Read.All"
+var microsoftScope = "offline_access Files.Read.All Sites.ReadWrite.All"
 
 type (
 	Config struct {

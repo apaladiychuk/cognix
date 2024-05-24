@@ -5,16 +5,21 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
+	"strings"
 	"time"
 )
 
 const mineURL = "url"
+const maxFileLimitGB = 1024 * 1024 * 1024
 
 var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       proto.FileType_XLS,
 	"application/vnd.openxmlformats-officedocument.wordprocessingml.document": proto.FileType_DOC,
 	"application/pdf": proto.FileType_PDF,
+	"application/rtf": proto.FileType_RTF,
 	"text/rtf":        proto.FileType_RTF,
+	"text/plain":      proto.FileType_TXT,
+	"application/vnd.openxmlformats-officedocument.presentationml.presentation": proto.FileType_PPT,
 }
 
 type Base struct {
@@ -43,8 +48,9 @@ func (r *Response) GetType() proto.FileType {
 	case mineURL:
 		return proto.FileType_URL
 	}
+	mimeType := strings.Split(r.MimeType, ";")
 
-	if fileType, ok := supportedMimeTypes[r.MimeType]; ok {
+	if fileType, ok := supportedMimeTypes[mimeType[0]]; ok {
 		return fileType
 	}
 	return proto.FileType_UNKNOWN

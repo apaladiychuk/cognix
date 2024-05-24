@@ -7,7 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 	_ "github.com/AzureAD/microsoft-authentication-library-for-go/apps/confidential"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-resty/resty/v2"
+	"golang.org/x/oauth2"
 
 	//"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
@@ -21,6 +23,7 @@ const (
 	getFilesURL         = "/me/drive/special/%s/children"
 	getDrive            = "https://graph.microsoft.com/v1.0/me/drive/root/children"
 	getFolderChild      = "https://graph.microsoft.com/v1.0/me/drive/items/%s/children"
+	createSharedLink    = "https://graph.microsoft.com/v1.0/me/drive/items/%s/createLink"
 )
 
 type (
@@ -31,7 +34,8 @@ type (
 		client *resty.Client
 	}
 	OneDriveParameters struct {
-		FolderName string `json:"folder_name"`
+		FolderName string       `json:"folder_name"`
+		Token      oauth2.Token `json:"token"`
 	}
 )
 
@@ -88,13 +92,13 @@ func (c *OneDrive) execute(ctx context.Context) {
 	}
 }
 
-func (c *OneDrive) getFile(ctx context.Context, item *DriveChildBody) error {
+func (c *OneDrive) getFile(item *DriveChildBody) error {
 	doc, ok := c.Base.model.DocsMap[item.Id]
 	if !ok {
 		doc = &model.Document{
 			DocumentID:  item.Id,
 			ConnectorID: c.Base.model.ID,
-			Link:        "",
+			Link:        item.MicrosoftGraphDownloadUrl,
 			Signature:   "",
 		}
 		c.Base.model.DocsMap[item.Id] = doc
@@ -104,28 +108,33 @@ func (c *OneDrive) getFile(ctx context.Context, item *DriveChildBody) error {
 	}
 	doc.Signature = item.File.Hashes.QuickXorHash
 	payload := &Response{
-		URL:         "",
+		URL:         item.MicrosoftGraphDownloadUrl,
 		SourceID:    item.Id,
 		Name:        item.Name,
 		DocumentID:  doc.ID.IntPart(),
 		MimeType:    item.File.MimeType,
-		SaveContent: true,
+		SaveContent: false,
 	}
-	// do not download content if file's type is not supported
-	if payload.GetType() != proto.FileType_UNKNOWN {
+	// do not process files that size greater than limit
+	if item.Size > maxFileLimitGB {
 		return nil
 	}
-	// download content
-	response, err := c.client.R().
-		SetContext(ctx).
-		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
-			c.model.Credential.CredentialJson.Token.TokenType,
-			c.model.Credential.CredentialJson.Token.AccessToken)).
-		Get(item.MicrosoftGraphDownloadUrl)
-	if err != nil || response.IsError() {
-		return fmt.Errorf("[%v] %v", err, response.Error())
+	// try to recognize type of file by content
+	if _, ok = supportedMimeTypes[item.File.MimeType]; !ok {
+		response, err := c.client.R().
+			SetDoNotParseResponse(true).
+			Get(item.MicrosoftGraphDownloadUrl)
+		if err == nil && !response.IsError() {
+			if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
+				payload.MimeType = mime.String()
+			}
+		}
+		response.RawBody().Close()
 	}
-	payload.Content = response.Body()
+	if payload.GetType() == proto.FileType_UNKNOWN {
+		zap.S().Infof("unsupported file %s type %s -- %s", item.Name, item.File.MimeType, payload.MimeType)
+		return nil
+	}
 	c.resultCh <- payload
 	return nil
 }
@@ -148,8 +157,8 @@ func (c *OneDrive) handleItems(ctx context.Context, items []*DriveChildBody) err
 		}
 		if item.File != nil {
 
-			if err := c.getFile(ctx, item); err != nil {
-				zap.S().Errorf("Failed to get file content with id %s : %s ", item.Id, err.Error())
+			if err := c.getFile(item); err != nil {
+				zap.S().Errorf("Failed to get file with id %s : %s ", item.Id, err.Error())
 				continue
 			}
 		}
@@ -161,8 +170,8 @@ func (c *OneDrive) request(ctx context.Context, url string) (*GetDriveResponse, 
 	response, err := c.client.R().
 		SetContext(ctx).
 		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
-			c.model.Credential.CredentialJson.Token.TokenType,
-			c.model.Credential.CredentialJson.Token.AccessToken)).
+			c.param.Token.TokenType,
+			c.param.Token.AccessToken)).
 		Get(url)
 	if err != nil || response.IsError() {
 		zap.S().Errorw("Error executing OneDrive", "error", err, "response", response)

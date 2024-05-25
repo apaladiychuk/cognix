@@ -26,8 +26,8 @@ class EmbedServicer(embed_service_pb2_grpc.EmbedServiceServicer):
             encoder = SentenceEncoder(request.model)  # Create an instance of TextEncoder with a specific model
             encoded_data = encoder.embed(request.content)  # Call the embed method with a sample text
             
-            logger.info("your encoded data")
-            logger.info(encoded_data)  # Print the encoded data
+            # logger.info("your encoded data")
+            # logger.info(encoded_data)  # Print the encoded data
 
             # remove encoded data and assign the vector variable directtly from encoder.embed(request.content) 
             embed_response.vector.extend(encoded_data)

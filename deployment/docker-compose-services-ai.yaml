@@ -14,7 +14,7 @@ services:
     ports:
       - "50051:50051"
     volumes:
-      - ${DATA_PATH}/models:/models
+      - ${DATA_PATH}/models:/app/models
     env_file:
       - ${CONFIG_PATH}/embedder.env
     restart: always

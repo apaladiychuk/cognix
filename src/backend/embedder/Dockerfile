@@ -1,4 +1,43 @@
-# # Use a slim Python base image
+# ###################################
+# Distroless working
+# ###################################
+FROM python:3.11.7-slim  AS build-env
+
+WORKDIR /app
+ADD ./ ./ 
+
+RUN pip3 install --upgrade pip && \
+    pip install -r ./requirements.txt
+
+# Install dependencies and clean up
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+RUN pip3 install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt \
+    && rm -rf /root/.cache
+# the container before this 3 lines is 107mb, after it's 982mb!!!!
+RUN pip install --no-cache-dir torch==2.3.0 --index-url https://download.pytorch.org/whl/cpu
+RUN pip install transformers==4.40.2 tqdm==4.66.4 numpy==1.26.4 scikit-learn==1.4.2 scipy==1.13.0 nltk==3.8.1 pillow==10.3.0
+RUN pip install --no-deps sentence-transformers==2.7.0
+
+FROM gcr.io/distroless/python3-debian12
+COPY --from=build-env /app /app
+COPY --from=build-env /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
+
+WORKDIR /app
+ENV PYTHONPATH=/usr/local/lib/python3.11/site-packages
+CMD ["embedder_service.py"]
+
+
+
+
+
+
+
+# # ###################################
+# # python slim working
+# # ###################################
 # # using Python 3.11.0 as the newr supported by PyTorch
 # FROM python:3.11.7-slim-bookworm
 
@@ -24,21 +63,10 @@
 # # Command to run your application
 # CMD ["python", "embedder_service.py"]
 
-FROM python:3.11.7-slim  AS build-env
 
-WORKDIR /app
-ADD ./ ./ 
 
-RUN pip3 install --upgrade pip && \
-    pip install -r ./requirements.txt
 
-FROM gcr.io/distroless/python3-debian12
-COPY --from=build-env /app /app
-COPY --from=build-env /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 
-WORKDIR /app
-ENV PYTHONPATH=/usr/local/lib/python3.11/site-packages
-CMD ["embedder_service.py"]
 
 
 

@@ -1,6 +1,10 @@
 import os
 from sentence_transformers import SentenceTransformer
+import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # todo: change local path to S3 storage
 class SentenceEncoder:
@@ -17,16 +21,16 @@ class SentenceEncoder:
         
         # Check if the model directory exists and has model files
         if not os.path.exists(self.model_path) or not os.listdir(self.model_path):
-            print("Model not found locally, downloading from Hugging Face...")
+            logger.info("Model not found locally, downloading from Hugging Face...")
             try:
                 # Download and save the model
                 model = SentenceTransformer(model_name)
                 model.save(self.model_path)
-                print(f"Model saved locally at {self.model_path}")
+                logger.info(f"Model saved locally at {self.model_path}")
             except Exception as e:
-                print(f"Failed to download or save the model due to: {e}")
+                logger.info(f"Failed to download or save the model due to: {e}")
         else:
-            print("Loading model from local directory...")
+            logger.info("Loading model from local directory...")
         
         # Load the model from the local path
         self.model = SentenceTransformer(self.model_path)

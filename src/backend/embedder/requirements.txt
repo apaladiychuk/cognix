@@ -3,7 +3,7 @@ nats-py==2.7.2
 python-dotenv==1.0.1
 grpcio==1.63.0
 grpcio-tools==1.63.0
-sentence-transformers==2.7.0
+#sentence-transformers==2.7.0
 
 
 # --find-links https://download.pytorch.org/whl/torch_stable.html

@@ -39,7 +39,8 @@ async def chunking_event( msg: Msg):
         chunker_helper = ChunkerHelper()
         chunker_helper.workout_message(chunking_data)
 
-        # await msg.ack_sync()
+        # ack when done
+        await msg.ack_sync()
         logger.info("Message acknowledged successfully")
     except Exception as e:
         logger.error(f"Chunking failed to process chunking data: {chunking_data} error: {e}")

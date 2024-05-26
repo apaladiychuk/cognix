@@ -1,18 +1,10 @@
-# from core.chunker_url import URLChunker 
-# from core.chunker_pdf import PDFChunker
-# from core.chunker_doc import DOCXChunker
-# from core.chunker_txt import TXTChunker
-# from core.chunker_md import MDChunker
-# from gen_types.chunking_data_pb2 import ChunkingData, FileType
-# from core.chunker_pdf import BaseChunker
-
-from chunker.core.chunker_url import URLChunker 
-from chunker.core.chunker_pdf import PDFChunker
-from chunker.core.chunker_doc import DOCXChunker
-from chunker.core.chunker_txt import TXTChunker
-from chunker.core.chunker_md import MDChunker
-from chunker.gen_types.chunking_data_pb2 import ChunkingData, FileType
-from chunker.core.chunker_pdf import BaseChunker
+from lib.chunker_url import URLChunker 
+from lib.chunker_pdf import PDFChunker
+from lib.chunker_doc import DOCXChunker
+from lib.chunker_txt import TXTChunker
+from lib.chunker_md import MDChunker
+from gen_types.chunking_data_pb2 import ChunkingData, FileType
+from lib.chunker_pdf import BaseChunker
 
 # Plaintext	.eml, .html, .md, .msg, .rst, .rtf, .txt, .xml
 # Documents	.csv, .doc, .docx, .epub, .odt, .pdf, .ppt, .pptx, .tsv, .xlsx

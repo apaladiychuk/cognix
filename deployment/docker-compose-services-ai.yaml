@@ -17,27 +17,28 @@ services:
     ports:
       - "50051:50051"
     volumes:
-      - ${DATA_PATH}/models:/app/models
+      - ${DATA_PATH}/models:/models
     env_file:
       - ${CONFIG_PATH}/embedder.env
     restart: always
     networks:
       - cognix-network
   
-  # chunker:
-  #   build:
-  #     context: ${COGNIX_PATH}
-  #     dockerfile: docker/Dockerfile-chunker
-  #     args:
-  #       - COGNIX_PATH=${COGNIX_PATH}
-  #   image: chunker:latest
-  #   container_name: chunker
-  #   volumes:
-  #     - ${DATA_PATH}/models:/models
-  #   env_file:
-  #     - ${CONFIG_PATH}/chunker.env
-  #   networks:
-  #     - cognix-network
+  chunker:
+    container_name: chunker
+    image: cognix/chunker:latest
+    build:
+      context: ../src/backend/
+      dockerfile: Dockerfile
+    # ports:
+    #   - "50051:50051"
+    # volumes:
+    #   - ${DATA_PATH}/models:/models
+    env_file:
+      - ${CONFIG_PATH}/chunker.env
+    restart: always
+    networks:
+      - cognix-network
 
   # api:
   #   container_name: api

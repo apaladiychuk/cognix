@@ -1,8 +1,11 @@
+# docker network create cognix-network
+#if network does not exists
 version: '3.8'
 networks:
   cognix-network:
     external: true
     name: cognix-network
+
 
 services:
   embedder:

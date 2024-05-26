@@ -80,44 +80,29 @@ class JetStreamEventSubscriber:
             deliver_policy=DeliverPolicy.ALL,
             #filter_subject="chunking.event.>"
         )
-
-        # consumer_config = ConsumerConfig(
-        #     ack_wait=900,
-        #     max_deliver=3, 
-        #     #max_ack_pending=1, 
-        #     ack_policy=AckPolicy.EXPLICIT,
-        #     deliver_policy=DeliverPolicy.ALL,
-        # ) 
-
-
         
         # Subscribe to the subject
         try:
-            
-            self.js.add_consumer
-
-
-            # psub = await self.js.pull_subscribe(stream=stream_config.name, subject="durable_chunkdata")
             psub = await self.js.pull_subscribe(
                 subject=self.subject,
                 stream=stream_config.name,
                 durable="worker",
                 config=consumer_config,
             )
+
             # psub.fetch()
             while True:
                 try:
                     await asyncio.sleep(2)
                     msgs = await psub.fetch(1, timeout=5)
                     for msg in msgs:
-                        # This is a life saver. Idk what it does. 
-                        await msg.ack_sync()
+                        # ack will be done once the process is completed
+                        # await msg.ack_sync()
                         await self.message_handler(msg)
+                    self.logger.info("Subscribed to JetStream successfully")
                 except TimeoutError:
-                    print("fetch timed out . Retrying")
+                    self.logger.info("fetch timed out . Retrying")
                     pass
-            # await self.js.subscribe(subject=stream_config.subjects[0], cb=self.message_handler)#, config=consumer_config)
-            self.logger.info("Subscribed to JetStream successfully")
         except Exception as e:
             self.logger.error(f"Can't subscribe to JetStream: {e}")
 

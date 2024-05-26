@@ -10,10 +10,9 @@ import (
 func TestWeb_Execute(t *testing.T) {
 	web, err := NewWeb(
 		&model.Connector{
-			ID:        decimal.NewFromInt(1),
-			Name:      "web test",
-			Source:    "web",
-			InputType: "src",
+			ID:     decimal.NewFromInt(1),
+			Name:   "web test",
+			Source: "web",
 			ConnectorSpecificConfig: model.JSONMap{
 				"url1": "https://help.collaboard.app/",
 				"url2": "https://apidog.com/blog/openapi-specification/",

@@ -1,60 +1,59 @@
-from concurrent import futures
-import time
-import trace
+import sys
+import os
 
-import grpc
-import embed_service_pb2_grpc, embed_service_pb2
+from gen_types.embed_service_pb2_grpc import EmbedServiceServicer, add_EmbedServiceServicer_to_server
+from gen_types.embed_service_pb2 import EmbedRequest, EmbedResponse
 from sentence_encoder import SentenceEncoder
 
+import grpc
+from concurrent import futures
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get log level from env 
+log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
+log_level = getattr(logging, log_level_str, logging.INFO)
+
+# Get log format from env 
+log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 
-class EmbedServicer(embed_service_pb2_grpc.EmbedServiceServicer):
-    # def __init__(self):
-        
-    
+# Get gRPC port from environment variable
+grpc_port = os.getenv('GRPC_PORT', '50051')
+
+class EmbedServicer(EmbedServiceServicer):
     def GetEmbeding(self, request, context):
         try:
             logger.info("embedd request arrived")
-            logger.info(request)
-            embed_response = embed_service_pb2.EmbedResponse()
+            logger.info(f"request: {request}")
+            embed_response = EmbedResponse()
 
-            # model_name = 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2'
-            encoder = SentenceEncoder(request.model)  # Create an instance of TextEncoder with a specific model
-            encoded_data = encoder.embed(request.content)  # Call the embed method with a sample text
+            encoded_data = SentenceEncoder.embed(text=request.content, model_name=request.model)
             
-            # logger.info("your encoded data")
-            # logger.info(encoded_data)  # Print the encoded data
+            # logger.info(f"request: {encoded_data}")
 
-            # remove encoded data and assign the vector variable directtly from encoder.embed(request.content) 
+            # assign the vector variable the response
             embed_response.vector.extend(encoded_data)
+            logger.info("embedd request succesfully processed")
             return embed_response
         except Exception as e:
             logger.exception(e)
             raise grpc.RpcError(f"Failed to process request: {str(e)}")
 
-
-
 def serve():
-    # telemetry_manager = OpenTelemetryManager()
-    # Default ThreadPoolExecutor: Without specifying the number of threads, ThreadPoolExecutor 
-    # uses os.cpu_count() as the default number of threads. This might not be optimal depending 
-    # on your specific workload and the Kubernetes pod’s CPU allocation.
-    # server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     server = grpc.server(futures.ThreadPoolExecutor())
-    embed_service_pb2_grpc.add_EmbedServiceServicer_to_server(EmbedServicer(), server)
-    
-    # when running on docker and locally
-    server.add_insecure_port("0.0.0.0:50051")
-    
-    # when runnning locally only
-    # server.add_insecure_port("localhost:50051")
-    
+
+    add_EmbedServiceServicer_to_server(EmbedServicer(), server)
+
+    server.add_insecure_port(f"0.0.0.0:{grpc_port}")
     server.start()
-    logger.info("embedder listeing on port 50051 localhost")
+    logger.info(f"Embedder listening on port {grpc_port}")
     server.wait_for_termination()
     
 if __name__ == "__main__":

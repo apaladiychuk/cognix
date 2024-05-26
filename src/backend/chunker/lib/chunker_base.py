@@ -1,5 +1,5 @@
 import logging
-from chunker.gen_types.chunking_data_pb2 import ChunkingData, FileType
+from gen_types.chunking_data_pb2 import ChunkingData, FileType
 
 class BaseChunker:
     def __init__(self):

@@ -1,3 +1,4 @@
+import os
 import asyncio
 import nats
 from pyclbr import Class
@@ -13,6 +14,13 @@ from datetime import datetime
 from nats.js.errors import NotFoundError
 import logging
 import uuid  
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get nats url from env 
+nats_url = os.getenv('NATS_URL', 'nats://127.0.0.1:4222').upper()
 
 class JetStreamEventSubscriber:     
     def __init__(self, stream_name: str, subject: str, proto_message_type: _message.Message):
@@ -26,7 +34,7 @@ class JetStreamEventSubscriber:
 
     async def connect_and_subscribe(self):
         # Connect to NATS
-        await self.nc.connect(servers=["nats://127.0.0.1:4222"])
+        await self.nc.connect(servers=[nats_url])
         # Create JetStream context
         self.js = self.nc.jetstream()
 

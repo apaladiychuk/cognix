@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import logging
-from chunker.core.chunked_list import ChunkedList
+from lib.chunked_list import ChunkedList
 
 class BS4Spider:
     def __init__(self, base_url):

@@ -1,17 +1,30 @@
+import os
 import asyncio
 from nats.aio.client import Client as NATS
 from google.protobuf.json_format import MessageToJson
 from nats.aio.msg import Msg
-from chunker.core.chunker_helper import ChunkerHelper
+from lib.chunker_helper import ChunkerHelper
 from nats.js.api import ConsumerConfig, DeliverPolicy, AckPolicy
 from datetime import datetime
-from chunker.gen_types.chunking_data_pb2 import ChunkingData
-from chunker.core.jetstream_event_subscriber import JetStreamEventSubscriber
+from gen_types.chunking_data_pb2 import ChunkingData
+from lib.jetstream_event_subscriber import JetStreamEventSubscriber
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get log level from env 
+log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
+log_level = getattr(logging, log_level_str, logging.INFO)
+
+# Get log format from env 
+log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
+
 
 # Define the event handler function
 async def chunking_event( msg: Msg):
@@ -34,14 +47,17 @@ async def chunking_event( msg: Msg):
 
 
 async def main():
-    subscriber = JetStreamEventSubscriber(
-        stream_name="connector",
-        subject="chunking",
-        proto_message_type=ChunkingData
-    )
+    try:
+        subscriber = JetStreamEventSubscriber(
+            stream_name="connector",
+            subject="chunking",
+            proto_message_type=ChunkingData
+        )
 
-    subscriber.set_event_handler(chunking_event)
-    await subscriber.connect_and_subscribe()
+        subscriber.set_event_handler(chunking_event)
+        await subscriber.connect_and_subscribe()
+    except Exception as e:
+        logger.exception(e)
 
     try:
         while True:

@@ -22,15 +22,14 @@
 go.work
 
 
-#Python
+
 # Ignore Python cache files
 __pycache__/
+
+# ignore data directory
 data/
 
 # Ignore model directories
-src/python/embedder/models/
-src/python/chunker/models/
+src/backend/embedder/models/
 
-# ignore data directory
-src/data
 

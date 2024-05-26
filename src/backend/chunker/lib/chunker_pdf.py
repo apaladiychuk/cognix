@@ -1,5 +1,5 @@
-from chunker.gen_types.chunking_data_pb2 import ChunkingData, FileType
-from chunker.core.chunker_base import BaseChunker
+from gen_types.chunking_data_pb2 import ChunkingData, FileType
+from lib.chunker_base import BaseChunker
 import logging
 
 class PDFChunker(BaseChunker):

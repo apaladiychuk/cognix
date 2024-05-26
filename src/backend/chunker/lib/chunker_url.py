@@ -1,6 +1,6 @@
-from chunker.gen_types.chunking_data_pb2 import ChunkingData, FileType
-from chunker.core.chunker_base import BaseChunker
-from chunker.core.spider_bs4 import BS4Spider  # Ensure you import the BS4Spider class correctly
+from gen_types.chunking_data_pb2 import ChunkingData, FileType
+from lib.chunker_base import BaseChunker
+from lib.spider_bs4 import BS4Spider  # Ensure you import the BS4Spider class correctly
 import logging
 
 class URLChunker(BaseChunker):

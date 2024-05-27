@@ -81,6 +81,7 @@ func (r *chatRepository) GetSessionByID(ctx context.Context, userID uuid.UUID, i
 		Where("chat_session.user_id = ?", userID).
 		Where("chat_session.id = ?", id).
 		Relation("Persona").
+		Relation("Persona.Prompt").
 		Relation("Persona.LLM").
 		Relation("Messages", func(query *orm.Query) (*orm.Query, error) {
 			return query.Order("time_sent asc"), nil

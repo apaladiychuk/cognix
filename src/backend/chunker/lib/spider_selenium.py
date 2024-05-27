@@ -53,6 +53,7 @@ class SeleniumSpider:
         return formatted_text
 
     def process_page(self, url):
+        start_time = time.time()  # Record the start time
         if url in self.visited:
             return
 
@@ -73,7 +74,11 @@ class SeleniumSpider:
                 if parsed_link.netloc == self.base_domain:
                     self.process_page(absolute_link)
 
-    def get_collected_data(self):
+        end_time = time.time()  # Record the end time
+        elapsed_time = end_time - start_time
+        self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+
+        # Return the collected data only after all recursive calls are complete
         return self.collected_data
 
     def close(self):

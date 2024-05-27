@@ -19,6 +19,9 @@ docker run -it --entrypoint /bin/sh cognix/embedder:latest
 # cleans a lot of space
 docker system prune
 
+# resources (cpu/ram) usage by container 
+docker stats
+docker stats {conteiner name}
 
 from cognix-services
 sudo docker-compose -f deployment/docker-compose-services-ai.yaml down

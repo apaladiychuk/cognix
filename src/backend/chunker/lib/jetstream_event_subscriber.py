@@ -21,6 +21,9 @@ load_dotenv()
 
 # Get nats url from env 
 nats_url = os.getenv('NATS_URL', 'nats://127.0.0.1:4222').upper()
+nats_ack_wait = os.getenv('NATS_ACK_WAIT', '30') # seconds
+nats_max_deliver = os.getenv('NATS_MAX_DELIVER', '3')
+
 
 class JetStreamEventSubscriber:     
     def __init__(self, stream_name: str, subject: str, proto_message_type: _message.Message):
@@ -73,8 +76,8 @@ class JetStreamEventSubscriber:
             #durable_name="durable_chunkdata",
             # Generate a unique durable name
             #durable_name=f"durable_{uuid.uuid4()}",  
-            ack_wait=30,  # 30 seconds
-            max_deliver=3,
+            ack_wait=nats_ack_wait,  # 30 seconds
+            max_deliver=nats_max_deliver,
             ack_policy=AckPolicy.EXPLICIT,
             # DeliverPolicy.ALL is mandatory when setting  retention=RetentionPolicy.WORK_QUEUE for StreamConfig
             deliver_policy=DeliverPolicy.ALL,

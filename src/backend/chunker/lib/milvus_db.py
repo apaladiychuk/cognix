@@ -6,11 +6,21 @@ from lib.chunked_item import ChunkedItem
 from gen_types.embed_service_pb2_grpc import EmbedServiceServicer, EmbedServiceStub
 from gen_types.embed_service_pb2 import EmbedRequest, EmbedResponse
 import grpc
-from time import time
+import time
 import logging
 import uuid  
 import os
 from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get nats url from env 
+milvus_alias = os.getenv("MILVUS_ALILAS", 'cognix_vecotr')
+milvus_host = os.getenv("MILVUS_HOST", "127.0.0.1")
+milvus_port = os.getenv("MILVUS_PORT", "19530")
+embedder_grpc_host = os.getenv("EMBEDDER_GRPC_HOST", "localhost")
+embedder_grpc_port = os.getenv("EMBEDDER_GRPC_PORT", "50051")
 
 class Milvus_DB:
     def __init__(self):
@@ -20,16 +30,17 @@ class Milvus_DB:
 
 
     def delete_by_document_id(self, document_id: int64, collection_name: str):
+        start_time = time.time()  # Record the start time
         try:
             # self.ensure_connection()
             # if self.is_connected() == False:
             #     raise Exception("Connot connect to Milvus")
-            
+
             connections.connect(
-                alias="default",
-                host='127.0.0.1',
+                alias=milvus_alias,
+                host=milvus_host,
                 # host='milvus-standalone'
-                port='19530'
+                port=milvus_port
             )
             
             if utility.has_collection(collection_name):    
@@ -50,10 +61,16 @@ class Milvus_DB:
                 self.logger.info(f"Collection {collection_name} does not exist.")
         except Exception as e:
             self.logger.error(f"Failed to delete document with document_id {document_id}: {e}")
+        finally:
+            end_time = time.time()  # Record the end time
+            elapsed_time = end_time - start_time
+            self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+
 
 
 
     def store_chunk(self, content: str, data: ChunkingData):
+        start_time = time.time()  # Record the start time
         try:
             # self.ensure_connection()
             # if self.is_connected() == False:
@@ -66,10 +83,10 @@ class Milvus_DB:
             # a pattern used by Milvus?
             # needs investigation
             connections.connect(
-                alias="default",
-                host='127.0.0.1',
+                alias=milvus_alias,
+                host=milvus_host,
                 # host='milvus-standalone'
-                port='19530'
+                port=milvus_port
             )
 
             fields = [
@@ -115,11 +132,17 @@ class Milvus_DB:
             self.logger.info(f"element succesfully insterted in collection {data.collection_name}")
         except Exception as e:
             self.logger.error(e)
+        finally:
+            end_time = time.time()  # Record the end time
+            elapsed_time = end_time - start_time
+            self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+
 
 
     def embedd(self, content_to_embedd: str, model: str) -> List[float]:
         # TODO: get padams fom env
-        with grpc.insecure_channel('localhost:50051') as channel:
+        start_time = time.time()  # Record the start time
+        with grpc.insecure_channel(f"{embedder_grpc_host}:{embedder_grpc_port}") as channel:
             stub = EmbedServiceStub(channel)
         
             self.logger.info("Calling gRPC Service GetEmbed - Unary")
@@ -130,7 +153,10 @@ class Milvus_DB:
         
         
             self.logger.info("GetEbedding gRPC call received correctly")
-            # self.logger.info(embed_response.vector)
+            end_time = time.time()  # Record the end time
+            elapsed_time = end_time - start_time
+            self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+
             return list(embed_response.vector)
 
 
@@ -138,10 +164,10 @@ class Milvus_DB:
         try:
             # TODO: get params from env
             connections.connect(
-                alias="default",
-                host='127.0.0.1',
+                alias=milvus_alias,
+                host=milvus_host,
                 # host='milvus-standalone'
-                port='19530'
+                port=milvus_port
             )
 
 

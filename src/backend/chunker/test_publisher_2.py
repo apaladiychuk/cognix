@@ -1,6 +1,6 @@
 import asyncio
 from nats.aio.client import Client as NATS
-from chunker.gen_types.chunking_data_pb2 import ChunkingData, FileType 
+from gen_types.chunking_data_pb2 import ChunkingData, FileType 
 from nats.errors import TimeoutError, NoRespondersError
 from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy, RetentionPolicy
 from nats.js.errors import NotFoundError, BadRequestError
@@ -74,7 +74,7 @@ async def main():
 
     # Create a fake ChunkingData message
     chunking_data = ChunkingData(
-        url="https://help.collaboard.app/working-with-collaboard",
+        url = "https://help.collaboard.app/sticky-notes",
         # url = "https://developer.apple.com/documentation/visionos/improving-accessibility-support-in-your-app",
         # url = "https://help.collaboard.app/what-is-collaboard",
         # url = "https://learn.microsoft.com/en-us/aspnet/core/tutorials/razor-pages/?view=aspnetcore-8.0",
@@ -82,8 +82,48 @@ async def main():
         site_map="",
         search_for_sitemap=True,
         document_id=993456789,
-        file_type=FileType.URL
+        file_type=FileType.URL,
+        collection_name="user_id_998",
+        model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+        model_dimension=768
     )
+
+    logger.info(f"message being sent \n {chunking_data}")
+
+    # Publish the message
+    await publisher.publish(chunking_data)
+
+    # Create a fake ChunkingData message
+    chunking_data = ChunkingData(
+        url="https://help.collaboard.app/extract-pages-from-a-document",
+        site_map="",
+        search_for_sitemap=True,
+        document_id=993456788,
+        file_type=FileType.URL,
+        collection_name="tennant_id_3",
+        model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+        model_dimension=768
+    )
+
+    logger.info(f"message being sent \n {chunking_data}")
+
+    # Publish the message
+    await publisher.publish(chunking_data)
+
+    
+        # Create a fake ChunkingData message
+    chunking_data = ChunkingData(
+        url="https://help.collaboard.app/upload-images",
+        site_map="",
+        search_for_sitemap=True,
+        document_id=993456788,
+        file_type=FileType.URL,
+        collection_name="tennant_id_5",
+        model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+        model_dimension=768
+    )
+
+    logger.info(f"message being sent \n {chunking_data}")
 
     # Publish the message
     await publisher.publish(chunking_data)

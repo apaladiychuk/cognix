@@ -5,7 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 import logging
-from lib.chunked_list import ChunkedList
+from lib.chunked_item import ChunkedItem
 from typing import List
 from urllib.parse import urljoin, urlparse
 
@@ -13,7 +13,7 @@ class SeleniumSpider:
 
     def __init__(self, base_url):
         self.visited = set()
-        self.collected_data: List[ChunkedList] = [] 
+        self.collected_data: List[ChunkedItem] = [] 
         self.base_domain = urlparse(base_url).netloc
         self.logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ class SeleniumSpider:
 
         page_content = self.extract_data(soup)
         if page_content:
-            self.collected_data.append(ChunkedList(url=url, content=page_content))
+            self.collected_data.append(ChunkedItem(url=url, content=page_content))
 
         links = [a['href'] for a in soup.find_all('a', href=True)]
         for link in links:

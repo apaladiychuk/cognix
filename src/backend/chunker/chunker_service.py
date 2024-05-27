@@ -8,6 +8,7 @@ from nats.js.api import ConsumerConfig, DeliverPolicy, AckPolicy
 from datetime import datetime
 from gen_types.chunking_data_pb2 import ChunkingData
 from lib.jetstream_event_subscriber import JetStreamEventSubscriber
+from lib.milvus_db import Milvus_DB
 import logging
 from dotenv import load_dotenv
 
@@ -37,9 +38,10 @@ async def chunking_event( msg: Msg):
         logger.info(f"Received message: {chunking_data}")
         
         chunker_helper = ChunkerHelper()
-        chunker_helper.workout_message(chunking_data)
+        await chunker_helper.workout_message(chunking_data)
 
-        # await msg.ack_sync()
+        # ack when done
+        await msg.ack_sync()
         logger.info("Message acknowledged successfully")
     except Exception as e:
         logger.error(f"Chunking failed to process chunking data: {chunking_data} error: {e}")

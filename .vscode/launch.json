@@ -15,12 +15,12 @@
             "name": "Chunker",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
-            "cwd": "${workspaceFolder}/src/backend",
+            "program": "chunker_service.py",
+            "cwd": "${workspaceFolder}/src/backend/chunker",
             "env": {
                 "LOG_LEVEL": "DEBUG",
                 "PYTHONUNBUFFERED": "1",
-                "PYTHONPATH": "${workspaceFolder}/src/backend"
+                "PYTHONPATH": "${workspaceFolder}/src/backend/chunker"
             }
         }
     ]

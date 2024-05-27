@@ -1,3 +1,10 @@
+# cluster rag.cognix versions
+# milvus:v2.4.0
+# nats:2.10.14
+# cockroach-operator:v2.12.0 which is using cockroach:v23.1.11
+
+
+
 version: '3.8'
 networks:
   cognix-network:
@@ -21,8 +28,8 @@ services:
     networks:
       - cognix-network
 
-  chunker:
-    container_name: chunker
+  chunker-1:
+    container_name: chunker-1
     image: cognix/chunker:latest
     build:
       context: ../src/backend/chunker
@@ -32,6 +39,30 @@ services:
     restart: always
     networks:
       - cognix-network
+
+  # chunker-2:  
+  #   container_name: chunker-2
+  #   image: cognix/chunker:latest
+  #   build:
+  #     context: ../src/backend/chunker
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ${CONFIG_PATH}/chunker.env
+  #   restart: always
+  #   networks:
+  #     - cognix-network
+
+  # chunker-3:  
+  #   container_name: chunker-3
+  #   image: cognix/chunker:latest
+  #   build:
+  #     context: ../src/backend/chunker
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ${CONFIG_PATH}/chunker.env
+  #   restart: always
+  #   networks:
+  #     - cognix-network
 
   minio:
     container_name: milvus-minio

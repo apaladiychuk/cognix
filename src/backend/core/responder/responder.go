@@ -22,5 +22,5 @@ type Response struct {
 }
 
 type ChatResponder interface {
-	Send(cx context.Context, ch chan *Response, wg *sync.WaitGroup, user *model.User, noLLM bool, parentMessage *model.ChatMessage)
+	Send(cx context.Context, ch chan *Response, wg *sync.WaitGroup, user *model.User, noLLM bool, parentMessage *model.ChatMessage, persona *model.Persona)
 }

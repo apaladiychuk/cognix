@@ -12,19 +12,19 @@ from lib.chunker_pdf import BaseChunker
 class ChunkerHelper:
     #def __init__(self):
         #print("ChunkerHelper initialized")
-    def workout_message(self, chunking_data: ChunkingData):
+    async def workout_message(self, chunking_data: ChunkingData):
         
         # iterate over the FileType property values 
         # to create the proper chunker class able to wor the file type
         chunker_class = chunker_mapping.get(chunking_data.file_type)
         if not chunker_class:
-            raise ValueError(f"Unsupported file type: {self.file_type}")
+            raise ValueError(f"Unsupported file type")
 
         chunker = chunker_class()
         
         # chunker.chunk must return a typed object
         # object definition [url, [chunks]]
-        chunker.chunk(chunking_data)
+        await chunker.chunk(chunking_data)
 
 chunker_mapping = {
     FileType.URL: URLChunker,

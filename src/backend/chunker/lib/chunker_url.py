@@ -7,14 +7,14 @@ from gen_types.chunking_data_pb2 import ChunkingData, FileType
 from lib.chunker_base import BaseChunker
 from lib.spider_bs4 import BS4Spider  # Ensure you import the BS4Spider class correctly
 import logging
-from datetime import datetime, timezone
+import time
 
 class URLChunker(BaseChunker):
 
     async def chunk(self, data: ChunkingData):
         try:
-            start_time = datetime.now(timezone.utc)
-            self.logger.info(f"Starting BS4Spider URL: {data.url} at {start_time.isoformat()}")
+            start_time = time.time()  # Record the start time
+            self.logger.info(f"Starting BS4Spider URL: {data.url}")
             
             spider = BS4Spider(data.url)
             collected_data = spider.process_page(data.url)
@@ -22,13 +22,14 @@ class URLChunker(BaseChunker):
             if not collected_data:
                 self.logger.warning(f"BS4Spider was not able to retrieve any content for {data.url}, switching to SeleniumSpider")
                 self.logger.warning("BS4Spider is disabled, shall be re-enabled and tested as it is not working 100%")
-                self.logger.info(f"Starting SeleniumSpider for: {data.url}")
-                spider = SeleniumSpider(data.url)
-                collected_data = spider.process_page(data.url)
+                # self.logger.info(f"Starting SeleniumSpider for: {data.url}")
+                # spider = SeleniumSpider(data.url)
+                # collected_data = spider.process_page(data.url)
 
             if collected_data:
                 milvus_db = Milvus_DB()
                 # delete db from previous added chunks and vectors
+
                 milvus_db.delete_by_document_id(document_id=data.document_id, collection_name=data.collection_name)
 
                 # storing the new chunks in milvus
@@ -36,19 +37,17 @@ class URLChunker(BaseChunker):
                     chunks = self.split_data(item.content, item.url)
                     for chunk, url in chunks:
                         milvus_db.store_chunk(content=chunk, data=data)
-                        result_size_kb = len(chunk.encode('utf-8')) / 1024
-                        self.logger.info(f"Chunk size for {url}: {result_size_kb:.2f} KB")
-                        self.logger.info(f"{url} chunk content: {chunk}")
+                        # result_size_kb = len(chunk.encode('utf-8')) / 1024
+                        # self.logger.info(f"Chunk size for {url}: {result_size_kb:.2f} KB")
+                        # self.logger.info(f"{url} chunk content: {chunk}")
                         # adding some deplay not to flood milvus wit ton of requests 
                         # await asyncio.sleep(0.5)
             else:
                 self.logger.warning(f"No content found for {data.url} using either BS4Spider or SeleniumSpider.")
 
-            finish_time = datetime.now(timezone.utc)
-            self.logger.info(f"Finished processing URL: {data.url} at {finish_time.isoformat()}")
-
-            elapsed_time = finish_time - start_time
-            self.logger.info(f"Elapsed time for processing {data.url}: {elapsed_time}")
+            end_time = time.time()  # Record the end time
+            elapsed_time = end_time - start_time
+            self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
             self.logger.info(f"Number of URLs analyzed: {len(collected_data)}")
 
             return collected_data

@@ -1,3 +1,4 @@
+import time
 from typing import List
 import requests
 from bs4 import BeautifulSoup
@@ -13,6 +14,7 @@ class BS4Spider:
         self.logger = logging.getLogger(__name__)
 
     def process_page(self, url) -> List[ChunkedItem]:
+        start_time = time.time()  # Record the start time
         # Check if the URL has been visited
         if url in self.visited:
             return None
@@ -42,6 +44,11 @@ class BS4Spider:
                 # Ensure the link is within the same domain
                 if parsed_link.netloc == self.base_domain:
                     self.process_page(absolute_link)
+
+
+        end_time = time.time()  # Record the end time
+        elapsed_time = end_time - start_time
+        self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
 
         # Return the collected data only after all recursive calls are complete
         return self.collected_data

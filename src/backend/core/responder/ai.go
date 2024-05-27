@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/shopspring/decimal"
+	"strings"
 	"sync"
 	"time"
 )
@@ -19,7 +20,10 @@ type aiResponder struct {
 	embedding *embedding
 }
 
-func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.WaitGroup, user *model.User, noLLM bool, parentMessage *model.ChatMessage) {
+func (r *aiResponder) Send(ctx context.Context,
+	ch chan *Response,
+	wg *sync.WaitGroup,
+	user *model.User, noLLM bool, parentMessage *model.ChatMessage, persona *model.Persona) {
 	defer wg.Done()
 	message := model.ChatMessage{
 		ChatSessionID:   parentMessage.ChatSessionID,
@@ -38,13 +42,21 @@ func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.Wait
 		return
 	}
 
-	//docs, err := r.embedding.FindDocuments(ctx, ch, &message, model.CollectionName(true, user.ID, user.TenantID),
-	//	model.CollectionName(false, user.ID, user.TenantID))
-	//if err != nil {
-	//
-	//}
+	docs, err := r.embedding.FindDocuments(ctx, ch, &message, model.CollectionName(true, user.ID, user.TenantID),
+		model.CollectionName(false, user.ID, user.TenantID))
+	if err != nil {
+
+	}
 	if noLLM {
 		return
+	}
+	messageParts := []string{
+		persona.Prompt.SystemPrompt,
+		parentMessage.Message,
+		persona.Prompt.TaskPrompt,
+	}
+	for _, doc := range docs {
+		messageParts = append(messageParts, doc.Content)
 	}
 	message.Message = ""
 	//_ = docs
@@ -55,8 +67,7 @@ func (r *aiResponder) Send(ctx context.Context, ch chan *Response, wg *sync.Wait
 	// default_prompt
 	// llm message format : system prompt \n user chat \n task_prompt \n document content1 \n ...\n document content n ( top 5)
 	//
-
-	response, err := r.aiClient.Request(ctx, parentMessage.Message)
+	response, err := r.aiClient.Request(ctx, strings.Join(messageParts, "\n"))
 
 	if err != nil {
 		message.Error = err.Error()

@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	StatusInvalidate = "invalidate"
 	StatusPending    = "pending"
 	StatusInProgress = "in_progress"
+	StatusChunking   = "chunking"
 	StatusEmbedding  = "embedding"
 	StatusComplete   = "complete"
 )

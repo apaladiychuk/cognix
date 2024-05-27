@@ -19,7 +19,11 @@ type embedding struct {
 	embeddingModel string
 }
 
-func (r *embedding) Send(ctx context.Context, ch chan *Response, wg *sync.WaitGroup, user *model.User, parentMessage *model.ChatMessage) {
+func (r *embedding) Send(ctx context.Context,
+	ch chan *Response, wg *sync.WaitGroup,
+	user *model.User,
+	parentMessage *model.ChatMessage,
+	persona *model.Persona) {
 
 	for i := 0; i < 4; i++ {
 		ch <- &Response{

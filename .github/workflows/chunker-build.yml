@@ -1,4 +1,4 @@
-name: Build embedder service
+name: Build chunker service
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -14,8 +14,8 @@ on:
     branches:
       - main
     paths:
-      - 'src/backend/embedder/**'
-      - '.github/workflows/embedder-build.yml'
+      - 'src/backend/chunker/**'
+      - '.github/workflows/chunker-build.yml'
   
 env:
   # Use docker.io for Docker Hub if empty
@@ -48,12 +48,12 @@ jobs:
     - name: Embedder Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./src/backend/embedder
-        file: ./src/backend/embedder/Dockerfile
+        context: ./src/backend/chunker
+        file: ./src/backend/chunker/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ env.ACRNAME }}.azurecr.io/cognix/embedder:${{env.GITHUB_SHA}}
+          ${{ env.ACRNAME }}.azurecr.io/cognix/chunker:${{env.GITHUB_SHA}}
         build-args: |
           COGNIX_VERSION=${{env.GITHUB_SHA}}
 
@@ -65,14 +65,14 @@ jobs:
     - name: Get AKS kubeconfig
       run: az aks get-credentials --resource-group $RGNAME --name $AKSNAME
 
-    - name: Update Embedder server manifest
+    - name: Update Chunker server manifest
       run:
-        sed -ie "s/embedder:main/embedder:${{env.GITHUB_SHA}}/g" ./src/backend/embedder/embedder-deployment.yaml
+        sed -ie "s/chunker:main/chunker:${{env.GITHUB_SHA}}/g" ./src/backend/chunker/chunker-deployment.yaml
 
-    - name: Deploy Embedder server manifests
+    - name: Deploy Chunker server manifest
       run: |
-        kubectl apply -f ./src/backend/embedder/embedder-deployment.yaml
+        kubectl apply -f ./src/backend/chunker/chunker-deployment.yaml 
 
-    - name: Delete Embedder server pod
+    - name: Delete Chunker server pod
       run: |
-        kubectl rollout restart deploy/embedder
+        kubectl rollout restart deploy/chunker

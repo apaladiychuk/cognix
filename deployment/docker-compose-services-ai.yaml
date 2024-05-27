@@ -12,7 +12,7 @@ services:
     container_name: embedder
     image: cognix/embedder:latest
     build:
-      context: ../src/backend/chunker
+      context: ../src/backend/embedder
       dockerfile: Dockerfile
     ports:
       - "50051:50051"

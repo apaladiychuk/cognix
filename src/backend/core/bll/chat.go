@@ -69,10 +69,10 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 	aiClient := b.aiBuilder.New(chatSession.Persona.LLM)
 	resp := responder.NewManager(
 		responder.NewAIResponder(aiClient, b.chatRepo,
-			b.embedding, b.milvusClinet, b.docRepo, ""),
+			b.embedding, b.milvusClinet, b.docRepo, "paraphrase-multilingual-mpnet-base-v2"),
 	)
 
-	go resp.Send(ctx, user, noLLM, &message)
+	go resp.Send(ctx, user, noLLM, &message, chatSession.Persona)
 	return resp, nil
 }
 

@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
+	"github.com/lib/pq"
 	"time"
 )
 
@@ -16,6 +17,7 @@ type (
 		FindByID(ctx context.Context, id int64) (*model.Document, error)
 		Create(ctx context.Context, document ...*model.Document) error
 		Update(ctx context.Context, document *model.Document) error
+		ArchiveRestore(ctx context.Context, restore bool, ids ...int64) error
 	}
 	documentRepository struct {
 		db *pg.DB
@@ -67,6 +69,20 @@ func (r *documentRepository) Update(ctx context.Context, document *model.Documen
 	document.UpdatedDate = pg.NullTime{time.Now().UTC()}
 	if _, err := r.db.WithContext(ctx).Model(document).Where("id = ? ", document.ID).Update(); err != nil {
 		return utils.Internal.Wrapf(err, "can not update document [%s]", err.Error())
+	}
+	return nil
+}
+
+func (r *documentRepository) ArchiveRestore(ctx context.Context, restore bool, ids ...int64) error {
+	var deletedTime pg.NullTime
+	if !restore {
+		deletedTime = pg.NullTime{time.Now().UTC()}
+	}
+	if _, err := r.db.WithContext(ctx).Model(&model.Document{}).
+		Set("updated_date = ?", time.Now().UTC()).
+		Set("deleted_date = ?", deletedTime).
+		Where("id = any ?", pq.Array(ids)).Update(); err != nil {
+		return utils.Internal.Wrap(err, "can not update documents")
 	}
 	return nil
 }

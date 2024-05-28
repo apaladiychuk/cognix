@@ -1,3 +1,4 @@
+import time
 import sys
 import os
 
@@ -29,6 +30,7 @@ grpc_port = os.getenv('GRPC_PORT', '50051')
 
 class EmbedServicer(EmbedServiceServicer):
     def GetEmbeding(self, request, context):
+        start_time = time.time()  # Record the start time
         try:
             logger.info("embedd request arrived")
             logger.info(f"request: {request}")
@@ -45,6 +47,11 @@ class EmbedServicer(EmbedServiceServicer):
         except Exception as e:
             logger.exception(e)
             raise grpc.RpcError(f"Failed to process request: {str(e)}")
+        finally:
+            end_time = time.time()  # Record the end time
+            elapsed_time = end_time - start_time
+            logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor())

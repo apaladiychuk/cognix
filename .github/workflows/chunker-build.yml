@@ -1,4 +1,4 @@
-name: Build api service
+name: Build chunker service
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -14,14 +14,17 @@ on:
     branches:
       - main
     paths:
-      - 'src/backend/api/**'
-      - 'src/backend/core/**'
-      - 'src/backend/go.mod'
-      - '.github/workflows/api-service-build.yml'
+      - 'src/backend/chunker/**'
+      - '.github/workflows/chunker-build.yml'
+  
 env:
+  # Use docker.io for Docker Hub if empty
+  #REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  #IMAGE_NAME: ${{ github.repository }}
   RGNAME: AKS_RG
   ACRNAME: cognixacr
-  AKSNAME: Cognix_AKS
+  AKSNAME: Cognix_AKS  
   GITHUB_SHA: ${{ github.sha }}
 
 jobs:
@@ -42,18 +45,17 @@ jobs:
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
 
-    - name: API Service Image Docker Build and Push
+    - name: Embedder Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./src/backend
-        file: ./src/backend/Dockerfile
+        context: ./src/backend/chunker
+        file: ./src/backend/chunker/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ env.ACRNAME }}.azurecr.io/cognix/apiservice:${{env.GITHUB_SHA}}
+          ${{ env.ACRNAME }}.azurecr.io/cognix/chunker:${{env.GITHUB_SHA}}
         build-args: |
           COGNIX_VERSION=${{env.GITHUB_SHA}}
-          service=api
 
     - name: Login to Azure
       uses: azure/login@v1
@@ -63,14 +65,14 @@ jobs:
     - name: Get AKS kubeconfig
       run: az aks get-credentials --resource-group $RGNAME --name $AKSNAME
 
-    - name: Update API server manifest
+    - name: Update Chunker server manifest
       run:
-        sed -ie "s/apiservice:main/apiservice:${{env.GITHUB_SHA}}/g" ./src/backend/api/api-service-deployment.yaml
+        sed -ie "s/chunker:main/chunker:${{env.GITHUB_SHA}}/g" ./src/backend/chunker/chunker-deployment.yaml
 
-    - name: Deploy API server manifests
+    - name: Deploy Chunker server manifest
       run: |
-        kubectl apply -f ./src/backend/api/api-service-deployment.yaml 
+        kubectl apply -f ./src/backend/chunker/chunker-deployment.yaml 
 
-    - name: Delete API server pod
+    - name: Delete Chunker server pod
       run: |
-        kubectl rollout restart deploy/apiservice
+        kubectl rollout restart deploy/chunker

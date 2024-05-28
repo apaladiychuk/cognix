@@ -8,6 +8,8 @@ import (
 	milvus "github.com/milvus-io/milvus-sdk-go/v2/client"
 	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 	"go.uber.org/fx"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -43,6 +45,7 @@ type (
 		CreateSchema(ctx context.Context, name string) error
 		Save(ctx context.Context, collection string, payloads ...*MilvusPayload) error
 		Load(ctx context.Context, collection string, vector []float32) ([]*MilvusPayload, error)
+		Delete(ctx context.Context, collection string, documentID ...int64) error
 	}
 	milvusClient struct {
 		client        milvus.Client
@@ -50,6 +53,14 @@ type (
 		IndexStrategy string
 	}
 )
+
+func (c *milvusClient) Delete(ctx context.Context, collection string, documentID ...int64) error {
+	ids := make([]string, 0, len(documentID))
+	for _, id := range documentID {
+		ids = append(ids, strconv.FormatInt(id, 10))
+	}
+	return c.client.Delete(ctx, collection, "", fmt.Sprintf("document_id in [%s]", strings.Join(ids, ",")))
+}
 
 func (v MilvusConfig) Validate() error {
 	return validation.ValidateStruct(&v,

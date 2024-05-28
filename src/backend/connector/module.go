@@ -23,6 +23,7 @@ var Module = fx.Options(
 	repository.DatabaseModule,
 	messaging.NatsModule,
 	storage.MinioModule,
+	storage.MilvusModule,
 	ai.ChunkingModule,
 	fx.Provide(
 		func() (*Config, error) {

@@ -12,6 +12,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-pg/pg/v10"
 	"github.com/go-resty/resty/v2"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
@@ -27,6 +28,7 @@ type Executor struct {
 	msgClient        messaging.Client
 	chunking         ai.Chunking
 	minioClient      storage.MinIOClient
+	milvusClient     storage.MilvusClient
 	oauthClient      *resty.Client
 	cancel           context.CancelFunc
 	subscriptionName string
@@ -58,10 +60,6 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 		return err
 	}
 
-	// todo move to connector
-	if err = e.connectorRepo.InvalidateConnector(ctx, connectorModel); err != nil {
-		return err
-	}
 	// create new instance of connector by connector model
 	connectorWF, err := connector.New(connectorModel)
 	if err != nil {
@@ -89,7 +87,6 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 
 		if loopErr != nil {
 			err = loopErr
-			doc.Status = model.StatusFailed
 			zap.S().Errorf("Failed to update document: %v", loopErr)
 			continue
 		}
@@ -103,15 +100,31 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 			}},
 		}); loopErr != nil {
 			err = loopErr
-			doc.Status = model.StatusFailed
 			zap.S().Errorf("Failed to update document: %v", loopErr)
 			continue
+		}
+	}
+	// remove documents that were removed from source
+	var ids []int64
+	for _, doc := range connectorModel.DocsMap {
+		if doc.IsExists || doc.ID.IntPart() == 0 {
+			continue
+		}
+		ids = append(ids, doc.ID.IntPart())
+	}
+	if len(ids) > 0 {
+		if loopErr := e.docRepo.ArchiveRestore(ctx, false, ids...); loopErr != nil {
+			err = loopErr
 		}
 	}
 	if err != nil {
 		connectorModel.LastAttemptStatus = model.StatusFailed
 	} else {
 		connectorModel.LastAttemptStatus = model.StatusSuccess
+	}
+	connectorModel.LastSuccessfulIndexTime = pg.NullTime{time.Now().UTC()}
+	if err = e.milvusClient.Delete(ctx, connectorModel.CollectionName(), ids...); err != nil {
+		return err
 	}
 	if err = e.connectorRepo.Update(ctx, connectorModel); err != nil {
 		return err
@@ -137,13 +150,9 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 			ConnectorID: connectorModel.ID,
 			Link:        result.URL,
 			CreatedDate: time.Now().UTC(),
-			Status:      model.StatusInProgress,
 		}
 		connectorModel.DocsMap[result.SourceID] = doc
 	}
-
-	doc.Status = model.StatusInProgress
-
 	return doc
 }
 
@@ -186,6 +195,7 @@ func NewExecutor(
 	streamClient messaging.Client,
 	chunking ai.Chunking,
 	minioClient storage.MinIOClient,
+	milvusClient storage.MilvusClient,
 	oauthClient *resty.Client,
 ) *Executor {
 	return &Executor{
@@ -196,6 +206,7 @@ func NewExecutor(
 		msgClient:        streamClient,
 		chunking:         chunking,
 		minioClient:      minioClient,
+		milvusClient:     milvusClient,
 		oauthClient:      oauthClient,
 	}
 }

@@ -26,7 +26,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - service-network
+      - cognix-network
 
   orchestrator:
     image: cognix:orchestrator
@@ -45,7 +45,7 @@ services:
     volumes:
       - ${BACKEND_PATH}:/backend
     networks:
-      - service-network
+      - cognix-network
 
   connector:
     image: cognix:connector
@@ -67,7 +67,7 @@ services:
     volumes:
       - ${BACKEND_PATH}:/backend
     networks:
-      - service-network
+      - cognix-network
 
 
   connector2:
@@ -90,7 +90,7 @@ services:
     volumes:
       - ${BACKEND_PATH}:/backend
     networks:
-      - service-network
+      - cognix-network
 
   migration:
     image: cognix:migration
@@ -103,13 +103,13 @@ services:
     env_file:
       - ${CONFIG_PATH}/cockroach.env
     networks:
-      - service-network
+      - cognix-network
 
 volumes:
   db_volume:
   nats-storage:
 
 networks:
-  service-network:
-    external:
-      name: cognix-network
+  cognix-network:
+    # external: true
+    name: cognix-network

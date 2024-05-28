@@ -18,21 +18,11 @@ type (
 		GetBySource(ctx context.Context, tenantID, userID uuid.UUID, source model.SourceType) (*model.Connector, error)
 		Create(ctx context.Context, connector *model.Connector) error
 		Update(ctx context.Context, connector *model.Connector) error
-		InvalidateConnector(ctx context.Context, connector *model.Connector) error
 	}
 	connectorRepository struct {
 		db *pg.DB
 	}
 )
-
-func (r *connectorRepository) InvalidateConnector(ctx context.Context, connector *model.Connector) error {
-	if _, err := r.db.WithContext(ctx).Model(&model.Document{}).
-		Set("status = ?", model.StatusPending).
-		Where("connector_id  = ?", connector.ID.IntPart()).Update(); err != nil {
-		return utils.Internal.Wrap(err, "Error while invalidating connector")
-	}
-	return nil
-}
 
 func (r *connectorRepository) GetBySource(ctx context.Context, tenantID, userID uuid.UUID, source model.SourceType) (*model.Connector, error) {
 	var connector model.Connector

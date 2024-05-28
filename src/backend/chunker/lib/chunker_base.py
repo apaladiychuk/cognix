@@ -46,7 +46,6 @@ class BaseChunker:
         for i, chunk in enumerate(texts):
             self.logger.info(f"### Chunk {i+1}: \n{chunk.page_content}\n")
 
-        # TODO: add to the return list only if the chunk is longer than x chars
         return [(chunk.page_content, url) for chunk in texts if chunk]
 
 

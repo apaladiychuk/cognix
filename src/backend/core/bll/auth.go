@@ -7,6 +7,7 @@ import (
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/google/uuid"
+	"time"
 )
 
 type (
@@ -18,17 +19,18 @@ type (
 		QuickLogin(ctx context.Context, identity *oauth.IdentityResponse) (*model.User, error)
 	}
 	authBL struct {
-		userRepo    repository.UserRepository
-		redirectURL string
+		userRepo repository.UserRepository
+		cfg      *Config
 		//storage     storage.Storage
 	}
 )
 
 func NewAuthBL(userRepo repository.UserRepository,
+
 	cfg *Config) AuthBL {
 	return &authBL{
-		userRepo:    userRepo,
-		redirectURL: cfg.RedirectURL,
+		userRepo: userRepo,
+		cfg:      cfg,
 	}
 }
 
@@ -48,14 +50,36 @@ func (a *authBL) SignUp(ctx context.Context, identity *oauth.IdentityResponse) (
 	if exists {
 		return nil, utils.ErrorBadRequest.New("user already exists")
 	}
+	userID := uuid.New()
+	tenantID := uuid.New()
+
 	user := model.User{
-		ID:         uuid.New(),
-		TenantID:   uuid.New(),
+		ID:         userID,
+		TenantID:   tenantID,
 		UserName:   identity.Email,
 		FirstName:  identity.GivenName,
 		LastName:   identity.FamilyName,
 		ExternalID: identity.ID,
 		Roles:      model.StringSlice{model.RoleSuperAdmin},
+		Defaults: &model.Defaults{
+			EmbeddingModel: &model.EmbeddingModel{
+				TenantID:    tenantID,
+				ModelID:     a.cfg.DefaultEmbeddingModel,
+				ModelName:   a.cfg.DefaultEmbeddingModel,
+				ModelDim:    a.cfg.DefaultEmbeddingVectorSize,
+				IsActive:    true,
+				CreatedDate: time.Now().UTC(),
+			},
+			FileConnector: &model.Connector{
+				Name:                    "file connector",
+				Source:                  model.SourceTypeFile,
+				UserID:                  userID,
+				TenantID:                tenantID,
+				Shared:                  true,
+				ConnectorSpecificConfig: make(model.JSONMap),
+				CreatedDate:             time.Now().UTC(),
+			},
+		},
 	}
 	if user.FirstName == "" {
 		user.FirstName = identity.Name
@@ -63,6 +87,7 @@ func (a *authBL) SignUp(ctx context.Context, identity *oauth.IdentityResponse) (
 	if err = a.userRepo.RegisterUser(ctx, &user); err != nil {
 		return nil, err
 	}
+
 	return &user, nil
 }
 

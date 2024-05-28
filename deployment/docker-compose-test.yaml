@@ -42,6 +42,19 @@ services:
     networks:
       - cognix-network
 
+  cognix-web:
+    container_name: web-ui
+    image: cognix/web:latest
+    build:
+      context: ../src/web
+      dockerfile: Dockerfile
+    ports:
+      - "3680:80"
+    env_file:
+      - ${CONFIG_PATH}/web_srv.env
+    networks:
+      - cognix-network
+
   # chunker-2:  
   #   container_name: chunker-2
   #   image: cognix/chunker:latest
@@ -156,6 +169,7 @@ services:
   # https://github.com/zilliztech/attu
   
   cockroach:
+    container_name: cockroach
     image: cockroachdb/cockroach:latest-v23.2
     ports:
       - "26257:26257"

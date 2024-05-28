@@ -21,8 +21,8 @@ load_dotenv()
 
 # Get nats url from env 
 nats_url = os.getenv('NATS_URL', 'nats://127.0.0.1:4222').upper()
-nats_ack_wait = os.getenv('NATS_ACK_WAIT', '30') # seconds
-nats_max_deliver = os.getenv('NATS_MAX_DELIVER', '3')
+nats_ack_wait = int(os.getenv('NATS_ACK_WAIT', '30')) # seconds
+nats_max_deliver = int(os.getenv('NATS_MAX_DELIVER', '3'))
 
 
 class JetStreamEventSubscriber:     
@@ -36,32 +36,33 @@ class JetStreamEventSubscriber:
         self.logger = logging.getLogger(self.__class__.__name__)
 
     async def connect_and_subscribe(self):
-        # Connect to NATS
-        await self.nc.connect(servers=[nats_url])
-        # Create JetStream context
-        self.js = self.nc.jetstream()
-
-        # Create the stream configuration
-        stream_config = StreamConfig(
-            name=self.stream_name,
-            subjects=[self.subject],
-            # A work-queue retention policy satisfies a very common use case of queuing up messages that are intended to be processed once and only once.
-            # https://natsbyexample.com/examples/jetstream/workqueue-stream/go
-            retention=RetentionPolicy.WORK_QUEUE
-            #retention=RetentionPolicy.LIMITS        
-        )
-        
         try:
-            await self.js.add_stream(stream_config)
-        except BadRequestError as e:
-            if e.code == 400:
-                self.logger.info("Jetstream stream was using a different configuration. Destroying and recreating with the right configuration")
-                try:
-                    await self.js.delete_stream(stream_config.name)
-                    await self.js.add_stream(stream_config)
-                    self.logger.info("Jetstream stream re-created successfully")
-                except Exception as e:
-                    self.logger.exception(f"Exception while deleting and recreating Jetstream: {e}")
+            # Connect to NATS
+            await self.nc.connect(servers=[nats_url])
+            # Create JetStream context
+            self.js = self.nc.jetstream()
+
+            # Create the stream configuration
+            stream_config = StreamConfig(
+                name=self.stream_name,
+                subjects=[self.subject],
+                # A work-queue retention policy satisfies a very common use case of queuing up messages that are intended to be processed once and only once.
+                # https://natsbyexample.com/examples/jetstream/workqueue-stream/go
+                retention=RetentionPolicy.WORK_QUEUE
+                #retention=RetentionPolicy.LIMITS        
+            )
+            
+            try:
+                await self.js.add_stream(stream_config)
+            except BadRequestError as e:
+                if e.code == 400:
+                    self.logger.info("Jetstream stream was using a different configuration. Destroying and recreating with the right configuration")
+                    try:
+                        await self.js.delete_stream(stream_config.name)
+                        await self.js.add_stream(stream_config)
+                        self.logger.info("Jetstream stream re-created successfully")
+                    except Exception as e:
+                        self.logger.exception(f"Exception while deleting and recreating Jetstream: {e}")
         except Exception as e:
             self.logger.exception(e)
             raise e

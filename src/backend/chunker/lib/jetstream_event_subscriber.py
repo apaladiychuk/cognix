@@ -62,6 +62,9 @@ class JetStreamEventSubscriber:
                     self.logger.info("Jetstream stream re-created successfully")
                 except Exception as e:
                     self.logger.exception(f"Exception while deleting and recreating Jetstream: {e}")
+        except Exception as e:
+            self.logger.exception(e)
+            raise e
 
         # # Create single ephemeral push based subscriber.
         # sub = await self.js.subscribe("foo")

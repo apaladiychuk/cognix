@@ -80,11 +80,9 @@ func (c *clientStream) Listen(ctx context.Context, topic, subscriptionName strin
 }
 
 func NewClientStream(cfg *natsConfig) (Client, error) {
+	zap.S().Infof("Connecting to NATS Stream %s", cfg.URL)
 	conn, err := nats.Connect(
 		cfg.URL,
-		nats.Name("Cognix"),
-		nats.MaxReconnects(reconnectAttempts),
-		nats.ReconnectWait(reconnectWaitTime),
 	)
 	if err != nil {
 		zap.S().Errorf("Error connecting to NATS: %s", err.Error())

@@ -12,6 +12,9 @@
 ?? ***Need to define dimension fo vector array*** 
 for testing with open-ai i used 1536 
 
+??? Milvus schemas for user and tenant can be created 
+- when user signin first time. (golang)
+- when first document will be processed in embedder service (python)
 
 ```shell
 cockroach table documents

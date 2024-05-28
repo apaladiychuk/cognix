@@ -103,6 +103,7 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 		}
 		c.Base.model.DocsMap[item.Id] = doc
 	}
+	doc.IsExists = true
 	if doc.Signature == item.File.Hashes.QuickXorHash {
 		return nil
 	}

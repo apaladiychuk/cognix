@@ -32,7 +32,7 @@ func (t *cronTrigger) Do(ctx context.Context, conn *model.Connector) error {
 	// one approach could be that this method will extract top x rows from the database
 	// and it will book them
 	if conn.LastSuccessfulIndexTime.IsZero() ||
-		conn.LastSuccessfulIndexTime.Add(time.Duration(conn.RefreshFreq)*time.Second).Before(time.Now()) {
+		conn.LastSuccessfulIndexTime.Add(time.Duration(conn.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, conn.ID.IntPart()))
 		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(conn.Source)))

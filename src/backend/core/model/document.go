@@ -7,29 +7,17 @@ import (
 	"time"
 )
 
-const (
-	StatusPending    = "pending"
-	StatusInProgress = "in_progress"
-	StatusChunking   = "chunking"
-	StatusEmbedding  = "embedding"
-	StatusComplete   = "complete"
-)
-
 type Document struct {
 	tableName   struct{}        `pg:"documents"`
 	ID          decimal.Decimal `json:"id,omitempty"`
 	DocumentID  string          `json:"document_id,omitempty"`
 	ConnectorID decimal.Decimal `json:"connector_id,omitempty"`
-	//Boost            int             `json:"boost,omitempty" pg:",use_zero"`
-	//Hidden           bool            `json:"hidden,omitempty" pg:",use_zero"`
-	//SemanticID       string          `json:"semantic_id,omitempty" pg:",use_zero"`
-	Link string `json:"link,omitempty" pg:"link"`
-	//FromIngestionAPI bool            `json:"from_ingestion_api,omitempty" pg:",use_zero"`
-	Signature   string      `json:"signature,omitempty" pg:",use_zero"`
-	CreatedDate time.Time   `json:"created_date,omitempty"`
-	UpdatedDate pg.NullTime `json:"updated_date,omitempty" pg:",use_zero"`
-	DeletedDate pg.NullTime `json:"deleted_date,omitempty" pg:",use_zero"`
-	Status      string      `json:"status,omitempty" pg:",use_zero"`
+	Link        string          `json:"link,omitempty" pg:"link"`
+	Signature   string          `json:"signature,omitempty" pg:",use_zero"`
+	CreatedDate time.Time       `json:"created_date,omitempty"`
+	UpdatedDate pg.NullTime     `json:"updated_date,omitempty" pg:",use_zero"`
+	DeletedDate pg.NullTime     `json:"deleted_date,omitempty" pg:",use_zero"`
+	IsExists    bool            `json:"-" pg:"-"`
 }
 
 type DocumentResponse struct {

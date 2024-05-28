@@ -92,7 +92,6 @@ services:
       - ETCD_AUTO_COMPACTION_RETENTION=1000
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
       - ETCD_SNAPSHOT_COUNT=50000
-      - LOG_LEVEL=ERROR
     volumes:
       - "../data/etcd:/etcd"
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
@@ -113,9 +112,9 @@ services:
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
-      LOG_LEVEL: ERROR
     volumes:
       - "../data/milvus:/var/lib/milvus"
+      # - "./milvus.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
       interval: 30s
@@ -150,6 +149,8 @@ services:
     networks:
       - cognix-network
 
+  # natsmq configuration.
+  # more detail: https://docs.nats.io/running-a-nats-service/configuration
   nats:
     image: nats:latest
     container_name: nats
@@ -166,6 +167,7 @@ services:
       - "--sd=/data/nats"
     networks:
       - cognix-network
+  
 
 volumes:
   nats-storage:

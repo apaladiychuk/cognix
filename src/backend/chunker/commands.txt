@@ -19,6 +19,9 @@ docker run -it --entrypoint /bin/sh cognix/embedder:latest
 # cleans a lot of space
 docker system prune
 
+# resources (cpu/ram) usage by container 
+docker stats
+docker stats {conteiner name}
 
 from cognix-services
 sudo docker-compose -f deployment/docker-compose-services-ai.yaml down
@@ -35,7 +38,7 @@ execute conda config --set auto_activate_base False or
 turn off "Activate Python Environment in all Terminals created" setting in the Python extension configuration in VSCode.
 
 To generate python objects out of proto files
-Attention this is the right command I got sever troubles 
+Attention this is the right command I got severe troubles 
 python -m grpc_tools.protoc -I .  --python_out=. --pyi_out=. --grpc_python_out=. protos/embed_service.proto
 
 python3 -m grpc_tools.protoc -I .  --python_out=. --pyi_out=. --grpc_python_out=. embedd_service.proto

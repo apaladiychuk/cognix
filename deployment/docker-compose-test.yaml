@@ -1,0 +1,176 @@
+# cluster rag.cognix versions
+# milvus:v2.4.0
+# nats:2.10.14
+# cockroach-operator:v2.12.0 which is using cockroach:v23.1.11
+
+
+
+version: '3.8'
+networks:
+  cognix-network:
+    # external: true
+    name: cognix-network
+
+services:
+  embedder:
+    container_name: embedder
+    image: cognix/embedder:latest
+    build:
+      context: ../src/backend/embedder
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
+    volumes:
+      - ${DATA_PATH}/models:/models
+    env_file:
+      - ${CONFIG_PATH}/embedder.env
+    restart: always
+    networks:
+      - cognix-network
+
+  chunker-1:
+    container_name: chunker-1
+    image: cognix/chunker:latest
+    build:
+      context: ../src/backend/chunker
+      dockerfile: Dockerfile
+    env_file:
+      - ${CONFIG_PATH}/chunker.env
+    restart: always
+    networks:
+      - cognix-network
+
+  # chunker-2:  
+  #   container_name: chunker-2
+  #   image: cognix/chunker:latest
+  #   build:
+  #     context: ../src/backend/chunker
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ${CONFIG_PATH}/chunker.env
+  #   restart: always
+  #   networks:
+  #     - cognix-network
+
+  # chunker-3:  
+  #   container_name: chunker-3
+  #   image: cognix/chunker:latest
+  #   build:
+  #     context: ../src/backend/chunker
+  #     dockerfile: Dockerfile
+  #   env_file:
+  #     - ${CONFIG_PATH}/chunker.env
+  #   restart: always
+  #   networks:
+  #     - cognix-network
+
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "9001:9001"
+      - "9000:9000"
+    volumes:
+      - "../data/minio:/minio_data"
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - cognix-network
+
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.5
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+      - LOG_LEVEL=ERROR
+    volumes:
+      - "../data/etcd:/etcd"
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - cognix-network
+
+  standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.3.0
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+      LOG_LEVEL: ERROR
+    volumes:
+      - "../data/milvus:/var/lib/milvus"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - cognix-network
+  
+
+  # Milvus Admin is unmantained, use Attu instead
+  # milvus-admin:
+  #   image: milvusdb/milvus-insight:latest
+  # https://github.com/zilliztech/attu
+  
+  cockroach:
+    image: cockroachdb/cockroach:latest-v23.2
+    ports:
+      - "26257:26257"
+      - "28080:8080"
+    command: start-single-node --insecure
+    volumes:
+      - "../data/cockroach:/cockroach/cockroach-data"
+    networks:
+      - cognix-network
+
+  nats:
+    image: nats:latest
+    container_name: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+      - "6222:6222"
+    volumes:
+      - nats-storage:/data/nats
+    command:
+      - "--name=nats"
+      - "--http_port=8222"
+      - "--js"
+      - "--sd=/data/nats"
+    networks:
+      - cognix-network
+
+volumes:
+  nats-storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../data/nats

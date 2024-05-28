@@ -25,6 +25,7 @@ env:
   RGNAME: AKS_RG
   ACRNAME: cognixacr
   AKSNAME: Cognix_AKS  
+  GITHUB_SHA: ${{ github.sha }}
 
 jobs:
   build-and-push:
@@ -52,6 +53,26 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ env.ACRNAME }}.azurecr.io/cognix/embedder:${{ github.ref_name }}       
+          ${{ env.ACRNAME }}.azurecr.io/cognix/embedder:${{env.GITHUB_SHA}}
         build-args: |
-          COGNIX_VERSION=${{ github.ref_name }}
+          COGNIX_VERSION=${{env.GITHUB_SHA}}
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Get AKS kubeconfig
+      run: az aks get-credentials --resource-group $RGNAME --name $AKSNAME
+
+    - name: Update Embedder server manifest
+      run:
+        sed -ie "s/embedder:main/embedder:${{env.GITHUB_SHA}}/g" ./src/backend/embedder/embedder-deployment.yaml
+
+    - name: Deploy Embedder server manifests
+      run: |
+        kubectl apply -f ./src/backend/embedder/embedder-deployment.yaml
+
+    - name: Delete Embedder server pod
+      run: |
+        kubectl rollout restart deploy/embedder

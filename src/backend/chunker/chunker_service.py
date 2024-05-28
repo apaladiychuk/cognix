@@ -5,12 +5,13 @@ from google.protobuf.json_format import MessageToJson
 from nats.aio.msg import Msg
 from lib.chunker_helper import ChunkerHelper
 from nats.js.api import ConsumerConfig, DeliverPolicy, AckPolicy
-from datetime import datetime
+from datetime import datetime, time
 from gen_types.chunking_data_pb2 import ChunkingData
 from lib.jetstream_event_subscriber import JetStreamEventSubscriber
+from lib.milvus_db import Milvus_DB
 import logging
 from dotenv import load_dotenv
-
+import time
 # Load environment variables from .env file
 load_dotenv()
 
@@ -27,23 +28,30 @@ logger = logging.getLogger(__name__)
 
 
 # Define the event handler function
-async def chunking_event( msg: Msg):
+async def chunking_event(msg: Msg):
+    start_time = time.time()  # Record the start time
     try:
-        logger.info("Chunking start working....")
-        # deserialize the message
+        logger.info("received event, start working....")
+        
+        # Deserialize the message
         chunking_data = ChunkingData()
         chunking_data.ParseFromString(msg.data)
-        
-        logger.info(f"Received message: {chunking_data}")
+        logger.info(f"message: {chunking_data}")
         
         chunker_helper = ChunkerHelper()
-        chunker_helper.workout_message(chunking_data)
+        await chunker_helper.workout_message(chunking_data)
 
-        # await msg.ack_sync()
+        # Acknowledge the message when done
+        await msg.ack_sync()
         logger.info("Message acknowledged successfully")
     except Exception as e:
         logger.error(f"Chunking failed to process chunking data: {chunking_data} error: {e}")
         await msg.nak()
+    finally:
+        end_time = time.time()  # Record the end time
+        elapsed_time = end_time - start_time
+        logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+
 
 
 async def main():

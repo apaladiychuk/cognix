@@ -5,6 +5,8 @@ import threading
 from typing import Dict, List
 from dotenv import load_dotenv
 
+# compare performance with https://github.com/qdrant/fastembed
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -28,6 +30,7 @@ class SentenceEncoder:
 
     # Thread lock for thread-safe access to the cache
     _lock: threading.Lock = threading.Lock()
+    
     # Dictionary to store cached model instances
     _model_cache: Dict[str, SentenceTransformer] = {}
 

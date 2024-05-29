@@ -32,8 +32,8 @@ func (p *pulsarClient) StreamConfig() *StreamConfig {
 	panic("implement me")
 }
 
-func (p *pulsarClient) Publish(ctx context.Context, topic string, body *proto.Body) error {
-	msg, err := buildMessage(ctx, body)
+func (p *pulsarClient) Publish(ctx context.Context, topic string, body proto2.Message) error {
+	msg, err := buildMessageAny(ctx, body)
 	if err != nil {
 		return err
 	}
@@ -139,6 +139,10 @@ func NewPulsar(cfg *pulsarConfig) (Client, error) {
 		producers:        make(map[string]pulsar.Producer),
 		subscriber:       make(map[string]pulsar.Consumer),
 	}, nil
+}
+
+func buildMessageAny(ctx context.Context, body proto2.Message) ([]byte, error) {
+	return proto2.Marshal(body)
 }
 
 func buildMessage(ctx context.Context, body *proto.Body) ([]byte, error) {

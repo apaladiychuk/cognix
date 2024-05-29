@@ -5,8 +5,9 @@ CONFIG_PATH=/absolute/path/to/config
 BACKEND_PATH=/absolute/path/to/backend
 MIGRATION_PATH=/absolute/path/to/migration
 
+sudo docker-compose -f deployment/docker-compose-test.yaml up/down
 
-
+sudo docker-compose -f deployment/docker-compose-test.yaml --build
 
 from the docker folder
 docker build -f Dockerfile-embedder -t embedder:latest ..

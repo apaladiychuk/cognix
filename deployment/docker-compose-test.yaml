@@ -28,21 +28,21 @@ services:
     networks:
       - cognix-network
 
-  # chunker-1:
-  #   container_name: chunker-1
-  #   image: cognix/chunker:latest
-  #   build:
-  #     context: ../src/backend/chunker
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ${DATA_PATH}/temp:/temp
-  #   env_file:
-  #     - ${CONFIG_PATH}/chunker_srv.env
-  #     # - ${CONFIG_PATH}/milvus_cli.env
-  #     - ${CONFIG_PATH}/nats_cli.env
-  #   restart: always
-  #   networks:
-  #     - cognix-network
+  chunker-1:
+    container_name: chunker-1
+    image: cognix/chunker:latest
+    build:
+      context: ../src/backend/chunker
+      dockerfile: Dockerfile
+    volumes:
+      - ${DATA_PATH}/temp:/temp
+    env_file:
+      - ${CONFIG_PATH}/chunker_srv.env
+      # - ${CONFIG_PATH}/milvus_cli.env
+      - ${CONFIG_PATH}/nats_cli.env
+    restart: always
+    networks:
+      - cognix-network
 
   cognix-web:
     container_name: web-ui
@@ -82,6 +82,78 @@ services:
   #   restart: always
   #   networks:
   #     - cognix-network
+  
+  api:
+    image: cognix:api
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ${CONFIG_PATH}/api_srv.env
+      - ${CONFIG_PATH}/cockroach_cli.env
+      - ${CONFIG_PATH}/minio_cli.env
+      - ${CONFIG_PATH}/milvus_cli.env
+      - ${CONFIG_PATH}/nats_cli.env
+      - ${CONFIG_PATH}/embedder_cli.env
+      - ${CONFIG_PATH}/.env
+    volumes:
+      - ${BACKEND_PATH}:/backend
+    networks:
+      - cognix-network
+
+  orchestrator:
+    image: cognix:orchestrator
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: orchestrator
+      dockerfile: Dockerfile
+    env_file:
+      - ${CONFIG_PATH}/orchestrator_srv.env
+      - ${CONFIG_PATH}/cockroach_cli.env
+      - ${CONFIG_PATH}/nats_cli.env
+      - ${CONFIG_PATH}/.env
+    volumes:
+      - ${BACKEND_PATH}:/backend
+    networks:
+      - cognix-network
+
+  connector:
+    image: cognix:connector
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: connector
+      dockerfile: Dockerfile
+    env_file:
+      - ${CONFIG_PATH}/connector_srv.env
+      - ${CONFIG_PATH}/cockroach_cli.env
+      - ${CONFIG_PATH}/nats_cli.env
+      - ${CONFIG_PATH}/milvus_cli.env
+      - ${CONFIG_PATH}/minio_cli.env
+      - ${CONFIG_PATH}/oauth_cli.env
+      - ${CONFIG_PATH}/.env
+    volumes:
+      - ${BACKEND_PATH}:/backend
+    networks:
+      - cognix-network
+
+  migration:
+    image: cognix:migration
+    build:
+      context: ${MIGRATION_PATH}
+      dockerfile: Dockerfile
+
+    volumes:
+      - ${MIGRATION_PATH}/versions:/versions
+    env_file:
+      - ${CONFIG_PATH}/cockroach_cli.env
+    networks:
+      - cognix-network
 
   minio:
     container_name: milvus-minio

@@ -30,6 +30,9 @@ chunker_stream_subject = os.getenv('CHUNKER_STREAM_SUBJECT','chunk_activity')
 logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 
+stream_name = os.getenv('CHUNKER_STREAM_NAME', 'chunker')
+subject = os.getenv('CHUNKER_STREAM_SUBJECT', 'chunk_activity')
+
 
 # Define the event handler function
 async def chunking_event(msg: Msg):

@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get nats url from env 
-nats_url = os.getenv('NATS_URL', 'nats://127.0.0.1:4222').upper()
+nats_url = os.getenv('NATS_URL', 'nats://127.0.0.1:4222')
 nats_ack_wait = int(os.getenv('NATS_ACK_WAIT', '30')) # seconds
 nats_max_deliver = int(os.getenv('NATS_MAX_DELIVER', '3'))
 

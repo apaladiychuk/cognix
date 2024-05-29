@@ -1,10 +1,8 @@
 package bll
 
 import (
-	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
-	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/utils"
 	"context"
@@ -24,7 +22,7 @@ type (
 	connectorBL struct {
 		connectorRepo  repository.ConnectorRepository
 		credentialRepo repository.CredentialRepository
-		messenger      messaging.Client
+		//messenger      messaging.Client
 	}
 )
 
@@ -50,12 +48,12 @@ func (c *connectorBL) Archive(ctx context.Context, user *model.User, id int64, r
 
 func NewConnectorBL(connectorRepo repository.ConnectorRepository,
 	credentialRepo repository.CredentialRepository,
-	messenger messaging.Client,
+	// messenger messaging.Client,
 ) ConnectorBL {
 	return &connectorBL{
 		connectorRepo:  connectorRepo,
 		credentialRepo: credentialRepo,
-		messenger:      messenger,
+		//messenger:      messenger,
 	}
 }
 
@@ -87,9 +85,9 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 	if err := c.connectorRepo.Create(ctx, &conn); err != nil {
 		return nil, err
 	}
-	if err := c.messenger.Publish(ctx, model.TopicUpdateConnector, &proto.Body{Payload: &proto.Body_Trigger{Trigger: &proto.ConnectorRequest{Id: conn.ID.IntPart()}}}); err != nil {
-		return nil, err
-	}
+	//if err := c.messenger.Publish(ctx, model.TopicUpdateConnector, &proto.Body{Payload: &proto.Body_Trigger{Trigger: &proto.ConnectorRequest{Id: conn.ID.IntPart()}}}); err != nil {
+	//	return nil, err
+	//}
 	return &conn, nil
 }
 
@@ -118,9 +116,9 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 	if err = c.connectorRepo.Update(ctx, conn); err != nil {
 		return nil, err
 	}
-	if err = c.messenger.Publish(ctx, model.TopicUpdateConnector, &proto.Body{Payload: &proto.Body_Trigger{Trigger: &proto.ConnectorRequest{Id: conn.ID.IntPart()}}}); err != nil {
-		return nil, err
-	}
+	//if err = c.messenger.Publish(ctx, model.TopicUpdateConnector, &proto.Body{Payload: &proto.Body_Trigger{Trigger: &proto.ConnectorRequest{Id: conn.ID.IntPart()}}}); err != nil {
+	//	return nil, err
+	//}
 	return conn, nil
 }
 

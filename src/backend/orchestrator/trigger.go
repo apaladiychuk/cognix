@@ -37,11 +37,10 @@ func (t *cronTrigger) Do(ctx context.Context, conn *model.Connector) error {
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, conn.ID.IntPart()))
 		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(conn.Source)))
 		zap.S().Infof("run connector %s", conn.ID)
-		trigger := &proto.ConnectorRequest{
-			Id: conn.ID.IntPart(),
-		}
-		return t.messenger.Publish(ctx, model.TopicExecutor,
-			&proto.Body{Payload: &proto.Body_Trigger{Trigger: trigger}})
+		return t.messenger.Publish(ctx, t.messenger.StreamConfig().ConnectorStreamSubject,
+			&proto.ConnectorRequest{
+				Id: conn.ID.IntPart(),
+			})
 	}
 	return nil
 }

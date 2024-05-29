@@ -14,8 +14,8 @@ import (
 	"fmt"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-resty/resty/v2"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
+	proto2 "github.com/golang/protobuf/proto"
+	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"time"
@@ -34,22 +34,25 @@ type Executor struct {
 	subscriptionName string
 }
 
-func (e *Executor) run(_ context.Context, topic, subscriptionName string, task messaging.MessageHandler) {
+func (e *Executor) run(streamName, topic string, task messaging.MessageHandler) {
 	ctx, cancel := context.WithCancel(context.Background())
 	e.cancel = cancel
-	if err := e.msgClient.Listen(ctx, topic, e.subscriptionName, task); err != nil {
+	if err := e.msgClient.Listen(ctx, streamName, topic, task); err != nil {
 		zap.S().Errorf("failed to listen[%s]: %v", topic, err)
 	}
 	return
 }
 
-func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
-	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
-	trigger := msg.GetBody().GetTrigger()
+func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 
-	if trigger == nil {
-		return fmt.Errorf("failed to get trigger payload")
+	//ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header()))
+	var trigger proto.ConnectorRequest
+
+	if err := proto2.Unmarshal(msg.Data(), &trigger); err != nil {
+		zap.S().Errorf("Error unmarshalling message: %s", err.Error())
+		return err
 	}
+
 	connectorModel, err := e.connectorRepo.GetByID(ctx, trigger.GetId())
 	if err != nil {
 		return err
@@ -91,14 +94,14 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 			continue
 		}
 
-		if loopErr = e.msgClient.Publish(ctx, model.TopicChunking, &proto.Body{
-			Payload: &proto.Body_Chunking{Chunking: &proto.ChunkingData{
+		// send message to chunking service
+		if loopErr = e.msgClient.Publish(ctx, e.msgClient.StreamConfig().ChunkerStreamSubject,
+			&proto.ChunkingData{
 				Url:            result.URL,
 				DocumentId:     doc.ID.IntPart(),
 				FileType:       result.GetType(),
 				CollectionName: connectorModel.CollectionName(),
-			}},
-		}); loopErr != nil {
+			}); loopErr != nil {
 			err = loopErr
 			zap.S().Errorf("Failed to update document: %v", loopErr)
 			continue

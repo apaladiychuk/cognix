@@ -49,9 +49,11 @@ services:
     image: cognix/web:latest
     build:
       context: ../src/web
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
-      - "3680:80"
+      - "5173:80"
+    environment:
+      VITE_PLATFORM_API_URL: http://api:8080
     env_file:
       - ${CONFIG_PATH}/web_srv.env
     networks:

@@ -56,15 +56,15 @@ class Milvus_DB:
 
                 utility.drop_collection(collection_name)
             
-                self.logger.info(f"Deleted document with document_id: {document_id}")
+                self.logger.info(f"deleted document with document_id: {document_id}")
             else:
-                self.logger.info(f"Collection {collection_name} does not exist.")
+                self.logger.info(f"collection {collection_name} does not exist.")
         except Exception as e:
-            self.logger.error(f"Failed to delete document with document_id {document_id}: {e}")
+            self.logger.error(f"❌ failed to delete document with document_id {document_id}: {e}")
         finally:
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
-            self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+            self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
 
 

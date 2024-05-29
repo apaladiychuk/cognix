@@ -34,6 +34,8 @@ services:
     build:
       context: ../src/backend/chunker
       dockerfile: Dockerfile
+    volumes:
+      - ${DATA_PATH}/temp:/temp
     env_file:
       - ${CONFIG_PATH}/chunker_srv.env
       # - ${CONFIG_PATH}/milvus_cli.env

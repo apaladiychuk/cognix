@@ -58,7 +58,7 @@ func NewConnectorBL(connectorRepo repository.ConnectorRepository,
 }
 
 func (c *connectorBL) Create(ctx context.Context, user *model.User, param *parameters.CreateConnectorParam) (*model.Connector, error) {
-
+	param.CredentialID = decimal.NullDecimal{Valid: false}
 	conn := model.Connector{
 		CredentialID:            param.CredentialID,
 		Name:                    param.Name,

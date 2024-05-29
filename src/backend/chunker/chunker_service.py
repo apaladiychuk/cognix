@@ -22,6 +22,10 @@ log_level = getattr(logging, log_level_str, logging.INFO)
 # Get log format from env 
 log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+# Get stream and subject name from env
+chunker_stream_name = os.getenv('CHUNKER_STREAM_NAME','chunker')
+chunker_stream_subject = os.getenv('CHUNKER_STREAM_SUBJECT','chunk_activity')
+
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
@@ -32,7 +36,7 @@ async def chunking_event(msg: Msg):
     start_time = time.time()  # Record the start time
     try:
         logger.info("received event, start working....")
-        
+
         # Deserialize the message
         chunking_data = ChunkingData()
         chunking_data.ParseFromString(msg.data)
@@ -57,8 +61,8 @@ async def chunking_event(msg: Msg):
 async def main():
     try:
         subscriber = JetStreamEventSubscriber(
-            stream_name="connector",
-            subject="connector.chunking",
+            stream_name=chunker_stream_name,
+            subject=chunker_stream_subject,
             proto_message_type=ChunkingData
         )
 

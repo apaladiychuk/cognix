@@ -45,7 +45,7 @@ class JetStreamEventSubscriber:
             # Create the stream configuration
             stream_config = StreamConfig(
                 name=self.stream_name,
-                subjects=[self.stream_name+".*"],
+                subjects=[self.subject],
                 # A work-queue retention policy satisfies a very common use case of queuing up messages that are intended to be processed once and only once.
                 # https://natsbyexample.com/examples/jetstream/workqueue-stream/go
                 retention=RetentionPolicy.WORK_QUEUE

@@ -17,13 +17,19 @@ const (
 
 type (
 	Config struct {
-		Provider string `env:"MESSAGING_PROVIDER" default:"nats"`
-		Nats     *natsConfig
-		Pulsar   *pulsarConfig
+		Nats   *natsConfig
+		Pulsar *pulsarConfig
+		Stream *StreamConfig
 	}
 	natsConfig struct {
-		URL                 string `env:"NATS_URL"`
-		ConnectorStreamName string `env:"NATS_STREAM_NAME" envDefault:"connector"`
+		URL string `env:"NATS_URL"`
+	}
+	// StreamConfig contains variables for configure streams
+	StreamConfig struct {
+		ConnectorStreamName    string `env:"CONNECTOR_STREAM_NAME,required"`
+		ConnectorStreamSubject string `env:"CONNECTOR_STREAM_SUBJECT,required"`
+		ChunkerStreamName      string `env:"CHUNKER_STREAM_NAME,required"`
+		ChunkerStreamSubject   string `env:"CHUNKER_STREAM_SUBJECT,required"`
 	}
 	Subscription struct {
 		ch           chan *proto.Message
@@ -32,7 +38,8 @@ type (
 	MessageHandler func(ctx context.Context, msg *proto.Message) error
 	Client         interface {
 		Publish(ctx context.Context, topic string, body *proto.Body) error
-		Listen(ctx context.Context, topic, subscriptionName string, handler MessageHandler) error
+		Listen(ctx context.Context, streamName, topic string, handler MessageHandler) error
+		StreamConfig() *StreamConfig
 		Close()
 	}
 )
@@ -48,6 +55,7 @@ var NatsModule = fx.Options(
 		cfg := Config{
 			Pulsar: &pulsarConfig{},
 			Nats:   &natsConfig{},
+			Stream: &StreamConfig{},
 		}
 		err := utils.ReadConfig(&cfg)
 		if err != nil {
@@ -62,7 +70,7 @@ var NatsModule = fx.Options(
 
 func NewClient(cfg *Config) (Client, error) {
 	//return newNatsClient(cfg.Nats)
-	return NewClientStream(cfg.Nats)
+	return NewClientStream(cfg)
 	//switch cfg.Provider {
 	//case providerNats:
 	//	return NewClientStream(cfg.Nats)

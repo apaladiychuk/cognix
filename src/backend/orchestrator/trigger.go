@@ -40,7 +40,7 @@ func (t *cronTrigger) Do(ctx context.Context, conn *model.Connector) error {
 		trigger := &proto.ConnectorRequest{
 			Id: conn.ID.IntPart(),
 		}
-		return t.messenger.Publish(ctx, model.TopicExecutor,
+		return t.messenger.Publish(ctx, t.messenger.StreamConfig().ConnectorStreamSubject,
 			&proto.Body{Payload: &proto.Body_Trigger{Trigger: trigger}})
 	}
 	return nil

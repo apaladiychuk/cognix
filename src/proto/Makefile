@@ -1,6 +1,6 @@
 
 gen-proto-go:
-	rm -f ../golang/core/proto/*.pb.go
+	rm -f ../backend/core/proto/*.pb.go
 	protoc -I=. -I=vendor -I=${GOPATH}/src *.proto --go_out=.. --go-grpc_out=..
 
 # gen-proto-python:

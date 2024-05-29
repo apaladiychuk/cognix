@@ -18,6 +18,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
+	"io"
 	"time"
 )
 
@@ -136,7 +137,11 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 }
 
 func (e *Executor) saveContent(ctx context.Context, response *connector.Response) error {
-	url, _, err := e.minioClient.Upload(ctx, response.Name, response.MimeType, bytes.NewBuffer(response.Content))
+	if response.Reader == nil {
+		response.Reader = io.NopCloser(bytes.NewBuffer(response.Content))
+	}
+	defer response.Reader.Close()
+	url, _, err := e.minioClient.Upload(ctx, response.Name, response.MimeType, response.Reader)
 	if err != nil {
 		zap.S().Errorf("Failed to upload file: %v", err)
 		return err

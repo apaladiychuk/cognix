@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
+	"io"
 	"strings"
 	"time"
 )
@@ -32,6 +33,7 @@ type Response struct {
 	SourceID    string
 	DocumentID  int64
 	Content     []byte
+	Reader      io.ReadCloser
 	MimeType    string
 	SaveContent bool
 }

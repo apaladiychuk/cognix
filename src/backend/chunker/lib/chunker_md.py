@@ -6,6 +6,7 @@ from lib.chunker_base import BaseChunker
 
 
 class MDChunker(BaseChunker):
-    def chunk(self, data: ChunkingData):
+    def chunk(self, data: ChunkingData) -> int:
         # Implement TXT chunking logic here
         print(f"Chunking TXT file: {data}")
+        return 0

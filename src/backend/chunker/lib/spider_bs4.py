@@ -1,7 +1,7 @@
 import time
 from typing import List
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment, ResultSet, element
 from urllib.parse import urljoin, urlparse
 import logging
 from lib.chunked_item import ChunkedItem
@@ -18,6 +18,10 @@ class BS4Spider:
         # Check if the URL has been visited
         if url in self.visited:
             return None
+
+        # TODO verify if the URL contains any of the supported file type
+        # if yes we shall download and analize with the proper chunker
+        # eg. if it's a pdf, download and call PDFChunker...
 
         # Add the URL to the visited set
         self.visited.add(url)
@@ -39,22 +43,18 @@ class BS4Spider:
             # Convert relative links to absolute links
             absolute_link = urljoin(url, link)
             parsed_link = urlparse(absolute_link)
-            # Check if the link is an HTTP/HTTPS link and not visited yet
-            if parsed_link.scheme in ['http', 'https'] and absolute_link not in self.visited:
+            # Check if the link is an HTTP/HTTPS link, not visited yet, and does not contain a fragment
+            if parsed_link.scheme in ['http', 'https'] and absolute_link not in self.visited and not parsed_link.fragment:
                 # Ensure the link is within the same domain
                 if parsed_link.netloc == self.base_domain:
                     self.process_page(absolute_link)
 
-
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
-        self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+        self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
         # Return the collected data only after all recursive calls are complete
         return self.collected_data
-
-    # def get_collected_data(self):
-    #     return self.collected_data
 
     def fetch_and_parse(self, url):
         try:
@@ -64,47 +64,22 @@ class BS4Spider:
                 soup = BeautifulSoup(response.text, 'html.parser')
                 return soup
             else:
-                self.logger.error(f"Failed to retrieve URL: {url}, Status Code: {response.status_code}")
+                self.logger.error(f"❌ failed to retrieve URL: {url}, Status Code: {response.status_code}")
                 return None
         except Exception as e:
-            self.logger.error(f"Error fetching URL: {url}, Error: {e}")
+            self.logger.error(f"❌ error fetching URL: {url}, Error: {e}")
             return None
-
-    def extract_data(self, soup):
+    
+    def extract_data(self, soup: BeautifulSoup):
         elements = soup.find_all(['p', 'article', 'div'])
         paragraphs = []
 
         for element in elements:
             text = element.get_text(strip=True)
-            if text:
+            #add
+            if text and text not in paragraphs and len(text) > 10:
                 paragraphs.append(text)
 
-        formatted_text = '\n\n'.join(paragraphs)
+        formatted_text = '\n\n '.join(paragraphs)
         return formatted_text
-
-
-    # def process_page(self, url):
-    #     if url in self.visited:
-    #         return
-
-    #     self.visited.add(url)
-    #     soup = self.fetch_and_parse(url)
-    #     if not soup:
-    #         return
-
-    #     page_content = self.extract_data(soup)
-    #     if page_content:
-    #         self.collected_data.append(ChunkedList(url=url, content=page_content))
-
-    #     ## self.logger.info(f"Data for URL: {url}, content: {page_content)}")
-        
-    #     links = [a['href'] for a in soup.find_all('a', href=True)]
-    #     for link in links:
-    #         absolute_link = urljoin(url, link)
-    #         parsed_link = urlparse(absolute_link)
-    #         if parsed_link.scheme in ['http', 'https'] and absolute_link not in self.visited:
-    #             if parsed_link.netloc == self.base_domain:
-    #                 self.process_page(absolute_link)
-
-    # def get_collected_data(self):
-    #     return self.collected_data
+    

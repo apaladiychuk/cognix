@@ -23,7 +23,7 @@ services:
     volumes:
       - ${DATA_PATH}/models:/models
     env_file:
-      - ${CONFIG_PATH}/embedder.env
+      - ${CONFIG_PATH}/embedder_srv.env
     restart: always
     networks:
       - cognix-network
@@ -34,9 +34,28 @@ services:
     build:
       context: ../src/backend/chunker
       dockerfile: Dockerfile
+    volumes:
+      - ${DATA_PATH}/temp:/temp
     env_file:
-      - ${CONFIG_PATH}/chunker.env
+      - ${CONFIG_PATH}/chunker_srv.env
+      # - ${CONFIG_PATH}/milvus_cli.env
+      - ${CONFIG_PATH}/nats_cli.env
     restart: always
+    networks:
+      - cognix-network
+
+  cognix-web:
+    container_name: web-ui
+    image: cognix/web:latest
+    build:
+      context: ../src/web
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:80"
+    environment:
+      VITE_PLATFORM_API_URL: http://api:8080
+    env_file:
+      - ${CONFIG_PATH}/web_srv.env
     networks:
       - cognix-network
 
@@ -84,6 +103,21 @@ services:
     networks:
       - cognix-network
 
+  # need to do give docker permissions on loval volumes
+  # id -gn    # to find out the group name for your user:
+  # Use the group name obtained from the above command to set the correct permissions. Assuming the output of id -gn is staff, the command would be:
+  # sudo chown -R $(whoami):staff /Users/gp/Developer/cognix/data
+  # sudo chown -R $(whoami):staff /Users/gp/Developer/cognix/data
+  # Create the Required Directories:
+  # sudo mkdir -p /Users/gp/Developer/cognix/data/etcd
+  # sudo mkdir -p /Users/gp/Developer/cognix/data/minio
+  # sudo mkdir -p /Users/gp/Developer/cognix/data/cockroach
+  # sudo mkdir -p /Users/gp/Developer/cognix/data/nats
+  # sudo mkdir -p /Users/gp/Developer/cognix/data/milvus
+  # Set Correct Permissions:
+  # sudo chown -R $(whoami):staff /Users/gp/Developer/cognix/data
+  # Run Docker Compose with Sudo:
+  # sudo docker-compose -f deployment/docker-compose-test.yaml up
   etcd:
     container_name: milvus-etcd
     image: quay.io/coreos/etcd:v3.5.5
@@ -92,7 +126,6 @@ services:
       - ETCD_AUTO_COMPACTION_RETENTION=1000
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
       - ETCD_SNAPSHOT_COUNT=50000
-      - LOG_LEVEL=ERROR
     volumes:
       - "../data/etcd:/etcd"
     command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
@@ -113,9 +146,9 @@ services:
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
-      LOG_LEVEL: ERROR
     volumes:
       - "../data/milvus:/var/lib/milvus"
+      # - "./milvus.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
       interval: 30s
@@ -140,6 +173,7 @@ services:
   # https://github.com/zilliztech/attu
   
   cockroach:
+    container_name: cockroach
     image: cockroachdb/cockroach:latest-v23.2
     ports:
       - "26257:26257"
@@ -150,6 +184,8 @@ services:
     networks:
       - cognix-network
 
+  # natsmq configuration.
+  # more detail: https://docs.nats.io/running-a-nats-service/configuration
   nats:
     image: nats:latest
     container_name: nats
@@ -166,6 +202,7 @@ services:
       - "--sd=/data/nats"
     networks:
       - cognix-network
+  
 
 volumes:
   nats-storage:

@@ -58,7 +58,7 @@ async def main():
     try:
         subscriber = JetStreamEventSubscriber(
             stream_name="connector",
-            subject="chunking",
+            subject="connector.chunking",
             proto_message_type=ChunkingData
         )
 

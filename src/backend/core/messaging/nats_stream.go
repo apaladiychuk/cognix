@@ -98,8 +98,7 @@ func NewClientStream(cfg *natsConfig) (Client, error) {
 	stream, err := js.CreateOrUpdateStream(context.Background(), jetstream.StreamConfig{
 		Name:      cfg.ConnectorStreamName,
 		Retention: jetstream.WorkQueuePolicy,
-		Storage:   jetstream.FileStorage,
-		Subjects:  []string{cfg.ConnectorStreamName + ".>"},
+		Subjects:  []string{cfg.ConnectorStreamName + ".*"},
 	})
 	if err != nil {
 		zap.S().Errorf("Error creating stream: %s", err.Error())

@@ -23,7 +23,7 @@ type (
 	}
 	natsConfig struct {
 		URL                 string `env:"NATS_URL"`
-		ConnectorStreamName string `env:"NATS_STREAM_NAME" envDefault:"Connector"`
+		ConnectorStreamName string `env:"NATS_STREAM_NAME" envDefault:"connector"`
 	}
 	Subscription struct {
 		ch           chan *proto.Message

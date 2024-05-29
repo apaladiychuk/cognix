@@ -14,32 +14,39 @@ from datetime import datetime
 from nats.js.errors import NotFoundError
 import logging
 import uuid  
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Get nats url from env 
-nats_url = os.getenv('NATS_URL', 'nats://127.0.0.1:4222')
-nats_ack_wait = int(os.getenv('NATS_ACK_WAIT', '30')) # seconds
-nats_max_deliver = int(os.getenv('NATS_MAX_DELIVER', '3'))
-
 
 class JetStreamEventSubscriber:     
-    def __init__(self, stream_name: str, subject: str, proto_message_type: _message.Message):
+    def __init__(self, nats_url: str, stream_name: str, subject: str,
+                 connect_timeout: int, reconnect_time_wait: int,
+                 max_reconnect_attempts: int, ack_wait: int, 
+                 max_deliver: int, proto_message_type: _message.Message):
+        self.nats_url = nats_url
         self.stream_name = stream_name
         self.subject = subject
+        self.connect_timeout = connect_timeout
+        self.reconnect_time_wait = reconnect_time_wait
+        self.ack_wait = ack_wait,
+        self.max_reconnect_attempts = max_reconnect_attempts
+        self.max_deliver = max_deliver
         self.proto_message_type = proto_message_type
         self.event_handler = None
         self.nc = NATS()
-        self.js = None
+        self.js = None # needs to be created in connect_and_subscribe
         self.logger = logging.getLogger(self.__class__.__name__)
 
     async def connect_and_subscribe(self):
         try:
             # Connect to NATS
-            self.logger.info(f"🔌 connecting to nats endpoint {nats_url}")
-            await self.nc.connect(servers=[nats_url])
+            # TODO: implement callbacks from connect <--------------------  DO THIS :) 
+            self.logger.info(f"🔌 connecting to nats endpoint {self.nats_url} ..")
+
+            await self.nc.connect(servers=[self.nats_url],
+                connect_timeout=self.connect_timeout,
+                reconnect_time_wait=self.reconnect_time_wait,
+                max_reconnect_attempts=self.max_reconnect_attempts)
+            
+            self.logger.info(f"successfully connected {self.nats_url}")
+            
             # Create JetStream context
             self.js = self.nc.jetstream()
 
@@ -57,62 +64,55 @@ class JetStreamEventSubscriber:
                 await self.js.add_stream(stream_config)
             except BadRequestError as e:
                 if e.code == 400:
-                    self.logger.warning("😱 Jetstream stream was using a different configuration. Destroying and recreating with the right configuration")
+                    self.logger.warning("😱 jetstream stream was using a different configuration. Destroying and recreating with the right configuration")
                     try:
                         await self.js.delete_stream(stream_config.name)
                         await self.js.add_stream(stream_config)
-                        self.logger.info("Jetstream stream re-created successfully")
+                        self.logger.info("jetstream stream re-created successfully")
                     except Exception as e:
                         self.logger.exception(f"❌ Exception while deleting and recreating Jetstream: {e}")
         except Exception as e:
             self.logger.exception(e)
             raise e
 
-        # # Create single ephemeral push based subscriber.
-        # sub = await self.js.subscribe("foo")
-        # msg = await sub.next_msg()
-        # #await msg.ack()
-        # self.message_handler(msg=msg)
-
         # Define consumer configuration
         consumer_config = ConsumerConfig(
-            #name=f"consumer_name_{uuid.uuid4()}",
-            #name=self.stream_name,
-            #durable_name="durable_chunkdata",
-            # Generate a unique durable name
-            #durable_name=f"durable_{uuid.uuid4()}",  
-            ack_wait=nats_ack_wait,  # 30 seconds
-            max_deliver=nats_max_deliver,
+            # durable_name="durable_chunkdata", do not set herem, it is set in pull_subscribe
+            ack_wait=self.ack_wait,  # 3600 seconds
+            max_deliver=self.max_deliver,
             ack_policy=AckPolicy.EXPLICIT,
             # DeliverPolicy.ALL is mandatory when setting  retention=RetentionPolicy.WORK_QUEUE for StreamConfig
             deliver_policy=DeliverPolicy.ALL,
-            #filter_subject="chunking.event.>"
         )
         
         # Subscribe to the subject
         try:
+            self.logger.info(f"subscribing to jetstream {self.stream_name} - {self.subject} ..")
             psub = await self.js.pull_subscribe(
                 subject=self.subject,
                 stream=stream_config.name,
                 durable="worker",
                 config=consumer_config,
             )
-
+            self.logger.info(f"successfully subscribed to jetstream {self.stream_name} - {self.subject}")
+            
             # psub.fetch()
             while True:
                 try:
                     await asyncio.sleep(2)
                     msgs = await psub.fetch(1, timeout=5)
+                    self.logger.info(msgs)
                     for msg in msgs:
                         # ack will be done once the process is completed
                         # await msg.ack_sync()
                         await self.message_handler(msg)
-                    self.logger.info(" Subscribed to JetStream successfully")
+                        self.logger.info(msg)
                 except TimeoutError:
-                    # self.logger.info("service alive")
+                    self.logger.info("vaiting for incoming events")
                     pass
         except Exception as e:
-            self.logger.error(f"❌ can't subscribe to JetStream: {e}")
+            self.logger.error(f"❌ can't connect or subscribe to {self.nats_url} {self.stream_name} {self.subject} {e}")
+            raise e
 
     async def message_handler(self, msg: Msg):
         try:        

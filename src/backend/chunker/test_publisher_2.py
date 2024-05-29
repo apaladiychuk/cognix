@@ -5,10 +5,30 @@ from nats.errors import TimeoutError, NoRespondersError
 from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy, RetentionPolicy
 from nats.js.errors import NotFoundError, BadRequestError
 import logging
+import os
+from dotenv import load_dotenv
+import time
+# Load environment variables from .env file
+load_dotenv()
 
+nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
+nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
+nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
+nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
+chunker_stream_name = os.getenv('CHUNKER_STREAM_NAME','chunker')
+chunker_stream_subject = os.getenv('CHUNKER_STREAM_SUBJECT','chunk_activity')
+chunker_ack_wait = int(os.getenv('NATS_CLIENT_CHUNKER_ACK_WAIT', '3600')) # seconds
+chunker_max_deliver = int(os.getenv('NATS_CLIENT_CHUNKER_MAX_DELIVER', '3'))
+
+# get log level from env 
+log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
+log_level = getattr(logging, log_level_str, logging.INFO)
+# get log format from env 
+log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
+
 
 class JetStreamPublisher:
     def __init__(self, subject, stream_name):
@@ -20,7 +40,10 @@ class JetStreamPublisher:
 
     async def connect(self):
         # Connect to NATS
-        await self.nc.connect(servers=["nats://127.0.0.1:4222"])
+        await self.nc.connect(servers=[nats_url],
+            connect_timeout=nats_connect_timeout,
+            reconnect_time_wait=nats_reconnect_time_wait,
+            max_reconnect_attempts=nats_max_reconnect_attempts)
         # Create JetStream context
         self.js = self.nc.jetstream()
 
@@ -44,13 +67,7 @@ class JetStreamPublisher:
                     self.logger.info("Jetstream stream re-created successfully")
                 except Exception as e:
                     self.logger.exception(f"Exception while deleting and recreating Jetstream: {e}")
-    # async def create_stream(self):
-    #     try:
-    #         # Try to add the stream, ignore if already exists
-    #         await self.js.add_stream(name=self.stream_name, subjects=[self.subject])
-    #     except Exception as e:
-    #         logger.info(f"Stream creation error or already exists: {e}")
-
+                    
     async def publish(self, message):
         try:
             await self.js.publish(self.subject, message.SerializeToString())
@@ -67,7 +84,7 @@ class JetStreamPublisher:
 
 async def main():
     # Instantiate the publisher
-    publisher = JetStreamPublisher(subject="chunking", stream_name="connector")
+    publisher = JetStreamPublisher(subject=chunker_stream_subject, stream_name=chunker_stream_name)
 
     # Connect to NATS
     await publisher.connect()
@@ -93,43 +110,44 @@ async def main():
     # Publish the message
     await publisher.publish(chunking_data)
 
-    # Create a fake ChunkingData message
-    chunking_data = ChunkingData(
-        url="https://help.collaboard.app/extract-pages-from-a-document",
-        site_map="",
-        search_for_sitemap=True,
-        document_id=993456788,
-        file_type=FileType.URL,
-        collection_name="tennant_id_3",
-        model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
-        model_dimension=768
-    )
+    # # Create a fake ChunkingData message
+    # chunking_data = ChunkingData(
+    #     url="https://help.collaboard.app/extract-pages-from-a-document",
+    #     site_map="",
+    #     search_for_sitemap=True,
+    #     document_id=993456788,
+    #     file_type=FileType.URL,
+    #     collection_name="tennant_id_3",
+    #     model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+    #     model_dimension=768
+    # )
 
-    logger.info(f"message being sent \n {chunking_data}")
+    # logger.info(f"message being sent \n {chunking_data}")
 
-    # Publish the message
-    await publisher.publish(chunking_data)
+    # # Publish the message
+    # await publisher.publish(chunking_data)
 
     
-        # Create a fake ChunkingData message
-    chunking_data = ChunkingData(
-        url="https://help.collaboard.app/upload-images",
-        site_map="",
-        search_for_sitemap=True,
-        document_id=993456788,
-        file_type=FileType.URL,
-        collection_name="tennant_id_5",
-        model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
-        model_dimension=768
-    )
+    #     # Create a fake ChunkingData message
+    # chunking_data = ChunkingData(
+    #     url="https://help.collaboard.app/upload-images",
+    #     site_map="",
+    #     search_for_sitemap=True,
+    #     document_id=993456788,
+    #     file_type=FileType.URL,
+    #     collection_name="tennant_id_5",
+    #     model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+    #     model_dimension=768
+    # )
 
-    logger.info(f"message being sent \n {chunking_data}")
+    # logger.info(f"message being sent \n {chunking_data}")
 
-    # Publish the message
-    await publisher.publish(chunking_data)
+    # # Publish the message
+    # await publisher.publish(chunking_data)
 
     # Close the connection
     await publisher.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -38,6 +38,7 @@ class JetStreamEventSubscriber:
     async def connect_and_subscribe(self):
         try:
             # Connect to NATS
+            self.logger.info(f"🔌 connecting to nats endpoint {nats_url}")
             await self.nc.connect(servers=[nats_url])
             # Create JetStream context
             self.js = self.nc.jetstream()
@@ -56,13 +57,13 @@ class JetStreamEventSubscriber:
                 await self.js.add_stream(stream_config)
             except BadRequestError as e:
                 if e.code == 400:
-                    self.logger.info("Jetstream stream was using a different configuration. Destroying and recreating with the right configuration")
+                    self.logger.warning("😱 Jetstream stream was using a different configuration. Destroying and recreating with the right configuration")
                     try:
                         await self.js.delete_stream(stream_config.name)
                         await self.js.add_stream(stream_config)
                         self.logger.info("Jetstream stream re-created successfully")
                     except Exception as e:
-                        self.logger.exception(f"Exception while deleting and recreating Jetstream: {e}")
+                        self.logger.exception(f"❌ Exception while deleting and recreating Jetstream: {e}")
         except Exception as e:
             self.logger.exception(e)
             raise e
@@ -106,19 +107,19 @@ class JetStreamEventSubscriber:
                         # ack will be done once the process is completed
                         # await msg.ack_sync()
                         await self.message_handler(msg)
-                    self.logger.info("Subscribed to JetStream successfully")
+                    self.logger.info(" Subscribed to JetStream successfully")
                 except TimeoutError:
-                    self.logger.info("fetch timed out . Retrying")
+                    # self.logger.info("service alive")
                     pass
         except Exception as e:
-            self.logger.error(f"Can't subscribe to JetStream: {e}")
+            self.logger.error(f"❌ can't subscribe to JetStream: {e}")
 
     async def message_handler(self, msg: Msg):
         try:        
             if self.event_handler:
                 await self.event_handler(msg)
         except Exception as e:
-            self.logger.exception(f"Failed to process message: {e}")
+            self.logger.exception(f"❌ failed to process message: {e}")
 
     def set_event_handler(self, event_handler):
         self.event_handler = event_handler

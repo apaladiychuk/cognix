@@ -32,13 +32,10 @@ class EmbedServicer(EmbedServiceServicer):
     def GetEmbeding(self, request, context):
         start_time = time.time()  # Record the start time
         try:
-            logger.info("embedd request arrived")
-            logger.info(f"request: {request}")
+            logger.info(f"incoming embedd request: {request}")
             embed_response = EmbedResponse()
 
             encoded_data = SentenceEncoder.embed(text=request.content, model_name=request.model)
-            
-            # logger.info(f"request: {encoded_data}")
 
             # assign the vector variable the response
             embed_response.vector.extend(encoded_data)
@@ -46,12 +43,11 @@ class EmbedServicer(EmbedServiceServicer):
             return embed_response
         except Exception as e:
             logger.exception(e)
-            raise grpc.RpcError(f"Failed to process request: {str(e)}")
+            raise grpc.RpcError(f"❌ failed to process request: {str(e)}")
         finally:
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
-            logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
-
+            logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor())
@@ -60,7 +56,7 @@ def serve():
 
     server.add_insecure_port(f"0.0.0.0:{grpc_port}")
     server.start()
-    logger.info(f"Embedder listening on port {grpc_port}")
+    logger.info(f"👂 embedder listening on port {grpc_port}")
     server.wait_for_termination()
     
 if __name__ == "__main__":

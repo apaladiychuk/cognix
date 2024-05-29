@@ -34,11 +34,26 @@ services:
     build:
       context: ../src/backend/chunker
       dockerfile: Dockerfile
+    volumes:
+      - ${DATA_PATH}/temp:/temp
     env_file:
       - ${CONFIG_PATH}/chunker_srv.env
       # - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
     restart: always
+    networks:
+      - cognix-network
+
+  cognix-web:
+    container_name: web-ui
+    image: cognix/web:latest
+    build:
+      context: ../src/web
+      dockerfile: Dockerfile
+    ports:
+      - "3680:80"
+    env_file:
+      - ${CONFIG_PATH}/web_srv.env
     networks:
       - cognix-network
 
@@ -156,6 +171,7 @@ services:
   # https://github.com/zilliztech/attu
   
   cockroach:
+    container_name: cockroach
     image: cockroachdb/cockroach:latest-v23.2
     ports:
       - "26257:26257"

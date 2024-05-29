@@ -19,6 +19,10 @@ class BS4Spider:
         if url in self.visited:
             return None
 
+        # TODO verify if the URL contains any of the supported file type
+        # if yes we shall download and analize with the proper chunker
+        # eg. if it's a pdf, download and call PDFChunker...
+
         # Add the URL to the visited set
         self.visited.add(url)
 
@@ -45,11 +49,9 @@ class BS4Spider:
                 if parsed_link.netloc == self.base_domain:
                     self.process_page(absolute_link)
 
-
-
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
-        self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+        self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
         # Return the collected data only after all recursive calls are complete
         return self.collected_data
@@ -62,10 +64,10 @@ class BS4Spider:
                 soup = BeautifulSoup(response.text, 'html.parser')
                 return soup
             else:
-                self.logger.error(f"Failed to retrieve URL: {url}, Status Code: {response.status_code}")
+                self.logger.error(f"❌ failed to retrieve URL: {url}, Status Code: {response.status_code}")
                 return None
         except Exception as e:
-            self.logger.error(f"Error fetching URL: {url}, Error: {e}")
+            self.logger.error(f"❌ error fetching URL: {url}, Error: {e}")
             return None
     
     def extract_data(self, soup: BeautifulSoup):

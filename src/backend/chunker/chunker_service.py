@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 async def chunking_event(msg: Msg):
     start_time = time.time()  # Record the start time
     try:
-        logger.info("received event, start working....")
+        logger.info("🔥 received chunking event, start working....")
         
         # Deserialize the message
         chunking_data = ChunkingData()
@@ -39,23 +39,25 @@ async def chunking_event(msg: Msg):
         logger.info(f"message: {chunking_data}")
         
         chunker_helper = ChunkerHelper()
-        await chunker_helper.workout_message(chunking_data)
+        collecte_entities = await chunker_helper.workout_message(chunking_data)
+        # if collected entities == 0 this means no data was stored in the vector db
+        # we shall find a way to tell the user, most likley put the message in the dead letter
 
         # Acknowledge the message when done
         await msg.ack_sync()
-        logger.info("Message acknowledged successfully")
+        logger.info("👍 message acknowledged successfully")
     except Exception as e:
-        logger.error(f"Chunking failed to process chunking data: {chunking_data} error: {e}")
+        logger.error(f"❌ chunking failed to process chunking data: {chunking_data} error: {e}")
         await msg.nak()
     finally:
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
-        logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
-
-
+        logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
 async def main():
+    logger.info("service starting")
     try:
+        # subscribing to jest stream 
         subscriber = JetStreamEventSubscriber(
             stream_name="connector",
             subject="chunking",
@@ -64,8 +66,9 @@ async def main():
 
         subscriber.set_event_handler(chunking_event)
         await subscriber.connect_and_subscribe()
+        logger.info("🚀 service started successfully")
     except Exception as e:
-        logger.exception(e)
+        logger.exception(f"❌ {e}")
 
     try:
         while True:

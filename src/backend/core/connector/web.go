@@ -47,10 +47,10 @@ func (c *Web) Execute(ctx context.Context, param map[string]string) chan *Respon
 
 	c.ctx = ctx
 	go func() {
-		c.scraper.OnHTML("body", withContext(ctx, c.onBody))
-		err := c.scraper.Visit(c.param.URL)
-		if err != nil {
-			zap.L().Error("Failed to scrape URL", zap.String("url", c.param.URL), zap.Error(err))
+		c.resultCh <- &Response{
+			URL:      c.param.URL,
+			SourceID: c.param.URL,
+			MimeType: mineURL,
 		}
 		close(c.resultCh)
 	}()

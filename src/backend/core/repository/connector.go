@@ -46,6 +46,7 @@ func (r *connectorRepository) GetAllByUser(ctx context.Context, tenantID, userID
 	connectors := make([]*model.Connector, 0)
 	if err := r.db.WithContext(ctx).Model(&connectors).
 		Where("tenant_id = ?", tenantID).
+		Where("deleted_date is null").
 		WhereGroup(func(query *orm.Query) (*orm.Query, error) {
 			return query.WhereOr("user_id = ?", userID).
 				WhereOr("shared = ?", true), nil

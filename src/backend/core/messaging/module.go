@@ -6,6 +6,7 @@ import (
 	"context"
 	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"time"
@@ -18,8 +19,8 @@ const (
 
 type (
 	Config struct {
-		Nats   *natsConfig
-		Pulsar *pulsarConfig
+		Nats *natsConfig
+		//Pulsar *pulsarConfig
 		Stream *StreamConfig
 	}
 	natsConfig struct {
@@ -36,7 +37,7 @@ type (
 		ch           chan *proto.Message
 		subscription *nats.Subscription
 	}
-	MessageHandler func(ctx context.Context, msg *proto.Message) error
+	MessageHandler func(ctx context.Context, msg jetstream.Msg) error
 	Client         interface {
 		Publish(ctx context.Context, topic string, body proto2.Message) error
 		Listen(ctx context.Context, streamName, topic string, handler MessageHandler) error
@@ -54,7 +55,7 @@ const (
 var NatsModule = fx.Options(
 	fx.Provide(func() (*Config, error) {
 		cfg := Config{
-			Pulsar: &pulsarConfig{},
+			//Pulsar: &pulsarConfig{},
 			Nats:   &natsConfig{},
 			Stream: &StreamConfig{},
 		}

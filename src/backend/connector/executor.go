@@ -14,8 +14,8 @@ import (
 	"fmt"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-resty/resty/v2"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
+	proto2 "github.com/golang/protobuf/proto"
+	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"time"
@@ -43,13 +43,16 @@ func (e *Executor) run(streamName, topic string, task messaging.MessageHandler) 
 	return
 }
 
-func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
-	ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header))
-	trigger := msg.GetBody().GetTrigger()
+func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 
-	if trigger == nil {
-		return fmt.Errorf("failed to get trigger payload")
+	//ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header()))
+	var trigger proto.ConnectorRequest
+
+	if err := proto2.Unmarshal(msg.Data(), &trigger); err != nil {
+		zap.S().Errorf("Error unmarshalling message: %s", err.Error())
+		return err
 	}
+
 	connectorModel, err := e.connectorRepo.GetByID(ctx, trigger.GetId())
 	if err != nil {
 		return err

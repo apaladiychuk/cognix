@@ -1,7 +1,6 @@
 package messaging
 
 import (
-	"cognix.ch/api/v2/core/proto"
 	"context"
 	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
@@ -32,7 +31,7 @@ func (c *clientStream) Close() {
 }
 
 func (c *clientStream) Publish(ctx context.Context, topic string, body proto2.Message) error {
-	message, err := buildMessageAny(ctx, body)
+	message, err := proto2.Marshal(body)
 
 	if err != nil {
 		return err
@@ -72,13 +71,9 @@ func (c *clientStream) Listen(ctx context.Context, streamName, topic string, han
 	}
 	cons.Consume(func(msg jetstream.Msg) {
 		zap.S().Infof("Received message: %s %s ", msg.Subject(), msg.Reply())
-		var message proto.Message
+
 		msg.InProgress()
-		if err := proto2.Unmarshal(msg.Data(), &message); err != nil {
-			zap.S().Errorf("Error unmarshalling message: %s", err.Error())
-			return
-		}
-		if err := handler(ctx, &message); err != nil {
+		if err := handler(ctx, msg); err != nil {
 			zap.S().Errorf("Error handling message: %s", err.Error())
 		}
 		err := msg.Ack()

@@ -15,10 +15,10 @@ import time
 # Load environment variables from .env file
 load_dotenv()
 
-# get log level from env 
+# get log level from env
 log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
 log_level = getattr(logging, log_level_str, logging.INFO)
-# get log format from env 
+# get log format from env
 log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
@@ -69,7 +69,7 @@ async def main():
         subscriber = JetStreamEventSubscriber(
             nats_url = nats_url,
             stream_name=chunker_stream_name,
-            subject=chunker_stream_subject, 
+            subject=chunker_stream_subject,
             connect_timeout=nats_connect_timeout,
             reconnect_time_wait=nats_reconnect_time_wait,
             max_reconnect_attempts=nats_max_reconnect_attempts,

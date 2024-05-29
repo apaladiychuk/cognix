@@ -25,7 +25,7 @@ class JetStreamEventSubscriber:
         self.subject = subject
         self.connect_timeout = connect_timeout
         self.reconnect_time_wait = reconnect_time_wait
-        self.ack_wait = ack_wait,
+        self.ack_wait = ack_wait
         self.max_reconnect_attempts = max_reconnect_attempts
         self.max_deliver = max_deliver
         self.proto_message_type = proto_message_type

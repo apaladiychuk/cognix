@@ -15,23 +15,24 @@ import time
 # Load environment variables from .env file
 load_dotenv()
 
-# Get log level from env 
+# get log level from env
 log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
 log_level = getattr(logging, log_level_str, logging.INFO)
-
-# Get log format from env 
+# get log format from env
 log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# Get stream and subject name from env
-chunker_stream_name = os.getenv('CHUNKER_STREAM_NAME','chunker')
-chunker_stream_subject = os.getenv('CHUNKER_STREAM_SUBJECT','chunk_activity')
-
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 
-stream_name = os.getenv('CHUNKER_STREAM_NAME', 'chunker')
-subject = os.getenv('CHUNKER_STREAM_SUBJECT', 'chunk_activity')
+# loading from env env
+nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
+nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
+nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
+nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
+chunker_stream_name = os.getenv('CHUNKER_STREAM_NAME','chunker')
+chunker_stream_subject = os.getenv('CHUNKER_STREAM_SUBJECT','chunk_activity')
+chunker_ack_wait = int(os.getenv('NATS_CLIENT_CHUNKER_ACK_WAIT', '3600')) # seconds
+chunker_max_deliver = int(os.getenv('NATS_CLIENT_CHUNKER_MAX_DELIVER', '3'))
 
 
 # Define the event handler function
@@ -66,22 +67,30 @@ async def main():
     try:
         # subscribing to jest stream
         subscriber = JetStreamEventSubscriber(
+            nats_url = nats_url,
             stream_name=chunker_stream_name,
             subject=chunker_stream_subject,
+            connect_timeout=nats_connect_timeout,
+            reconnect_time_wait=nats_reconnect_time_wait,
+            max_reconnect_attempts=nats_max_reconnect_attempts,
+            ack_wait=chunker_ack_wait,
+            max_deliver=chunker_max_deliver,
             proto_message_type=ChunkingData
         )
 
         subscriber.set_event_handler(chunking_event)
         await subscriber.connect_and_subscribe()
-        logger.info("🚀 service started successfully")
-    except Exception as e:
-        logger.exception(f"❌ {e}")
 
-    try:
-        while True:
-            await asyncio.sleep(1)
-    except KeyboardInterrupt:
-        await subscriber.close()
+        # todo add an event to JetStreamEventSubscriber to signal that sonncetion has been established
+        logger.info("🚀 service started successfully")
+
+        try:
+            while True:
+                await asyncio.sleep(1)
+        except KeyboardInterrupt:
+            await subscriber.close()
+    except Exception as e:
+        logger.exception(f"❌ fatal: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())

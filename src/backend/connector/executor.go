@@ -34,10 +34,10 @@ type Executor struct {
 	subscriptionName string
 }
 
-func (e *Executor) run(_ context.Context, topic, subscriptionName string, task messaging.MessageHandler) {
+func (e *Executor) run(streamName, topic string, task messaging.MessageHandler) {
 	ctx, cancel := context.WithCancel(context.Background())
 	e.cancel = cancel
-	if err := e.msgClient.Listen(ctx, topic, e.subscriptionName, task); err != nil {
+	if err := e.msgClient.Listen(ctx, streamName, topic, task); err != nil {
 		zap.S().Errorf("failed to listen[%s]: %v", topic, err)
 	}
 	return
@@ -91,7 +91,8 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 			continue
 		}
 
-		if loopErr = e.msgClient.Publish(ctx, model.TopicChunking, &proto.Body{
+		// send message to chunking service
+		if loopErr = e.msgClient.Publish(ctx, e.msgClient.StreamConfig().ChunkerStreamSubject, &proto.Body{
 			Payload: &proto.Body_Chunking{Chunking: &proto.ChunkingData{
 				Url:            result.URL,
 				DocumentId:     doc.ID.IntPart(),

@@ -27,6 +27,11 @@ type (
 	}
 )
 
+func (p *pulsarClient) StreamConfig() *StreamConfig {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (p *pulsarClient) Publish(ctx context.Context, topic string, body *proto.Body) error {
 	msg, err := buildMessage(ctx, body)
 	if err != nil {

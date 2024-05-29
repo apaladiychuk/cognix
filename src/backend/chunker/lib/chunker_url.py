@@ -6,16 +6,15 @@ from lib.spider_selenium import SeleniumSpider
 from gen_types.chunking_data_pb2 import ChunkingData, FileType
 from lib.chunker_base import BaseChunker
 from lib.spider_bs4 import BS4Spider  # Ensure you import the BS4Spider class correctly
-import logging
-import time
+import logging, time
 
 class URLChunker(BaseChunker):
-
     async def chunk(self, data: ChunkingData):
         try:
             start_time = time.time()  # Record the start time
             self.logger.info(f"Starting BS4Spider URL: {data.url}")
-            
+
+            collected_url = 0
             spider = BS4Spider(data.url)
             collected_data = spider.process_page(data.url)
             
@@ -27,9 +26,9 @@ class URLChunker(BaseChunker):
                 # collected_data = spider.process_page(data.url)
 
             if collected_data:
+                self.logger.info(f"collected {collected_url} URLs")
                 milvus_db = Milvus_DB()
-                # delete db from previous added chunks and vectors
-
+                # delete previous added chunks and vectors
                 milvus_db.delete_by_document_id(document_id=data.document_id, collection_name=data.collection_name)
 
                 # storing the new chunks in milvus
@@ -43,17 +42,14 @@ class URLChunker(BaseChunker):
                         # adding some deplay not to flood milvus wit ton of requests 
                         # await asyncio.sleep(0.5)
             else:
-                self.logger.warning(f"No content found for {data.url} using either BS4Spider or SeleniumSpider.")
+                self.logger.warning(f"no content found for {data.url} using either BS4Spider or SeleniumSpider.")
 
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
-            self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
-            self.logger.info(f"Number of URLs analyzed: {len(collected_data)}")
-
-            return collected_data
-
+            self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
+            self.logger.info(f"📖 number of URLs analyzed: {collected_url}")
         except Exception as e:
-            self.logger.error(f"Error: Failed to process chunking data: {e}")
+            self.logger.error(f"❌ error: Failed to process chunking data: {e}")
             
 
 

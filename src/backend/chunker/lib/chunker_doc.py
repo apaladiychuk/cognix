@@ -5,6 +5,7 @@ from lib.chunker_base import BaseChunker
 # Documents	.csv, .doc, .docx, .epub, .odt, .pdf, .ppt, .pptx, .tsv, .xlsx
 
 class DOCXChunker(BaseChunker):
-    def chunk(self, data: ChunkingData):
+    def chunk(self, data: ChunkingData) -> int:
         # Implement DOCX chunking logic here
         print(f"Chunking DOCX file: {data}")
+        return 0

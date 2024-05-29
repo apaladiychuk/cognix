@@ -4,6 +4,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/utils"
 	"context"
+	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -37,7 +38,7 @@ type (
 	}
 	MessageHandler func(ctx context.Context, msg *proto.Message) error
 	Client         interface {
-		Publish(ctx context.Context, topic string, body *proto.Body) error
+		Publish(ctx context.Context, topic string, body proto2.Message) error
 		Listen(ctx context.Context, streamName, topic string, handler MessageHandler) error
 		StreamConfig() *StreamConfig
 		Close()

@@ -31,8 +31,9 @@ func (c *clientStream) Close() {
 	c.wg.Wait()
 }
 
-func (c *clientStream) Publish(ctx context.Context, topic string, body *proto.Body) error {
-	message, err := buildMessage(ctx, body)
+func (c *clientStream) Publish(ctx context.Context, topic string, body proto2.Message) error {
+	message, err := buildMessageAny(ctx, body)
+
 	if err != nil {
 		return err
 	}

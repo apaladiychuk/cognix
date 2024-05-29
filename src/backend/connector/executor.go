@@ -92,14 +92,13 @@ func (e *Executor) runConnector(ctx context.Context, msg *proto.Message) error {
 		}
 
 		// send message to chunking service
-		if loopErr = e.msgClient.Publish(ctx, e.msgClient.StreamConfig().ChunkerStreamSubject, &proto.Body{
-			Payload: &proto.Body_Chunking{Chunking: &proto.ChunkingData{
+		if loopErr = e.msgClient.Publish(ctx, e.msgClient.StreamConfig().ChunkerStreamSubject,
+			&proto.ChunkingData{
 				Url:            result.URL,
 				DocumentId:     doc.ID.IntPart(),
 				FileType:       result.GetType(),
 				CollectionName: connectorModel.CollectionName(),
-			}},
-		}); loopErr != nil {
+			}); loopErr != nil {
 			err = loopErr
 			zap.S().Errorf("Failed to update document: %v", loopErr)
 			continue

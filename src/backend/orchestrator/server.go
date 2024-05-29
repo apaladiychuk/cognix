@@ -16,12 +16,14 @@ type Server struct {
 	messenger       messaging.Client
 	scheduleTrigger Trigger
 	scheduler       gocron.Scheduler
+	streamCfg       *messaging.StreamConfig
 }
 
 func NewServer(
 	cfg *Config,
 	connectorRepo repository.ConnectorRepository,
 	messenger messaging.Client,
+	messagingCfg *messaging.Config,
 	scheduleTrigger Trigger) (*Server, error) {
 	s, err := gocron.NewScheduler()
 	if err != nil {
@@ -31,6 +33,7 @@ func NewServer(
 	return &Server{connectorRepo: connectorRepo,
 		renewInterval:   time.Duration(cfg.RenewInterval) * time.Second,
 		messenger:       messenger,
+		streamCfg:       messagingCfg.Stream,
 		scheduler:       s,
 		scheduleTrigger: scheduleTrigger}, nil
 }

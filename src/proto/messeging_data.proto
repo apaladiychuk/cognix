@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package com.embedd;
-option go_package = "golang/core/proto;proto";
+option go_package = "backend/core/proto;proto";
 import "connector_messages.proto";
 import "chunking_data.proto";
 

@@ -22,6 +22,10 @@ log_level = getattr(logging, log_level_str, logging.INFO)
 # Get log format from env 
 log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+# Get stream and subject name from env
+chunker_stream_name = os.getenv('CHUNKER_STREAM_NAME','chunker')
+chunker_stream_subject = os.getenv('CHUNKER_STREAM_SUBJECT','chunk_activity')
+
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
@@ -60,7 +64,7 @@ async def chunking_event(msg: Msg):
 async def main():
     logger.info("service starting")
     try:
-        # subscribing to jest stream 
+        # subscribing to jest stream
         subscriber = JetStreamEventSubscriber(
             stream_name=stream_name,
             subject=subject,

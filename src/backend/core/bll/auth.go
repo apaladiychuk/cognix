@@ -21,7 +21,6 @@ type (
 	authBL struct {
 		userRepo repository.UserRepository
 		cfg      *Config
-		//storage     storage.Storage
 	}
 )
 
@@ -53,6 +52,7 @@ func (a *authBL) SignUp(ctx context.Context, identity *oauth.IdentityResponse) (
 	userID := uuid.New()
 	tenantID := uuid.New()
 
+	// create user  and default connector and embedding model
 	user := model.User{
 		ID:         userID,
 		TenantID:   tenantID,

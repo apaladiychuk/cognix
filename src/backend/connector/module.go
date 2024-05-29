@@ -3,7 +3,6 @@ package main
 import (
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/messaging"
-	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
 	"cognix.ch/api/v2/core/utils"
@@ -54,7 +53,7 @@ func RunServer(lc fx.Lifecycle, executor *Executor) error {
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			go executor.run(context.Background(), model.TopicExecutor, model.SubscriptionExecutor, executor.runConnector)
+			go executor.run(executor.msgClient.StreamConfig().ConnectorStreamName, executor.msgClient.StreamConfig().ConnectorStreamSubject, executor.runConnector)
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {

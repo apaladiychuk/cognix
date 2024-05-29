@@ -23,13 +23,16 @@ go.work
 
 
 
-# Ignore Python cache files
+# ignore Python cache files
 __pycache__/
 
-# ignore data directory
+# ignore data path
 data/
 
-# Ignore model directories
+# ignore model path
 src/backend/embedder/models/
+
+# ignore temp path
+src/backend/chunker/testdocs/
 
 

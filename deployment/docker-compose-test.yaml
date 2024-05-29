@@ -100,6 +100,11 @@ services:
       - ${CONFIG_PATH}/nats_cli.env
       - ${CONFIG_PATH}/embedder_cli.env
       - ${CONFIG_PATH}/.env
+    depends_on:
+      - cockroach
+      - minio
+      - standalone
+      - nats
     volumes:
       - ${BACKEND_PATH}:/backend
     networks:
@@ -117,6 +122,11 @@ services:
       - ${CONFIG_PATH}/cockroach_cli.env
       - ${CONFIG_PATH}/nats_cli.env
       - ${CONFIG_PATH}/.env
+    depends_on:
+      - cockroach
+      - minio
+      - standalone
+      - nats
     volumes:
       - ${BACKEND_PATH}:/backend
     networks:
@@ -137,6 +147,11 @@ services:
       - ${CONFIG_PATH}/minio_cli.env
       - ${CONFIG_PATH}/oauth_cli.env
       - ${CONFIG_PATH}/.env
+    depends_on:
+      - cockroach
+      - minio
+      - standalone
+      - nats
     volumes:
       - ${BACKEND_PATH}:/backend
     networks:

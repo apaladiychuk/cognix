@@ -6,7 +6,9 @@ import (
 )
 
 type Config struct {
-	RedirectURL string `env:"REDIRECT_URL"`
+	RedirectURL                string `env:"REDIRECT_URL"`
+	DefaultEmbeddingModel      string `env:"DEFAULT_EMBEDDING_MODEL" envDefault:"paraphrase-multilingual-mpnet-base-v2"`
+	DefaultEmbeddingVectorSize int    `env:"DEFAULT_EMBEDDING_VECTOR_SIZE" envDefault:"768"`
 }
 
 var BLLModule = fx.Options(

@@ -3,6 +3,7 @@ package ai
 import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/utils"
+	"fmt"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -36,9 +37,6 @@ var EmbeddingModule = fx.Options(
 		if err := utils.ReadConfig(&cfg); err != nil {
 			return nil, err
 		}
-		if err := cfg.Validate(); err != nil {
-			return nil, err
-		}
 		return &cfg, nil
 	},
 		newEmbeddingGRPCClient),
@@ -47,7 +45,7 @@ var EmbeddingModule = fx.Options(
 func newEmbeddingGRPCClient(cfg *EmbeddingConfig) (proto.EmbedServiceClient, error) {
 	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
-	conn, err := grpc.Dial(cfg.EmbeddingURL, dialOptions...)
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", cfg.EmbedderHost, cfg.EmbedderPort), dialOptions...)
 	if err != nil {
 		return nil, err
 	}

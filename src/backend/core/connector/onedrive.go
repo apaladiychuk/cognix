@@ -104,9 +104,10 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 		c.Base.model.DocsMap[item.Id] = doc
 	}
 	doc.IsExists = true
-	if doc.Signature == item.File.Hashes.QuickXorHash {
-		return nil
-	}
+	// todo need to clarify how to check that file was chunked, embedded and stored in milvus
+	//if doc.Signature == item.File.Hashes.QuickXorHash {
+	//	return nil
+	//}
 	doc.Signature = item.File.Hashes.QuickXorHash
 	payload := &Response{
 		URL:         item.MicrosoftGraphDownloadUrl,

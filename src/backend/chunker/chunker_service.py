@@ -26,6 +26,9 @@ log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %
 logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 
+stream_name = os.getenv('CHUNKER_STREAM_NAME', 'chunker')
+subject = os.getenv('CHUNKER_STREAM_SUBJECT', 'chunk_activity')
+
 
 # Define the event handler function
 async def chunking_event(msg: Msg):
@@ -59,8 +62,8 @@ async def main():
     try:
         # subscribing to jest stream 
         subscriber = JetStreamEventSubscriber(
-            stream_name="connector",
-            subject="chunking",
+            stream_name=stream_name,
+            subject=subject,
             proto_message_type=ChunkingData
         )
 

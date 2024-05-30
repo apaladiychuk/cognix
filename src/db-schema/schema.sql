@@ -51,6 +51,7 @@ create table embedding_models
     is_active      boolean  not null default false
 );
 
+-- this is not needed we will handle from nats
 create table index_attempts
 (
     id                      serial primary key,

@@ -1,31 +1,27 @@
 The orchestrator should play an intelligent role in managing the flow of data between different components, rather than acting as a simple scheduler. Here are my thoughts on how to structure the orchestrator to meet these goals:
 
-1. [Intelligent Orchestrator](#intelligent-orchestrator)
-2. [Direct Handling for Certain Sources](#direct-handling-for-certain-sources)
-3. [Connector's Role for Complex Sources](#connectors-role-for-complex-sources)
-4. [Orchestrator](#orchestrator)
-    - [General Behavior](#general-behavior)
-    - [Multiple Orchestrator Instances](#multiple-orchestrator-instances)
-    - [Connector Status](#connector-status)
-        - [Statuses](#statuses)
-        - [Important Considerations](#important-considerations)
-    - [Rules for Re-scanning Connectors](#rules-for-re-scanning-connectors)
-    - [Sequence Diagram](#sequence-diagram)
-    - [Component Diagram](#component-diagram)
-5. [URL](#url)
-6. [File](#file)
-7. [OneDrive, Google Drive, and Other Cloud Drives](#onedrive-google-drive-and-other-cloud-drives)
-8. [MS Teams and Slack](#ms-teams-and-slack)
-9. [Refresh Frequency](#refresh-frequency)
-10. [Connectors](#connectors)
-    - [General Behavior](#general-behavior-1)
-    - [URL and File](#url-and-file)
-    - [OneDrive, Google Drive, and Other Cloud Drives](#onedrive-google-drive-and-other-cloud-drives-1)
-11. [Chunker](#chunker)
-12. [Document Table Schema](#document-table-schema)
-    - [document](#document)
-    - [connector](#connector)
-13. [Proto Definitions](#proto-definitions)
+
+[Orchestrator](#orchestrator)
+ - [General Behavior](#general-behavior)
+ - [Multiple Orchestrator Instances](#multiple-orchestrator-instances)
+ - [Connector Status](#connector-status)
+     - [Statuses](#statuses)
+     - [Important Considerations](#important-considerations)
+- [Rules for Re-scanning Connectors](#rules-for-re-scanning-connectors)
+  - [URL](#url)
+- [File](#file)
+- [OneDrive, Google Drive, and Other Cloud Drives](#onedrive-google-drive-and-other-cloud-drives)
+- [MS Teams and Slack](#ms-teams-and-slack)
+- [Refresh Frequency](#refresh-frequency)
+[Connectors](#connectors)
+ - [General Behavior](#general-behavior-1)
+ - [URL and File](#url-and-file)
+ - [OneDrive, Google Drive, and Other Cloud Drives](#onedrive-google-drive-and-other-cloud-drives-1)
+[Chunker](#chunker)
+[Document Table Schema](#document-table-schema)
+  - [document](#document)
+  - [connector](#connector)
+  - [chunking_data](#chunking_data)
 
 
 
@@ -73,19 +69,6 @@ The status of the connector is currently determined by a field in the connector 
 - The time of the last activity must be greater than the refresh frequency (in seconds).
 - Refresh frequency is configurable and varies by file type.
 
-## Sequence diagram
-- Orchestrator monitors the connector table.
-- Depending on the connector status, it sends a scan request to the connector or chunker.
-- Connector processes the request for complex sources and interacts with chunker as needed.
-- Chunker processes the data and updates the status.
-
-![plot](https://github.com/gen-mind/cognix/blob/feature/chunking-3/docs/media/orchestrator_sequence_diagram.png)
-
-## Componenet diagram
-![plot](https://github.com/gen-mind/cognix/blob/feature/chunking-3/docs/media/orchestrator_componenet_diagram.png)
-
-
-## Componenet diagram
 ## URL
 The user can connect a URL as a knowledge source, providing:
 - URL (mandatory)
@@ -95,7 +78,6 @@ The user can connect a URL as a knowledge source, providing:
 
 The Orchestrator will forward the request directly to Chunker for this file type. No file is stored in MinIO.
 If the user deletes the source, the API will soft delete the row from the relational database and hard delete related entities from the vector database.
-
 
 ## File
 The user can upload a file as a knowledge source, providing:
@@ -123,6 +105,17 @@ TBD: Define the full flow and how to handle the documents table.
 - **MS Teams and Slack**: Daily, only new messages
 
 
+## Sequence diagram
+- Orchestrator monitors the connector table.
+- Depending on the connector status, it sends a scan request to the connector or chunker.
+- Connector processes the request for complex sources and interacts with chunker as needed.
+- Chunker processes the data and updates the status.
+
+![plot](https://github.com/gen-mind/cognix/blob/feature/chunking-3/docs/media/orchestrator_sequence_diagram.png)
+
+## Componenet diagram
+![plot](https://github.com/gen-mind/cognix/blob/feature/chunking-3/docs/media/orchestrator_componenet_diagram.png)
+
 
 
 # Connectors
@@ -144,10 +137,28 @@ When the Connector receives a new message from the orchestrator it will
     - Update chunking_session with the new chunking_session
     - if the item needs to be scanned (because is new or updated) sets the "analyzed" field to false
     - if the item does not needs to be scanned sets the "analyzed" field to true
-    - (it is important to update the database for all the itmes before sending messages to NAST to avoid concurrency)
+    - (it is important to update the database for all the itmes before sending messages to NATS to avoid concurrency)
 - delete (physically) all the documents in the database that are not anymore present in the original source  
 - Iterage again the list (after DB is updated for all the rows)
     - if the item needs to be scanned (because is new or updated) send a message to chunker
+
+### Sequence diagram
+
+1. **Orchestrator to Connector:** The Orchestrator sends a new message to the Connector to start the process.
+2. **Connector:** The Connector creates a GUID named "chunking_session" and sets the status to "Working."
+3. **Connector to Drive:** The Connector scans the drive based on the given rules and retrieves a list of files and paths.
+4. **Loop for each file/path:**
+   - **Connector to Database:** The Connector checks in the database if the item should be sent to the Chunker by comparing hashes.
+   - **Database to Connector:** The database returns the hash comparison result.
+   - **Alt (Condition):** 
+     - If the item needs to be scanned, the Connector updates the chunking_session and sets the "analyzed" field to false.
+     - If the item does not need to be scanned, the Connector sets the "analyzed" field to true.
+5. **Connector to Database:** The Connector deletes documents from the database that are no longer present in the original source.
+6. **Loop for each file/path:**
+   - **Alt (Condition):** 
+     - If the item needs to be scanned, the Connector sends a message to the Chunker.
+![plot](https://github.com/gen-mind/cognix/blob/feature/chunking-3/docs/media/connecor_cloud_drive_sequence_diagram.png)
+
 
 # Chunker
 Chunker processes data from various sources, creating embeddings and storing them in the vector database.
@@ -206,7 +217,7 @@ CREATE TABLE "connectors" (
 ```
 Removed the shared field. If a connector has the tennat_id it means it is shared, if it has the user_id it means is from the user
 
-## connector
+## chunking_data
 ```proto
 syntax = "proto3";
 

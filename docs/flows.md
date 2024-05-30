@@ -48,6 +48,12 @@ The status of the connector is currently determined by a field in the connector 
 - Connector processes the request for complex sources and interacts with chunker as needed.
 - Chunker processes the data and updates the status.
 
+![plot](./media/orchestrator_sequence_diagram.png)
+
+## Componenet diagram
+![plot](./media/orchestrator_component_diagram.png)
+
+
 ## Componenet diagram
 ## URL
 The user can connect a URL as a knowledge source, providing:
@@ -85,7 +91,10 @@ TBD: Define the full flow and how to handle the documents table.
 - **OneDrive, Google Drive, and other cloud drives**: One week
 - **MS Teams and Slack**: Daily, only new messages
 
-# Connector
+
+
+
+# Connectors
 The connector does not perform any actions on the vector database. It scans and downloads files from sources, storing them in MinIO, and determines if files need to be reloaded and re-chunked.
 
 ## General Behavior

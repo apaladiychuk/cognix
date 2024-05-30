@@ -63,34 +63,82 @@ async def chunking_event(msg: Msg):
         logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
 async def main():
-    logger.info("service starting")
-    try:
-        # subscribing to jest stream
-        subscriber = JetStreamEventSubscriber(
-            nats_url = nats_url,
-            stream_name=chunker_stream_name,
-            subject=chunker_stream_subject,
-            connect_timeout=nats_connect_timeout,
-            reconnect_time_wait=nats_reconnect_time_wait,
-            max_reconnect_attempts=nats_max_reconnect_attempts,
-            ack_wait=chunker_ack_wait,
-            max_deliver=chunker_max_deliver,
-            proto_message_type=ChunkingData
-        )
-
-        subscriber.set_event_handler(chunking_event)
-        await subscriber.connect_and_subscribe()
-
-        # todo add an event to JetStreamEventSubscriber to signal that sonncetion has been established
-        logger.info("🚀 service started successfully")
-
+    # circuit braker for chunking
+    # if for reason nats won't be available
+    # chunker will wait till nats will be up again 
+    while True:
+        logger.info("🛠️ service starting..")
         try:
+            # subscribing to jet stream
+            subscriber = JetStreamEventSubscriber(
+                nats_url=nats_url,
+                stream_name=chunker_stream_name,
+                subject=chunker_stream_subject,
+                connect_timeout=nats_connect_timeout,
+                reconnect_time_wait=nats_reconnect_time_wait,
+                max_reconnect_attempts=nats_max_reconnect_attempts,
+                ack_wait=chunker_ack_wait,
+                max_deliver=chunker_max_deliver,
+                proto_message_type=ChunkingData
+            )
+
+            subscriber.set_event_handler(chunking_event)
+            await subscriber.connect_and_subscribe()
+
+            # todo add an event to JetStreamEventSubscriber to signal that connection has been established
+            logger.info("🚀 service started successfully")
+
             while True:
                 await asyncio.sleep(1)
+
         except KeyboardInterrupt:
-            await subscriber.close()
-    except Exception as e:
-        logger.exception(f"❌ fatal: {e}")
+            logger.info("🛑 Service is stopping due to keyboard interrupt")
+            try:
+                if 'subscriber' in locals():
+                    await subscriber.close()
+            except Exception as close_exception:
+                logger.error(f"❌ Error while closing the subscriber: {close_exception}")
+            break
+        except Exception as e:
+            logger.exception(f"💀 recovering from a fatal error: {e}. The process will restart in 5 seconds..")
+            await asyncio.sleep(5)
+
+
+# async def main():
+#     #add a while here if you want to recover from a fatal errot that would hace caused the container to shut down
+#     while True:
+#         logger.info("🛠️ service starting..")
+#         try:
+#                 # subscribing to jest stream
+#                 subscriber = JetStreamEventSubscriber(
+#                     nats_url = nats_url,
+#                     stream_name=chunker_stream_name,
+#                     subject=chunker_stream_subject,
+#                     connect_timeout=nats_connect_timeout,
+#                     reconnect_time_wait=nats_reconnect_time_wait,
+#                     max_reconnect_attempts=nats_max_reconnect_attempts,
+#                     ack_wait=chunker_ack_wait,
+#                     max_deliver=chunker_max_deliver,
+#                     proto_message_type=ChunkingData
+#                 )
+
+#                 subscriber.set_event_handler(chunking_event)
+#                 await subscriber.connect_and_subscribe()
+
+#                 # todo add an event to JetStreamEventSubscriber to signal that sonncetion has been established
+#                 logger.info("🚀 service started successfully")
+
+#                 try:
+#                     while True:
+#                         # add a try here
+#                         await asyncio.sleep(1)
+#                 except KeyboardInterrupt:
+#                     await subscriber.close()
+                
+#                 jetStreamEventSubscriber = None
+#         except Exception as e:
+#             logger.exception(f"💀 recovering from a fatal: {e}. The process will restart in 5 seconds..")
+#             await asyncio.sleep(5)
 
 if __name__ == "__main__":
     asyncio.run(main())

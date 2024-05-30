@@ -112,14 +112,14 @@ When the Connector receives a new message from the orchestrator it will
 - Set the connector status from Pending scan to  Working by Connector. 
 - It will scan the drive (given the rules from the orchestrator, all sub-folder or not) and get a list of path/file
 - for each path/file item will check in the documents table if the item shall be sent to Chunker, depending on the hash comparison between database and file actually scanned.
-- if the item needs to be scanned (because is new or updated) 
-  - Update chunking_session with the new chunking_session, set the status to not done
-  - send a message to chunked
-If the document does not need to be scanned (because hash comparison identical) 
-  - Update chunking_session with the new chunking_session, set the status to not done
-  - send a message to chunked
-
+    - Update chunking_session with the new chunking_session
+    - if the item needs to be scanned (because is new or updated) set the status to not done 
+    - if the item does not needs to be scanned set the status to ndone 
+    - (it is important to update the database for all the itmes before sending messages to NAST to avoid concurrency)
 - delete (physically) all the documents in the database that are not anymore present in the original source  
+- Iterage again the list (after DB is updated for all the rows)
+    - if the item needs to be scanned (because is new or updated) send a message to chunker
+
 
 # Chunker
 ## URL

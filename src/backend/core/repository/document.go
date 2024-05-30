@@ -59,7 +59,8 @@ func (r *documentRepository) FindByConnectorIDAndUser(ctx context.Context, user 
 }
 
 func (r *documentRepository) Create(ctx context.Context, document *model.Document) error {
-	stm := r.db.WithContext(ctx).Model(&document)
+	document.CreationDate = time.Now().UTC()
+	stm := r.db.WithContext(ctx).Model(document)
 	if !document.ParentID.Valid {
 		stm = stm.ExcludeColumn("parent_id")
 	}

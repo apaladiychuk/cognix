@@ -31,18 +31,17 @@ type Executor struct {
 	milvusClient   storage.MilvusClient
 	oauthClient    *resty.Client
 	downloadClient *resty.Client
-	cancel         context.CancelFunc
 }
 
+// run this method listen messages from nats
 func (e *Executor) run(streamName, topic string, task messaging.MessageHandler) {
-	ctx, cancel := context.WithCancel(context.Background())
-	e.cancel = cancel
-	if err := e.msgClient.Listen(ctx, streamName, topic, task); err != nil {
+	if err := e.msgClient.Listen(context.Background(), streamName, topic, task); err != nil {
 		zap.S().Errorf("failed to listen[%s]: %v", topic, err)
 	}
 	return
 }
 
+// runConnector run connector from nats message
 func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 
 	//ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header()))
@@ -85,8 +84,9 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 				zap.S().Errorf("failed to save content: %v", err)
 			}
 		}
+		// find or create document from result
 		doc := e.handleResult(connectorModel, result)
-
+		// create or update document in database
 		if doc.ID.IntPart() != 0 {
 			loopErr = e.docRepo.Update(ctx, doc)
 		} else {

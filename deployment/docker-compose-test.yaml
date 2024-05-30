@@ -3,7 +3,21 @@
 # nats:2.10.14
 # cockroach-operator:v2.12.0 which is using cockroach:v23.1.11
 
-
+# need to do give docker permissions on loval volumes
+# id -gn    # to find out the group name for your user:
+# Use the group name obtained from the above command to set the correct permissions. Assuming the output of id -gn is staff, the command would be:
+# sudo chown -R $(whoami):staff /Users/gp/Developer/cognix/data
+# sudo chown -R $(whoami):staff /Users/gp/Developer/cognix/data
+# Create the Required Directories:
+# sudo mkdir -p /Users/gp/Developer/cognix/data/etcd
+# sudo mkdir -p /Users/gp/Developer/cognix/data/minio
+# sudo mkdir -p /Users/gp/Developer/cognix/data/cockroach
+# sudo mkdir -p /Users/gp/Developer/cognix/data/nats
+# sudo mkdir -p /Users/gp/Developer/cognix/data/milvus
+# Set Correct Permissions:
+# sudo chown -R $(whoami):staff /Users/gp/Developer/cognix/data
+# Run Docker Compose with Sudo:
+# sudo docker-compose -f deployment/docker-compose-test.yaml up
 
 version: '3.8'
 networks:
@@ -41,6 +55,11 @@ services:
       # - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
     restart: always
+    depends_on:
+      - milvus
+      - nats
+      - cockroach
+      - minio
     networks:
       - cognix-network
 
@@ -56,35 +75,14 @@ services:
       VITE_PLATFORM_API_URL: http://api:8080
     env_file:
       - ${CONFIG_PATH}/web_srv.env
+    depends_on:
+      - api
     networks:
       - cognix-network
 
-  # chunker-2:  
-  #   container_name: chunker-2
-  #   image: cognix/chunker:latest
-  #   build:
-  #     context: ../src/backend/chunker
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ${CONFIG_PATH}/chunker.env
-  #   restart: always
-  #   networks:
-  #     - cognix-network
-
-  # chunker-3:  
-  #   container_name: chunker-3
-  #   image: cognix/chunker:latest
-  #   build:
-  #     context: ../src/backend/chunker
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ${CONFIG_PATH}/chunker.env
-  #   restart: always
-  #   networks:
-  #     - cognix-network
-  
   api:
-    image: cognix:api
+    container_name: api
+    image: cognix/api:latest
     build:
       context: ${BACKEND_PATH}
       args:
@@ -103,7 +101,7 @@ services:
     depends_on:
       - cockroach
       - minio
-      - standalone
+      - milvus
       - nats
     volumes:
       - ${BACKEND_PATH}:/backend
@@ -111,7 +109,8 @@ services:
       - cognix-network
 
   orchestrator:
-    image: cognix:orchestrator
+    container_name: orchestrator
+    image: cognix/orchestrator:latest
     build:
       context: ${BACKEND_PATH}
       args:
@@ -125,7 +124,7 @@ services:
     depends_on:
       - cockroach
       - minio
-      - standalone
+      - milvus
       - nats
     volumes:
       - ${BACKEND_PATH}:/backend
@@ -133,7 +132,8 @@ services:
       - cognix-network
 
   connector:
-    image: cognix:connector
+    container_name: connector
+    image: cognix/connector:latest
     build:
       context: ${BACKEND_PATH}
       args:
@@ -150,7 +150,6 @@ services:
     depends_on:
       - cockroach
       - minio
-      - standalone
       - nats
     volumes:
       - ${BACKEND_PATH}:/backend
@@ -158,20 +157,22 @@ services:
       - cognix-network
 
   migration:
-    image: cognix:migration
+    container_name: migration
+    image: cognix/migration:latest
     build:
       context: ${MIGRATION_PATH}
       dockerfile: Dockerfile
-
     volumes:
       - ${MIGRATION_PATH}/versions:/versions
     env_file:
       - ${CONFIG_PATH}/cockroach_cli.env
+    depends_on:
+      - cockroach
     networks:
       - cognix-network
 
   minio:
-    container_name: milvus-minio
+    container_name: minio
     image: minio/minio:RELEASE.2023-03-20T20-16-18Z
     environment:
       MINIO_ACCESS_KEY: minioadmin
@@ -190,23 +191,8 @@ services:
     networks:
       - cognix-network
 
-  # need to do give docker permissions on loval volumes
-  # id -gn    # to find out the group name for your user:
-  # Use the group name obtained from the above command to set the correct permissions. Assuming the output of id -gn is staff, the command would be:
-  # sudo chown -R $(whoami):staff /Users/gp/Developer/cognix/data
-  # sudo chown -R $(whoami):staff /Users/gp/Developer/cognix/data
-  # Create the Required Directories:
-  # sudo mkdir -p /Users/gp/Developer/cognix/data/etcd
-  # sudo mkdir -p /Users/gp/Developer/cognix/data/minio
-  # sudo mkdir -p /Users/gp/Developer/cognix/data/cockroach
-  # sudo mkdir -p /Users/gp/Developer/cognix/data/nats
-  # sudo mkdir -p /Users/gp/Developer/cognix/data/milvus
-  # Set Correct Permissions:
-  # sudo chown -R $(whoami):staff /Users/gp/Developer/cognix/data
-  # Run Docker Compose with Sudo:
-  # sudo docker-compose -f deployment/docker-compose-test.yaml up
   etcd:
-    container_name: milvus-etcd
+    container_name: etcd-1
     image: quay.io/coreos/etcd:v3.5.5
     environment:
       - ETCD_AUTO_COMPACTION_MODE=revision
@@ -224,7 +210,7 @@ services:
     networks:
       - cognix-network
 
-  standalone:
+  milvus:
     container_name: milvus-standalone
     image: milvusdb/milvus:v2.3.0
     command: ["milvus", "run", "standalone"]
@@ -234,8 +220,8 @@ services:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
     volumes:
+      # - "../src/config/milvus_srv.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
       - "../data/milvus:/var/lib/milvus"
-      # - "./milvus.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
       interval: 30s
@@ -268,6 +254,11 @@ services:
     command: start-single-node --insecure
     volumes:
       - "../data/cockroach:/cockroach/cockroach-data"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
     networks:
       - cognix-network
 
@@ -287,6 +278,12 @@ services:
       - "--http_port=8222"
       - "--js"
       - "--sd=/data/nats"
+    # healthcheck:
+    #   test: echo $$(wget --server-response http://nats:8222/varz 2>&1 | grep  '200 OK') | grep '200'  || exit 1
+    #   interval: 20s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 40s
     networks:
       - cognix-network
   

@@ -72,7 +72,7 @@ func (n *nopConnector) Execute(ctx context.Context, param map[string]string) cha
 }
 
 func New(connectorModel *model.Connector) (Connector, error) {
-	switch connectorModel.Source {
+	switch connectorModel.Type {
 	case model.SourceTypeWEB:
 		return NewWeb(connectorModel)
 	case model.SourceTypeOneDrive:

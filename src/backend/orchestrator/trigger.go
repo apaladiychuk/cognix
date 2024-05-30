@@ -31,11 +31,11 @@ func (t *cronTrigger) Do(ctx context.Context, conn *model.Connector) error {
 	// todo we need figure out how to use multiple  orchestrators instances
 	// one approach could be that this method will extract top x rows from the database
 	// and it will book them
-	if conn.LastSuccessfulIndexTime.IsZero() ||
-		conn.LastSuccessfulIndexTime.Add(time.Duration(conn.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
+	if conn.LastSuccessfulIndexDate.IsZero() ||
+		conn.LastSuccessfulIndexDate.Add(time.Duration(conn.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, conn.ID.IntPart()))
-		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(conn.Source)))
+		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(conn.Type)))
 		zap.S().Infof("run connector %s", conn.ID)
 		return t.messenger.Publish(ctx, t.messenger.StreamConfig().ConnectorStreamSubject,
 			&proto.ConnectorRequest{

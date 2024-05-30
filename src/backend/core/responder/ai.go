@@ -8,6 +8,7 @@ import (
 	"cognix.ch/api/v2/core/storage"
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"strings"
 	"sync"
@@ -42,8 +43,8 @@ func (r *aiResponder) Send(ctx context.Context,
 		return
 	}
 
-	docs, err := r.embedding.FindDocuments(ctx, ch, &message, model.CollectionName(true, user.ID, user.TenantID),
-		model.CollectionName(false, user.ID, user.TenantID))
+	docs, err := r.embedding.FindDocuments(ctx, ch, &message, model.CollectionName(user.ID, uuid.NullUUID{Valid: true, UUID: user.TenantID}),
+		model.CollectionName(user.ID, uuid.NullUUID{Valid: false}))
 	if err != nil {
 
 	}

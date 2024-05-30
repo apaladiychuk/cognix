@@ -26,7 +26,7 @@ func (c *File) Execute(ctx context.Context, param map[string]string) chan *Respo
 		doc, ok := c.Base.model.DocsMap[c.param.URL]
 		if !ok {
 			doc = &model.Document{
-				DocumentID:  c.param.URL,
+				SourceID:    c.param.URL,
 				ConnectorID: c.Base.model.ID,
 				Link:        c.param.URL,
 				Signature:   "",

@@ -22,7 +22,7 @@ func (c *Web) Execute(ctx context.Context, param map[string]string) chan *Respon
 		doc, ok := c.model.DocsMap[c.param.URL]
 		if !ok {
 			doc = &model.Document{
-				DocumentID:  c.param.URL,
+				SourceID:    c.param.URL,
 				ConnectorID: c.Base.model.ID,
 				Link:        c.param.URL,
 				Signature:   "",

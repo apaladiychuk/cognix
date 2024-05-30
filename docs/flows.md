@@ -1,5 +1,36 @@
 The orchestrator should play an intelligent role in managing the flow of data between different components, rather than acting as a simple scheduler. Here are my thoughts on how to structure the orchestrator to meet these goals:
 
+1. [Intelligent Orchestrator](#intelligent-orchestrator)
+2. [Direct Handling for Certain Sources](#direct-handling-for-certain-sources)
+3. [Connector's Role for Complex Sources](#connectors-role-for-complex-sources)
+4. [Orchestrator](#orchestrator)
+    - [General Behavior](#general-behavior)
+    - [Multiple Orchestrator Instances](#multiple-orchestrator-instances)
+    - [Connector Status](#connector-status)
+        - [Statuses](#statuses)
+        - [Important Considerations](#important-considerations)
+    - [Rules for Re-scanning Connectors](#rules-for-re-scanning-connectors)
+    - [Sequence Diagram](#sequence-diagram)
+    - [Component Diagram](#component-diagram)
+5. [URL](#url)
+6. [File](#file)
+7. [OneDrive, Google Drive, and Other Cloud Drives](#onedrive-google-drive-and-other-cloud-drives)
+8. [MS Teams and Slack](#ms-teams-and-slack)
+9. [Refresh Frequency](#refresh-frequency)
+10. [Connectors](#connectors)
+    - [General Behavior](#general-behavior-1)
+    - [URL and File](#url-and-file)
+    - [OneDrive, Google Drive, and Other Cloud Drives](#onedrive-google-drive-and-other-cloud-drives-1)
+11. [Chunker](#chunker)
+12. [Document Table Schema](#document-table-schema)
+    - [document](#document)
+    - [connector](#connector)
+13. [Proto Definitions](#proto-definitions)
+
+
+
+The orchestrator should play an intelligent role in managing the flow of data between different components, rather than acting as a simple scheduler. Here are my thoughts on how to structure the orchestrator to meet these goals:
+
 1. **Intelligent Orchestrator**: The orchestrator should have the capability to decide whether a scan request should go directly to the chunker or through the connector, based on the type of source and its current status.
 
 2. **Direct Handling for Certain Sources**: For sources like files and URLs, it makes sense for the orchestrator to send requests directly to the chunker, bypassing the connector to reduce unnecessary traffic and workload. This can significantly optimize the system's efficiency, especially at scale.

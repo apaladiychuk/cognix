@@ -48,7 +48,7 @@ The status of the connector is currently determined by a field in the connector 
 - Connector processes the request for complex sources and interacts with chunker as needed.
 - Chunker processes the data and updates the status.
 
-![plot](./media/orchestrator_sequence_diagram.png)
+![plot](https://github.com/gen-mind/cognix/blob/feature/chunking-3/docs/media/orchestrator_componenet_diagram.png)
 
 ## Componenet diagram
 ![plot](./media/orchestrator_component_diagram.png)

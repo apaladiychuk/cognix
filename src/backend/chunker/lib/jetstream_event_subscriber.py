@@ -72,7 +72,7 @@ class JetStreamEventSubscriber:
                     except Exception as e:
                         self.logger.exception(f"❌ Exception while deleting and recreating Jetstream: {e}")
         except Exception as e:
-            self.logger.exception(e)
+            self.logger.exception(f"❌ {e}")
             raise e
 
         # Define consumer configuration

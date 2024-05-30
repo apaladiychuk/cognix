@@ -42,8 +42,14 @@ The status of the connector is currently determined by a field in the connector 
 - The time of the last activity must be greater than the refresh frequency (in seconds).
 - Refresh frequency is configurable and varies by file type.
 
-## Connectors (data sources)
-### URL
+## Sequence diagram
+- Orchestrator monitors the connector table.
+- Depending on the connector status, it sends a scan request to the connector or chunker.
+- Connector processes the request for complex sources and interacts with chunker as needed.
+- Chunker processes the data and updates the status.
+
+## Componenet diagram
+## URL
 The user can connect a URL as a knowledge source, providing:
 - URL (mandatory)
 - Sitemap URL (optional)
@@ -53,13 +59,14 @@ The user can connect a URL as a knowledge source, providing:
 The Orchestrator will forward the request directly to Chunker for this file type. No file is stored in MinIO.
 If the user deletes the source, the API will soft delete the row from the relational database and hard delete related entities from the vector database.
 
-### File
+
+## File
 The user can upload a file as a knowledge source, providing:
 - The file to be analyzed (mandatory)
 
 Files are uploaded to MinIO and scanned only once. Once the status is set to scan completed (with or without errors), no further analysis requests are issued. The Orchestrator will send a request directly to Chunker as soon as the file is uploaded correctly.
 
-### OneDrive, Google Drive, and Other Cloud Drives
+## OneDrive, Google Drive, and Other Cloud Drives
 The user can connect a cloud drive as a knowledge source, providing:
 - Path to be analyzed (mandatory)
 - Option to scan the path only or all subfolders
@@ -67,7 +74,7 @@ The user can connect a cloud drive as a knowledge source, providing:
 
 The Orchestrator will forward the request to Connector for this file type.
 
-### MS Teams and Slack
+## MS Teams and Slack
 The user can upload a file as a knowledge source, providing:
 - The file to be analyzed (mandatory)
 
@@ -106,6 +113,8 @@ When the Connector receives a new message from the orchestrator it will
 Chunker processes data from various sources, creating embeddings and storing them in the vector database.
 
 ## URL Chunker
+Becaus ein golang is pretty time consuming creating a crawler able to analyze the content of a 
+This specific chunker has two 
 guid “chunking_session”
 
 
@@ -195,3 +204,8 @@ message ChunkingData {
   bool is_internal = 10; // used by chunker if it needs to send message to itself
 }
 ```
+
+- URL (mandatory)
+- Sitemap URL (optional)
+- Option to scan all links on the page (optional)
+- Option to search for a sitemap if not provided

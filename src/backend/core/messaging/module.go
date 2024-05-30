@@ -24,14 +24,14 @@ type (
 		Stream *StreamConfig
 	}
 	natsConfig struct {
-		URL string `env:"NATS_URL"`
+		URL string `env:"NATS_CLIENT_URL"`
 	}
 	// StreamConfig contains variables for configure streams
 	StreamConfig struct {
-		ConnectorStreamName    string `env:"CONNECTOR_STREAM_NAME,required"`
-		ConnectorStreamSubject string `env:"CONNECTOR_STREAM_SUBJECT,required"`
-		ChunkerStreamName      string `env:"CHUNKER_STREAM_NAME,required"`
-		ChunkerStreamSubject   string `env:"CHUNKER_STREAM_SUBJECT,required"`
+		ConnectorStreamName    string `env:"NATS_CLIENT_CONNECTOR_STREAM_NAME,required"`
+		ConnectorStreamSubject string `env:"NATS_CLIENT_CONNECTOR_STREAM_SUBJECT,required"`
+		ChunkerStreamName      string `env:"NATS_CLIENT_CHUNKER_STREAM_NAME,required"`
+		ChunkerStreamSubject   string `env:"NATS_CLIENT_CHUNKER_STREAM_SUBJECT,required"`
 	}
 	Subscription struct {
 		ch           chan *proto.Message

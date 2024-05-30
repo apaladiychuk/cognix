@@ -121,14 +121,18 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 			err = loopErr
 		}
 	}
+
 	if err != nil {
 		connectorModel.LastAttemptStatus = model.StatusFailed
 	} else {
 		connectorModel.LastAttemptStatus = model.StatusSuccess
 	}
 	connectorModel.LastSuccessfulIndexTime = pg.NullTime{time.Now().UTC()}
-	if err = e.milvusClient.Delete(ctx, connectorModel.CollectionName(), ids...); err != nil {
-		return err
+	connectorModel.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	if len(ids) > 0 {
+		if err = e.milvusClient.Delete(ctx, connectorModel.CollectionName(), ids...); err != nil {
+			//return err
+		}
 	}
 	if err = e.connectorRepo.Update(ctx, connectorModel); err != nil {
 		return err

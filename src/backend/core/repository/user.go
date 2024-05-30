@@ -6,7 +6,6 @@ import (
 	"context"
 	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
-	"time"
 )
 
 type (
@@ -79,19 +78,13 @@ func (u *userRepository) RegisterUser(c context.Context, user *model.User) error
 		if _, err := tx.Model(user).Insert(); err != nil {
 			return utils.Internal.Wrap(err, "can not create user")
 		}
-
-		fileConnector := model.Connector{
-			Name:                    "file connector",
-			Source:                  model.SourceTypeFile,
-			UserID:                  user.ID,
-			TenantID:                user.TenantID,
-			Shared:                  true,
-			ConnectorSpecificConfig: make(model.JSONMap),
-			CreatedDate:             time.Now().UTC(),
-		}
-		if _, err := tx.Model(&fileConnector).ExcludeColumn("credential_id").Insert(); err != nil {
+		if _, err := tx.Model(user.Defaults.FileConnector).ExcludeColumn("credential_id").Insert(); err != nil {
 			return utils.Internal.Wrap(err, "can not create file connector")
 		}
+		if _, err := tx.Model(user.Defaults.EmbeddingModel).Insert(); err != nil {
+			return utils.Internal.Wrap(err, "can not create default embedding model")
+		}
+
 		return nil
 	})
 }

@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -24,12 +25,14 @@ type ChatBL interface {
 	FeedbackMessage(ctx *gin.Context, user *model.User, id int64, vote bool) (*model.ChatMessageFeedback, error)
 }
 type chatBL struct {
-	chatRepo     repository.ChatRepository
-	docRepo      repository.DocumentRepository
-	personaRepo  repository.PersonaRepository
-	aiBuilder    *ai.Builder
-	embedding    proto.EmbedServiceClient
-	milvusClinet storage.MilvusClient
+	cfg                *Config
+	chatRepo           repository.ChatRepository
+	docRepo            repository.DocumentRepository
+	personaRepo        repository.PersonaRepository
+	embeddingModelRepo repository.EmbeddingModelRepository
+	aiBuilder          *ai.Builder
+	embedding          proto.EmbedServiceClient
+	milvusClinet       storage.MilvusClient
 }
 
 func (b *chatBL) FeedbackMessage(ctx *gin.Context, user *model.User, id int64, vote bool) (*model.ChatMessageFeedback, error) {
@@ -56,6 +59,13 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 	if err != nil {
 		return nil, err
 	}
+	em, err := b.embeddingModelRepo.GetDefault(ctx.Request.Context(), user.TenantID)
+	if err != nil {
+		zap.S().Errorf(err.Error())
+		em = &model.EmbeddingModel{
+			ModelID: b.cfg.DefaultEmbeddingModel,
+		}
+	}
 	message := model.ChatMessage{
 		ChatSessionID: chatSession.ID,
 		Message:       param.Message,
@@ -69,7 +79,7 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 	aiClient := b.aiBuilder.New(chatSession.Persona.LLM)
 	resp := responder.NewManager(
 		responder.NewAIResponder(aiClient, b.chatRepo,
-			b.embedding, b.milvusClinet, b.docRepo, "paraphrase-multilingual-mpnet-base-v2"),
+			b.embedding, b.milvusClinet, b.docRepo, em.ModelID),
 	)
 
 	go resp.Send(ctx, user, noLLM, &message, chatSession.Persona)
@@ -129,18 +139,24 @@ func (b *chatBL) CreateSession(ctx context.Context, user *model.User, param *par
 	return &session, nil
 }
 
-func NewChatBL(chatRepo repository.ChatRepository,
+func NewChatBL(
+	cfg *Config,
+	chatRepo repository.ChatRepository,
 	personaRepo repository.PersonaRepository,
 	docRepo repository.DocumentRepository,
+	embeddingModelRepo repository.EmbeddingModelRepository,
 	aiBuilder *ai.Builder,
 	embedding proto.EmbedServiceClient,
 	milvusClinet storage.MilvusClient,
 ) ChatBL {
-	return &chatBL{chatRepo: chatRepo,
-		personaRepo:  personaRepo,
-		docRepo:      docRepo,
-		aiBuilder:    aiBuilder,
-		embedding:    embedding,
-		milvusClinet: milvusClinet,
+	return &chatBL{
+		cfg:                cfg,
+		chatRepo:           chatRepo,
+		personaRepo:        personaRepo,
+		docRepo:            docRepo,
+		embeddingModelRepo: embeddingModelRepo,
+		aiBuilder:          aiBuilder,
+		embedding:          embedding,
+		milvusClinet:       milvusClinet,
 	}
 }

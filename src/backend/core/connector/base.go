@@ -5,13 +5,13 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
-	"io"
 	"strings"
 	"time"
 )
 
 const mineURL = "url"
-const maxFileLimitGB = 1024 * 1024 * 1024
+const ParamFileLimit = "file_limit"
+const GB = 1024 * 1024 * 1024
 
 var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       proto.FileType_XLS,
@@ -33,7 +33,6 @@ type Response struct {
 	SourceID    string
 	DocumentID  int64
 	Content     []byte
-	Reader      io.ReadCloser
 	MimeType    string
 	SaveContent bool
 }
@@ -78,6 +77,8 @@ func New(connectorModel *model.Connector) (Connector, error) {
 		return NewWeb(connectorModel)
 	case model.SourceTypeOneDrive:
 		return NewOneDrive(connectorModel)
+	case model.SourceTypeFile:
+		return NewFile(connectorModel)
 	default:
 		return &nopConnector{}, nil
 	}

@@ -25,17 +25,13 @@ type (
 
 func (b *embeddingModelBL) Create(ctx context.Context, user *model.User, em *parameters.EmbeddingModelParam) (*model.EmbeddingModel, error) {
 	embeddingModel := model.EmbeddingModel{
-		TenantID:      user.TenantID,
-		ModelID:       em.ModelID,
-		ModelName:     em.ModelName,
-		ModelDim:      em.ModelDim,
-		Normalize:     em.Normalize,
-		QueryPrefix:   em.QueryPrefix,
-		PassagePrefix: em.PassagePrefix,
-		IndexName:     em.IndexName,
-		URL:           em.URL,
-		IsActive:      em.IsActive,
-		CreatedDate:   time.Now().UTC(),
+		TenantID:    user.TenantID,
+		ModelID:     em.ModelID,
+		ModelName:   em.ModelName,
+		ModelDim:    em.ModelDim,
+		URL:         em.URL,
+		IsActive:    em.IsActive,
+		CreatedDate: time.Now().UTC(),
 	}
 	if err := b.emRepo.Create(ctx, &embeddingModel); err != nil {
 		return nil, err
@@ -51,10 +47,6 @@ func (b *embeddingModelBL) Update(ctx context.Context, user *model.User, id int6
 	existingEM.ModelID = em.ModelID
 	existingEM.ModelName = em.ModelName
 	existingEM.ModelDim = em.ModelDim
-	existingEM.Normalize = em.Normalize
-	existingEM.QueryPrefix = em.QueryPrefix
-	existingEM.PassagePrefix = em.PassagePrefix
-	existingEM.IndexName = em.IndexName
 	existingEM.URL = em.URL
 	existingEM.IsActive = em.IsActive
 	existingEM.UpdatedDate = pg.NullTime{time.Now().UTC()}

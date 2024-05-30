@@ -73,11 +73,11 @@ class JetStreamPublisher:
             await self.js.publish(self.subject, message.SerializeToString())
             logger.info("Message published successfully!")
         except NoRespondersError:
-            logger.error("No responders available for request")
+            logger.error("❌ No responders available for request")
         except TimeoutError:
-            logger.error("Request to JetStream timed out")
+            logger.error("❌ Request to JetStream timed out")
         except Exception as e:
-            logger.error(f"Failed to publish message: {e}")
+            logger.error(f"❌ Failed to publish message: {e}")
 
     async def close(self):
         await self.nc.close()

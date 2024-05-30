@@ -86,19 +86,6 @@ func (s *Server) listen(ctx context.Context) {
 	//}
 }
 
-func (s *Server) handleTriggerRequest(ctx context.Context, msg *proto.Message) error {
-	trigger := msg.GetBody().GetTrigger()
-	if trigger == nil {
-		zap.S().Errorf("Received message with empty trigger")
-		return nil
-	}
-	if err := s.scheduleConnector(ctx, trigger); err != nil {
-		zap.S().Errorf("error scheduling connector[%d] : %v", trigger.GetId(), err)
-		return err
-	}
-	return nil
-}
-
 func (s *Server) scheduleConnector(ctx context.Context, trigger *proto.ConnectorRequest) error {
 	conn, err := s.connectorRepo.GetByID(ctx, trigger.GetId())
 	if err != nil {

@@ -8,6 +8,11 @@ const (
 	RoleSuperAdmin = "super_admin"
 )
 
+type Defaults struct {
+	EmbeddingModel *EmbeddingModel
+	FileConnector  *Connector
+}
+
 type User struct {
 	ID         uuid.UUID   `json:"id,omitempty"`
 	TenantID   uuid.UUID   `json:"tenant_id,omitempty"`
@@ -17,6 +22,7 @@ type User struct {
 	ExternalID string      `json:"-"`
 	Roles      StringSlice `json:"roles,omitempty" pg:",array"`
 	Tenant     *Tenant     `json:"tenant,omitempty" pg:"rel:has-one"`
+	Defaults   *Defaults   `json:"-" pg:"-"`
 }
 
 func (u *User) HasRoles(role ...string) bool {

@@ -13,12 +13,13 @@ from nats.js.client import JetStreamContext
 from datetime import datetime
 from nats.js.errors import NotFoundError
 import logging
-import uuid  
+import uuid
 
-class JetStreamEventSubscriber:     
+
+class JetStreamEventSubscriber:
     def __init__(self, nats_url: str, stream_name: str, subject: str,
                  connect_timeout: int, reconnect_time_wait: int,
-                 max_reconnect_attempts: int, ack_wait: int, 
+                 max_reconnect_attempts: int, ack_wait: int,
                  max_deliver: int, proto_message_type: _message.Message):
         self.nats_url = nats_url
         self.stream_name = stream_name
@@ -31,7 +32,7 @@ class JetStreamEventSubscriber:
         self.proto_message_type = proto_message_type
         self.event_handler = None
         self.nc = NATS()
-        self.js = None # needs to be created in connect_and_subscribe
+        self.js = None  # needs to be created in connect_and_subscribe
         self.logger = logging.getLogger(self.__class__.__name__)
 
     async def connect_and_subscribe(self):
@@ -41,12 +42,12 @@ class JetStreamEventSubscriber:
             self.logger.info(f"🔌 connecting to nats endpoint {self.nats_url} ..")
 
             await self.nc.connect(servers=[self.nats_url],
-                connect_timeout=self.connect_timeout,
-                reconnect_time_wait=self.reconnect_time_wait,
-                max_reconnect_attempts=self.max_reconnect_attempts)
-            
+                                  connect_timeout=self.connect_timeout,
+                                  reconnect_time_wait=self.reconnect_time_wait,
+                                  max_reconnect_attempts=self.max_reconnect_attempts, )
+
             self.logger.info(f"successfully connected {self.nats_url}")
-            
+
             # Create JetStream context
             self.js = self.nc.jetstream()
 
@@ -59,12 +60,13 @@ class JetStreamEventSubscriber:
                 retention=RetentionPolicy.WORK_QUEUE
                 #retention=RetentionPolicy.LIMITS        
             )
-            
+
             try:
                 await self.js.add_stream(stream_config)
             except BadRequestError as e:
                 if e.code == 400:
-                    self.logger.warning("😱 jetstream stream was using a different configuration. Destroying and recreating with the right configuration")
+                    self.logger.warning("😱 jetstream stream was using a different configuration. Destroying and "
+                                        "recreating with the right configuration")
                     try:
                         await self.js.delete_stream(stream_config.name)
                         await self.js.add_stream(stream_config)
@@ -84,7 +86,7 @@ class JetStreamEventSubscriber:
             # DeliverPolicy.ALL is mandatory when setting  retention=RetentionPolicy.WORK_QUEUE for StreamConfig
             deliver_policy=DeliverPolicy.ALL,
         )
-        
+
         # Subscribe to the subject
         try:
             self.logger.info(f"subscribing to jetstream {self.stream_name} - {self.subject} ..")
@@ -95,7 +97,7 @@ class JetStreamEventSubscriber:
                 config=consumer_config,
             )
             self.logger.info(f"successfully subscribed to jetstream {self.stream_name} - {self.subject}")
-            
+
             # psub.fetch()
             while True:
                 try:
@@ -115,7 +117,7 @@ class JetStreamEventSubscriber:
             raise e
 
     async def message_handler(self, msg: Msg):
-        try:        
+        try:
             if self.event_handler:
                 await self.event_handler(msg)
         except Exception as e:
@@ -128,4 +130,16 @@ class JetStreamEventSubscriber:
         await self.nc.close()
 
     async def flush(self):
-        await self.nc.flush(0.500)
+        await self.nc.flush(2)
+
+    async def disconnected_event(self):
+        self.logger.warning('😱 Got disconnected!')
+
+    async def reconnected_event(self, nc: NATS) -> None:
+        self.logger.warning(f'😱 Got reconnected to {nc.connected_url.netloc}')
+
+    async def error_event(self, e: Exception) -> None:
+        self.logger.error(f"❌there was an error: {e}")
+
+    async def closed_event(self, nc: NATS) -> None:
+        self.logger.info("connection closed")

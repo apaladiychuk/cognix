@@ -8,7 +8,7 @@ from gen_types.embed_service_pb2 import EmbedRequest, EmbedResponse
 import grpc
 import time
 import logging
-import uuid  
+import uuid
 import os
 from dotenv import load_dotenv
 
@@ -22,12 +22,16 @@ milvus_port = os.getenv("MILVUS_PORT", "19530")
 embedder_grpc_host = os.getenv("EMBEDDER_GRPC_HOST", "localhost")
 embedder_grpc_port = os.getenv("EMBEDDER_GRPC_PORT", "50051")
 
+
+def is_connected():
+    # TODO: get params from env (alias)
+    return utility.connections.has_connection("default")
+
+
 class Milvus_DB:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         # self._connect()
-
-
 
     def delete_by_document_id(self, document_id: int64, collection_name: str):
         start_time = time.time()  # Record the start time
@@ -42,20 +46,19 @@ class Milvus_DB:
                 # host='milvus-standalone'
                 port=milvus_port
             )
-            
-            if utility.has_collection(collection_name):    
 
-                
+            if utility.has_collection(collection_name):
+
                 collection = Collection(collection_name)  # Get an existing collection.
 
-                collection.schema                # Return the schema.CollectionSchema of the collection.
-                collection.description           # Return the description of the collection.
-                collection.name                  # Return the name of the collection.
-                collection.is_empty              # Return the boolean value that indicates if the collection is empty.
-                self.logger.info(f"collection: {collection_name} has {collection.num_entities} entities") 
+                collection.schema  # Return the schema.CollectionSchema of the collection.
+                collection.description  # Return the description of the collection.
+                collection.name  # Return the name of the collection.
+                collection.is_empty  # Return the boolean value that indicates if the collection is empty.
+                self.logger.info(f"collection: {collection_name} has {collection.num_entities} entities")
 
                 utility.drop_collection(collection_name)
-            
+
                 self.logger.info(f"deleted document with document_id: {document_id}")
             else:
                 self.logger.info(f"collection {collection_name} does not exist.")
@@ -66,16 +69,13 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
-
-
-
     def store_chunk(self, content: str, data: ChunkingData):
         start_time = time.time()  # Record the start time
         try:
             # self.ensure_connection()
             # if self.is_connected() == False:
             #     raise Exception("Connot connect to Milvus")
-            
+
             # This way of adding data looks like extremly inefficent
             # We need to find a way to use the same connection arcross 
             # different method calls 
@@ -90,19 +90,19 @@ class Milvus_DB:
             )
 
             fields = [
-                    FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
-                    FieldSchema(name="document_id", dtype=DataType.INT64),
-                    # text content expected format {"content":""}
-                    FieldSchema(name="content", dtype=DataType.JSON),
-                    FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=data.model_dimension),
-                ]
-            
+                FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
+                FieldSchema(name="document_id", dtype=DataType.INT64),
+                # text content expected format {"content":""}
+                FieldSchema(name="content", dtype=DataType.JSON),
+                FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=data.model_dimension),
+            ]
+
             # creating collection schema and adding the fields defined above
             schema = CollectionSchema(fields=fields, enable_dynamic_field=True)
 
             # creating collection based on the above schema
             collection = Collection(name=data.collection_name, schema=schema)
-                
+
             # create the colection if needed
             # if not utility.has_collection(data.collection_name):
             # creating index params
@@ -131,34 +131,30 @@ class Milvus_DB:
             collection.flush()
             self.logger.info(f"element succesfully insterted in collection {data.collection_name}")
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(f"❌ {e}")
         finally:
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
             self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
-
-
 
     def embedd(self, content_to_embedd: str, model: str) -> List[float]:
         # TODO: get padams fom env
         start_time = time.time()  # Record the start time
         with grpc.insecure_channel(f"{embedder_grpc_host}:{embedder_grpc_port}") as channel:
             stub = EmbedServiceStub(channel)
-        
+
             self.logger.info("Calling gRPC Service GetEmbed - Unary")
 
             # embed_request = EmbedRequest(content=content_to_embedd, model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
             embed_request = EmbedRequest(content=content_to_embedd, model=model)
             embed_response = stub.GetEmbeding(embed_request)
-        
-        
+
             self.logger.info("GetEbedding gRPC call received correctly")
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
             self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
 
             return list(embed_response.vector)
-
 
     def _connect(self):
         try:
@@ -170,22 +166,16 @@ class Milvus_DB:
                 port=milvus_port
             )
 
-
             self.logger.info(utility.connections.has_connection("defaul"))
             self.logger.info("Connected to Milvus")
         except Exception as e:
-            self.logger.error(f"Failed to connect to Milvus {e}")
+            self.logger.error(f"❌ Failed to connect to Milvus {e}")
             self.connection = None
 
-    def is_connected(self):
-        # TODO: get params from env (alias)
-        return utility.connections.has_connection("defaul")
-
     def ensure_connection(self):
-        if not self.is_connected():
+        if not is_connected():
             self.logger.info("Reconnecting to Milvus")
             self._connect()
-
 
 # from typing import List
 # from numpy import int64
@@ -208,7 +198,7 @@ class Milvus_DB:
 # # nats_url = os.getenv('NATS_URL', 'nats://127.0.0.1:4222').upper()
 
 # class Milvus_DB:
-    
+
 #     def __init__(self):
 #         self.logger = logging.getLogger(self.__class__.__name__)
 #         self._connect()
@@ -221,7 +211,7 @@ class Milvus_DB:
 #                 host='127.0.0.1',
 #                 port='19530'
 #             )
-            
+
 #         except Exception as e:
 #             self.logger.error(f"Failed to connect to Milvus {e}")  
 
@@ -237,13 +227,13 @@ class Milvus_DB:
 #                     FieldSchema(name="content", dtype=DataType.JSON),
 #                     FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=data.model_dimension),
 #                 ]
-                
+
 #                 # creating collection schema and adding the fields defined above
 #                 schema = CollectionSchema(fields=fields, enable_dynamic_field=True)
 
 #                 # creating collection based on the above schema
 #                 collection = Collection(name=data.collection_name, schema=schema)
-                
+
 #                 # creating index params
 #                 index_params = {
 #                     "index_type": "DISKANN",
@@ -273,9 +263,9 @@ class Milvus_DB:
 
 #     def delete_by_document_id(self, document_id: int64, collection_name: str):
 #         try:
-            
+
 #             if utility.has_collection(collection_name):
-                
+
 #                 utility.drop_collection(collection_name)
 
 #                 self.logger.info(f"Deleted document with document_id: {document_id}")
@@ -289,14 +279,14 @@ class Milvus_DB:
 #         # TODO: get padams fom env
 #         with grpc.insecure_channel('localhost:50051') as channel:
 #             stub = EmbedServiceStub(channel)
-        
+
 #             self.logger.info("Calling gRPC Service GetEmbed - Unary")
 
 #             # embed_request = EmbedRequest(content=content_to_embedd, model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
 #             embed_request = EmbedRequest(content=content_to_embedd, model=model)
 #             embed_response = stub.GetEmbeding(embed_request)
-        
-        
+
+
 #             self.logger.info("GetEbedding gRPC call received correctly")
 #             # self.logger.info(embed_response.vector)
 #             return list(embed_response.vector)
@@ -305,9 +295,6 @@ class Milvus_DB:
 #     #     # Generate a checksum for the given content
 #     #     import hashlib
 #     #     return hashlib.md5(content.encode('utf-8')).hexdigest()
-
-
-
 
 
 # # from typing import List
@@ -339,7 +326,7 @@ class Milvus_DB:
 # #             host='127.0.0.1',
 # #             port='19530'
 # #         )
-        
+
 # #         # connections.connect(
 # #         #     alias="default",
 # #         #     host='proxmox-lab.theworkpc.com',
@@ -369,7 +356,7 @@ class Milvus_DB:
 # #                 "index_type": "DISKANN",
 # #                 "metric_type": "COSINE",
 # #             }
-            
+
 # #             # IMPORTANT:
 # #             # Define all the needed parameters as described there
 # #             # https://milvus.io/docs/disk_index.md#DiskANN-related-Milvus-configurations
@@ -403,14 +390,14 @@ class Milvus_DB:
 # #         #with grpc.insecure_channel('127.0.0.1:50051') as channel:
 # #         with grpc.insecure_channel('localhost:50051') as channel:
 # #             stub = EmbedServiceStub(channel)
-            
+
 # #             self.logger.info("Calling gRPC Service GetEmbed - Unary")
 
 # #             # embed_request = EmbedRequest(content=content_to_embedd, model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
 # #             embed_request = EmbedRequest(content=content_to_embedd, model=model)
 # #             embed_response = stub.GetEmbeding(embed_request)
-            
-            
+
+
 # #             self.logger.info("GetEmbed Response Received:")
 # #             self.logger.info(embed_response.vector)
 # #             return list(embed_response.vector)

@@ -14,6 +14,7 @@ type (
 	EmbeddingModelRepository interface {
 		GetAll(ctx context.Context, tenantID uuid.UUID, param *parameters.ArchivedParam) ([]*model.EmbeddingModel, error)
 		GetByID(ctx context.Context, tenantID uuid.UUID, id int64) (*model.EmbeddingModel, error)
+		GetDefault(ctx context.Context, tenantID uuid.UUID) (*model.EmbeddingModel, error)
 		Create(ctx context.Context, em *model.EmbeddingModel) error
 		Update(ctx context.Context, em *model.EmbeddingModel) error
 		Delete(ctx context.Context, em *model.EmbeddingModel) error
@@ -22,6 +23,17 @@ type (
 		db *pg.DB
 	}
 )
+
+func (r *embeddingModelRepository) GetDefault(ctx context.Context, tenantID uuid.UUID) (*model.EmbeddingModel, error) {
+	var em model.EmbeddingModel
+	if err := r.db.Model(&em).Where("tenant_id = ?", tenantID).
+		Where("is_active = true").
+		Limit(1).
+		First(); err != nil {
+		return nil, utils.NotFound.Wrap(err, "Cannot get default embedding model")
+	}
+	return &em, nil
+}
 
 func (r *embeddingModelRepository) GetAll(ctx context.Context, tenantID uuid.UUID, param *parameters.ArchivedParam) ([]*model.EmbeddingModel, error) {
 	ems := make([]*model.EmbeddingModel, 0)

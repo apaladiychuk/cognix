@@ -27,12 +27,6 @@ func TestWeb_Execute(t *testing.T) {
 	}
 	conn := web.Execute(context.Background(), nil)
 
-	for url, history := range (web.(*Web)).history {
-		if len(history) > 30 {
-			history = history[:30]
-		}
-		t.Logf("%s => %s ", url, history)
-	}
 	for res := range conn {
 		t.Log(res.URL)
 	}

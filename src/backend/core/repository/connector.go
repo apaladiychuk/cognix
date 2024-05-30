@@ -28,10 +28,9 @@ func (r *connectorRepository) GetBySource(ctx context.Context, tenantID, userID 
 	var connector model.Connector
 	if err := r.db.WithContext(ctx).Model(&connector).
 		Where("source = ?", source).
-		Where("tenant_id = ?", tenantID).
 		WhereGroup(func(query *orm.Query) (*orm.Query, error) {
 			return query.WhereOr("user_id = ?", userID).
-				WhereOr("shared = ?", true), nil
+				WhereOr("tenant_id = ?", tenantID), nil
 		}).First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "ca not find connector")
 	}
@@ -45,11 +44,10 @@ func NewConnectorRepository(db *pg.DB) ConnectorRepository {
 func (r *connectorRepository) GetAllByUser(ctx context.Context, tenantID, userID uuid.UUID) ([]*model.Connector, error) {
 	connectors := make([]*model.Connector, 0)
 	if err := r.db.WithContext(ctx).Model(&connectors).
-		Where("tenant_id = ?", tenantID).
 		Where("deleted_date is null").
 		WhereGroup(func(query *orm.Query) (*orm.Query, error) {
 			return query.WhereOr("user_id = ?", userID).
-				WhereOr("shared = ?", true), nil
+				WhereOr("tenant_id = ?", tenantID), nil
 		}).Select(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "can not load connectors")
 	}
@@ -59,11 +57,10 @@ func (r *connectorRepository) GetAllByUser(ctx context.Context, tenantID, userID
 func (r *connectorRepository) GetByIDAndUser(ctx context.Context, tenantID, userID uuid.UUID, id int64) (*model.Connector, error) {
 	var connector model.Connector
 	if err := r.db.WithContext(ctx).Model(&connector).
-		Where("tenant_id = ?", tenantID).
 		Where("id = ?", id).
 		WhereGroup(func(query *orm.Query) (*orm.Query, error) {
 			return query.WhereOr("user_id = ?", userID).
-				WhereOr("shared = ?", true), nil
+				WhereOr("tenant_id = ?", tenantID), nil
 		}).First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "can not load connector")
 	}
@@ -81,7 +78,7 @@ func (r *connectorRepository) GetByID(ctx context.Context, id int64) (*model.Con
 	}
 	connector.DocsMap = make(map[string]*model.Document)
 	for _, doc := range connector.Docs {
-		connector.DocsMap[doc.DocumentID] = doc
+		connector.DocsMap[doc.SourceID] = doc
 	}
 	return &connector, nil
 }

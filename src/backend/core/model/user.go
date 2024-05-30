@@ -10,7 +10,6 @@ const (
 
 type Defaults struct {
 	EmbeddingModel *EmbeddingModel
-	FileConnector  *Connector
 }
 
 type User struct {

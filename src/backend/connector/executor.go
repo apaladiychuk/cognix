@@ -131,8 +131,8 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	} else {
 		connectorModel.LastAttemptStatus = model.StatusSuccess
 	}
-	connectorModel.LastSuccessfulIndexTime = pg.NullTime{time.Now().UTC()}
-	connectorModel.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	connectorModel.LastSuccessfulIndexDate = pg.NullTime{time.Now().UTC()}
+	connectorModel.LastUpdate = pg.NullTime{time.Now().UTC()}
 	if len(ids) > 0 {
 		if err = e.milvusClient.Delete(ctx, connectorModel.CollectionName(), ids...); err != nil {
 			//return err
@@ -166,10 +166,10 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 	doc, ok := connectorModel.DocsMap[result.SourceID]
 	if !ok {
 		doc = &model.Document{
-			DocumentID:  result.SourceID,
-			ConnectorID: connectorModel.ID,
-			Link:        result.URL,
-			CreatedDate: time.Now().UTC(),
+			SourceID:     result.SourceID,
+			ConnectorID:  connectorModel.ID,
+			Link:         result.URL,
+			CreationDate: time.Now().UTC(),
 		}
 		connectorModel.DocsMap[result.SourceID] = doc
 	}
@@ -178,7 +178,7 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 
 // refreshToken  refresh OAuth token and store credential in database
 func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
-	provider, ok := model.ConnectorAuthProvider[cm.Source]
+	provider, ok := model.ConnectorAuthProvider[cm.Type]
 	if !ok {
 		return nil
 	}

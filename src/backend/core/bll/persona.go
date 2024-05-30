@@ -40,7 +40,7 @@ func (b *personaBL) Archive(ctx context.Context, user *model.User, id int64, res
 	} else {
 		persona.DeletedDate = pg.NullTime{time.Now().UTC()}
 	}
-	persona.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	persona.LastUpdate = pg.NullTime{time.Now().UTC()}
 
 	if err = b.personaRepo.Archive(ctx, persona); err != nil {
 		return nil, err
@@ -61,26 +61,23 @@ func (b *personaBL) Create(ctx context.Context, user *model.User, param *paramet
 		TenantID:        user.TenantID,
 		IsVisible:       true,
 		StarterMessages: starterMessages,
-		CreatedDate:     time.Now().UTC(),
+		CreationDate:    time.Now().UTC(),
 		LLM: &model.LLM{
-			Name:        fmt.Sprintf("%s %s", user.FirstName, param.ModelID),
-			ModelID:     param.ModelID,
-			TenantID:    user.TenantID,
-			CreatedDate: time.Now().UTC(),
-			Url:         param.URL,
-			ApiKey:      param.APIKey,
-			Endpoint:    param.Endpoint,
+			Name:         fmt.Sprintf("%s %s", user.FirstName, param.ModelID),
+			ModelID:      param.ModelID,
+			TenantID:     user.TenantID,
+			CreationDate: time.Now().UTC(),
+			Url:          param.URL,
+			ApiKey:       param.APIKey,
+			Endpoint:     param.Endpoint,
 		},
 		Prompt: &model.Prompt{
-			UserID:           user.ID,
-			Name:             param.Name,
-			Description:      param.Description,
-			SystemPrompt:     param.SystemPrompt,
-			TaskPrompt:       param.TaskPrompt,
-			IncludeCitations: false,
-			DatetimeAware:    false,
-			DefaultPrompt:    false,
-			CreatedDate:      time.Now().UTC(),
+			UserID:       user.ID,
+			Name:         param.Name,
+			Description:  param.Description,
+			SystemPrompt: param.SystemPrompt,
+			TaskPrompt:   param.TaskPrompt,
+			CreationDate: time.Now().UTC(),
 		},
 	}
 	if err := b.personaRepo.Create(ctx, &persona); err != nil {
@@ -100,17 +97,17 @@ func (b *personaBL) Update(ctx context.Context, id int64, user *model.User, para
 	}
 	persona.Name = param.Name
 	persona.Description = param.Description
-	persona.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	persona.LastUpdate = pg.NullTime{time.Now().UTC()}
 	persona.StarterMessages = starterMessages
 	persona.LLM.Endpoint = param.Endpoint
 	persona.LLM.ModelID = param.ModelID
 	persona.LLM.ApiKey = param.APIKey
-	persona.LLM.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	persona.LLM.LastUpdate = pg.NullTime{time.Now().UTC()}
 	persona.Prompt.Name = param.Name
 	persona.Prompt.Description = param.Description
 	persona.Prompt.SystemPrompt = param.SystemPrompt
 	persona.Prompt.TaskPrompt = param.TaskPrompt
-	persona.Prompt.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	persona.Prompt.LastUpdate = pg.NullTime{time.Now().UTC()}
 
 	if err = b.personaRepo.Update(ctx, persona); err != nil {
 		return nil, err

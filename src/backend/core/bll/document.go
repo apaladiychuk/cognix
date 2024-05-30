@@ -30,11 +30,11 @@ func (b *documentBL) UploadDocument(ctx context.Context, user *model.User, fileN
 		return nil, err
 	}
 	document := &model.Document{
-		DocumentID:  fileURL,
-		ConnectorID: connector.ID,
-		Link:        fileURL,
-		Signature:   signature,
-		CreatedDate: time.Now().UTC(),
+		SourceID:     fileURL,
+		ConnectorID:  connector.ID,
+		Link:         fileURL,
+		Signature:    signature,
+		CreationDate: time.Now().UTC(),
 	}
 	if err = b.documentRepo.Create(ctx, document); err != nil {
 		return nil, err

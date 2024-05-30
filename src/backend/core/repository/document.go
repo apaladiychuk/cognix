@@ -15,7 +15,7 @@ type (
 		FindByConnectorIDAndUser(ctx context.Context, user *model.User, connectorID int64) ([]*model.Document, error)
 		FindByConnectorID(ctx context.Context, connectorID int64) ([]*model.Document, error)
 		FindByID(ctx context.Context, id int64) (*model.Document, error)
-		Create(ctx context.Context, document ...*model.Document) error
+		Create(ctx context.Context, document *model.Document) error
 		Update(ctx context.Context, document *model.Document) error
 		ArchiveRestore(ctx context.Context, restore bool, ids ...int64) error
 	}
@@ -58,16 +58,26 @@ func (r *documentRepository) FindByConnectorIDAndUser(ctx context.Context, user 
 	return documents, nil
 }
 
-func (r *documentRepository) Create(ctx context.Context, document ...*model.Document) error {
-	if _, err := r.db.WithContext(ctx).Model(&document).Insert(); err != nil {
+func (r *documentRepository) Create(ctx context.Context, document *model.Document) error {
+	stm := r.db.WithContext(ctx).Model(&document)
+	if !document.ParentID.Valid {
+		stm = stm.ExcludeColumn("parent_id")
+	}
+
+	if _, err := stm.Insert(); err != nil {
 		return utils.Internal.Wrapf(err, "can not insert document [%s]", err.Error())
 	}
 	return nil
 }
 
 func (r *documentRepository) Update(ctx context.Context, document *model.Document) error {
-	document.UpdatedDate = pg.NullTime{time.Now().UTC()}
-	if _, err := r.db.WithContext(ctx).Model(document).Where("id = ? ", document.ID).Update(); err != nil {
+	stm := r.db.WithContext(ctx).Model(document).Where("id = ? ", document.ID)
+	if !document.ParentID.Valid {
+		stm = stm.ExcludeColumn("parent_id")
+	}
+
+	document.LastUpdate = pg.NullTime{time.Now().UTC()}
+	if _, err := stm.Update(); err != nil {
 		return utils.Internal.Wrapf(err, "can not update document [%s]", err.Error())
 	}
 	return nil
@@ -79,7 +89,7 @@ func (r *documentRepository) ArchiveRestore(ctx context.Context, restore bool, i
 		deletedTime = pg.NullTime{time.Now().UTC()}
 	}
 	if _, err := r.db.WithContext(ctx).Model(&model.Document{}).
-		Set("updated_date = ?", time.Now().UTC()).
+		Set("last_update = ?", time.Now().UTC()).
 		Set("deleted_date = ?", deletedTime).
 		Where("id = any ?", pq.Array(ids)).Update(); err != nil {
 		return utils.Internal.Wrap(err, "can not update documents")

@@ -28,7 +28,7 @@ networks:
 services:
   embedder:
     container_name: embedder
-    image: cognix/embedder:latest
+    image: genmind/cognix-embedder:latest
     build:
       context: ../src/backend/embedder
       dockerfile: Dockerfile
@@ -44,7 +44,7 @@ services:
 
   chunker-1:
     container_name: chunker-1
-    image: cognix/chunker:latest
+    image: genmind/cognix-chunker:latest
     build:
       context: ../src/backend/chunker
       dockerfile: Dockerfile
@@ -65,7 +65,7 @@ services:
 
   cognix-web:
     container_name: web-ui
-    image: cognix/web:latest
+    image: genmind/cognix-web:latest
     build:
       context: ../src/web
       dockerfile: Dockerfile.dev
@@ -82,7 +82,7 @@ services:
 
   api:
     container_name: api
-    image: cognix/api:latest
+    image: genmind/cognix-api:latest
     build:
       context: ${BACKEND_PATH}
       args:
@@ -110,7 +110,7 @@ services:
 
   orchestrator:
     container_name: orchestrator
-    image: cognix/orchestrator:latest
+    image: genmind/cognix-orchestrator:latest
     build:
       context: ${BACKEND_PATH}
       args:
@@ -133,7 +133,7 @@ services:
 
   connector:
     container_name: connector
-    image: cognix/connector:latest
+    image: genmind/cognix-connector:latest
     build:
       context: ${BACKEND_PATH}
       args:
@@ -158,7 +158,7 @@ services:
 
   migration:
     container_name: migration
-    image: cognix/migration:latest
+    image: genmind/cognix-migration:latest
     build:
       context: ${MIGRATION_PATH}
       dockerfile: Dockerfile

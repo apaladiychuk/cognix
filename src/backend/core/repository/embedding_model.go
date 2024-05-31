@@ -66,7 +66,7 @@ func (r *embeddingModelRepository) Create(ctx context.Context, em *model.Embeddi
 }
 
 func (r *embeddingModelRepository) Update(ctx context.Context, em *model.EmbeddingModel) error {
-	em.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	em.LastUpdate = pg.NullTime{time.Now().UTC()}
 	if _, err := r.db.WithContext(ctx).Model(em).
 		Where("id = ?", em.ID).
 		Update(); err != nil {

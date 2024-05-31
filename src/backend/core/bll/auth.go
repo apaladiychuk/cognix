@@ -63,21 +63,12 @@ func (a *authBL) SignUp(ctx context.Context, identity *oauth.IdentityResponse) (
 		Roles:      model.StringSlice{model.RoleSuperAdmin},
 		Defaults: &model.Defaults{
 			EmbeddingModel: &model.EmbeddingModel{
-				TenantID:    tenantID,
-				ModelID:     a.cfg.DefaultEmbeddingModel,
-				ModelName:   a.cfg.DefaultEmbeddingModel,
-				ModelDim:    a.cfg.DefaultEmbeddingVectorSize,
-				IsActive:    true,
-				CreatedDate: time.Now().UTC(),
-			},
-			FileConnector: &model.Connector{
-				Name:                    "file connector",
-				Source:                  model.SourceTypeFile,
-				UserID:                  userID,
-				TenantID:                tenantID,
-				Shared:                  true,
-				ConnectorSpecificConfig: make(model.JSONMap),
-				CreatedDate:             time.Now().UTC(),
+				TenantID:     tenantID,
+				ModelID:      a.cfg.DefaultEmbeddingModel,
+				ModelName:    a.cfg.DefaultEmbeddingModel,
+				ModelDim:     a.cfg.DefaultEmbeddingVectorSize,
+				IsActive:     true,
+				CreationDate: time.Now().UTC(),
 			},
 		},
 	}

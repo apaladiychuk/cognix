@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
@@ -22,27 +21,27 @@ import (
 )
 
 type Executor struct {
-	connectorRepo    repository.ConnectorRepository
-	credentialRepo   repository.CredentialRepository
-	docRepo          repository.DocumentRepository
-	msgClient        messaging.Client
-	chunking         ai.Chunking
-	minioClient      storage.MinIOClient
-	milvusClient     storage.MilvusClient
-	oauthClient      *resty.Client
-	cancel           context.CancelFunc
-	subscriptionName string
+	cfg            *Config
+	connectorRepo  repository.ConnectorRepository
+	credentialRepo repository.CredentialRepository
+	docRepo        repository.DocumentRepository
+	msgClient      messaging.Client
+	chunking       ai.Chunking
+	minioClient    storage.MinIOClient
+	milvusClient   storage.MilvusClient
+	oauthClient    *resty.Client
+	downloadClient *resty.Client
 }
 
+// run this method listen messages from nats
 func (e *Executor) run(streamName, topic string, task messaging.MessageHandler) {
-	ctx, cancel := context.WithCancel(context.Background())
-	e.cancel = cancel
-	if err := e.msgClient.Listen(ctx, streamName, topic, task); err != nil {
+	if err := e.msgClient.Listen(context.Background(), streamName, topic, task); err != nil {
 		zap.S().Errorf("failed to listen[%s]: %v", topic, err)
 	}
 	return
 }
 
+// runConnector run connector from nats message
 func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 
 	//ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header()))
@@ -68,6 +67,11 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	if err != nil {
 		return err
 	}
+	if trigger.Params == nil {
+		trigger.Params = make(map[string]string)
+	}
+	// add file limit parameter to connector
+	trigger.Params[connector.ParamFileLimit] = fmt.Sprintf("%d", e.cfg.FileLimit*connector.GB)
 	// execute connector
 	resultCh := connectorWF.Execute(ctx, trigger.Params)
 	// read result from channel
@@ -80,8 +84,9 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 				zap.S().Errorf("failed to save content: %v", err)
 			}
 		}
+		// find or create document from result
 		doc := e.handleResult(connectorModel, result)
-
+		// create or update document in database
 		if doc.ID.IntPart() != 0 {
 			loopErr = e.docRepo.Update(ctx, doc)
 		} else {
@@ -126,8 +131,8 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	} else {
 		connectorModel.LastAttemptStatus = model.StatusSuccess
 	}
-	connectorModel.LastSuccessfulIndexTime = pg.NullTime{time.Now().UTC()}
-	connectorModel.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	connectorModel.LastSuccessfulIndexDate = pg.NullTime{time.Now().UTC()}
+	connectorModel.LastUpdate = pg.NullTime{time.Now().UTC()}
 	if len(ids) > 0 {
 		if err = e.milvusClient.Delete(ctx, connectorModel.CollectionName(), ids...); err != nil {
 			//return err
@@ -140,7 +145,15 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 }
 
 func (e *Executor) saveContent(ctx context.Context, response *connector.Response) error {
-	url, _, err := e.minioClient.Upload(ctx, response.Name, response.MimeType, bytes.NewBuffer(response.Content))
+
+	downloadResp, err := e.downloadClient.R().Get(response.URL)
+
+	if err != nil || downloadResp.IsError() {
+		return fmt.Errorf("download fail: %v]", err)
+	}
+	defer downloadResp.RawBody().Close()
+
+	url, _, err := e.minioClient.Upload(ctx, response.Name, response.MimeType, downloadResp.RawBody())
 	if err != nil {
 		zap.S().Errorf("Failed to upload file: %v", err)
 		return err
@@ -153,10 +166,10 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 	doc, ok := connectorModel.DocsMap[result.SourceID]
 	if !ok {
 		doc = &model.Document{
-			DocumentID:  result.SourceID,
-			ConnectorID: connectorModel.ID,
-			Link:        result.URL,
-			CreatedDate: time.Now().UTC(),
+			SourceID:     result.SourceID,
+			ConnectorID:  connectorModel.ID,
+			URL:          result.URL,
+			CreationDate: time.Now().UTC(),
 		}
 		connectorModel.DocsMap[result.SourceID] = doc
 	}
@@ -165,7 +178,7 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 
 // refreshToken  refresh OAuth token and store credential in database
 func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
-	provider, ok := model.ConnectorAuthProvider[cm.Source]
+	provider, ok := model.ConnectorAuthProvider[cm.Type]
 	if !ok {
 		return nil
 	}
@@ -203,17 +216,21 @@ func NewExecutor(
 	chunking ai.Chunking,
 	minioClient storage.MinIOClient,
 	milvusClient storage.MilvusClient,
-	oauthClient *resty.Client,
 ) *Executor {
 	return &Executor{
-		subscriptionName: cfg.SubscriptionName,
-		connectorRepo:    connectorRepo,
-		credentialRepo:   credentialRepo,
-		docRepo:          docRepo,
-		msgClient:        streamClient,
-		chunking:         chunking,
-		minioClient:      minioClient,
-		milvusClient:     milvusClient,
-		oauthClient:      oauthClient,
+		cfg:            cfg,
+		connectorRepo:  connectorRepo,
+		credentialRepo: credentialRepo,
+		docRepo:        docRepo,
+		msgClient:      streamClient,
+		chunking:       chunking,
+		minioClient:    minioClient,
+		milvusClient:   milvusClient,
+		oauthClient: resty.New().
+			SetTimeout(time.Minute).
+			SetBaseURL(cfg.OAuthURL),
+		downloadClient: resty.New().
+			SetTimeout(time.Minute).
+			SetDoNotParseResponse(true),
 	}
 }

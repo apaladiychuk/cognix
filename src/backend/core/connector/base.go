@@ -23,6 +23,10 @@ var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.presentationml.presentation": proto.FileType_PPT,
 }
 
+type Connector interface {
+	Execute(ctx context.Context, param map[string]string) chan *Response
+}
+
 type Base struct {
 	model    *model.Connector
 	resultCh chan *Response
@@ -35,9 +39,6 @@ type Response struct {
 	Content     []byte
 	MimeType    string
 	SaveContent bool
-}
-type Connector interface {
-	Execute(ctx context.Context, param map[string]string) chan *Response
 }
 
 type Builder struct {

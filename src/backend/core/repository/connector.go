@@ -105,6 +105,12 @@ func (r *connectorRepository) GetActive(ctx context.Context) ([]*model.Connector
 	connectors := make([]*model.Connector, 0)
 	if err := r.db.WithContext(ctx).
 		Model(&connectors).
+		Relation("Docs").
+		Relation("Credential").
+		Relation("EmbeddingModel", func(query *orm.Query) (*orm.Query, error) {
+			return query.Join("inner join users on connector.user_id =  user.id").
+				Where("embedding_model.tenant_id = users.tenant_id"), nil
+		}).
 		Where("disabled = false").
 		Where("deleted_date is null").
 		Select(); err != nil {

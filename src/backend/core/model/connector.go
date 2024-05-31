@@ -13,8 +13,13 @@ const (
 	CollectionTenant = "tenant_%s"
 	CollectionUser   = "user_%s"
 
-	StatusFailed  = "failed"
-	StatusSuccess = "success"
+	ConnectorStatusActive        = "Active"
+	ConnectorStatusPending       = "Pending"
+	ConnectorStatusWorking       = "Working"
+	ConnectorStatusSuccess       = "Completed Successfully"
+	ConnectorStatusError         = "Completed with Errors"
+	ConnectorStatusDisabled      = "Disabled"
+	ConnectorStatusUnableProcess = "Unable to Process"
 )
 
 type Connector struct {
@@ -37,6 +42,7 @@ type Connector struct {
 	Credential              *Credential          `json:"credential,omitempty" pg:"rel:has-one,fk:credential_id"`
 	Docs                    []*Document          `json:"docs,omitempty" pg:"rel:has-many"`
 	DocsMap                 map[string]*Document `json:"docs_map,omitempty" pg:"-"`
+	EmbeddingModel          *EmbeddingModel      `json:"-" pg:"rel:has-one"`
 }
 
 func (c *Connector) CollectionName() string {

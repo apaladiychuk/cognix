@@ -37,7 +37,7 @@ class SeleniumSpider:
             soup = BeautifulSoup(html, 'html.parser')
             return soup
         except Exception as e:
-            self.logger.error(f"Error fetching URL: {url}, Error: {e}")
+            self.logger.error(f"❌ Error fetching URL: {url}, Error: {e}")
             return None
 
     def extract_data(self, soup):

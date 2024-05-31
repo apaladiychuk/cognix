@@ -19,8 +19,8 @@ class URLChunker(BaseChunker):
             collected_data = spider.process_page(data.url)
             
             if not collected_data:
-                self.logger.warning(f"BS4Spider was not able to retrieve any content for {data.url}, switching to SeleniumSpider")
-                self.logger.warning("BS4Spider is disabled, shall be re-enabled and tested as it is not working 100%")
+                self.logger.warning(f"😱 BS4Spider was not able to retrieve any content for {data.url}, switching to SeleniumSpider")
+                self.logger.warning("😱 BS4Spider is disabled, shall be re-enabled and tested as it is not working 100%")
                 # self.logger.info(f"Starting SeleniumSpider for: {data.url}")
                 # spider = SeleniumSpider(data.url)
                 # collected_data = spider.process_page(data.url)
@@ -42,7 +42,7 @@ class URLChunker(BaseChunker):
                         # adding some deplay not to flood milvus wit ton of requests 
                         # await asyncio.sleep(0.5)
             else:
-                self.logger.warning(f"no content found for {data.url} using either BS4Spider or SeleniumSpider.")
+                self.logger.warning(f"😱 no content found for {data.url} using either BS4Spider or SeleniumSpider.")
 
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time

@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 # Get gRPC port from environment variable
 grpc_port = os.getenv('GRPC_PORT', '50051')
 
+
 class EmbedServicer(EmbedServiceServicer):
     def GetEmbeding(self, request, context):
         start_time = time.time()  # Record the start time
@@ -39,7 +40,7 @@ class EmbedServicer(EmbedServiceServicer):
 
             # assign the vector variable the response
             embed_response.vector.extend(encoded_data)
-            logger.info("embedd request succesfully processed")
+            logger.info("embedd request successfully processed")
             return embed_response
         except Exception as e:
             logger.exception(e)
@@ -48,6 +49,7 @@ class EmbedServicer(EmbedServiceServicer):
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
             logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor())
@@ -58,6 +60,7 @@ def serve():
     server.start()
     logger.info(f"👂 embedder listening on port {grpc_port}")
     server.wait_for_termination()
-    
+
+
 if __name__ == "__main__":
     serve()

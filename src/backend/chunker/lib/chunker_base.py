@@ -22,7 +22,7 @@ class BaseChunker:
     def split_data(self, content: str, url: str) -> List[Tuple[str, str]]:
         # This method should split the content into chunks and return a list of tuples (chunk, url)
         # For demonstration, let's split content by lines
-        logging.warning("split_data shall implement various chunk thechniques and compare them")
+        logging.warning("😱 split_data shall implement various chunk thechniques and compare them")
         
         # Initialize the text splitter with custom parameters
         custom_text_splitter = RecursiveCharacterTextSplitter(

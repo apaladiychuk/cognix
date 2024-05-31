@@ -42,11 +42,11 @@ class TXTChunker(BaseChunker):
                     milvus_db.store_chunk(content=chunk, data=data)
                     # await asyncio.sleep(0.5)
             else:
-                self.logger.warning(f"No content found for {data.url} ")
+                self.logger.warning(f"😱 No content found for {data.url} ")
 
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
             self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
             return pages
         except Exception as e:
-            self.logger.error(f"Error: Failed to process chunking data: {e}")
+            self.logger.error(f"❌ Error: Failed to process chunking data: {e}")

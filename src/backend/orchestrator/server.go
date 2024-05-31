@@ -2,7 +2,6 @@ package main
 
 import (
 	"cognix.ch/api/v2/core/messaging"
-	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
 	"github.com/go-co-op/gocron/v2"
@@ -11,31 +10,29 @@ import (
 )
 
 type Server struct {
-	renewInterval   time.Duration
-	connectorRepo   repository.ConnectorRepository
-	messenger       messaging.Client
-	scheduleTrigger Trigger
-	scheduler       gocron.Scheduler
-	streamCfg       *messaging.StreamConfig
+	renewInterval time.Duration
+	connectorRepo repository.ConnectorRepository
+	messenger     messaging.Client
+	scheduler     gocron.Scheduler
+	streamCfg     *messaging.StreamConfig
 }
 
 func NewServer(
 	cfg *Config,
 	connectorRepo repository.ConnectorRepository,
 	messenger messaging.Client,
-	messagingCfg *messaging.Config,
-	scheduleTrigger Trigger) (*Server, error) {
+	messagingCfg *messaging.Config) (*Server, error) {
 	s, err := gocron.NewScheduler()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Server{connectorRepo: connectorRepo,
-		renewInterval:   time.Duration(cfg.RenewInterval) * time.Second,
-		messenger:       messenger,
-		streamCfg:       messagingCfg.Stream,
-		scheduler:       s,
-		scheduleTrigger: scheduleTrigger}, nil
+		renewInterval: time.Duration(cfg.RenewInterval) * time.Second,
+		messenger:     messenger,
+		streamCfg:     messagingCfg.Stream,
+		scheduler:     s,
+	}, nil
 }
 
 func (s *Server) run(ctx context.Context) error {
@@ -85,12 +82,4 @@ func (s *Server) listen(ctx context.Context) {
 	//if err := s.messenger.Listen(ctx, model.TopicUpdateConnector, model.SubscriptionOrchestrator, s.handleTriggerRequest); err != nil {
 	//	zap.S().Errorf("failed to listen: %v", err)
 	//}
-}
-
-func (s *Server) scheduleConnector(ctx context.Context, trigger *proto.ConnectorRequest) error {
-	conn, err := s.connectorRepo.GetByID(ctx, trigger.GetId())
-	if err != nil {
-		return err
-	}
-	return s.scheduleTrigger.Do(ctx, conn)
 }

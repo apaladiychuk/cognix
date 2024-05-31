@@ -1,4 +1,5 @@
 ### Parameter description 
+User should prepare json for each connector and copy it to field ConnectorSpecificConfig on page create/edit connector.
 
 #### Web
 

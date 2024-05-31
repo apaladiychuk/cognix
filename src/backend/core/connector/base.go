@@ -9,9 +9,15 @@ import (
 	"time"
 )
 
-const mineURL = "url"
-const ParamFileLimit = "file_limit"
-const GB = 1024 * 1024 * 1024
+const (
+	mineURL        = "url"
+	ParamFileLimit = "file_limit"
+	GB             = 1024 * 1024 * 1024
+
+	TaskChunker   = "chunker"
+	TaskConnector = "connector"
+	TaskNop       = "nop"
+)
 
 var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       proto.FileType_XLS,
@@ -23,8 +29,17 @@ var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.presentationml.presentation": proto.FileType_PPT,
 }
 
+
+type Task interface {
+	RunConnector(ctx context.Context, data *proto.ConnectorRequest) error
+	RunChunker(ctx context.Context, data *proto.ChunkingData) error
+	UpToDate(ctx context.Context) error
+}
+type TaskConnectorFunc func
+type TaskChunkerFunc
 type Connector interface {
 	Execute(ctx context.Context, param map[string]string) chan *Response
+	PrepareTask(ctx context.Context, task Task) error
 }
 
 type Base struct {
@@ -32,13 +47,15 @@ type Base struct {
 	resultCh chan *Response
 }
 type Response struct {
-	URL         string
-	Name        string
-	SourceID    string
-	DocumentID  int64
-	Content     []byte
-	MimeType    string
-	SaveContent bool
+	URL              string
+	SiteMap          string
+	SearchForSitemap bool
+	Name             string
+	SourceID         string
+	DocumentID       int64
+	Content          []byte
+	MimeType         string
+	SaveContent      bool
 }
 
 type Builder struct {

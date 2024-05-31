@@ -13,7 +13,7 @@ type Document struct {
 	ParentID        decimal.NullDecimal `json:"parent_id,omitempty" pg:",use_zero"`
 	SourceID        string              `json:"source_id,omitempty"`
 	ConnectorID     decimal.Decimal     `json:"connector_id,omitempty"`
-	Link            string              `json:"link,omitempty" pg:"link"`
+	URL             string              `json:"url,omitempty" pg:"url"`
 	Signature       string              `json:"signature,omitempty" pg:",use_zero"`
 	ChunkingSession uuid.NullUUID       `json:"chunking_session,omitempty" pg:",use_zero"`
 	Analyzed        bool                `json:"analyzed" pg:",use_zero"`

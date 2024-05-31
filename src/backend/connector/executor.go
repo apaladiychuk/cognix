@@ -168,7 +168,7 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 		doc = &model.Document{
 			SourceID:     result.SourceID,
 			ConnectorID:  connectorModel.ID,
-			Link:         result.URL,
+			URL:          result.URL,
 			CreationDate: time.Now().UTC(),
 		}
 		connectorModel.DocsMap[result.SourceID] = doc

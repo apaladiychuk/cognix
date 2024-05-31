@@ -10,6 +10,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-resty/resty/v2"
 	"golang.org/x/oauth2"
+	"strconv"
 
 	//"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
@@ -29,9 +30,10 @@ const (
 type (
 	OneDrive struct {
 		Base
-		param  *OneDriveParameters
-		ctx    context.Context
-		client *resty.Client
+		param         *OneDriveParameters
+		ctx           context.Context
+		client        *resty.Client
+		fileSizeLimit int
 	}
 	OneDriveParameters struct {
 		FolderName string       `json:"folder_name"`
@@ -50,12 +52,12 @@ type DriveChildBody struct {
 	LastModifiedDateTime      time.Time `json:"lastModifiedDateTime"`
 	Name                      string    `json:"name"`
 	WebUrl                    string    `json:"webUrl"`
-	File                      *File     `json:"file"`
+	File                      *MsFile   `json:"file"`
 	Size                      int       `json:"size"`
 	Folder                    *Folder   `json:"folder"`
 }
 
-type File struct {
+type MsFile struct {
 	Hashes struct {
 		QuickXorHash string `json:"quickXorHash"`
 	} `json:"hashes"`
@@ -67,6 +69,15 @@ type Folder struct {
 }
 
 func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *Response {
+	var fileSizeLimit int
+	if size, ok := param[ParamFileLimit]; ok {
+		fileSizeLimit, _ = strconv.Atoi(size)
+	}
+	if fileSizeLimit == 0 {
+		fileSizeLimit = 1
+	}
+	c.fileSizeLimit = fileSizeLimit * GB
+
 	if len(c.model.DocsMap) == 0 {
 		c.model.DocsMap = make(map[string]*model.Document)
 	}
@@ -96,9 +107,9 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 	doc, ok := c.Base.model.DocsMap[item.Id]
 	if !ok {
 		doc = &model.Document{
-			DocumentID:  item.Id,
+			SourceID:    item.Id,
 			ConnectorID: c.Base.model.ID,
-			Link:        item.MicrosoftGraphDownloadUrl,
+			URL:         item.MicrosoftGraphDownloadUrl,
 			Signature:   "",
 		}
 		c.Base.model.DocsMap[item.Id] = doc
@@ -118,7 +129,7 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 		SaveContent: false,
 	}
 	// do not process files that size greater than limit
-	if item.Size > maxFileLimitGB {
+	if item.Size > c.fileSizeLimit {
 		return nil
 	}
 	// try to recognize type of file by content
@@ -187,6 +198,7 @@ func (c *OneDrive) request(ctx context.Context, url string) (*GetDriveResponse, 
 	return &body, nil
 }
 
+// NewOneDrive creates new instance of OneDrive connector
 func NewOneDrive(connector *model.Connector) (Connector, error) {
 	conn := OneDrive{}
 	conn.Base.Config(connector)

@@ -28,8 +28,8 @@ type Credential struct {
 	UserID         uuid.UUID       `json:"user_id"`
 	TenantID       uuid.UUID       `json:"tenant_id"`
 	Source         SourceType      `json:"source"`
-	CreatedDate    time.Time       `json:"created_date"`
-	UpdatedDate    pg.NullTime     `json:"updated_date" pg:",use_zero"`
+	CreationDate   time.Time       `json:"creation_date,omitempty"`
+	LastUpdate     pg.NullTime     `json:"last_update,omitempty" pg:",use_zero"`
 	DeletedDate    pg.NullTime     `json:"deleted_date" pg:",use_zero"`
 	Shared         bool            `json:"shared" pg:",use_zero"`
 	CredentialJson *CredentialJson `json:"credential_json" pg:"type:jsonb"`

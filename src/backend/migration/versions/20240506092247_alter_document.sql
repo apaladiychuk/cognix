@@ -9,7 +9,7 @@ ALTER TABLE embedding_models DROP COLUMN IF EXISTS normalize;
 ALTER TABLE embedding_models DROP COLUMN IF EXISTS query_prefix;
 ALTER TABLE embedding_models DROP COLUMN IF EXISTS passage_prefix;
 ALTER TABLE embedding_models DROP COLUMN IF EXISTS index_name;
-    -- +goose StatementEnd
+-- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin

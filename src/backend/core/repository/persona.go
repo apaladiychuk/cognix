@@ -117,7 +117,7 @@ func (r *personaRepository) Archive(ctx context.Context, persona *model.Persona)
 		}
 		if _, err := tx.Model(&model.Persona{}).Where("id = ?", persona.ID).
 			Set("deleted_date = ?", persona.DeletedDate).
-			Set("updated_date = ?", persona.UpdatedDate).
+			Set("last_update = ?", persona.LastUpdate).
 			Update(); err != nil {
 			return utils.Internal.Wrap(err, "can not set deleted_date for chat sessions")
 		}

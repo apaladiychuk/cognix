@@ -21,8 +21,8 @@ type Persona struct {
 	StarterMessages json.RawMessage `json:"starter_messages,omitempty" pg:",use_zero"`
 	LLM             *LLM            `json:"llm,omitempty" pg:"rel:has-one"`
 	Prompt          *Prompt         `json:"prompt,omitempty" pg:"rel:has-one,fk:id,join_fk:persona_id"`
-	CreatedDate     time.Time       `json:"created_date,omitempty"`
-	UpdatedDate     pg.NullTime     `json:"updated_date,omitempty" pg:",use_zero"`
+	CreationDate    time.Time       `json:"creation_date,omitempty"`
+	LastUpdate      pg.NullTime     `json:"last_update,omitempty" pg:",use_zero"`
 	DeletedDate     pg.NullTime     `json:"deleted_date,omitempty" pg:",use_zero"`
 	ChatSessions    []*ChatSession  `json:"chat_sessions,omitempty" pg:"rel:has-many,fk:id,join_fk:persona_id""`
 }

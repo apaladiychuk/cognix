@@ -10,7 +10,8 @@ import (
 )
 
 const mineURL = "url"
-const maxFileLimitGB = 1024 * 1024 * 1024
+const ParamFileLimit = "file_limit"
+const GB = 1024 * 1024 * 1024
 
 var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       proto.FileType_XLS,
@@ -71,11 +72,13 @@ func (n *nopConnector) Execute(ctx context.Context, param map[string]string) cha
 }
 
 func New(connectorModel *model.Connector) (Connector, error) {
-	switch connectorModel.Source {
+	switch connectorModel.Type {
 	case model.SourceTypeWEB:
 		return NewWeb(connectorModel)
 	case model.SourceTypeOneDrive:
 		return NewOneDrive(connectorModel)
+	case model.SourceTypeFile:
+		return NewFile(connectorModel)
 	default:
 		return &nopConnector{}, nil
 	}

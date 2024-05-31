@@ -24,7 +24,6 @@ var RepositoriesModule = fx.Options(
 		NewPersonaRepository,
 		NewChatRepository,
 		NewDocumentRepository,
-		NewDocumentSetRepository,
 		NewEmbeddingModelRepository,
 		NewTenantRepository,
 	),

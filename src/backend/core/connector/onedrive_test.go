@@ -24,7 +24,7 @@ func TestOneDrive_Execute(t *testing.T) {
 		ID:                      decimal.Decimal{},
 		CredentialID:            decimal.NullDecimal{},
 		Name:                    "",
-		Source:                  "",
+		Type:                    "",
 		ConnectorSpecificConfig: param,
 	})
 	assert.NoError(t, err)

@@ -40,7 +40,7 @@ type (
 )
 
 var AllSourceTypes = map[SourceType]SourceTypeDescription{
-	SourceTypeFile:        {SourceTypeFile, "File", false},
+	SourceTypeFile:        {SourceTypeFile, "File", true},
 	SourceTypeWEB:         {SourceTypeWEB, "Web", true},
 	SourceTypeSlack:       {SourceTypeSlack, "Slack", false},
 	SourceTypeGoogleDrive: {SourceTypeGoogleDrive, "Google Drive", false},

@@ -4,13 +4,14 @@ DROP TABLE IF EXISTS document_feedbacks;
 DROP TABLE IF EXISTS document_set_connector_pairs;
 DROP TABLE IF EXISTS document_sets;
 DROP TABLE IF EXISTS documents;
+ALTER TABLE llm RENAME TO llms;
 
 CREATE TABLE documents (
     id SERIAL PRIMARY KEY NOT NULL,
     parent_id bigint REFERENCES documents(id), -- Allows nulls, used for URLs
     connector_id bigint NOT NULL REFERENCES connectors(id),
-    source_id text NOT NULL,
-    link text,
+    source_id text NOT NULL, -- unique id from source url for web, id for other services
+    url text, -- url for web connector, link (minio:bucket:file) for file in minio
     signature text,
     chunking_session uuid, -- Allows nulls
     analyzed bool NOT NULL DEFAULT FALSE,  -- default false, true when chunker created the embeddings in the vector db

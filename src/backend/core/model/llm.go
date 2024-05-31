@@ -8,7 +8,7 @@ import (
 )
 
 type LLM struct {
-	tableName    struct{}        `pg:"llm"`
+	tableName    struct{}        `pg:"llms"`
 	ID           decimal.Decimal `json:"id,omitempty"`
 	Name         string          `json:"name,omitempty"`
 	ModelID      string          `json:"model_id,omitempty"`

@@ -29,14 +29,12 @@ var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.presentationml.presentation": proto.FileType_PPT,
 }
 
-
 type Task interface {
 	RunConnector(ctx context.Context, data *proto.ConnectorRequest) error
 	RunChunker(ctx context.Context, data *proto.ChunkingData) error
 	UpToDate(ctx context.Context) error
 }
-type TaskConnectorFunc func
-type TaskChunkerFunc
+
 type Connector interface {
 	Execute(ctx context.Context, param map[string]string) chan *Response
 	PrepareTask(ctx context.Context, task Task) error
@@ -77,6 +75,10 @@ func (r *Response) GetType() proto.FileType {
 
 type nopConnector struct {
 	Base
+}
+
+func (n *nopConnector) PrepareTask(ctx context.Context, task Task) error {
+	return nil
 }
 
 func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *Response {

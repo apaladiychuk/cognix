@@ -127,9 +127,9 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	}
 
 	if err != nil {
-		connectorModel.LastAttemptStatus = model.StatusFailed
+		connectorModel.LastAttemptStatus = model.ConnectorStatusError
 	} else {
-		connectorModel.LastAttemptStatus = model.StatusSuccess
+		connectorModel.LastAttemptStatus = model.ConnectorStatusSuccess
 	}
 	connectorModel.LastSuccessfulIndexDate = pg.NullTime{time.Now().UTC()}
 	connectorModel.LastUpdate = pg.NullTime{time.Now().UTC()}

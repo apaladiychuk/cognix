@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	RenewInterval int `env:"RENEW_INTERVAL" envDefault:"30"`
+	FileSizeLimit int `env:"FILE_LIMIT,required"`
 }
 
 var Module = fx.Options(
@@ -22,7 +23,6 @@ var Module = fx.Options(
 			return &cfg, err
 		},
 		repository.NewConnectorRepository,
-		NewCronTrigger,
 		NewServer,
 	),
 	fx.Invoke(RunServer),

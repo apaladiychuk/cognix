@@ -16,7 +16,7 @@ create table users
     roles       text[] default '{}'::STRING[] not null
 );
 
-create table llm
+create table llms
 (
     id            bigint default unique_rowid() not null        primary key,
     tenant_id     uuid                          not null        references tenants,
@@ -141,17 +141,16 @@ create table chat_message_feedbacks
     feedback        varchar default ''::STRING     not null
 );
 
-create table documents
-(
-    id               bigint  default unique_rowid() not null        primary key,
-    parent_id        bigint        references documents,
-    connector_id     bigint                         not null        references connectors,
-    source_id        text                           not null,
-    link             text,
-    signature        text,
-    chunking_session uuid,
-    analyzed         boolean default false          not null,
-    creation_date    timestamp                      not null,
-    last_update      timestamp
+CREATE TABLE documents (
+    id SERIAL PRIMARY KEY NOT NULL,
+    parent_id bigint REFERENCES documents(id), -- Allows nulls, used for URLs
+    connector_id bigint NOT NULL REFERENCES connectors(id),
+    source_id text NOT NULL, -- unique id from source url for web, id for other services
+    url text, -- url for web connector, link (minio:bucket:file) for file in minio
+    signature text,
+    chunking_session uuid, -- Allows nulls
+    analyzed bool NOT NULL DEFAULT FALSE,  -- default false, true when chunker created the embeddings in the vector db
+    creation_date timestamp WITHOUT TIME ZONE NOT NULL, --datetime utc IMPORTANT now() will not get the utc date!!!!
+    last_update timestamp WITHOUT TIME ZONE
 );
 

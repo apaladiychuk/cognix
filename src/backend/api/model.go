@@ -24,7 +24,6 @@ type MountParams struct {
 	EmbeddingModelHandler *handler.EmbeddingModelHandler
 	TenantHandler         *handler.TenantHandler
 	DocumentHandler       *handler.DocumentHandler
-	DocumentSetHandler    *handler.DocumentSetHandler
 	OAuthHandler          *handler.OAuthHandler
 }
 

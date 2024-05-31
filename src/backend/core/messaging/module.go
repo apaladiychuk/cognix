@@ -1,11 +1,9 @@
 package messaging
 
 import (
-	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	proto2 "github.com/golang/protobuf/proto"
-	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -33,10 +31,7 @@ type (
 		ChunkerStreamName      string `env:"NATS_CLIENT_CHUNKER_STREAM_NAME,required"`
 		ChunkerStreamSubject   string `env:"NATS_CLIENT_CHUNKER_STREAM_SUBJECT,required"`
 	}
-	Subscription struct {
-		ch           chan *proto.Message
-		subscription *nats.Subscription
-	}
+
 	MessageHandler func(ctx context.Context, msg jetstream.Msg) error
 	Client         interface {
 		Publish(ctx context.Context, topic string, body proto2.Message) error

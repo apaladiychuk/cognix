@@ -78,7 +78,7 @@ func (r *embedding) FindDocuments(ctx context.Context,
 			}
 			if dbDoc, err := r.docRepo.FindByID(ctx, doc.DocumentID); err == nil {
 				resDocument.Link = dbDoc.Link
-				resDocument.DocumentID = dbDoc.DocumentID
+				resDocument.DocumentID = dbDoc.SourceID
 			}
 			result = append(result, resDocument)
 			ch <- &Response{

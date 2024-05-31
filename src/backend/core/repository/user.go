@@ -78,9 +78,6 @@ func (u *userRepository) RegisterUser(c context.Context, user *model.User) error
 		if _, err := tx.Model(user).Insert(); err != nil {
 			return utils.Internal.Wrap(err, "can not create user")
 		}
-		if _, err := tx.Model(user.Defaults.FileConnector).ExcludeColumn("credential_id").Insert(); err != nil {
-			return utils.Internal.Wrap(err, "can not create file connector")
-		}
 		if _, err := tx.Model(user.Defaults.EmbeddingModel).Insert(); err != nil {
 			return utils.Internal.Wrap(err, "can not create default embedding model")
 		}

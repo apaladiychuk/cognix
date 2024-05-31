@@ -127,11 +127,11 @@ func (b *chatBL) CreateSession(ctx context.Context, user *model.User, param *par
 		return nil, utils.ErrorBadRequest.New("persona is not exists")
 	}
 	session := model.ChatSession{
-		UserID:      user.ID,
-		Description: param.Description,
-		CreatedDate: time.Now().UTC(),
-		PersonaID:   param.PersonaID,
-		OneShot:     param.OneShot,
+		UserID:       user.ID,
+		Description:  param.Description,
+		CreationDate: time.Now().UTC(),
+		PersonaID:    param.PersonaID,
+		OneShot:      param.OneShot,
 	}
 	if err = b.chatRepo.CreateSession(ctx, &session); err != nil {
 		return nil, err

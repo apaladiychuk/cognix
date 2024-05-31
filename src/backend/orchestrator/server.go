@@ -49,6 +49,7 @@ func (s *Server) run(ctx context.Context) error {
 // loadFromDatabase load connectors from database and run if needed
 func (s *Server) loadFromDatabase() error {
 	ctx := context.Background()
+	zap.S().Infof("Loading connectors from db")
 	connectors, err := s.connectorRepo.GetActive(ctx)
 	if err != nil {
 		return err
@@ -84,19 +85,6 @@ func (s *Server) listen(ctx context.Context) {
 	//if err := s.messenger.Listen(ctx, model.TopicUpdateConnector, model.SubscriptionOrchestrator, s.handleTriggerRequest); err != nil {
 	//	zap.S().Errorf("failed to listen: %v", err)
 	//}
-}
-
-func (s *Server) handleTriggerRequest(ctx context.Context, msg *proto.Message) error {
-	trigger := msg.GetBody().GetTrigger()
-	if trigger == nil {
-		zap.S().Errorf("Received message with empty trigger")
-		return nil
-	}
-	if err := s.scheduleConnector(ctx, trigger); err != nil {
-		zap.S().Errorf("error scheduling connector[%d] : %v", trigger.GetId(), err)
-		return err
-	}
-	return nil
 }
 
 func (s *Server) scheduleConnector(ctx context.Context, trigger *proto.ConnectorRequest) error {

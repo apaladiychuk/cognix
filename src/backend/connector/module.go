@@ -7,15 +7,14 @@ import (
 	"cognix.ch/api/v2/core/storage"
 	"cognix.ch/api/v2/core/utils"
 	"context"
-	"github.com/go-resty/resty/v2"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"time"
 )
 
 type Config struct {
 	OAuthURL         string `env:"OAUTH_URL,required"`
 	SubscriptionName string `env:"SUBSCRIPTION_NAME,required"`
+	FileLimit        int    `env:"FILE_LIMIT,required"`
 }
 
 var Module = fx.Options(
@@ -34,7 +33,6 @@ var Module = fx.Options(
 			}
 			return &cfg, nil
 		},
-		newOauthClient,
 		repository.NewConnectorRepository,
 		repository.NewCredentialRepository,
 		repository.NewDocumentRepository,
@@ -44,11 +42,6 @@ var Module = fx.Options(
 	fx.Invoke(RunServer),
 )
 
-func newOauthClient(cfg *Config) *resty.Client {
-	return resty.New().
-		SetTimeout(time.Minute).
-		SetBaseURL(cfg.OAuthURL)
-}
 func RunServer(lc fx.Lifecycle, executor *Executor) error {
 
 	lc.Append(fx.Hook{

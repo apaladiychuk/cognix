@@ -39,7 +39,7 @@ func (c *credentialBL) Archive(ctx context.Context, user *model.User, id int64, 
 	} else {
 		credential.DeletedDate = pg.NullTime{}
 	}
-	credential.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	credential.LastUpdate = pg.NullTime{time.Now().UTC()}
 	if err = c.credentialRepo.Update(ctx, credential); err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (c *credentialBL) Create(ctx context.Context, user *model.User, param *para
 		UserID:         user.ID,
 		TenantID:       user.TenantID,
 		Source:         model.SourceType(param.Source),
-		CreatedDate:    time.Now().UTC(),
+		CreationDate:   time.Now().UTC(),
 		Shared:         param.Shared,
 		CredentialJson: param.CredentialJson,
 	}
@@ -85,7 +85,7 @@ func (c *credentialBL) Update(ctx context.Context, id int64, user *model.User, p
 	}
 	credential.CredentialJson = param.CredentialJson
 	credential.Shared = param.Shared
-	credential.UpdatedDate = pg.NullTime{time.Now().UTC()}
+	credential.LastUpdate = pg.NullTime{time.Now().UTC()}
 	if err = c.credentialRepo.Update(ctx, credential); err != nil {
 		return nil, err
 	}

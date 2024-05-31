@@ -15,16 +15,16 @@ const (
 
 type (
 	ChatSession struct {
-		tableName   struct{}        `pg:"chat_sessions"`
-		ID          decimal.Decimal `json:"id,omitempty"`
-		UserID      uuid.UUID       `json:"user_id,omitempty"`
-		Description string          `json:"description,omitempty"`
-		CreatedDate time.Time       `json:"created_date,omitempty"`
-		DeletedDate pg.NullTime     `json:"deleted_date,omitempty"`
-		PersonaID   decimal.Decimal `json:"persona_id,omitempty"`
-		OneShot     bool            `json:"one_shot,omitempty" pg:",use_zero"`
-		Messages    []*ChatMessage  `json:"messages,omitempty" pg:"rel:has-many"`
-		Persona     *Persona        `json:"persona,omitempty" pg:"rel:has-one"`
+		tableName    struct{}        `pg:"chat_sessions"`
+		ID           decimal.Decimal `json:"id,omitempty"`
+		UserID       uuid.UUID       `json:"user_id,omitempty"`
+		Description  string          `json:"description,omitempty"`
+		CreationDate time.Time       `json:"creation_date,omitempty"`
+		DeletedDate  pg.NullTime     `json:"deleted_date,omitempty"`
+		PersonaID    decimal.Decimal `json:"persona_id,omitempty"`
+		OneShot      bool            `json:"one_shot,omitempty" pg:",use_zero"`
+		Messages     []*ChatMessage  `json:"messages,omitempty" pg:"rel:has-many"`
+		Persona      *Persona        `json:"persona,omitempty" pg:"rel:has-one"`
 	}
 
 	ChatMessage struct {

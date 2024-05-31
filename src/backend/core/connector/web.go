@@ -24,7 +24,7 @@ func (c *Web) Execute(ctx context.Context, param map[string]string) chan *Respon
 			doc = &model.Document{
 				SourceID:    c.param.URL,
 				ConnectorID: c.Base.model.ID,
-				Link:        c.param.URL,
+				URL:         c.param.URL,
 				Signature:   "",
 			}
 			c.Base.model.DocsMap[c.param.URL] = doc

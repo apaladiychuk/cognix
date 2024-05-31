@@ -109,7 +109,7 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 		doc = &model.Document{
 			SourceID:    item.Id,
 			ConnectorID: c.Base.model.ID,
-			Link:        item.MicrosoftGraphDownloadUrl,
+			URL:         item.MicrosoftGraphDownloadUrl,
 			Signature:   "",
 		}
 		c.Base.model.DocsMap[item.Id] = doc

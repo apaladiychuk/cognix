@@ -49,6 +49,7 @@ func (s *Server) run(ctx context.Context) error {
 // loadFromDatabase load connectors from database and run if needed
 func (s *Server) loadFromDatabase() error {
 	ctx := context.Background()
+	zap.S().Infof("Loading connectors from db")
 	connectors, err := s.connectorRepo.GetActive(ctx)
 	if err != nil {
 		return err

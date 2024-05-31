@@ -9,6 +9,9 @@ from lib.chunked_item import ChunkedItem
 from typing import List
 from urllib.parse import urljoin, urlparse
 
+from rediness_probe import ReadinessProbe
+
+
 class SeleniumSpider:
 
     def __init__(self, base_url):
@@ -53,7 +56,11 @@ class SeleniumSpider:
         return formatted_text
 
     def process_page(self, url):
-        start_time = time.time()  # Record the start time
+        start_time = time.time()
+
+        # notifying the readiness probe that the service is alive
+        (readiness := ReadinessProbe()).update_last_seen()
+
         if url in self.visited:
             return
 

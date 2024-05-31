@@ -8,6 +8,9 @@ from lib.chunker_base import BaseChunker
 from lib.spider_bs4 import BS4Spider  # Ensure you import the BS4Spider class correctly
 import logging, time
 
+from rediness_probe import ReadinessProbe
+
+
 class URLChunker(BaseChunker):
     async def chunk(self, data: ChunkingData):
         try:
@@ -35,6 +38,8 @@ class URLChunker(BaseChunker):
                 for item in collected_data:
                     chunks = self.split_data(item.content, item.url)
                     for chunk, url in chunks:
+                        # notifying the readiness probe that the service is alive
+                        (readiness := ReadinessProbe()).update_last_seen()
                         milvus_db.store_chunk(content=chunk, data=data)
                         # result_size_kb = len(chunk.encode('utf-8')) / 1024
                         # self.logger.info(f"Chunk size for {url}: {result_size_kb:.2f} KB")

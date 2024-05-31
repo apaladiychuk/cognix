@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup, Comment, ResultSet, element
 from urllib.parse import urljoin, urlparse
 import logging
 from lib.chunked_item import ChunkedItem
+from rediness_probe import ReadinessProbe
+
 
 class BS4Spider:
     def __init__(self, base_url):
@@ -13,8 +15,12 @@ class BS4Spider:
         self.base_domain = urlparse(base_url).netloc
         self.logger = logging.getLogger(__name__)
 
-    def process_page(self, url) -> List[ChunkedItem]:
-        start_time = time.time()  # Record the start time
+    def process_page(self, url) -> list[ChunkedItem] | None:
+        start_time = time.time()
+
+        # notifying the readiness probe that the service is alive
+        (readiness := ReadinessProbe()).update_last_seen()
+
         # Check if the URL has been visited
         if url in self.visited:
             return None
@@ -36,7 +42,7 @@ class BS4Spider:
         if page_content:
             self.collected_data.append(ChunkedItem(url=url, content=page_content))
 
-        # self.logger.warning("Recursion temporarly disable for debugging purposes. Re enable it once doce")
+        # self.logger.warning("Recursion temporarily disable for debugging purposes. Re-enable it once doce")
         # Extract all links from the page
         links = [a['href'] for a in soup.find_all('a', href=True)]
         for link in links:

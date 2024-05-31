@@ -1,17 +1,17 @@
-import os
 import asyncio
-from nats.aio.client import Client as NATS
-from google.protobuf.json_format import MessageToJson
-from nats.aio.msg import Msg
-from lib.chunker_helper import ChunkerHelper
-from nats.js.api import ConsumerConfig, DeliverPolicy, AckPolicy
-from datetime import datetime, time
-from gen_types.chunking_data_pb2 import ChunkingData
-from lib.jetstream_event_subscriber import JetStreamEventSubscriber
-from lib.milvus_db import Milvus_DB
 import logging
-from dotenv import load_dotenv
+import os
+import threading
 import time
+from datetime import time
+
+from dotenv import load_dotenv
+from nats.aio.msg import Msg
+
+from gen_types.chunking_data_pb2 import ChunkingData
+from lib.chunker_helper import ChunkerHelper
+from lib.jetstream_event_subscriber import JetStreamEventSubscriber
+from rediness_probe import ReadinessProbe
 
 # Load environment variables from .env file
 load_dotenv()
@@ -37,7 +37,7 @@ chunker_max_deliver = int(os.getenv('NATS_CLIENT_CHUNKER_MAX_DELIVER', '3'))
 
 
 # Define the event handler function
-async def chunking_event(msg: Msg):
+async def chunking_event(msg: Msg, readiness_probe: ReadinessProbe):
     start_time = time.time()  # Record the start time
     try:
         logger.info("🔥 received chunking event, start working....")
@@ -65,6 +65,11 @@ async def chunking_event(msg: Msg):
 
 
 async def main():
+    # Start the readiness probe server in a separate thread
+    readiness_probe = ReadinessProbe()
+    readiness_probe_thread = threading.Thread(target=readiness_probe.start_server, daemon=True)
+    readiness_probe_thread.start()
+
     # circuit breaker for chunking
     # if for reason nats won't be available
     # chunker will wait till nats will be up again 

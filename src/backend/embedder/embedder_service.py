@@ -54,6 +54,10 @@ class EmbedServicer(EmbedServiceServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor())
 
+    # Pass the readiness_probe to EmbedServicer
+    # embed_servicer = EmbedServicer(readiness_probe)
+    # add_EmbedServiceServicer_to_server(embed_servicer, server)
+
     add_EmbedServiceServicer_to_server(EmbedServicer(), server)
 
     server.add_insecure_port(f"0.0.0.0:{grpc_port}")

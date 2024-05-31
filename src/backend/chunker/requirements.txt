@@ -9,3 +9,4 @@ beautifulsoup4==4.12.3
 langchain-text-splitters==0.2.0
 PyMuPDF==1.24.4
 pymupdf4llm==0.0.5
+sqlalchemy==2.0.30

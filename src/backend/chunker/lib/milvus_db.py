@@ -1,16 +1,16 @@
+import logging
+import os
+import time
 from typing import List
+
+import grpc
+from dotenv import load_dotenv
 from numpy import int64
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
+
 from gen_types.chunking_data_pb2 import ChunkingData
-from lib.chunked_item import ChunkedItem
-from gen_types.embed_service_pb2_grpc import EmbedServiceServicer, EmbedServiceStub
-from gen_types.embed_service_pb2 import EmbedRequest, EmbedResponse
-import grpc
-import time
-import logging
-import uuid
-import os
-from dotenv import load_dotenv
+from gen_types.embed_service_pb2 import EmbedRequest
+from gen_types.embed_service_pb2_grpc import EmbedServiceStub
 
 # Load environment variables from .env file
 load_dotenv()

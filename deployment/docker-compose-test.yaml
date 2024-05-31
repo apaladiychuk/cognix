@@ -55,6 +55,15 @@ services:
       # - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
     restart: always
+    ports:
+      - "3434:8080"
+    healthcheck:
+      # test: [ "CMD", "curl", "-f", "http://chunker-1:8080/healthz || exit 1" ]
+      test: curl --fail http://chunker-1:8080/chunker-1 || exit
+      interval: 10s
+      start_period: 10s
+      timeout: 10s
+      retries: 3
     depends_on:
       - milvus
       - nats

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/repository"
 	"context"
@@ -15,6 +16,7 @@ type Server struct {
 	messenger     messaging.Client
 	scheduler     gocron.Scheduler
 	streamCfg     *messaging.StreamConfig
+	fileSizeLimit int
 }
 
 func NewServer(
@@ -29,6 +31,7 @@ func NewServer(
 
 	return &Server{connectorRepo: connectorRepo,
 		renewInterval: time.Duration(cfg.RenewInterval) * time.Second,
+		fileSizeLimit: cfg.FileSizeLimit * connector.GB,
 		messenger:     messenger,
 		streamCfg:     messagingCfg.Stream,
 		scheduler:     s,
@@ -52,7 +55,7 @@ func (s *Server) loadFromDatabase() error {
 		return err
 	}
 	for _, connector := range connectors {
-		if err = s.scheduleTrigger.Do(ctx, connector); err != nil {
+		if err = NewTrigger(s.messenger, s.connectorRepo, connector, s.fileSizeLimit).Do(ctx); err != nil {
 			zap.S().Errorf("run connector %d failed: %v", connector.ID, err)
 		}
 	}

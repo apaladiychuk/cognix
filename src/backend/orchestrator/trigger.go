@@ -7,6 +7,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
+	"fmt"
 	"github.com/go-pg/pg/v10"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -21,10 +22,11 @@ const (
 
 type (
 	trigger struct {
-		messenger     messaging.Client
-		connectorRepo repository.ConnectorRepository
-		tracer        trace.Tracer
-		conn          *model.Connector
+		messenger      messaging.Client
+		connectorRepo  repository.ConnectorRepository
+		tracer         trace.Tracer
+		connectorModel *model.Connector
+		fileSizeLimit  int
 	}
 )
 
@@ -33,19 +35,19 @@ func (t *trigger) Do(ctx context.Context) error {
 	// todo we need figure out how to use multiple  orchestrators instances
 	// one approach could be that this method will extract top x rows from the database
 	// and it will book them
-	if t.conn.LastSuccessfulIndexDate.IsZero() ||
-		t.conn.LastSuccessfulIndexDate.Add(time.Duration(t.conn.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
+	if t.connectorModel.LastSuccessfulIndexDate.IsZero() ||
+		t.connectorModel.LastSuccessfulIndexDate.Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
 		defer span.End()
-		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, t.conn.ID.IntPart()))
-		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(t.conn.Type)))
-		zap.S().Infof("run connector %s", t.conn.ID)
+		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, t.connectorModel.ID.IntPart()))
+		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(t.connectorModel.Type)))
+		zap.S().Infof("run connector %s", t.connectorModel.ID)
 
 		if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
 			span.RecordError(err)
 			return err
 		}
-		connWF, err := connector.New(t.conn)
+		connWF, err := connector.New(t.connectorModel)
 		if err != nil {
 			return err
 		}
@@ -71,6 +73,8 @@ func (t *trigger) RunChunker(ctx context.Context, data *proto.ChunkingData) erro
 
 // RunConnector send message to connector service
 func (t *trigger) RunConnector(ctx context.Context, data *proto.ConnectorRequest) error {
+	data.Params[connector.ParamFileLimit] = fmt.Sprintf("%d", t.fileSizeLimit)
+
 	if err := t.updateStatus(ctx, model.ConnectorStatusWorking); err != nil {
 		return err
 	}
@@ -80,17 +84,22 @@ func (t *trigger) UpToDate(ctx context.Context) error {
 	return t.updateStatus(ctx, model.ConnectorStatusSuccess)
 }
 
-func NewTrigger(messenger messaging.Client, connectorRepo repository.ConnectorRepository) *trigger {
+func NewTrigger(messenger messaging.Client,
+	connectorRepo repository.ConnectorRepository,
+	connectorModel *model.Connector,
+	fileSizeLimit int) *trigger {
 	return &trigger{
-		messenger:     messenger,
-		connectorRepo: connectorRepo,
-		tracer:        otel.Tracer(model.TracerConnector),
+		messenger:      messenger,
+		connectorRepo:  connectorRepo,
+		connectorModel: connectorModel,
+		fileSizeLimit:  fileSizeLimit,
+		tracer:         otel.Tracer(model.TracerConnector),
 	}
 }
 
 // update status of connector in database
 func (t *trigger) updateStatus(ctx context.Context, status string) error {
-	t.conn.LastAttemptStatus = status
-	t.conn.LastUpdate = pg.NullTime{time.Now().UTC()}
-	return t.connectorRepo.Update(ctx, t.conn)
+	t.connectorModel.LastAttemptStatus = status
+	t.connectorModel.LastUpdate = pg.NullTime{time.Now().UTC()}
+	return t.connectorRepo.Update(ctx, t.connectorModel)
 }

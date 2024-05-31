@@ -37,7 +37,6 @@ func (c *minIOClient) Upload(ctx context.Context, filename, contentType string, 
 	objectName := fmt.Sprintf("%s-%s", filename, uuid.New().String())
 	client := *c.client
 
-	client.Bu
 	res, err := client.PutObject(ctx, c.BucketName, objectName, reader, -1,
 		minio.PutObjectOptions{
 			ContentType: contentType,

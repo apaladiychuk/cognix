@@ -1,3 +1,15 @@
+### Supported MIME types 
+In list below mapping  supported mime types to proto fileType
+```json
+	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       proto.FileType_XLS,
+	"application/vnd.openxmlformats-officedocument.wordprocessingml.document": proto.FileType_DOC,
+	"application/pdf": proto.FileType_PDF,
+	"application/rtf": proto.FileType_RTF,
+	"text/rtf":        proto.FileType_RTF,
+	"text/plain":      proto.FileType_TXT,
+	"application/vnd.openxmlformats-officedocument.presentationml.presentation": proto.FileType_PPT,
+```
+
 ### Parameter description 
 User should prepare json for each connector and copy it to field ConnectorSpecificConfig on page create/edit connector.
 
@@ -14,9 +26,12 @@ User should prepare json for each connector and copy it to field ConnectorSpecif
 #### File 
 ```json
 {
-  "file_name": ""   
+  "file_name": "",
+  "mime_type": "" 
 }
 ```
+mime type should be determined when user upload file to minio. 
+
 Connector translate this parameter for a chunker service in next format 
 ```json
     "minio:<bucketname>:<filename>"

@@ -68,6 +68,14 @@ type Folder struct {
 	ChildCount int `json:"childCount"`
 }
 
+func (c *OneDrive) PrepareTask(ctx context.Context, task Task) error {
+	//	for one drive always send message to connector
+	return task.RunConnector(ctx, &proto.ConnectorRequest{
+		Id:     c.model.ID.IntPart(),
+		Params: make(map[string]string),
+	})
+}
+
 func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *Response {
 	var fileSizeLimit int
 	if size, ok := param[ParamFileLimit]; ok {
@@ -87,7 +95,6 @@ func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *R
 
 func (c *OneDrive) execute(ctx context.Context) {
 	defer func() {
-		zap.S().Debug("close channel onedrive")
 		close(c.resultCh)
 	}()
 	body, err := c.request(ctx, getDrive)

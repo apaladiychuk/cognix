@@ -16,7 +16,7 @@ from gen_types.embed_service_pb2_grpc import EmbedServiceStub
 load_dotenv()
 
 # Get nats url from env 
-milvus_alias = os.getenv("MILVUS_ALILAS", 'cognix_vecotr')
+milvus_alias = os.getenv("MILVUS_ALIAS", 'cognix_vector')
 milvus_host = os.getenv("MILVUS_HOST", "127.0.0.1")
 milvus_port = os.getenv("MILVUS_PORT", "19530")
 embedder_grpc_host = os.getenv("EMBEDDER_GRPC_HOST", "localhost")

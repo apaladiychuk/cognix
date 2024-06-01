@@ -59,7 +59,7 @@ class SeleniumSpider:
         start_time = time.time()
 
         # notifying the readiness probe that the service is alive
-        (readiness := ReadinessProbe()).update_last_seen()
+        ReadinessProbe().update_last_seen()
 
         if url in self.visited:
             return
@@ -101,16 +101,6 @@ class SeleniumSpider:
 #         print(data.content)
 #     spider.close()
 
-
-
-
-
-
-
-
-
-
-
 # from selenium import webdriver
 # from selenium.webdriver.chrome.service import Service
 # from selenium.webdriver.chrome.options import Options
@@ -139,7 +129,7 @@ class SeleniumSpider:
 
 #     def process_page(self, url):
 #         try:
-#             self.logger.info("creating wedriver..")
+#             self.logger.info("creating webdriver..")
         
 #             # Setup Chrome WebDriver in headless mode
 #             self.logger.info("Setting up browser options")

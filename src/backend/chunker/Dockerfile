@@ -51,6 +51,7 @@ COPY requirements.txt .
 # Install dependencies and clean up
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --upgrade pip
 # RUN pip install --no-cache-dir torch==2.3.0 --index-url https://download.pytorch.org/whl/cpu

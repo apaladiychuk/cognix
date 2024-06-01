@@ -29,6 +29,14 @@ class URLChunker(BaseChunker):
                 # collected_data = spider.process_page(data.url)
 
             if collected_data:
+                # TODO IMPORTANT:
+                # this method is running in a service subscribed to nats
+                # if the message will not be ack in the ack wait it will be re delivered
+                # in the base class we meed to define a mechanism so that in case the message took longer than
+                # ACK_WAIT it shall stop the work and eventually nak..
+                # aloso consider the total process time not only this method
+                # in seconds
+
                 self.logger.info(f"collected {collected_url} URLs")
                 milvus_db = Milvus_DB()
                 # delete previous added chunks and vectors
@@ -39,7 +47,7 @@ class URLChunker(BaseChunker):
                     chunks = self.split_data(item.content, item.url)
                     for chunk, url in chunks:
                         # notifying the readiness probe that the service is alive
-                        (readiness := ReadinessProbe()).update_last_seen()
+                        ReadinessProbe().update_last_seen()
                         milvus_db.store_chunk(content=chunk, data=data)
                         # result_size_kb = len(chunk.encode('utf-8')) / 1024
                         # self.logger.info(f"Chunk size for {url}: {result_size_kb:.2f} KB")

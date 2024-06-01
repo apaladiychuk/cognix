@@ -32,7 +32,7 @@ class ReadinessProbe:
         return True
 
     def update_last_seen(self):
-        self.logger.info("Readiness probe last seen being updated")
+        self.logger.debug("Readiness probe last seen being updated")
         self.last_seen = datetime.utcnow()
 
     class ReadinessProbeHandler(BaseHTTPRequestHandler):
@@ -47,11 +47,13 @@ class ReadinessProbe:
                     self.send_response(200)
                     self.end_headers()
                     self.wfile.write(b"OK")
+                    self.logger.info("/healthz response 200")
                 else:
                     self.send_response(503)
                     self.end_headers()
                     self.wfile.write(b"Service Unavailable")
-                self.logger.info('ReadinessProbeHandler GET /healthz')
+                    self.logger.error(f"❌ /healthz response 503 - this means the service didn't update_last_seen for "
+                                      f"more than {readiness_time_out} seconds ")
             else:
                 self.send_response(404)
                 self.end_headers()

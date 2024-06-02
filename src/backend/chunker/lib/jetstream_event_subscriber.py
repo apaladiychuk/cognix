@@ -1,19 +1,13 @@
-import os
 import asyncio
-import nats
-from pyclbr import Class
+import logging
+
+from google.protobuf import message as _message
 from nats.aio.client import Client as NATS
 from nats.aio.msg import Msg
-from nats.js import JetStreamContext
-from google.protobuf.json_format import Parse, MessageToJson
-from google.protobuf import message as _message
 from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy, RetentionPolicy
-from nats.js.errors import NotFoundError, BadRequestError
-from nats.js.client import JetStreamContext
-from datetime import datetime
-from nats.js.errors import NotFoundError
-import logging
-import uuid
+from nats.js.errors import BadRequestError
+
+from rediness_probe import ReadinessProbe
 
 
 class JetStreamEventSubscriber:
@@ -55,10 +49,11 @@ class JetStreamEventSubscriber:
             stream_config = StreamConfig(
                 name=self.stream_name,
                 subjects=[self.subject],
-                # A work-queue retention policy satisfies a very common use case of queuing up messages that are intended to be processed once and only once.
+                # A work-queue retention policy satisfies a very common use case of queuing up messages that are
+                # intended to be processed once and only once.
                 # https://natsbyexample.com/examples/jetstream/workqueue-stream/go
                 retention=RetentionPolicy.WORK_QUEUE
-                #retention=RetentionPolicy.LIMITS        
+                # retention=RetentionPolicy.LIMITS
             )
 
             try:
@@ -101,7 +96,9 @@ class JetStreamEventSubscriber:
             # psub.fetch()
             while True:
                 try:
-                    await asyncio.sleep(2)
+                    # await asyncio.sleep(2)
+                    # notifying the readiness probe that the service is alive
+                    (readiness := ReadinessProbe()).update_last_seen()
                     msgs = await psub.fetch(1, timeout=5)
                     self.logger.info(msgs)
                     for msg in msgs:
@@ -110,7 +107,7 @@ class JetStreamEventSubscriber:
                         await self.message_handler(msg)
                         self.logger.info(msg)
                 except TimeoutError:
-                    self.logger.info("vaiting for incoming events")
+                    self.logger.info("waiting for incoming events")
                     pass
         except Exception as e:
             self.logger.error(f"❌ can't connect or subscribe to {self.nats_url} {self.stream_name} {self.subject} {e}")

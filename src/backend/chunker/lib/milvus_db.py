@@ -1,22 +1,22 @@
+import logging
+import os
+import time
 from typing import List
+
+import grpc
+from dotenv import load_dotenv
 from numpy import int64
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
+
 from gen_types.chunking_data_pb2 import ChunkingData
-from lib.chunked_item import ChunkedItem
-from gen_types.embed_service_pb2_grpc import EmbedServiceServicer, EmbedServiceStub
-from gen_types.embed_service_pb2 import EmbedRequest, EmbedResponse
-import grpc
-import time
-import logging
-import uuid
-import os
-from dotenv import load_dotenv
+from gen_types.embed_service_pb2 import EmbedRequest
+from gen_types.embed_service_pb2_grpc import EmbedServiceStub
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Get nats url from env 
-milvus_alias = os.getenv("MILVUS_ALILAS", 'cognix_vecotr')
+milvus_alias = os.getenv("MILVUS_ALIAS", 'cognix_vector')
 milvus_host = os.getenv("MILVUS_HOST", "127.0.0.1")
 milvus_port = os.getenv("MILVUS_PORT", "19530")
 embedder_grpc_host = os.getenv("EMBEDDER_GRPC_HOST", "localhost")

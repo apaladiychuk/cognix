@@ -1,17 +1,16 @@
-import os
 import asyncio
-from nats.aio.client import Client as NATS
-from google.protobuf.json_format import MessageToJson
-from nats.aio.msg import Msg
-from lib.chunker_helper import ChunkerHelper
-from nats.js.api import ConsumerConfig, DeliverPolicy, AckPolicy
-from datetime import datetime, time
-from gen_types.chunking_data_pb2 import ChunkingData
-from lib.jetstream_event_subscriber import JetStreamEventSubscriber
-from lib.milvus_db import Milvus_DB
 import logging
-from dotenv import load_dotenv
+import os
+import threading
 import time
+from datetime import time as datetime_time
+from dotenv import load_dotenv
+from nats.aio.msg import Msg
+
+from gen_types.chunking_data_pb2 import ChunkingData
+from lib.chunker_helper import ChunkerHelper
+from lib.jetstream_event_subscriber import JetStreamEventSubscriber
+from rediness_probe import ReadinessProbe
 
 # Load environment variables from .env file
 load_dotenv()
@@ -20,7 +19,7 @@ load_dotenv()
 log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
 log_level = getattr(logging, log_level_str, logging.INFO)
 # get log format from env
-log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
@@ -38,7 +37,7 @@ chunker_max_deliver = int(os.getenv('NATS_CLIENT_CHUNKER_MAX_DELIVER', '3'))
 
 # Define the event handler function
 async def chunking_event(msg: Msg):
-    start_time = time.time()  # Record the start time
+    start_time = time.time() # Record the start time
     try:
         logger.info("🔥 received chunking event, start working....")
 
@@ -48,7 +47,7 @@ async def chunking_event(msg: Msg):
         logger.info(f"message: {chunking_data}")
 
         chunker_helper = ChunkerHelper()
-        collected_entities = await chunker_helper.workout_message(chunking_data)
+        collected_entities = await chunker_helper.workout_message(chunking_data=chunking_data, start_time=start_time)
         # if collected entities == 0 this means no data was stored in the vector db
         # we shall find a way to tell the user, most likely put the message in the dead letter
 
@@ -61,10 +60,15 @@ async def chunking_event(msg: Msg):
     finally:
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
-        logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
+        logger.info(f"⏰⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
 
 async def main():
+    # Start the readiness probe server in a separate thread
+    readiness_probe = ReadinessProbe()
+    readiness_probe_thread = threading.Thread(target=readiness_probe.start_server, daemon=True)
+    readiness_probe_thread.start()
+
     # circuit breaker for chunking
     # if for reason nats won't be available
     # chunker will wait till nats will be up again 

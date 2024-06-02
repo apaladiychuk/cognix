@@ -28,7 +28,7 @@ networks:
 services:
   embedder:
     container_name: embedder
-    image: genmind/cognix-embedder:latest
+    image: gen-mind/cognix-embedder:latest
     build:
       context: ../src/backend/embedder
       dockerfile: Dockerfile
@@ -44,7 +44,7 @@ services:
 
   chunker-1:
     container_name: chunker-1
-    image: genmind/cognix-chunker:latest
+    image: gen-mind/cognix-chunker:latest
     build:
       context: ../src/backend/chunker
       dockerfile: Dockerfile
@@ -52,9 +52,19 @@ services:
       - ${DATA_PATH}/temp:/temp
     env_file:
       - ${CONFIG_PATH}/chunker_srv.env
-      # - ${CONFIG_PATH}/milvus_cli.env
+      - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
     restart: always
+    ports:
+      - "3434:8080"
+    healthcheck:
+      # test: [ "CMD", "curl", "-f", "http://chunker-1:8080/healthz || exit 1" ]
+      # test: curl --fail http://chunker-1:8080/chunker-1 || exit
+      test: "curl --silent --fail http://localhost:8080/healthz > /dev/null || exit 1"
+      interval: 60s
+      start_period: 10s
+      timeout: 3s
+      retries: 3
     depends_on:
       - milvus
       - nats
@@ -65,7 +75,7 @@ services:
 
   cognix-web:
     container_name: web-ui
-    image: genmind/cognix-web:latest
+    image: gen-mind/cognix-web:latest
     build:
       context: ../src/web
       dockerfile: Dockerfile.dev
@@ -82,7 +92,7 @@ services:
 
   api:
     container_name: api
-    image: genmind/cognix-api:latest
+    image: gen-mind/cognix-api:latest
     build:
       context: ${BACKEND_PATH}
       args:
@@ -110,7 +120,7 @@ services:
 
   orchestrator:
     container_name: orchestrator
-    image: genmind/cognix-orchestrator:latest
+    image: gen-mind/cognix-orchestrator:latest
     build:
       context: ${BACKEND_PATH}
       args:
@@ -133,7 +143,7 @@ services:
 
   connector:
     container_name: connector
-    image: genmind/cognix-connector:latest
+    image: gen-mind/cognix-connector:latest
     build:
       context: ${BACKEND_PATH}
       args:
@@ -158,7 +168,7 @@ services:
 
   migration:
     container_name: migration
-    image: genmind/cognix-migration:latest
+    image: gen-mind/cognix-migration:latest
     build:
       context: ${MIGRATION_PATH}
       dockerfile: Dockerfile
@@ -278,12 +288,29 @@ services:
       - "--http_port=8222"
       - "--js"
       - "--sd=/data/nats"
-    # healthcheck:
-    #   test: echo $$(wget --server-response http://nats:8222/varz 2>&1 | grep  '200 OK') | grep '200'  || exit 1
-    #   interval: 20s
-    #   timeout: 5s
-    #   retries: 5
-    #   start_period: 40s
+#    healthcheck:
+#       test: echo $$(wget --server-response http://nats:8222/varz 2>&1 | grep  '200 OK') | grep '200'  || exit 1
+#       interval: 20s
+#       timeout: 5s
+#       retries: 5
+#       start_period: 40s
+    networks:
+      - cognix-network
+
+  nats-dashboard:
+    image: mdawar/nats-dashboard
+    container_name: nats-dashboard
+    environment:
+      # The NATS monitoring server will be proxied on /proxy/* on the frontend.
+      # See: config/Caddyfile for the reverse proxy configuration.
+      REVERSE_PROXY_UPSTREAM: 'server:8222'
+    volumes:
+      # Optional config file.
+      - ${CONFIG_PATH}/nats_config.json:/srv/config.json
+    ports:
+      - target: 80
+        published: 8000
+        protocol: tcp
     networks:
       - cognix-network
   

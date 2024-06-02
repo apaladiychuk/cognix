@@ -26,7 +26,7 @@ class BS4Spider:
             return None
 
         # TODO verify if the URL contains any of the supported file type
-        # if yes we shall download and analize with the proper chunker
+        # if yes we shall download and analize with the proper semantic
         # eg. if it's a pdf, download and call PDFChunker...
 
         # Add the URL to the visited set

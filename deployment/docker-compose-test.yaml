@@ -42,16 +42,16 @@ services:
     networks:
       - cognix-network
 
-  chunker-1:
-    container_name: chunker-1
+  semantic-1:
+    container_name: semantic-1
     image: gen-mind/cognix-chunker:latest
     build:
-      context: ../src/backend/chunker
+      context: ../src/backend/semantic
       dockerfile: Dockerfile
     volumes:
       - ${DATA_PATH}/temp:/temp
     env_file:
-      - ${CONFIG_PATH}/chunker_srv.env
+      - ${CONFIG_PATH}/semantic_srv.env
       - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
     restart: always

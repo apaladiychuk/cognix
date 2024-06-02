@@ -149,7 +149,7 @@ CREATE TABLE documents (
     url text, -- url for web connector, link (minio:bucket:file) for file in minio
     signature text,
     chunking_session uuid, -- Allows nulls
-    analyzed bool NOT NULL DEFAULT FALSE,  -- default false, true when chunker created the embeddings in the vector db
+    analyzed bool NOT NULL DEFAULT FALSE,  -- default false, true when semantic created the embeddings in the vector db
     creation_date timestamp WITHOUT TIME ZONE NOT NULL, --datetime utc IMPORTANT now() will not get the utc date!!!!
     last_update timestamp WITHOUT TIME ZONE
 );

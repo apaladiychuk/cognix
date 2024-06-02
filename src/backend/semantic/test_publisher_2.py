@@ -16,10 +16,10 @@ nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
 nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
 nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
 nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
-chunker_stream_name = os.getenv('CHUNKER_STREAM_NAME', 'chunker')
-chunker_stream_subject = os.getenv('CHUNKER_STREAM_SUBJECT', 'chunk_activity')
-chunker_ack_wait = int(os.getenv('NATS_CLIENT_CHUNKER_ACK_WAIT', '3600'))  # seconds
-chunker_max_deliver = int(os.getenv('NATS_CLIENT_CHUNKER_MAX_DELIVER', '3'))
+semantic_stream_name = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_NAME', 'semantic')
+semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'chunk_activity')
+semantic_ack_wait = int(os.getenv('NATS_CLIENT_SEMANTIC_ACK_WAIT', '3600'))  # seconds
+semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
 # get log level from env 
 log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
@@ -88,7 +88,7 @@ class JetStreamPublisher:
 
 async def main():
     # Instantiate the publisher
-    publisher = JetStreamPublisher(subject=chunker_stream_subject, stream_name=chunker_stream_name)
+    publisher = JetStreamPublisher(subject=semantic_stream_subject, stream_name=semantic_stream_name)
 
     # Connect to NATS
     await publisher.connect()

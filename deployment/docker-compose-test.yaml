@@ -42,9 +42,9 @@ services:
     networks:
       - cognix-network
 
-  semantic-1:
-    container_name: semantic-1
-    image: gen-mind/cognix-chunker:latest
+  semantic:
+    container_name: semantic
+    image: gen-mind/cognix-semantic:latest
     build:
       context: ../src/backend/semantic
       dockerfile: Dockerfile
@@ -289,11 +289,11 @@ services:
       - "--js"
       - "--sd=/data/nats"
 #    healthcheck:
-#       test: echo $$(wget --server-response http://nats:8222/varz 2>&1 | grep  '200 OK') | grep '200'  || exit 1
-#       interval: 20s
-#       timeout: 5s
-#       retries: 5
-#       start_period: 40s
+#        test: echo $$(wget --server-response http://nats:8222/varz 2>&1 | grep  '200 OK') | grep '200'  || exit 1
+#        interval: 20s
+#        timeout: 5s
+#        retries: 5
+#        start_period: 40s
     networks:
       - cognix-network
 

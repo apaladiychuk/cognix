@@ -1,11 +1,11 @@
 import time
 from typing import List
 import requests
-from bs4 import BeautifulSoup, Comment, ResultSet, element
+from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import logging
-from lib.chunked_item import ChunkedItem
-from rediness_probe import ReadinessProbe
+from lib.spider.chunked_item import ChunkedItem
+from readiness_probe import ReadinessProbe
 
 
 class BS4Spider:

@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 from numpy import int64
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
 
-from gen_types.chunking_data_pb2 import ChunkingData
-from gen_types.embed_service_pb2 import EmbedRequest
-from gen_types.embed_service_pb2_grpc import EmbedServiceStub
+from lib.gen_types.semantic_data_pb2 import SemanticData
+from lib.gen_types.embed_service_pb2 import EmbedRequest
+from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
 
 # Load environment variables from .env file
 load_dotenv()
@@ -69,7 +69,7 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
-    def store_chunk(self, content: str, data: ChunkingData):
+    def store_chunk(self, content: str, data: SemanticData):
         start_time = time.time()  # Record the start time
         try:
             # self.ensure_connection()

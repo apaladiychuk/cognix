@@ -1,14 +1,15 @@
-from lib.milvus_db import Milvus_DB
-from gen_types.chunking_data_pb2 import ChunkingData, FileType
-from lib.chunker_base import BaseChunker
-import logging, time
+from lib.db.milvus_db import Milvus_DB
+from lib.gen_types.semantic_data_pb2 import SemanticData
+from lib.semantic.semantic_base import BaseSemantic
+import time
 
-class PDFChunker(BaseChunker):
-    async def chunk(self, data: ChunkingData) -> int:
+
+class PDFSemantic(BaseSemantic):
+    def chunk(self, data: SemanticData, full_process_start_time: float, ack_wait: int) -> int:
         try:
             start_time = time.time()  # Record the start time
             self.logger.info(f"Starting BS4Spider URL: {data.url}")
-            
+
             # for pdfs, llamaparse far exceeds unstructured and pymudf is also better/faster from my experience
 
             document_content = "call the appropriate tool to open and extract"

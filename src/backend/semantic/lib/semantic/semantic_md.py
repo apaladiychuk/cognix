@@ -1,12 +1,12 @@
-from gen_types.chunking_data_pb2 import ChunkingData, FileType
-from lib.chunker_base import BaseChunker
+from lib.gen_types.semantic_data_pb2 import SemanticData
+from lib.semantic.semantic_base import BaseSemantic
 
 # Plaintext	.eml, .html, .md, .msg, .rst, .rtf, .txt, .xml
 # Documents	.csv, .doc, .docx, .epub, .odt, .pdf, .ppt, .pptx, .tsv, .xlsx
 
 
-class MDChunker(BaseChunker):
-    def chunk(self, data: ChunkingData) -> int:
+class MDSemantic(BaseSemantic):
+    def chunk(self, data: SemanticData, full_process_start_time: float, ack_wait: int) -> int:
         # Implement TXT chunking logic here
         print(f"Chunking TXT file: {data}")
         return 0

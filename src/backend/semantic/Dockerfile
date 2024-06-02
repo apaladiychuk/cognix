@@ -29,7 +29,7 @@
 # ENV PYTHONPATH=/usr/local/lib/python3.11/site-package
 
 # # Run the application
-# CMD ["chunker_service.py"]
+# CMD ["semantic_service.py"]
 
 
 
@@ -62,7 +62,7 @@ RUN pip install --no-cache-dir -r requirements.txt \
 COPY . .
 
 # Command to run your application
-CMD ["python", "chunker_service.py"]
+CMD ["python", "semantic_service.py"]
 
 
 
@@ -100,4 +100,4 @@ CMD ["python", "chunker_service.py"]
 # COPY . .
 
 # # Command to run your application
-# CMD ["python", "chunker.py"]
+# CMD ["python", "semantic.py"]

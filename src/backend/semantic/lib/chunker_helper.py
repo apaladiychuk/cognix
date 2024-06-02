@@ -15,14 +15,14 @@ class ChunkerHelper:
     @staticmethod
     async def workout_message(chunking_data: ChunkingData, start_time: float, ack_wait: int):
         # iterate over the FileType property values
-        # to create the proper chunker class able to wor the file type
+        # to create the proper semantic class able to wor the file type
         chunker_class = chunker_mapping.get(chunking_data.file_type)
         if not chunker_class:
             raise ValueError(f"Unsupported file type")
 
         chunker = chunker_class()
 
-        # chunker.chunk must return a typed object
+        # semantic.chunk must return a typed object
         # object definition [url, [chunks]]
         await chunker.chunk(data=chunking_data)
 

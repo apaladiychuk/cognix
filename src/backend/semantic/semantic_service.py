@@ -29,11 +29,10 @@ nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
 nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
 nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
 nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
-chunker_stream_name = os.getenv('CHUNKER_STREAM_NAME', 'chunker')
-chunker_stream_subject = os.getenv('CHUNKER_STREAM_SUBJECT', 'chunk_activity')
-chunker_ack_wait = int(os.getenv('NATS_CLIENT_CHUNKER_ACK_WAIT', '3600'))  # seconds
-chunker_max_deliver = int(os.getenv('NATS_CLIENT_CHUNKER_MAX_DELIVER', '3'))
-
+semantic_stream_name = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_NAME', 'semantic')
+semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'chunk_activity')
+semantic_ack_wait = int(os.getenv('NATS_CLIENT_SEMANTIC_ACK_WAIT', '3600'))  # seconds
+semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
 # Define the event handler function
 async def chunking_event(msg: Msg):
@@ -71,20 +70,20 @@ async def main():
 
     # circuit breaker for chunking
     # if for reason nats won't be available
-    # chunker will wait till nats will be up again 
+    # semantic will wait till nats will be up again
     while True:
         logger.info("🛠️ service starting..")
         try:
             # subscribing to jet stream
             subscriber = JetStreamEventSubscriber(
                 nats_url=nats_url,
-                stream_name=chunker_stream_name,
-                subject=chunker_stream_subject,
+                stream_name=semantic_stream_name,
+                subject=semantic_stream_subject,
                 connect_timeout=nats_connect_timeout,
                 reconnect_time_wait=nats_reconnect_time_wait,
                 max_reconnect_attempts=nats_max_reconnect_attempts,
-                ack_wait=chunker_ack_wait,
-                max_deliver=chunker_max_deliver,
+                ack_wait=semantic_ack_wait,
+                max_deliver=semantic_max_deliver,
                 proto_message_type=ChunkingData
             )
 

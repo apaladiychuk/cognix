@@ -25,17 +25,17 @@ services:
       - cognix-network
   
   chunker:
-    container_name: chunker
+    container_name: semantic
     image: cognix/chunker:latest
     build:
-      context: ../src/backend/chunker
+      context: ../src/backend/semantic
       dockerfile: Dockerfile
     # ports:
     #   - "50051:50051"
     # volumes:
     #   - ${DATA_PATH}/models:/models
     env_file:
-      - ${CONFIG_PATH}/chunker.env
+      - ${CONFIG_PATH}/semantic.env
     restart: always
     networks:
       - cognix-network

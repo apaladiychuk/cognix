@@ -5,11 +5,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import time
 import logging
-from lib.chunked_item import ChunkedItem
+from lib.spider.chunked_item import ChunkedItem
 from typing import List
 from urllib.parse import urljoin, urlparse
 
-from rediness_probe import ReadinessProbe
+from readiness_probe import ReadinessProbe
 
 
 class SeleniumSpider:

@@ -26,7 +26,7 @@ PPT: FileType
 TXT: FileType
 MD: FileType
 
-class ChunkingData(_message.Message):
+class SemanticData(_message.Message):
     __slots__ = ("url", "site_map", "search_for_sitemap", "document_id", "file_type", "collection_name", "model_name", "model_dimension")
     URL_FIELD_NUMBER: _ClassVar[int]
     SITE_MAP_FIELD_NUMBER: _ClassVar[int]

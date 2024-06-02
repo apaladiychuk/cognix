@@ -1,13 +1,12 @@
 import asyncio
 from nats.aio.client import Client as NATS
-from gen_types.chunking_data_pb2 import ChunkingData, FileType
+from lib.gen_types.semantic_data_pb2 import SemanticData, FileType
 from nats.errors import TimeoutError, NoRespondersError
-from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy, RetentionPolicy
-from nats.js.errors import NotFoundError, BadRequestError
+from nats.js.api import StreamConfig, RetentionPolicy
+from nats.js.errors import BadRequestError
 import logging
 import os
 from dotenv import load_dotenv
-import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -94,7 +93,7 @@ async def main():
     await publisher.connect()
 
     # Create a fake ChunkingData message
-    chunking_data = ChunkingData(
+    chunking_data = SemanticData(
         url="https://help.collaboard.app/sticky-notes",
         # url = "https://developer.apple.com/documentation/visionos/improving-accessibility-support-in-your-app",
         # url = "https://help.collaboard.app/what-is-collaboard",
@@ -115,7 +114,7 @@ async def main():
     await publisher.publish(chunking_data)
 
     # # Create a fake ChunkingData message
-    # chunking_data = ChunkingData(
+    # chunking_data = SemanticData(
     #     url="https://help.collaboard.app/extract-pages-from-a-document",
     #     site_map="",
     #     search_for_sitemap=True,
@@ -132,7 +131,7 @@ async def main():
     # await publisher.publish(chunking_data)
 
     #     # Create a fake ChunkingData message
-    # chunking_data = ChunkingData(
+    # chunking_data = SemanticData(
     #     url="https://help.collaboard.app/upload-images",
     #     site_map="",
     #     search_for_sitemap=True,

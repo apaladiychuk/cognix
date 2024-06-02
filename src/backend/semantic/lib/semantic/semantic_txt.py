@@ -1,12 +1,12 @@
-from lib.milvus_db import Milvus_DB
-from gen_types.chunking_data_pb2 import ChunkingData, FileType
-from lib.chunker_base import BaseChunker
+from lib.db.milvus_db import Milvus_DB
+from lib.gen_types.semantic_data_pb2 import SemanticData
+from lib.semantic.semantic_base import BaseSemantic
 from pathlib import Path
-import logging, time
+import time
 import pymupdf
 
-class TXTChunker(BaseChunker):
-    async def chunk(self, data: ChunkingData) -> int:
+class TXTSemantic(BaseSemantic):
+    def chunk(self, data: SemanticData, full_process_start_time: float, ack_wait: int) -> int:
         try:
             start_time = time.time()  # Record the start time
             self.logger.info(f"Starting TXTChunker for: {data.url}")

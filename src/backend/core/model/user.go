@@ -13,15 +13,16 @@ type Defaults struct {
 }
 
 type User struct {
-	ID         uuid.UUID   `json:"id,omitempty"`
-	TenantID   uuid.UUID   `json:"tenant_id,omitempty"`
-	UserName   string      `json:"user_name,omitempty"`
-	FirstName  string      `json:"first_name,omitempty"`
-	LastName   string      `json:"last_name,omitempty"`
-	ExternalID string      `json:"-"`
-	Roles      StringSlice `json:"roles,omitempty" pg:",array"`
-	Tenant     *Tenant     `json:"tenant,omitempty" pg:"rel:has-one"`
-	Defaults   *Defaults   `json:"-" pg:"-"`
+	ID             uuid.UUID       `json:"id,omitempty"`
+	TenantID       uuid.UUID       `json:"tenant_id,omitempty"`
+	UserName       string          `json:"user_name,omitempty"`
+	FirstName      string          `json:"first_name,omitempty"`
+	LastName       string          `json:"last_name,omitempty"`
+	ExternalID     string          `json:"-"`
+	Roles          StringSlice     `json:"roles,omitempty" pg:",array"`
+	Tenant         *Tenant         `json:"tenant,omitempty" pg:"rel:has-one"`
+	EmbeddingModel *EmbeddingModel `json:"-" pg:"rel:has-one,fk:tenant_id,join_fk:tenant_id"`
+	Defaults       *Defaults       `json:"-" pg:"-"`
 }
 
 func (u *User) HasRoles(role ...string) bool {

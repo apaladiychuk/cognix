@@ -51,9 +51,12 @@ type Response struct {
 	Name             string
 	SourceID         string
 	DocumentID       int64
-	Content          []byte
-	MimeType         string
-	SaveContent      bool
+	//Content          []byte
+	MimeType    string
+	Signature   string
+	Bucket      string
+	SaveContent bool
+	UpToData    bool
 }
 
 type Builder struct {

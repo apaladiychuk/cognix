@@ -42,16 +42,25 @@ type Connector struct {
 	Credential              *Credential          `json:"credential,omitempty" pg:"rel:has-one,fk:credential_id"`
 	Docs                    []*Document          `json:"docs,omitempty" pg:"rel:has-many"`
 	DocsMap                 map[string]*Document `json:"docs_map,omitempty" pg:"-"`
-	EmbeddingModel          *EmbeddingModel      `json:"-" pg:"rel:has-one"`
+	User                    *User                `json:"-" pg:"rel:has-one,fk:user_id"`
 }
 
 func (c *Connector) CollectionName() string {
 	return CollectionName(c.UserID, c.TenantID)
+}
+func (c *Connector) BuildFileName(filename string) string {
+	if c.TenantID.Valid {
+		return fmt.Sprintf("user-%s/%s", c.UserID.String(), filename)
+	}
+	return filename
 }
 func CollectionName(userID uuid.UUID, tenantID uuid.NullUUID) string {
 	if tenantID.Valid {
 		return strings.ReplaceAll(fmt.Sprintf(CollectionTenant, tenantID), "-", "")
 	}
 	return strings.ReplaceAll(fmt.Sprintf(CollectionUser, userID), "-", "")
+}
 
+func BucketName(tenantID uuid.UUID) string {
+	return fmt.Sprintf("tenant-%s", tenantID.String())
 }

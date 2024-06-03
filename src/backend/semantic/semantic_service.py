@@ -42,13 +42,14 @@ async def chunking_event(msg: Msg):
     try:
         logger.info("🔥 received chunking event, start working....")
         # Deserialize the message
-        chunking_data = SemanticData()
-        chunking_data.ParseFromString(msg.data)
-        logger.info(f"message: {chunking_data}")
+        semantic_data = SemanticData()
+        semantic_data.ParseFromString(msg.data)
+        logger.info(f"message: {semantic_data}")
 
-        chunker = SemanticFactory.create_chunker(chunking_data.file_type)
 
-        eintites_analyzed = chunker.chunk(data= chunking_data, full_process_start_time=start_time, ack_wait=semantic_ack_wait)
+        chunker = SemanticFactory.create_chunker(semantic_data.file_type)
+
+        eintites_analyzed = chunker.chunk(data= semantic_data, full_process_start_time=start_time, ack_wait=semantic_ack_wait)
         # collected_entities = await chunker.chunk( .workout_message(chunking_data=chunking_data,
         #                                                           start_time=start_time, ack_wait=semantic_ack_wait)
         # if collected entities == 0 this means no data was stored in the vector db

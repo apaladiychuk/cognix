@@ -13,8 +13,13 @@ const (
 	CollectionTenant = "tenant_%s"
 	CollectionUser   = "user_%s"
 
-	StatusFailed  = "failed"
-	StatusSuccess = "success"
+	ConnectorStatusActive        = "Active"
+	ConnectorStatusPending       = "Pending"
+	ConnectorStatusWorking       = "Working"
+	ConnectorStatusSuccess       = "Completed Successfully"
+	ConnectorStatusError         = "Completed with Errors"
+	ConnectorStatusDisabled      = "Disabled"
+	ConnectorStatusUnableProcess = "Unable to Process"
 )
 
 type Connector struct {
@@ -37,15 +42,25 @@ type Connector struct {
 	Credential              *Credential          `json:"credential,omitempty" pg:"rel:has-one,fk:credential_id"`
 	Docs                    []*Document          `json:"docs,omitempty" pg:"rel:has-many"`
 	DocsMap                 map[string]*Document `json:"docs_map,omitempty" pg:"-"`
+	User                    *User                `json:"-" pg:"rel:has-one,fk:user_id"`
 }
 
 func (c *Connector) CollectionName() string {
 	return CollectionName(c.UserID, c.TenantID)
 }
+func (c *Connector) BuildFileName(filename string) string {
+	if c.TenantID.Valid {
+		return fmt.Sprintf("user-%s/%s", c.UserID.String(), filename)
+	}
+	return filename
+}
 func CollectionName(userID uuid.UUID, tenantID uuid.NullUUID) string {
 	if tenantID.Valid {
-		return strings.ReplaceAll(fmt.Sprintf(CollectionTenant, tenantID), "-", "")
+		return strings.ReplaceAll(fmt.Sprintf(CollectionTenant, tenantID.UUID.String()), "-", "")
 	}
-	return strings.ReplaceAll(fmt.Sprintf(CollectionUser, userID), "-", "")
+	return strings.ReplaceAll(fmt.Sprintf(CollectionUser, userID.String()), "-", "")
+}
 
+func BucketName(tenantID uuid.UUID) string {
+	return fmt.Sprintf("tenant-%s", tenantID.String())
 }

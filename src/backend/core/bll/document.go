@@ -5,6 +5,8 @@ import (
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
 	"context"
+	"fmt"
+	"github.com/google/uuid"
 	"io"
 	"time"
 )
@@ -21,7 +23,9 @@ type (
 )
 
 func (b *documentBL) UploadDocument(ctx context.Context, user *model.User, fileName, contentType string, file io.Reader) (*model.Document, error) {
-	fileURL, signature, err := b.minioClient.Upload(ctx, fileName, contentType, file)
+
+	fileURL, signature, err := b.minioClient.Upload(ctx, model.BucketName(user.TenantID),
+		fmt.Sprintf("user-%s/%s-%s", user.ID.String(), uuid.New().String(), fileName), contentType, file)
 	if err != nil {
 		return nil, err
 	}

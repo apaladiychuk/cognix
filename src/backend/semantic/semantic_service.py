@@ -9,6 +9,7 @@ from nats.aio.msg import Msg
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_factory import SemanticFactory
 from lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
+from lib.db.cockroach_db import DocumentCRUD
 from readiness_probe import ReadinessProbe
 
 # Load environment variables from .env file
@@ -33,17 +34,13 @@ semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'chun
 semantic_ack_wait = int(os.getenv('NATS_CLIENT_SEMANTIC_ACK_WAIT', '3600'))  # seconds
 semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
+cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL', 'postgres://root:123@cockroach:26257/defaultdb?sslmode=disable')
 
 # Define the event handler function
 async def chunking_event(msg: Msg):
     start_time = time.time()  # Record the start time
     try:
         logger.info("🔥 received chunking event, start working....")
-
-        # Deserialize the message
-        chunking_data = SemanticData()
-        chunking_data.ParseFromString(msg.data)
-        logger.info(f"message: {chunking_data}")
 
         chunker = SemanticFactory.create_chunker(chunking_data.file_type)
 
@@ -68,6 +65,40 @@ async def chunking_event(msg: Msg):
 
 
 async def main():
+    crud = DocumentCRUD(cockroach_url)
+
+    # Insert a new document
+    new_doc_id = crud.insert_document(
+        parent_id=None,
+        connector_id=1,
+        source_id='unique_source_id',
+        url='http://example.com',
+        signature='signature_example',
+        chunking_session=uuid.uuid4(),
+        analyzed=False,
+        creation_date=func.now(),
+        last_update=None
+    )
+    print(f"Inserted document ID: {new_doc_id}")
+
+    # Select the document
+    document = crud.select_document(new_doc_id)
+    print(f"Selected document: {document}")
+
+    # Update the document
+    crud.update_document(new_doc_id, url='http://newexample.com')
+
+    # Delete the document
+    crud.delete_document(new_doc_id)
+    print(f"Deleted document ID: {new_doc_id}")
+
+    # Deserialize the message
+    chunking_data = SemanticData()
+    chunking_data.ParseFromString(msg.data)
+    logger.info(f"message: {chunking_data}")
+
+
+
     # Start the readiness probe server in a separate thread
     readiness_probe = ReadinessProbe()
     readiness_probe_thread = threading.Thread(target=readiness_probe.start_server, daemon=True)

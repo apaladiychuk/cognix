@@ -65,37 +65,37 @@ async def chunking_event(msg: Msg):
 
 
 async def main():
-    crud = DocumentCRUD(cockroach_url)
-
-    # Insert a new document
-    new_doc_id = crud.insert_document(
-        parent_id=None,
-        connector_id=1,
-        source_id='unique_source_id',
-        url='http://example.com',
-        signature='signature_example',
-        chunking_session=uuid.uuid4(),
-        analyzed=False,
-        creation_date=func.now(),
-        last_update=None
-    )
-    print(f"Inserted document ID: {new_doc_id}")
-
-    # Select the document
-    document = crud.select_document(new_doc_id)
-    print(f"Selected document: {document}")
-
-    # Update the document
-    crud.update_document(new_doc_id, url='http://newexample.com')
-
-    # Delete the document
-    crud.delete_document(new_doc_id)
-    print(f"Deleted document ID: {new_doc_id}")
-
-    # Deserialize the message
-    chunking_data = SemanticData()
-    chunking_data.ParseFromString(msg.data)
-    logger.info(f"message: {chunking_data}")
+    # crud = DocumentCRUD(cockroach_url)
+    #
+    # # Insert a new document
+    # new_doc_id = crud.insert_document(
+    #     parent_id=None,
+    #     connector_id=1,
+    #     source_id='unique_source_id',
+    #     url='http://example.com',
+    #     signature='signature_example',
+    #     chunking_session=uuid.uuid4(),
+    #     analyzed=False,
+    #     creation_date=func.now(),
+    #     last_update=None
+    # )
+    # print(f"Inserted document ID: {new_doc_id}")
+    #
+    # # Select the document
+    # document = crud.select_document(new_doc_id)
+    # print(f"Selected document: {document}")
+    #
+    # # Update the document
+    # crud.update_document(new_doc_id, url='http://newexample.com')
+    #
+    # # Delete the document
+    # crud.delete_document(new_doc_id)
+    # print(f"Deleted document ID: {new_doc_id}")
+    #
+    # # Deserialize the message
+    # chunking_data = SemanticData()
+    # chunking_data.ParseFromString(msg.data)
+    # logger.info(f"message: {chunking_data}")
 
 
 

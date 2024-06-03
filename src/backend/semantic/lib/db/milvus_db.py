@@ -19,6 +19,9 @@ load_dotenv()
 milvus_alias = os.getenv("MILVUS_ALIAS", 'cognix_vector')
 milvus_host = os.getenv("MILVUS_HOST", "127.0.0.1")
 milvus_port = os.getenv("MILVUS_PORT", "19530")
+milvus_index_type = os.getenv("MILVUS_INDEX_TYPE", "DISKANN")
+milvus_metric_type = os.getenv("MILVUS_METRIC_TYPE", "COSINE")
+
 embedder_grpc_host = os.getenv("EMBEDDER_GRPC_HOST", "localhost")
 embedder_grpc_port = os.getenv("EMBEDDER_GRPC_PORT", "50051")
 
@@ -31,7 +34,6 @@ def is_connected():
 class Milvus_DB:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
-        # self._connect()
 
     def delete_by_document_id(self, document_id: int64, collection_name: str):
         start_time = time.time()  # Record the start time
@@ -51,10 +53,10 @@ class Milvus_DB:
 
                 collection = Collection(collection_name)  # Get an existing collection.
 
-                collection.schema  # Return the schema.CollectionSchema of the collection.
-                collection.description  # Return the description of the collection.
-                collection.name  # Return the name of the collection.
-                collection.is_empty  # Return the boolean value that indicates if the collection is empty.
+                # collection.schema  # Return the schema.CollectionSchema of the collection.
+                # collection.description  # Return the description of the collection.
+                # collection.name  # Return the name of the collection.
+                # collection.is_empty  # Return the boolean value that indicates if the collection is empty.
                 self.logger.info(f"collection: {collection_name} has {collection.num_entities} entities")
 
                 utility.drop_collection(collection_name)
@@ -69,6 +71,66 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
+    def query(self, query: str, data: SemanticData) -> Collection:
+        start_time = time.time()  # Record the start time
+        try:
+            # This way of adding data looks like extremely inefficient
+            # We need to find a way to use the same connection across
+            # different method calls
+            # also not sure if and why the collection needs to be created every time
+            # a pattern used by Milvus?
+            # needs investigation
+            connections.connect(
+                alias=milvus_alias,
+                host=milvus_host,
+                # host='milvus-standalone'
+                port=milvus_port
+            )
+
+            collection = Collection(name=data.collection_name)
+            collection.load()
+
+            # this makes a gRPC call to the embedding service
+            # it's an architectural decision, so we have only one container handling
+            # the embedding models. The container will require a significant amount of ram, cpu
+            # and eventually it will run on gpu
+            embedding = self.embedd(query, data.model_name)
+
+            # fields = [
+            #     FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
+            #     FieldSchema(name="document_id", dtype=DataType.INT64),
+            #     # text content expected format {"content":""}
+            #     FieldSchema(name="content", dtype=DataType.JSON),
+            #     FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=data.model_dimension),
+            # ]
+
+            result = collection.search(
+                data=[embedding],  # Embed search value
+                anns_field="vector",  # Search across embeddings
+                # "M": 8, "ef": "top_k"
+                param={"metric_type": f"{milvus_metric_type}",
+                       "params": {"ef": 64}},
+                limit=10,  # Limit to top_k results per search
+                output_fields=["content"]
+            )
+
+            if self.logger.level == logging.DEBUG:
+                answer = ""
+                self.logger.debug("enumerating vector database results")
+                for i, hits in enumerate(result):
+                    for hit in hits:
+                        # print(f"Query sentence: {sentences[i]}")
+                        self.logger.debug(f"Nearest Neighbor Number {i}: {hit.entity.get('sentence')} ---- {hit.distance}\n")
+                        answer = answer + hit.entity.get('sentence')
+                self.logger.debug("end enumeration")
+            return collection
+        except Exception as e:
+            self.logger.error(f"❌ {e}")
+        finally:
+            end_time = time.time()  # Record the end time
+            elapsed_time = end_time - start_time
+            self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+
     def store_chunk(self, content: str, data: SemanticData):
         start_time = time.time()  # Record the start time
         try:
@@ -76,8 +138,8 @@ class Milvus_DB:
             # if self.is_connected() == False:
             #     raise Exception("Connot connect to Milvus")
 
-            # This way of adding data looks like extremly inefficent
-            # We need to find a way to use the same connection arcross 
+            # This way of adding data looks like extremely inefficient
+            # We need to find a way to use the same connection across
             # different method calls 
             # also not sure if and why the collection needs to be created every time
             # a pattern used by Milvus?
@@ -103,12 +165,12 @@ class Milvus_DB:
             # creating collection based on the above schema
             collection = Collection(name=data.collection_name, schema=schema)
 
-            # create the colection if needed
+            # create the collection if needed
             # if not utility.has_collection(data.collection_name):
             # creating index params
             index_params = {
-                "index_type": "DISKANN",
-                "metric_type": "COSINE",
+                "index_type": f"{milvus_index_type}",
+                "metric_type": f"{milvus_metric_type}",
             }
 
             # adding the index to the collection
@@ -118,6 +180,11 @@ class Milvus_DB:
             collection.load()
 
             # checksum = self.generate_checksum(content)
+
+            # this makes a gRPC call to the embedding service
+            # it's an architectural decision, so we have only one container handling
+            # the embedding models. The container will require a significant amount of ram, cpu
+            # and eventually it will run on gpu
             embedding = self.embedd(content, data.model_name)
 
             collection.insert([
@@ -129,7 +196,7 @@ class Milvus_DB:
             ])
 
             collection.flush()
-            self.logger.info(f"element succesfully insterted in collection {data.collection_name}")
+            self.logger.info(f"element successfully inserted in collection {data.collection_name}")
         except Exception as e:
             self.logger.error(f"❌ {e}")
         finally:
@@ -145,7 +212,8 @@ class Milvus_DB:
 
             self.logger.info("Calling gRPC Service GetEmbed - Unary")
 
-            # embed_request = EmbedRequest(content=content_to_embedd, model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
+            # embed_request = EmbedRequest(content=content_to_embedd,
+            #   model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
             embed_request = EmbedRequest(content=content_to_embedd, model=model)
             embed_response = stub.GetEmbeding(embed_request)
 

@@ -23,10 +23,16 @@ func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 
 	// if this connector new we need to run connectorTask for prepare document table
 	if len(c.model.Docs) == 0 {
-		return task.RunConnector(ctx, &proto.ConnectorRequest{
-			Id:     c.model.ID.IntPart(),
-			Params: make(map[string]string),
-		})
+		doc, ok := c.model.DocsMap[c.param.URL]
+		if !ok {
+			doc = &model.Document{
+				SourceID:    c.param.URL,
+				ConnectorID: c.Base.model.ID,
+				URL:         c.param.URL,
+				Signature:   "",
+			}
+			c.model.Docs = append(c.model.Docs, doc)
+		}
 	}
 	var rootDoc *model.Document
 	for _, doc := range c.model.Docs {

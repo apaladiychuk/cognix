@@ -13,6 +13,7 @@ import (
 type Server struct {
 	renewInterval time.Duration
 	connectorRepo repository.ConnectorRepository
+	docRepo       repository.DocumentRepository
 	messenger     messaging.Client
 	scheduler     gocron.Scheduler
 	streamCfg     *messaging.StreamConfig
@@ -22,6 +23,7 @@ type Server struct {
 func NewServer(
 	cfg *Config,
 	connectorRepo repository.ConnectorRepository,
+	docRepo repository.DocumentRepository,
 	messenger messaging.Client,
 	messagingCfg *messaging.Config) (*Server, error) {
 	s, err := gocron.NewScheduler()
@@ -30,6 +32,7 @@ func NewServer(
 	}
 
 	return &Server{connectorRepo: connectorRepo,
+		docRepo:       docRepo,
 		renewInterval: time.Duration(cfg.RenewInterval) * time.Second,
 		fileSizeLimit: cfg.FileSizeLimit * connector.GB,
 		messenger:     messenger,
@@ -56,7 +59,7 @@ func (s *Server) loadFromDatabase() error {
 		return err
 	}
 	for _, connector := range connectors {
-		if err = NewTrigger(s.messenger, s.connectorRepo, connector, s.fileSizeLimit).Do(ctx); err != nil {
+		if err = NewTrigger(s.messenger, s.connectorRepo, s.docRepo, connector, s.fileSizeLimit).Do(ctx); err != nil {
 			zap.S().Errorf("run connector %d failed: %v", connector.ID, err)
 		}
 	}

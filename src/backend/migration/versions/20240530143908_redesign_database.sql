@@ -4,7 +4,6 @@ DROP TABLE IF EXISTS document_feedbacks;
 DROP TABLE IF EXISTS document_set_connector_pairs;
 DROP TABLE IF EXISTS document_sets;
 DROP TABLE IF EXISTS documents;
-ALTER TABLE llm RENAME TO llms;
 
 CREATE TABLE documents (
     id SERIAL PRIMARY KEY NOT NULL,
@@ -56,6 +55,7 @@ ALTER TABLE prompts  DROP COLUMN IF EXISTS include_citations;
 ALTER TABLE prompts  DROP COLUMN IF EXISTS default_prompt;
 ALTER TABLE prompts  DROP COLUMN IF EXISTS datetime_aware;
 
+ALTER TABLE llm RENAME TO llms;
 -- +goose StatementEnd
 
 -- +goose Down

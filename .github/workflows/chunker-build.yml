@@ -1,4 +1,4 @@
-name: Build chunker service
+name: Build semantic service
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -14,8 +14,8 @@ on:
     branches:
       - main
     paths:
-      - 'src/backend/chunker/**'
-      - '.github/workflows/chunker-build.yml'
+      - 'src/backend/semantic/**'
+      - '.github/workflows/semantic-build.yml'
   
 env:
   # Use docker.io for Docker Hub if empty
@@ -48,8 +48,8 @@ jobs:
     - name: Embedder Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./src/backend/chunker
-        file: ./src/backend/chunker/Dockerfile
+        context: ./src/backend/semantic
+        file: ./src/backend/semantic/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |
@@ -67,7 +67,7 @@ jobs:
 
     - name: Update Chunker server manifest
       run:
-        sed -ie "s/chunker:main/chunker:${{env.GITHUB_SHA}}/g" ./src/backend/chunker/chunker-deployment.yaml
+        sed -ie "s/semantic:main/semantic:${{env.GITHUB_SHA}}/g" ./src/backend/semantic/semantic-deployment.yaml
 
     - name: Deploy Chunker server manifest
       run: |

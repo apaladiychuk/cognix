@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: semantic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: semantic
+  template:
+    metadata:
+      labels:
+        app: semantic
+    spec:
+      containers:
+      - name: semantic
+        image: cognixacr.azurecr.io/cognix/semantic:main
+        env:
+        - name: LOG_LEVEL
+          value: "info"
+        - name: LOG_FORMAT
+          value: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        - name: NATS_URL
+          value: "nats.nats:4222"
+        imagePullPolicy: Always
+      imagePullSecrets:
+        - name: pullsecret

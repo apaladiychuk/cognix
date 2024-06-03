@@ -1,5 +1,5 @@
-from gen_types.embed_service_pb2_grpc import EmbedServiceServicer, EmbedServiceStub
-from gen_types.embed_service_pb2 import EmbedRequest, EmbedResponse
+from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
+from lib.gen_types import EmbedRequest
 import grpc
 
 def run():

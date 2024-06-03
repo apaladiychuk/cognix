@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package com.embedd;
+option go_package = "backend/core/proto;proto";
+
+
+enum FileType {
+  UNKNOWN = 0;
+  URL = 1;
+  PDF = 2;
+  RTF = 3;
+  DOC = 4;
+  XLS = 5;
+  PPT = 6;
+  TXT = 7;
+  MD  = 8;
+  // add all supported file that in another document
+  // check what with Google docs
+};
+
+message SemanticData {
+  // This is the url where the file is located.
+  // Based on the chunking type it will be a WEB URL (HTML type)
+  // Will be an S3/MINIO link with a proper authentication in case of a file
+  string url = 1;
+  string site_map = 2;
+  bool search_for_sitemap = 3;
+  int64  document_id = 4;
+  FileType file_type = 5;
+  string collection_name = 6;
+  string model_name = 7;
+  int32 model_dimension = 8;
+}

@@ -103,8 +103,10 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 		}
 
 		// send message to chunking service
-		if loopErr = e.msgClient.Publish(ctx, e.msgClient.StreamConfig().ChunkerStreamSubject,
-			&proto.ChunkingData{
+		if loopErr = e.msgClient.Publish(ctx,
+			e.msgClient.StreamConfig().SemanticStreamName,
+			e.msgClient.StreamConfig().SemanticStreamSubject,
+			&proto.SemanticData{
 				Url:            result.URL,
 				DocumentId:     doc.ID.IntPart(),
 				FileType:       result.GetType(),

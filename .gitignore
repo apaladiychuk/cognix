@@ -35,4 +35,5 @@ src/backend/embedder/models/
 # ignore temp path
 src/backend/semantic/testdocs/
 
-
+# ignore inteliJIdea configs
+.idea/

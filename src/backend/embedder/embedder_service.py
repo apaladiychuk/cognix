@@ -1,9 +1,8 @@
 import time
-import sys
 import os
 
-from gen_types.embed_service_pb2_grpc import EmbedServiceServicer, add_EmbedServiceServicer_to_server
-from gen_types.embed_service_pb2 import EmbedRequest, EmbedResponse
+from lib.gen_types.embed_service_pb2_grpc import EmbedServiceServicer, add_EmbedServiceServicer_to_server
+from lib.gen_types import EmbedResponse
 from sentence_encoder import SentenceEncoder
 
 import grpc
@@ -28,6 +27,7 @@ logger = logging.getLogger(__name__)
 # Get gRPC port from environment variable
 grpc_port = os.getenv('GRPC_PORT', '50051')
 
+
 class EmbedServicer(EmbedServiceServicer):
     def GetEmbeding(self, request, context):
         start_time = time.time()  # Record the start time
@@ -39,7 +39,7 @@ class EmbedServicer(EmbedServiceServicer):
 
             # assign the vector variable the response
             embed_response.vector.extend(encoded_data)
-            logger.info("embedd request succesfully processed")
+            logger.info("embedd request successfully processed")
             return embed_response
         except Exception as e:
             logger.exception(e)
@@ -49,8 +49,13 @@ class EmbedServicer(EmbedServiceServicer):
             elapsed_time = end_time - start_time
             logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
+
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor())
+
+    # Pass the readiness_probe to EmbedServicer
+    # embed_servicer = EmbedServicer(readiness_probe)
+    # add_EmbedServiceServicer_to_server(embed_servicer, server)
 
     add_EmbedServiceServicer_to_server(EmbedServicer(), server)
 
@@ -58,6 +63,7 @@ def serve():
     server.start()
     logger.info(f"👂 embedder listening on port {grpc_port}")
     server.wait_for_termination()
-    
+
+
 if __name__ == "__main__":
     serve()

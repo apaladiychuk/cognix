@@ -1,6 +1,4 @@
 import os
-from sentence_transformers import SentenceTransformer
-
 
 # todo: change local path to S3 storage
 class SentenceEncoder:
@@ -15,21 +13,7 @@ class SentenceEncoder:
         """
         self.model_path = os.path.join(local_model_dir, model_name)
         
-        # Check if the model directory exists and has model files
-        if not os.path.exists(self.model_path) or not os.listdir(self.model_path):
-            print("Model not found locally, downloading from Hugging Face...")
-            try:
-                # Download and save the model
-                model = SentenceTransformer(model_name)
-                model.save(self.model_path)
-                print(f"Model saved locally at {self.model_path}")
-            except Exception as e:
-                print(f"Failed to download or save the model due to: {e}")
-        else:
-            print("Loading model from local directory...")
-        
-        # Load the model from the local path
-        self.model = SentenceTransformer(self.model_path)
+
 
     def embed(self, text):
         """
@@ -42,7 +26,7 @@ class SentenceEncoder:
         list: A list of floats representing the encoded text.
         """
         # Use the loaded model to encode the text
-        return self.model.encode(text)
+        return ""
 
 # # Example usage
 # if __name__ == "__main__":

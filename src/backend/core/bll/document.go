@@ -32,7 +32,7 @@ func (b *documentBL) UploadDocument(ctx context.Context, user *model.User, fileN
 	document := &model.Document{
 		SourceID:     fileURL,
 		ConnectorID:  connector.ID,
-		Link:         fileURL,
+		URL:          fileURL,
 		Signature:    signature,
 		CreationDate: time.Now().UTC(),
 	}

@@ -33,6 +33,6 @@ data/
 src/backend/embedder/models/
 
 # ignore temp path
-src/backend/chunker/testdocs/
+src/backend/semantic/testdocs/
 
 

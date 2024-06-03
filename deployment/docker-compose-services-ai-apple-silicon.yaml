@@ -22,18 +22,18 @@ services:
     networks:
       - cognix-network
   
-  # chunker:
+  # semantic:
   #   build:
   #     context: ${COGNIX_PATH}
-  #     dockerfile: docker/Dockerfile-chunker
+  #     dockerfile: docker/Dockerfile-semantic
   #     args:
   #       - COGNIX_PATH=${COGNIX_PATH}
-  #   image: chunker:latest
-  #   container_name: chunker
+  #   image: semantic:latest
+  #   container_name: semantic
   #   volumes:
   #     - ${DATA_PATH}/models:/models
   #   env_file:
-  #     - ${CONFIG_PATH}/chunker.env
+  #     - ${CONFIG_PATH}/semantic.env
   #   networks:
   #     - cognix-network
 

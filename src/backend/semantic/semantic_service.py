@@ -46,6 +46,7 @@ async def chunking_event(msg: Msg):
         semantic_data.ParseFromString(msg.data)
         logger.info(f"message: {semantic_data}")
 
+
         chunker = SemanticFactory.create_chunker(semantic_data.file_type)
 
         eintites_analyzed = chunker.chunk(data= semantic_data, full_process_start_time=start_time, ack_wait=semantic_ack_wait)

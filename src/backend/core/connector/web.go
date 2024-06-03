@@ -41,9 +41,12 @@ func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 			break
 		}
 	}
+	c.model.Docs = append([]*model.Document{}, rootDoc)
+
 	if rootDoc == nil {
 		return fmt.Errorf("root document not found")
 	}
+
 	return task.RunSemantic(ctx, &proto.SemanticData{
 		Url:              c.param.URL,
 		SiteMap:          c.param.SiteMap,

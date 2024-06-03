@@ -33,7 +33,7 @@ export const Sidebar = memo(
 
     useEffect(() => {
       fetchMeToState();
-    }, [chats]);
+    }, []);
 
     return (
       <div className="ml-2 mr-2 space-y-5 h-full">

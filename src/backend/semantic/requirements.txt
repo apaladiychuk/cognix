@@ -11,3 +11,4 @@ PyMuPDF==1.24.4
 pymupdf4llm==0.0.5
 sqlalchemy==2.0.30
 psycopg2-binary==2.9.9
+sqlalchemy-cockroachdb==2.0.2

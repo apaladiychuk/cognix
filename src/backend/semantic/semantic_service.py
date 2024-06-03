@@ -41,6 +41,10 @@ async def chunking_event(msg: Msg):
     start_time = time.time()  # Record the start time
     try:
         logger.info("🔥 received chunking event, start working....")
+        # Deserialize the message
+        chunking_data = SemanticData()
+        chunking_data.ParseFromString(msg.data)
+        logger.info(f"message: {chunking_data}")
 
         chunker = SemanticFactory.create_chunker(chunking_data.file_type)
 

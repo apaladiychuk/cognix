@@ -26,6 +26,7 @@ class Document(Base):
                 f"chunking_session={self.chunking_session}, analyzed={self.analyzed}, "
                 f"creation_date={self.creation_date}, last_update={self.last_update})>")
 
+
 class DocumentCRUD:
     def __init__(self, connection_string):
         self.engine = create_engine(connection_string)
@@ -40,14 +41,20 @@ class DocumentCRUD:
         return new_document.id
 
     def select_document(self, document_id) -> Document | None:
+        if document_id <= 0:
+            raise ValueError("ID value must be positive")
         return self.session.query(Document).filter_by(id=document_id).first()
 
     def update_document(self, document_id, **kwargs) -> int:
+        if document_id <= 0:
+            raise ValueError("ID value must be positive")
         updated_docs = self.session.query(Document).filter_by(id=document_id).update(kwargs)
         self.session.commit()
         return updated_docs
 
     def delete_document(self, document_id) -> int:
+        if document_id <= 0:
+            raise ValueError("ID value must be positive")
         deleted_docs = self.session.query(Document).filter_by(id=document_id).delete()
         self.session.commit()
         return deleted_docs

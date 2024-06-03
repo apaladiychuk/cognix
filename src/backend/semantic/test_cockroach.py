@@ -1,4 +1,3 @@
-
 import asyncio
 import logging
 import os
@@ -8,7 +7,8 @@ from dotenv import load_dotenv
 from sqlalchemy import func
 
 from lib.db.db_document import DocumentCRUD
-from lib.db.db_connector import ConnectorCRUD
+from lib.db.db_connector import ConnectorCRUD, LastAttemptStatus
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -31,7 +31,8 @@ semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'chun
 semantic_ack_wait = int(os.getenv('NATS_CLIENT_SEMANTIC_ACK_WAIT', '3600'))  # seconds
 semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
-cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL', 'cockroachdb://root:123@cockroach:26257/defaultdb?sslmode=disable')
+cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
+                          'cockroachdb://root:123@cockroach:26257/defaultdb?sslmode=disable')
 
 
 async def main():
@@ -85,13 +86,13 @@ async def main():
 
     connector = connector_crud.select_connector(document.connector_id)
     logger.info(f"Selected connector: {connector}")
-    #
-    # connector_crud.update_connector(new_connector_id, name='Updated Connector Name')
+    connector_crud.update_connector(connector.id, last_attempt_status=LastAttemptStatus.SCAN_COMPLETED_SUCCESSFULLY)
+    connector = connector_crud.select_connector(document.connector_id)
+    logger.info(f"Selected connector: {connector}")
+
     # connector_crud.delete_connector(new_connector_id)
     # print(f"Deleted connector ID: {new_connector_id}")
     #
-
-
 
 
 if __name__ == "__main__":

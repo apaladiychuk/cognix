@@ -1,9 +1,18 @@
-from sqlalchemy import create_engine, Column, BigInteger, Boolean, UUID, TIMESTAMP, JSON, \
-    func, String
+from sqlalchemy import create_engine, Column, BigInteger, Boolean, UUID, TIMESTAMP, JSON, Enum, func, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import enum
 
 Base = declarative_base()
+
+class LastAttemptStatus(enum.Enum):
+    ACTIVE = "ACTIVE"
+    PENDING_SCAN = "PENDING SCAN"
+    WORKING = "WORKING"
+    SCAN_COMPLETED_SUCCESSFULLY = "SCAN_COMPLETED_SUCCESSFULLY"
+    SCAN_COMPLETED_WITH_ERRORS = "SCAN_COMPLETED_WITH_ERRORS"
+    DISABLED = "DISABLED"
+    UNABLE_TO_PROCESS = "UNABLE_TO_PROCESS"
 
 
 class Connector(Base):
@@ -22,7 +31,8 @@ class Connector(Base):
     # tenant_id = Column(UUID(as_uuid=True), ForeignKey('tenants.id'), nullable=True)
     disabled = Column(Boolean, nullable=False)
     last_successful_index_date = Column(TIMESTAMP(timezone=False), nullable=True)
-    last_attempt_status = Column(String, nullable=True)
+    # last_attempt_status = Column(String, nullable=True)
+    last_attempt_status = Column(Enum(LastAttemptStatus), nullable=True)
     total_docs_indexed = Column(BigInteger, nullable=False)
     creation_date = Column(TIMESTAMP(timezone=False), nullable=False)
     last_update = Column(TIMESTAMP(timezone=False), nullable=True)
@@ -50,18 +60,27 @@ class ConnectorCRUD:
         self.session.commit()
         return new_connector.id
 
-    def select_connector(self, connector_id) -> Connector | None:
+    def select_connector(self, connector_id: int) -> Connector | None:
+        if connector_id <= 0:
+            raise ValueError("ID value must be positive")
         return self.session.query(Connector).filter_by(id=connector_id).first()
 
     def update_connector(self, connector_id, **kwargs) -> int:
+        if connector_id <= 0:
+            raise ValueError("ID value must be positive")
         updated_connectors = self.session.query(Connector).filter_by(id=connector_id).update(kwargs)
         self.session.commit()
         return updated_connectors
 
     def delete_connector(self, connector_id) -> int:
+        if connector_id <= 0:
+            raise ValueError("ID value must be positive")
         deleted_connectors = self.session.query(Connector).filter_by(id=connector_id).delete()
         self.session.commit()
         return deleted_connectors
+
+
+
 
 #
 # # Example usage

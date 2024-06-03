@@ -14,7 +14,8 @@ type (
 		ctx   context.Context
 	}
 	FileParameters struct {
-		FileName string `url:"file_name"`
+		FileName string `json:"file_name"`
+		MIMEType string `json:"mime_type"`
 	}
 )
 
@@ -29,14 +30,14 @@ func (c *File) PrepareTask(ctx context.Context, task Task) error {
 	}
 	if !c.model.Docs[0].Analyzed {
 		// if file is not  chunked and not stored in vector database send message to chunker
-		link := fmt.Sprintf("minio:tenant-%s:%s", c.model.EmbeddingModel.TenantID.String(), c.param.FileName)
+		link := fmt.Sprintf("minio:tenant-%s:%s", c.model.User.EmbeddingModel.TenantID.String(), c.param.FileName)
 		return task.RunChunker(ctx, &proto.ChunkingData{
 			Url:            link,
 			DocumentId:     c.model.Docs[0].ID.IntPart(),
 			FileType:       0,
 			CollectionName: c.model.CollectionName(),
-			ModelName:      c.model.EmbeddingModel.ModelID,
-			ModelDimension: int32(c.model.EmbeddingModel.ModelDim),
+			ModelName:      c.model.User.EmbeddingModel.ModelID,
+			ModelDimension: int32(c.model.User.EmbeddingModel.ModelDim),
 		})
 	}
 	// file already chunked and  stored in vector database. Update connector status.
@@ -52,22 +53,21 @@ func (c *File) Execute(ctx context.Context, param map[string]string) chan *Respo
 		}
 		// check id document  already exists
 		doc, ok := c.Base.model.DocsMap[c.param.FileName]
-		url := fmt.Sprintf("minio:tenant-%s:%s", c.model.EmbeddingModel.TenantID, c.param.FileName)
+		url := fmt.Sprintf("minio:tenant-%s:%s", c.model.User.EmbeddingModel.TenantID, c.param.FileName)
 		if !ok {
 			doc = &model.Document{
 				SourceID:    url,
-				ConnectorID: c.Base.model.ID,
-				Link:        url,
+				ConnectorID: c.model.ID,
+				URL:         url,
 				Signature:   "",
 			}
 			c.model.DocsMap[url] = doc
 		}
 		doc.IsExists = true
 		c.resultCh <- &Response{
-			URL:         url,
-			SourceID:    url,
-			SaveContent: true,
-			MimeType:    mineURL,
+			URL:      url,
+			SourceID: url,
+			MimeType: c.param.MIMEType,
 		}
 	}()
 	return c.resultCh

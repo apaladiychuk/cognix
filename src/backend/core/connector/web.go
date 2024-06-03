@@ -45,8 +45,8 @@ func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 		DocumentId:       rootDoc.ID.IntPart(),
 		FileType:         proto.FileType_URL,
 		CollectionName:   c.model.CollectionName(),
-		ModelName:        c.model.EmbeddingModel.ModelID,
-		ModelDimension:   int32(c.model.EmbeddingModel.ModelDim),
+		ModelName:        c.model.User.EmbeddingModel.ModelID,
+		ModelDimension:   int32(c.model.User.EmbeddingModel.ModelDim),
 	})
 }
 
@@ -57,7 +57,7 @@ func (c *Web) Execute(ctx context.Context, param map[string]string) chan *Respon
 			doc = &model.Document{
 				SourceID:    c.param.URL,
 				ConnectorID: c.Base.model.ID,
-				Link:        c.param.URL,
+				URL:         c.param.URL,
 				Signature:   "",
 			}
 			c.Base.model.DocsMap[c.param.URL] = doc

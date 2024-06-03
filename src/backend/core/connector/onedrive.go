@@ -9,8 +9,10 @@ import (
 	_ "github.com/AzureAD/microsoft-authentication-library-for-go/apps/confidential"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-resty/resty/v2"
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"strconv"
+	"strings"
 
 	//"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
@@ -36,8 +38,9 @@ type (
 		fileSizeLimit int
 	}
 	OneDriveParameters struct {
-		FolderName string       `json:"folder_name"`
-		Token      oauth2.Token `json:"token"`
+		Folder    string       `json:"folder"`
+		Recursive bool         `json:"recursive"`
+		Token     oauth2.Token `json:"token"`
 	}
 )
 
@@ -104,41 +107,59 @@ func (c *OneDrive) execute(ctx context.Context) {
 		return
 	}
 	if body != nil {
-		if err := c.handleItems(ctx, body.Value); err != nil {
+		if err := c.handleItems(ctx, "", body.Value); err != nil {
 			zap.S().Errorf(err.Error())
 		}
 	}
 }
 
 func (c *OneDrive) getFile(item *DriveChildBody) error {
-	doc, ok := c.Base.model.DocsMap[item.Id]
-	if !ok {
-		doc = &model.Document{
-			SourceID:    item.Id,
-			ConnectorID: c.Base.model.ID,
-			Link:        item.MicrosoftGraphDownloadUrl,
-			Signature:   "",
-		}
-		c.Base.model.DocsMap[item.Id] = doc
-	}
-	doc.IsExists = true
-	// todo need to clarify how to check that file was chunked, embedded and stored in milvus
-	//if doc.Signature == item.File.Hashes.QuickXorHash {
-	//	return nil
-	//}
-	doc.Signature = item.File.Hashes.QuickXorHash
-	payload := &Response{
-		URL:         item.MicrosoftGraphDownloadUrl,
-		SourceID:    item.Id,
-		Name:        item.Name,
-		DocumentID:  doc.ID.IntPart(),
-		MimeType:    item.File.MimeType,
-		SaveContent: false,
-	}
 	// do not process files that size greater than limit
 	if item.Size > c.fileSizeLimit {
 		return nil
 	}
+
+	doc, ok := c.model.DocsMap[item.Id]
+	fileName := ""
+	if !ok {
+		doc = &model.Document{
+			SourceID:    item.Id,
+			ConnectorID: c.model.ID,
+			URL:         item.MicrosoftGraphDownloadUrl,
+			Signature:   "",
+		}
+		// build unique filename for store in minio
+		fileName = c.model.BuildFileName(uuid.New().String() + "-" + item.Name)
+		//c.model.DocsMap[item.Id] = doc
+	} else {
+		// when file was stored in minio URL should be minio:bucket:filename
+		minioFile := strings.Split(doc.URL, ":")
+		if len(minioFile) != 3 {
+			return fmt.Errorf("invalid file url: %s", doc.URL)
+		}
+		// use previous file name for update file in minio
+		fileName = minioFile[2]
+	}
+	doc.IsExists = true
+	// do not process file if hash is not changed and file already stored in vector database
+	if doc.Signature == item.File.Hashes.QuickXorHash {
+		return nil
+		//if doc.Analyzed {
+		//	return nil
+		//}
+		//todo  need to clarify should I send message to semantic service  again
+	}
+	doc.Signature = item.File.Hashes.QuickXorHash
+	payload := &Response{
+		URL:         item.MicrosoftGraphDownloadUrl,
+		SourceID:    item.Id,
+		Name:        fileName,
+		DocumentID:  doc.ID.IntPart(),
+		Bucket:      model.BucketName(c.model.User.EmbeddingModel.TenantID),
+		MimeType:    item.File.MimeType,
+		SaveContent: true,
+	}
+
 	// try to recognize type of file by content
 	if _, ok = supportedMimeTypes[item.File.MimeType]; !ok {
 		response, err := c.client.R().
@@ -151,6 +172,7 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 		}
 		response.RawBody().Close()
 	}
+
 	if payload.GetType() == proto.FileType_UNKNOWN {
 		zap.S().Infof("unsupported file %s type %s -- %s", item.Name, item.File.MimeType, payload.MimeType)
 		return nil
@@ -159,29 +181,35 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 	return nil
 }
 
-func (c *OneDrive) getFolder(ctx context.Context, id string) error {
+func (c *OneDrive) getFolder(ctx context.Context, folder string, id string) error {
 	body, err := c.request(ctx, fmt.Sprintf(getFolderChild, id))
 	if err != nil {
 		return err
 	}
-	return c.handleItems(ctx, body.Value)
+	return c.handleItems(ctx, folder, body.Value)
 }
 
-func (c *OneDrive) handleItems(ctx context.Context, items []*DriveChildBody) error {
+func (c *OneDrive) handleItems(ctx context.Context, folder string, items []*DriveChildBody) error {
 	for _, item := range items {
-		if item.Folder != nil {
-			if err := c.getFolder(ctx, item.Id); err != nil {
-				zap.S().Errorf("Failed to get folder with id %s : %s ", item.Id, err.Error())
-				continue
-			}
-		}
-		if item.File != nil {
-
+		// read files if user do not configure folder name
+		// or current folder as a part of configured folder.
+		if item.File != nil && (strings.Contains(folder, c.param.Folder) || c.param.Folder == "") {
 			if err := c.getFile(item); err != nil {
 				zap.S().Errorf("Failed to get file with id %s : %s ", item.Id, err.Error())
 				continue
 			}
 		}
+		if item.Folder != nil {
+			// do not scan nested folder if user  wants to read dod from single folder
+			if item.Name == c.param.Folder && !c.param.Recursive {
+				continue
+			}
+			if err := c.getFolder(ctx, folder+"/"+item.Name, item.Id); err != nil {
+				zap.S().Errorf("Failed to get folder with id %s : %s ", item.Id, err.Error())
+				continue
+			}
+		}
+
 	}
 	return nil
 }

@@ -51,7 +51,7 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 		zap.S().Errorf("Error unmarshalling message: %s", err.Error())
 		return err
 	}
-
+	// read connector model with documents, embedding model
 	connectorModel, err := e.connectorRepo.GetByID(ctx, trigger.GetId())
 	if err != nil {
 		return err
@@ -70,19 +70,22 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	if trigger.Params == nil {
 		trigger.Params = make(map[string]string)
 	}
-	// add file limit parameter to connector
-	trigger.Params[connector.ParamFileLimit] = fmt.Sprintf("%d", e.cfg.FileLimit*connector.GB)
 	// execute connector
 	resultCh := connectorWF.Execute(ctx, trigger.Params)
 	// read result from channel
 	for result := range resultCh {
 		var loopErr error
+		// empty result when channel was closed.
+		if result.SourceID == "" {
+			break
+		}
 		// save content in minio
 		if result.SaveContent {
 			if err = e.saveContent(ctx, result); err != nil {
 				loopErr = err
 				zap.S().Errorf("failed to save content: %v", err)
 			}
+
 		}
 		// find or create document from result
 		doc := e.handleResult(connectorModel, result)
@@ -145,20 +148,19 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 }
 
 func (e *Executor) saveContent(ctx context.Context, response *connector.Response) error {
-
-	downloadResp, err := e.downloadClient.R().Get(response.URL)
-
-	if err != nil || downloadResp.IsError() {
-		return fmt.Errorf("download fail: %v]", err)
+	fileResponse, err := e.downloadClient.R().
+		SetDoNotParseResponse(true).
+		Get(response.URL)
+	defer fileResponse.RawBody().Close()
+	if err != nil || fileResponse.IsError() {
+		return fmt.Errorf("read file %s %v", err.Error(), fileResponse.Error())
 	}
-	defer downloadResp.RawBody().Close()
 
-	url, _, err := e.minioClient.Upload(ctx, response.Name, response.MimeType, downloadResp.RawBody())
+	url, _, err := e.minioClient.Upload(ctx, response.Bucket, response.Name, response.MimeType, fileResponse.RawBody())
 	if err != nil {
-		zap.S().Errorf("Failed to upload file: %v", err)
 		return err
 	}
-	response.URL = url
+	response.URL = fmt.Sprintf("minio:%s:%s", response.Bucket, url)
 	return nil
 }
 
@@ -168,11 +170,16 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 		doc = &model.Document{
 			SourceID:     result.SourceID,
 			ConnectorID:  connectorModel.ID,
-			Link:         result.URL,
+			URL:          result.URL,
+			Signature:    result.Signature,
 			CreationDate: time.Now().UTC(),
 		}
 		connectorModel.DocsMap[result.SourceID] = doc
+	} else {
+		doc.URL = result.URL
+		doc.LastUpdate = pg.NullTime{time.Now().UTC()}
 	}
+
 	return doc
 }
 

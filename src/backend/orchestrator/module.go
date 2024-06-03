@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	RenewInterval int `env:"RENEW_INTERVAL" envDefault:"30"`
-	FileSizeLimit int `env:"FILE_LIMIT,required"`
+	FileSizeLimit int `env:"FILE_SIZE_LIMIT,required"`
 }
 
 var Module = fx.Options(

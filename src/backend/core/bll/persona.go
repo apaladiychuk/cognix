@@ -105,7 +105,10 @@ func (b *personaBL) Update(ctx context.Context, id int64, user *model.User, para
 	persona.StarterMessages = starterMessages
 	persona.LLM.Endpoint = param.Endpoint
 	persona.LLM.ModelID = param.ModelID
-	persona.LLM.ApiKey = param.APIKey
+	// update api key if user updates it.
+	if persona.LLM.MaskApiKey() != param.APIKey {
+		persona.LLM.ApiKey = param.APIKey
+	}
 	persona.LLM.LastUpdate = pg.NullTime{time.Now().UTC()}
 	persona.Prompt.Name = param.Name
 	persona.Prompt.Description = param.Description

@@ -68,9 +68,6 @@ func (r *personaRepository) GetByID(ctx context.Context, id int64, tenantID uuid
 	if err := stm.First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "persona not found")
 	}
-	if persona.LLM != nil {
-		persona.LLM.ApiKey = persona.LLM.MaskApiKey()
-	}
 	return &persona, nil
 }
 

@@ -52,6 +52,7 @@ func (s *Server) loadFromDatabase() error {
 	zap.S().Infof("Loading connectors from db")
 	connectors, err := s.connectorRepo.GetActive(ctx)
 	if err != nil {
+		zap.S().Errorf("Load connectors failed: %v", err)
 		return err
 	}
 	for _, connector := range connectors {

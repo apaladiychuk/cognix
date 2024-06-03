@@ -124,7 +124,7 @@ func (r *connectorRepository) GetActive(ctx context.Context) ([]*model.Connector
 		Where("disabled = false").
 		Where("connector.deleted_date is null").
 		Select(); err != nil {
-		return nil, utils.Internal.Wrap(err, "can not load connectors")
+		return nil, utils.Internal.Wrapf(err, "can not load connectors: %s ", err.Error())
 	}
 	return connectors, nil
 

@@ -23,6 +23,7 @@ var Module = fx.Options(
 			return &cfg, err
 		},
 		repository.NewConnectorRepository,
+		repository.NewDocumentRepository,
 		NewServer,
 	),
 	fx.Invoke(RunServer),

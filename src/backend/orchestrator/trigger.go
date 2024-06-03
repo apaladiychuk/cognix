@@ -63,12 +63,13 @@ func (t *trigger) Do(ctx context.Context) error {
 	return nil
 }
 
-// RunChunker send message to chunker service
-func (t *trigger) RunChunker(ctx context.Context, data *proto.ChunkingData) error {
+// RunSemantic send message to semantic service
+func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) error {
 	if err := t.updateStatus(ctx, model.ConnectorStatusWorking); err != nil {
 		return err
 	}
-	return t.messenger.Publish(ctx, t.messenger.StreamConfig().ChunkerStreamSubject, data)
+	return t.messenger.Publish(ctx, t.messenger.StreamConfig().SemanticStreamName,
+		t.messenger.StreamConfig().SemanticStreamSubject, data)
 }
 
 // RunConnector send message to connector service
@@ -78,7 +79,8 @@ func (t *trigger) RunConnector(ctx context.Context, data *proto.ConnectorRequest
 	if err := t.updateStatus(ctx, model.ConnectorStatusWorking); err != nil {
 		return err
 	}
-	return t.messenger.Publish(ctx, t.messenger.StreamConfig().ConnectorStreamSubject, data)
+	return t.messenger.Publish(ctx, t.messenger.StreamConfig().ConnectorStreamName,
+		t.messenger.StreamConfig().ConnectorStreamSubject, data)
 }
 func (t *trigger) UpToDate(ctx context.Context) error {
 	return t.updateStatus(ctx, model.ConnectorStatusSuccess)

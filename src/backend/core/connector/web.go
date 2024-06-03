@@ -38,7 +38,7 @@ func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 	if rootDoc == nil {
 		return fmt.Errorf("root document not found")
 	}
-	return task.RunChunker(ctx, &proto.ChunkingData{
+	return task.RunSemantic(ctx, &proto.SemanticData{
 		Url:              c.param.URL,
 		SiteMap:          c.param.SiteMap,
 		SearchForSitemap: c.param.SearchForSitemap,

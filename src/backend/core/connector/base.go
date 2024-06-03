@@ -13,10 +13,6 @@ const (
 	mineURL        = "url"
 	ParamFileLimit = "file_limit"
 	GB             = 1024 * 1024 * 1024
-
-	TaskChunker   = "chunker"
-	TaskConnector = "connector"
-	TaskNop       = "nop"
 )
 
 var supportedMimeTypes = map[string]proto.FileType{
@@ -31,7 +27,7 @@ var supportedMimeTypes = map[string]proto.FileType{
 
 type Task interface {
 	RunConnector(ctx context.Context, data *proto.ConnectorRequest) error
-	RunChunker(ctx context.Context, data *proto.ChunkingData) error
+	RunSemantic(ctx context.Context, data *proto.SemanticData) error
 	UpToDate(ctx context.Context) error
 }
 

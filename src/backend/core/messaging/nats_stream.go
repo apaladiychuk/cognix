@@ -30,9 +30,19 @@ func (c *clientStream) Close() {
 	c.wg.Wait()
 }
 
-func (c *clientStream) Publish(ctx context.Context, topic string, body proto2.Message) error {
-	message, err := proto2.Marshal(body)
+func (c *clientStream) Publish(ctx context.Context, streamName, topic string, body proto2.Message) error {
+	_, err := c.js.CreateOrUpdateStream(context.Background(), jetstream.StreamConfig{
+		Name:      streamName,
+		Retention: jetstream.WorkQueuePolicy,
+		//AllowDirect: true,
+		Subjects: []string{topic},
+	})
+	if err != nil {
+		zap.S().Errorf("Error creating stream: %s", err.Error())
+		return err
+	}
 
+	message, err := proto2.Marshal(body)
 	if err != nil {
 		return err
 	}

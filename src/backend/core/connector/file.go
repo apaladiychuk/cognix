@@ -31,7 +31,7 @@ func (c *File) PrepareTask(ctx context.Context, task Task) error {
 	if !c.model.Docs[0].Analyzed {
 		// if file is not  chunked and not stored in vector database send message to chunker
 		link := fmt.Sprintf("minio:tenant-%s:%s", c.model.User.EmbeddingModel.TenantID.String(), c.param.FileName)
-		return task.RunChunker(ctx, &proto.ChunkingData{
+		return task.RunSemantic(ctx, &proto.SemanticData{
 			Url:            link,
 			DocumentId:     c.model.Docs[0].ID.IntPart(),
 			FileType:       0,

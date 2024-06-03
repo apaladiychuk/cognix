@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	URL       string `env:"DATABASE_URL"`
-	DebugMode bool   `env:"DB_DEBUG" envDefault:"false"`
+	URL       string `env:"COCKROACH_CLIENT_DATABASE_URL"`
+	DebugMode bool   `env:"COCKROACH_CLIENT_DB_DEBUG" envDefault:"false"`
 }
 
 func NewDatabase(cfg *Config) (*pg.DB, error) {

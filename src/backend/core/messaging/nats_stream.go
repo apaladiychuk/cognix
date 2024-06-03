@@ -80,8 +80,6 @@ func (c *clientStream) Listen(ctx context.Context, streamName, topic string, han
 		zap.S().Errorf("Failed to create consumer for subscription %v", err)
 	}
 	cons.Consume(func(msg jetstream.Msg) {
-		zap.S().Infof("Received message: %s %s ", msg.Subject(), msg.Reply())
-
 		msg.InProgress()
 		if err := handler(ctx, msg); err != nil {
 			zap.S().Errorf("Error handling message: %s", err.Error())
@@ -98,7 +96,6 @@ func (c *clientStream) Listen(ctx context.Context, streamName, topic string, han
 }
 
 func NewClientStream(cfg *Config) (Client, error) {
-	zap.S().Infof("Connecting to NATS Stream %s", cfg.Nats.URL)
 	conn, err := nats.Connect(
 		cfg.Nats.URL,
 	)

@@ -135,7 +135,6 @@ services:
     depends_on:
       - cockroach
       - minio
-      - milvus
       - nats
     volumes:
       - ${BACKEND_PATH}:/backend

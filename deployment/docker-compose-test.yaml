@@ -59,8 +59,6 @@ services:
     ports:
       - "3434:8080"
     healthcheck:
-      # test: [ "CMD", "curl", "-f", "http://chunker-1:8080/healthz || exit 1" ]
-      # test: curl --fail http://chunker-1:8080/chunker-1 || exit
       test: "curl --silent --fail http://localhost:8080/healthz > /dev/null || exit 1"
       interval: 60s
       start_period: 10s
@@ -250,7 +248,7 @@ services:
       - cognix-network
 
   milvus-attu:
-    container_name: milvus_attu
+    container_name: milvus-attu
     image: zilliz/attu:v2.4.0
     environment:
       MILVUS_URL: milvus:19530
@@ -317,9 +315,10 @@ services:
       # Optional config file.
       - ${CONFIG_PATH}/nats_config.json:/srv/config.json
     ports:
-      - target: 80
-        published: 8000
-        protocol: tcp
+      - "8000:80"
+#      - target: 80
+#        published: 8000
+#        protocol: tcp
     networks:
       - cognix-network
   

@@ -24,6 +24,7 @@ type (
 	trigger struct {
 		messenger      messaging.Client
 		connectorRepo  repository.ConnectorRepository
+		docRepo        repository.DocumentRepository
 		tracer         trace.Tracer
 		connectorModel *model.Connector
 		fileSizeLimit  int
@@ -41,7 +42,6 @@ func (t *trigger) Do(ctx context.Context) error {
 		defer span.End()
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, t.connectorModel.ID.IntPart()))
 		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(t.connectorModel.Type)))
-		zap.S().Infof("run connector %s", t.connectorModel.ID)
 
 		if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
 			span.RecordError(err)
@@ -68,6 +68,23 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 	if err := t.updateStatus(ctx, model.ConnectorStatusWorking); err != nil {
 		return err
 	}
+	if t.connectorModel.Type == model.SourceTypeWEB {
+		doc := t.connectorModel.Docs[0]
+		var err error
+		// create or update document in database
+		if doc.ID.IntPart() != 0 {
+			err = t.docRepo.Update(ctx, doc)
+		} else {
+			err = t.docRepo.Create(ctx, doc)
+		}
+		if err != nil {
+			zap.S().Errorf("update document failed %v", err)
+			return err
+		}
+		data.DocumentId = doc.ID.IntPart()
+	}
+
+	zap.S().Infof("send message to symantic %s", t.connectorModel.Name)
 	return t.messenger.Publish(ctx, t.messenger.StreamConfig().SemanticStreamName,
 		t.messenger.StreamConfig().SemanticStreamSubject, data)
 }
@@ -75,7 +92,7 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 // RunConnector send message to connector service
 func (t *trigger) RunConnector(ctx context.Context, data *proto.ConnectorRequest) error {
 	data.Params[connector.ParamFileLimit] = fmt.Sprintf("%d", t.fileSizeLimit)
-
+	zap.S().Infof("send message to connector %s", t.connectorModel.Name)
 	if err := t.updateStatus(ctx, model.ConnectorStatusWorking); err != nil {
 		return err
 	}
@@ -88,11 +105,13 @@ func (t *trigger) UpToDate(ctx context.Context) error {
 
 func NewTrigger(messenger messaging.Client,
 	connectorRepo repository.ConnectorRepository,
+	docRepo repository.DocumentRepository,
 	connectorModel *model.Connector,
 	fileSizeLimit int) *trigger {
 	return &trigger{
 		messenger:      messenger,
 		connectorRepo:  connectorRepo,
+		docRepo:        docRepo,
 		connectorModel: connectorModel,
 		fileSizeLimit:  fileSizeLimit,
 		tracer:         otel.Tracer(model.TracerConnector),

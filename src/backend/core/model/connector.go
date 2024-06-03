@@ -56,9 +56,9 @@ func (c *Connector) BuildFileName(filename string) string {
 }
 func CollectionName(userID uuid.UUID, tenantID uuid.NullUUID) string {
 	if tenantID.Valid {
-		return strings.ReplaceAll(fmt.Sprintf(CollectionTenant, tenantID), "-", "")
+		return strings.ReplaceAll(fmt.Sprintf(CollectionTenant, tenantID.UUID.String()), "-", "")
 	}
-	return strings.ReplaceAll(fmt.Sprintf(CollectionUser, userID), "-", "")
+	return strings.ReplaceAll(fmt.Sprintf(CollectionUser, userID.String()), "-", "")
 }
 
 func BucketName(tenantID uuid.UUID) string {

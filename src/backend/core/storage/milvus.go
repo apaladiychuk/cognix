@@ -31,8 +31,8 @@ var responseColumns = []string{ColumnNameID, ColumnNameDocumentID, ColumnNameChu
 type (
 	MilvusConfig struct {
 		Address       string `env:"MILVUS_URL"`
-		MetricType    string `env:"MILVUS_METRIC_TYPE" envDefault:"L2"`
-		IndexStrategy string `env:"MILVUS_INDEX_STRATEGY" envDefault:"NOINDEX"`
+		MetricType    string `env:"MILVUS_METRIC_TYPE" envDefault:"COSINE"`
+		IndexStrategy string `env:"MILVUS_INDEX_STRATEGY" envDefault:"DISKANN"`
 	}
 	MilvusPayload struct {
 		ID         int64     `json:"id"`

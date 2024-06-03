@@ -29,6 +29,9 @@ __pycache__/
 # ignore data path
 data/
 
+# pycharme
+
+
 # ignore model path
 src/backend/embedder/models/
 

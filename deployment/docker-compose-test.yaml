@@ -312,14 +312,15 @@ services:
     environment:
       # The NATS monitoring server will be proxied on /proxy/* on the frontend.
       # See: config/Caddyfile for the reverse proxy configuration.
-      REVERSE_PROXY_UPSTREAM: 'server:8222'
+      REVERSE_PROXY_UPSTREAM: 'nats:8222'
     volumes:
       # Optional config file.
       - ${CONFIG_PATH}/nats_config.json:/srv/config.json
     ports:
-      - target: 80
-        published: 8000
-        protocol: tcp
+      - "8000:80"
+#      - target: 80
+#        published: 8000
+#        protocol: tcp
     networks:
       - cognix-network
   

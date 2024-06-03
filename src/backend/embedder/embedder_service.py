@@ -2,7 +2,7 @@ import time
 import os
 
 from lib.gen_types.embed_service_pb2_grpc import EmbedServiceServicer, add_EmbedServiceServicer_to_server
-from lib.gen_types import EmbedResponse
+from lib.gen_types.embed_service_pb2 import EmbedResponse
 from sentence_encoder import SentenceEncoder
 
 import grpc

@@ -28,13 +28,13 @@ type (
 	StreamConfig struct {
 		ConnectorStreamName    string `env:"NATS_CLIENT_CONNECTOR_STREAM_NAME,required"`
 		ConnectorStreamSubject string `env:"NATS_CLIENT_CONNECTOR_STREAM_SUBJECT,required"`
-		ChunkerStreamName      string `env:"NATS_CLIENT_CHUNKER_STREAM_NAME,required"`
-		ChunkerStreamSubject   string `env:"NATS_CLIENT_CHUNKER_STREAM_SUBJECT,required"`
+		SemanticStreamName     string `env:"NATS_CLIENT_SEMANTIC_STREAM_NAME,required"`
+		SemanticStreamSubject  string `env:"NATS_CLIENT_SEMANTIC_STREAM_SUBJECT,required"`
 	}
 
 	MessageHandler func(ctx context.Context, msg jetstream.Msg) error
 	Client         interface {
-		Publish(ctx context.Context, topic string, body proto2.Message) error
+		Publish(ctx context.Context, streamName, topic string, body proto2.Message) error
 		Listen(ctx context.Context, streamName, topic string, handler MessageHandler) error
 		StreamConfig() *StreamConfig
 		Close()

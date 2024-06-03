@@ -14,7 +14,6 @@ import (
 type Config struct {
 	OAuthURL         string `env:"OAUTH_URL,required"`
 	SubscriptionName string `env:"SUBSCRIPTION_NAME,required"`
-	FileLimit        int    `env:"FILE_LIMIT,required"`
 }
 
 var Module = fx.Options(

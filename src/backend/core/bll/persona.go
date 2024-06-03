@@ -32,6 +32,10 @@ func (b *personaBL) Archive(ctx context.Context, user *model.User, id int64, res
 	}
 
 	persona, err := b.personaRepo.GetByID(ctx, id, user.TenantID)
+	if persona.LLM != nil {
+		persona.LLM.ApiKey = persona.LLM.MaskApiKey()
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +105,10 @@ func (b *personaBL) Update(ctx context.Context, id int64, user *model.User, para
 	persona.StarterMessages = starterMessages
 	persona.LLM.Endpoint = param.Endpoint
 	persona.LLM.ModelID = param.ModelID
-	persona.LLM.ApiKey = param.APIKey
+	// update api key if user updates it.
+	if persona.LLM.MaskApiKey() != param.APIKey {
+		persona.LLM.ApiKey = param.APIKey
+	}
 	persona.LLM.LastUpdate = pg.NullTime{time.Now().UTC()}
 	persona.Prompt.Name = param.Name
 	persona.Prompt.Description = param.Description
@@ -127,5 +134,12 @@ func (b *personaBL) GetAll(ctx context.Context, user *model.User, archived bool)
 }
 
 func (b *personaBL) GetByID(ctx context.Context, user *model.User, id int64) (*model.Persona, error) {
-	return b.personaRepo.GetByID(ctx, id, user.TenantID)
+	persona, err := b.personaRepo.GetByID(ctx, id, user.TenantID)
+	if err != nil {
+		return nil, err
+	}
+	if persona.LLM != nil {
+		persona.LLM.ApiKey = persona.LLM.MaskApiKey()
+	}
+	return persona, nil
 }

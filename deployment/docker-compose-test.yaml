@@ -248,7 +248,16 @@ services:
         condition: service_healthy
     networks:
       - cognix-network
-  
+
+  milvus-attu:
+    container_name: milvus_attu
+    image: zilliz/attu:v2.4.0
+    environment:
+      MILVUS_URL: milvus:19530
+    ports:
+      - "13000:3000"
+    networks:
+      - cognix-network
 
   # Milvus Admin is unmantained, use Attu instead
   # milvus-admin:

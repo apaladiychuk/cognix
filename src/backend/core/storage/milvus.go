@@ -30,9 +30,9 @@ var responseColumns = []string{ColumnNameID, ColumnNameDocumentID, ColumnNameChu
 
 type (
 	MilvusConfig struct {
-		Address       string `env:"MILVUS_URL"`
-		MetricType    string `env:"MILVUS_METRIC_TYPE" envDefault:"L2"`
-		IndexStrategy string `env:"MILVUS_INDEX_STRATEGY" envDefault:"NOINDEX"`
+		Address       string `env:"MILVUS_URL,required"`
+		MetricType    string `env:"MILVUS_METRIC_TYPE" envDefault:"COSINE"`
+		IndexStrategy string `env:"MILVUS_INDEX_STRATEGY" envDefault:"DISKANN"`
 	}
 	MilvusPayload struct {
 		ID         int64     `json:"id"`
@@ -64,7 +64,6 @@ func (c *milvusClient) Delete(ctx context.Context, collection string, documentID
 
 func (v MilvusConfig) Validate() error {
 	return validation.ValidateStruct(&v,
-		validation.Field(&v.Address, validation.Required),
 		validation.Field(&v.IndexStrategy, validation.Required,
 			validation.In(IndexStrategyDISKANN, IndexStrategyAUTOINDEX, IndexStrategyNoIndex)),
 		validation.Field(&v.MetricType, validation.Required,
@@ -75,7 +74,7 @@ func (v MilvusConfig) Validate() error {
 func (c *milvusClient) Load(ctx context.Context, collection string, vector []float32) ([]*MilvusPayload, error) {
 	vs := []entity.Vector{entity.FloatVector(vector)}
 	sp, _ := entity.NewIndexFlatSearchParam()
-	result, err := c.client.Search(ctx, collection, []string{}, "", responseColumns, vs, ColumnNameVector, entity.L2, 10, sp)
+	result, err := c.client.Search(ctx, collection, []string{}, "", responseColumns, vs, ColumnNameVector, c.MetricType, 10, sp)
 	if err != nil {
 		return nil, err
 	}

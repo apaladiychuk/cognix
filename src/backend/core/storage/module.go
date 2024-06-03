@@ -22,13 +22,6 @@ var MinioModule = fx.Options(
 			err := utils.ReadConfig(&cfg)
 			return &cfg, err
 		},
-		newMinioClient,
+		NewMinIOClient,
 	),
 )
-
-func newMinioClient(cfg *MinioConfig) (MinIOClient, error) {
-	if cfg.Mocked {
-		return NewMinIOMockClient()
-	}
-	return NewMinIOClient(cfg)
-}

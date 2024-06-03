@@ -70,8 +70,15 @@ func (r *connectorRepository) GetByIDAndUser(ctx context.Context, tenantID, user
 func (r *connectorRepository) GetByID(ctx context.Context, id int64) (*model.Connector, error) {
 	var connector model.Connector
 	if err := r.db.WithContext(ctx).Model(&connector).
+		//ColumnExpr("connector.*").
+		//ColumnExpr("credential.*").
+		//ColumnExpr("embedding_models.model_id as embedding_model__model_id").
+		//ColumnExpr("embedding_models.model_dim as embedding_model__model_dim").
 		Relation("Docs").
 		Relation("Credential").
+		Relation("User.EmbeddingModel").
+		//Join("inner join users on connector.user_id =  users.id").
+		//Join("inner join embedding_models on embedding_models.tenant_id = users.tenant_id").
 		Where("connector.id = ?", id).
 		First(); err != nil {
 		return nil, utils.NotFound.Wrap(err, "can not load connector")
@@ -105,8 +112,17 @@ func (r *connectorRepository) GetActive(ctx context.Context) ([]*model.Connector
 	connectors := make([]*model.Connector, 0)
 	if err := r.db.WithContext(ctx).
 		Model(&connectors).
+		//ColumnExpr("connector.*").
+		//ColumnExpr("credential.*").
+		//ColumnExpr("embedding_models.model_id as embedding_model__model_id").
+		//ColumnExpr("embedding_models.model_dim as embedding_model__model_dim").
+		Relation("Docs").
+		Relation("Credential").
+		Relation("User.EmbeddingModel").
+		//Join("inner join users on connector.user_id =  users.id").
+		//Join("inner join embedding_models on embedding_models.tenant_id = users.tenant_id").
 		Where("disabled = false").
-		Where("deleted_date is null").
+		Where("connector.deleted_date is null").
 		Select(); err != nil {
 		return nil, utils.Internal.Wrap(err, "can not load connectors")
 	}

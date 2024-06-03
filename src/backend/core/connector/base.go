@@ -9,9 +9,11 @@ import (
 	"time"
 )
 
-const mineURL = "url"
-const ParamFileLimit = "file_limit"
-const GB = 1024 * 1024 * 1024
+const (
+	mineURL        = "url"
+	ParamFileLimit = "file_limit"
+	GB             = 1024 * 1024 * 1024
+)
 
 var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       proto.FileType_XLS,
@@ -23,21 +25,34 @@ var supportedMimeTypes = map[string]proto.FileType{
 	"application/vnd.openxmlformats-officedocument.presentationml.presentation": proto.FileType_PPT,
 }
 
+type Task interface {
+	RunConnector(ctx context.Context, data *proto.ConnectorRequest) error
+	RunSemantic(ctx context.Context, data *proto.SemanticData) error
+	UpToDate(ctx context.Context) error
+}
+
+type Connector interface {
+	Execute(ctx context.Context, param map[string]string) chan *Response
+	PrepareTask(ctx context.Context, task Task) error
+}
+
 type Base struct {
 	model    *model.Connector
 	resultCh chan *Response
 }
 type Response struct {
-	URL         string
-	Name        string
-	SourceID    string
-	DocumentID  int64
-	Content     []byte
+	URL              string
+	SiteMap          string
+	SearchForSitemap bool
+	Name             string
+	SourceID         string
+	DocumentID       int64
+	//Content          []byte
 	MimeType    string
+	Signature   string
+	Bucket      string
 	SaveContent bool
-}
-type Connector interface {
-	Execute(ctx context.Context, param map[string]string) chan *Response
+	UpToData    bool
 }
 
 type Builder struct {
@@ -59,6 +74,10 @@ func (r *Response) GetType() proto.FileType {
 
 type nopConnector struct {
 	Base
+}
+
+func (n *nopConnector) PrepareTask(ctx context.Context, task Task) error {
+	return nil
 }
 
 func (n *nopConnector) Execute(ctx context.Context, param map[string]string) chan *Response {

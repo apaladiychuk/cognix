@@ -30,8 +30,7 @@ var responseColumns = []string{ColumnNameID, ColumnNameDocumentID, ColumnNameChu
 
 type (
 	MilvusConfig struct {
-		Host          string `env:"MILVUS_HOST,required"`
-		Port          int    `env:"MILVUS_PORT,required"`
+		Address       string `env:"MILVUS_URL,required"`
 		MetricType    string `env:"MILVUS_METRIC_TYPE" envDefault:"COSINE"`
 		IndexStrategy string `env:"MILVUS_INDEX_STRATEGY" envDefault:"DISKANN"`
 	}
@@ -107,7 +106,7 @@ var MilvusModule = fx.Options(
 
 func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
 	client, err := milvus.NewClient(context.Background(), milvus.Config{
-		Address: fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		Address: cfg.Address,
 	})
 	if err != nil {
 		return nil, err

@@ -20,6 +20,7 @@ type (
 )
 
 func (o *openAIClient) Request(ctx context.Context, message string) (*Response, error) {
+
 	userMessage := openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleUser,
 		Content: message,

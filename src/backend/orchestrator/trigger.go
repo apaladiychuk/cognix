@@ -7,6 +7,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/go-pg/pg/v10"
 	"go.opentelemetry.io/otel"
@@ -42,9 +43,15 @@ func (t *trigger) Do(ctx context.Context) error {
 		// connector is working. do not send messages.
 		return nil
 	}
+	zap.S().Debugf("\n-------  %s\nlast %v\nnext %v\nnow  %v\n------- ",
+		t.connectorModel.Name,
+		t.connectorModel.LastSuccessfulAnalyzed.UTC(),
+		t.connectorModel.LastSuccessfulAnalyzed.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second),
+		time.Now().UTC())
 	if t.connectorModel.LastSuccessfulAnalyzed.IsZero() ||
-		t.connectorModel.LastSuccessfulAnalyzed.Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
+		t.connectorModel.LastSuccessfulAnalyzed.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
+		zap.S().Debugf("RUN connector")
 		defer span.End()
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, t.connectorModel.ID.IntPart()))
 		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(t.connectorModel.Type)))
@@ -91,6 +98,8 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 		return err
 	}
 	zap.S().Infof("send message to semantic %s", t.connectorModel.Name)
+	buf, _ := json.Marshal(data)
+	zap.S().Debugf(" message payload %s", string(buf))
 	return t.messenger.Publish(ctx, t.messenger.StreamConfig().SemanticStreamName,
 		t.messenger.StreamConfig().SemanticStreamSubject, data)
 }

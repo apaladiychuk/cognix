@@ -76,6 +76,11 @@ func (r *embedding) FindDocuments(ctx context.Context,
 			if dbDoc, err := r.docRepo.FindByID(ctx, doc.DocumentID); err == nil {
 				resDocument.Link = dbDoc.URL
 				resDocument.DocumentID = dbDoc.SourceID
+				if !dbDoc.LastUpdate.IsZero() {
+					resDocument.UpdatedDate = dbDoc.LastUpdate.Time
+				} else {
+					resDocument.UpdatedDate = dbDoc.CreationDate
+				}
 			}
 			result = append(result, resDocument)
 			ch <- &Response{

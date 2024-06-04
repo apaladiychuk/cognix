@@ -7,6 +7,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/go-pg/pg/v10"
 	"go.opentelemetry.io/otel"
@@ -97,6 +98,8 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 		return err
 	}
 	zap.S().Infof("send message to semantic %s", t.connectorModel.Name)
+	buf, _ := json.Marshal(data)
+	zap.S().Debugf(" message payload %s", string(buf))
 	return t.messenger.Publish(ctx, t.messenger.StreamConfig().SemanticStreamName,
 		t.messenger.StreamConfig().SemanticStreamSubject, data)
 }

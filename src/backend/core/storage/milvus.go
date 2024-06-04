@@ -1,9 +1,9 @@
 package storage
 
 import (
-	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/utils"
 	"context"
+	"encoding/json"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	milvus "github.com/milvus-io/milvus-sdk-go/v2/client"
@@ -80,11 +80,13 @@ func (c *milvusClient) Load(ctx context.Context, collection string, vector []flo
 	}
 	var payload []*MilvusPayload
 	for _, row := range result {
-		var pr MilvusPayload
-		if err = pr.FromResult(row); err != nil {
-			return nil, err
+		for i := 0; i < row.ResultCount; i++ {
+			var pr MilvusPayload
+			if err = pr.FromResult(i, row); err != nil {
+				return nil, err
+			}
+			payload = append(payload, &pr)
 		}
-		payload = append(payload, &pr)
 	}
 	return payload, nil
 }
@@ -196,13 +198,18 @@ func (p *MilvusPayload) FromResult(i int, res milvus.SearchResult) error {
 		case ColumnNameDocumentID:
 			p.DocumentID, err = field.GetAsInt64(i)
 		case ColumnNameContent:
-			row, err := field.Get(i)
+			row, err := field.GetAsString(i)
 			if err != nil {
 				continue
 			}
-			jsonContent := make(model.JSONMap)
-			jsonContent.FromStruct(row)
-			p.Content = fmt.Sprintf("%v", jsonContent[ColumnNameContent])
+			contentS := ""
+			if err = json.Unmarshal([]byte(row), &contentS); err == nil {
+				contentS = strings.ReplaceAll(contentS, "\n", "")
+				content := make(map[string]string)
+				if err = json.Unmarshal([]byte(contentS), &content); err == nil {
+					p.Content = content[ColumnNameContent]
+				}
+			}
 		}
 		if err != nil {
 			return err

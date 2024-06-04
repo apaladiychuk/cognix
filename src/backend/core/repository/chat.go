@@ -55,10 +55,16 @@ func (r *chatRepository) SendMessage(ctx context.Context, message *model.ChatMes
 	return nil
 }
 func (r *chatRepository) Update(ctx context.Context, message *model.ChatMessage) error {
-	if _, err := r.db.WithContext(ctx).Model(message).Where("id = ?", message.ID).Update(); err != nil {
-		return utils.Internal.Wrap(err, "can not save message")
-	}
-	return nil
+	return r.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
+		if _, err := tx.Model(message).Where("id = ?", message.ID).Update(); err != nil {
+			return utils.Internal.Wrap(err, "can not save message")
+		}
+		if _, err := tx.Model(&message.DocumentPairs).Insert(); err != nil {
+			return utils.Internal.Wrap(err, "can not create document pairs")
+		}
+		return nil
+	})
+
 }
 
 func NewChatRepository(db *pg.DB) ChatRepository {
@@ -87,8 +93,13 @@ func (r *chatRepository) GetSessionByID(ctx context.Context, userID uuid.UUID, i
 			return query.Order("time_sent asc"), nil
 		}).
 		Relation("Messages.Feedback").
+		Relation("Messages.DocumentPairs").
+		Relation("Messages.DocumentPairs.Document").
 		First(); err != nil {
 		return nil, utils.NotFound.Wrapf(err, "can not find session")
+	}
+	for _, msg := range session.Messages {
+		_ = msg.AfterSelect(ctx)
 	}
 	return &session, nil
 }

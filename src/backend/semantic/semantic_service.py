@@ -3,13 +3,15 @@ import logging
 import os
 import threading
 import time
+import datetime
 from dotenv import load_dotenv
 from nats.aio.msg import Msg
 
+from lib.db.db_connector import ConnectorCRUD, LastAttemptStatus
+from lib.db.db_document import DocumentCRUD
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_factory import SemanticFactory
 from lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
-from lib.db.cockroach_db import DocumentCRUD
 from readiness_probe import ReadinessProbe
 
 # Load environment variables from .env file
@@ -34,11 +36,14 @@ semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'chun
 semantic_ack_wait = int(os.getenv('NATS_CLIENT_SEMANTIC_ACK_WAIT', '3600'))  # seconds
 semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
-cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL', 'postgres://root:123@cockroach:26257/defaultdb?sslmode=disable')
+cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
+                          'postgres://root:123@cockroach:26257/defaultdb?sslmode=disable')
+
 
 # Define the event handler function
 async def chunking_event(msg: Msg):
     start_time = time.time()  # Record the start time
+    connector_id = 0
     try:
         logger.info("🔥 received chunking event, start working....")
         # Deserialize the message
@@ -46,14 +51,40 @@ async def chunking_event(msg: Msg):
         semantic_data.ParseFromString(msg.data)
         logger.info(f"message: {semantic_data}")
 
+        # verify document id is valid otherwise we cannot process the message
+        if semantic_data.document_id <= 0:
+            logger.error(f"❌ failed to process chunking data error: document_id must value must be positive")
+        else:
+            # update connector's status
+            document_crud = DocumentCRUD(cockroach_url)
+            document = document_crud.select_document(semantic_data.document_id)
+            if document:
+                # needed for th finally block
+                connector_id = document.connector_id
+                # update connector's status
+                connector_crud = ConnectorCRUD(cockroach_url)
+                connector = connector_crud.select_connector(document.connector_id)
+                last_successful_index_date = connector.last_successful_index_date
+                connector_crud.update_connector(document.connector_id,
+                                                last_attempt_status=LastAttemptStatus.WORKING,
+                                                last_update=datetime.datetime.now())
 
-        chunker = SemanticFactory.create_chunker(semantic_data.file_type)
+                # performing semantic analysis on the source
+                chunker = SemanticFactory.create_chunker(semantic_data.file_type)
+                eintites_analyzed = chunker.chunk(data=semantic_data, full_process_start_time=start_time,
+                                                  ack_wait=semantic_ack_wait)
+                last_successful_index_date = datetime.datetime.now()
 
-        eintites_analyzed = chunker.chunk(data= semantic_data, full_process_start_time=start_time, ack_wait=semantic_ack_wait)
-        # collected_entities = await chunker.chunk( .workout_message(chunking_data=chunking_data,
-        #                                                           start_time=start_time, ack_wait=semantic_ack_wait)
-        # if collected entities == 0 this means no data was stored in the vector db
-        # we shall find a way to tell the user, most likely put the message in the dead letter
+                # if eintites_analyzed == 0 this means no data was stored in the vector db
+                # we shall find a way to tell the user, most likely put the message in the dead letter
+
+                # updating again the connector
+                connector_crud.update_connector(connector_id,
+                                                last_attempt_status=LastAttemptStatus.SCAN_COMPLETED_SUCCESSFULLY,
+                                                last_successful_index_date=datetime.datetime.now(),
+                                                last_update=datetime.datetime.now(),
+                                                total_docs_indexed=eintites_analyzed
+                                                )
 
         # Acknowledge the message when done
         await msg.ack_sync()
@@ -63,6 +94,15 @@ async def chunking_event(msg: Msg):
         logger.error(f"❌ failed to process chunking data error: {error_message}")
         if msg:  # Ensure msg is not None before awaiting
             await msg.nak()
+        try:
+            if connector_id != 0:
+                connector_crud = ConnectorCRUD(cockroach_url)
+                connector_crud.update_connector(connector_id,
+                                                last_attempt_status=LastAttemptStatus.SCAN_COMPLETED_WITH_ERRORS,
+                                                last_update=datetime.datetime.now())
+        except Exception as e:
+            error_message = str(e) if e else "Unknown error occurred"
+            logger.error(f"❌ failed to process chunking data error: {error_message}")
     finally:
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
@@ -70,40 +110,6 @@ async def chunking_event(msg: Msg):
 
 
 async def main():
-    # crud = DocumentCRUD(cockroach_url)
-    #
-    # # Insert a new document
-    # new_doc_id = crud.insert_document(
-    #     parent_id=None,
-    #     connector_id=1,
-    #     source_id='unique_source_id',
-    #     url='http://example.com',
-    #     signature='signature_example',
-    #     chunking_session=uuid.uuid4(),
-    #     analyzed=False,
-    #     creation_date=func.now(),
-    #     last_update=None
-    # )
-    # print(f"Inserted document ID: {new_doc_id}")
-    #
-    # # Select the document
-    # document = crud.select_document(new_doc_id)
-    # print(f"Selected document: {document}")
-    #
-    # # Update the document
-    # crud.update_document(new_doc_id, url='http://newexample.com')
-    #
-    # # Delete the document
-    # crud.delete_document(new_doc_id)
-    # print(f"Deleted document ID: {new_doc_id}")
-    #
-    # # Deserialize the message
-    # chunking_data = SemanticData()
-    # chunking_data.ParseFromString(msg.data)
-    # logger.info(f"message: {chunking_data}")
-
-
-
     # Start the readiness probe server in a separate thread
     readiness_probe = ReadinessProbe()
     readiness_probe_thread = threading.Thread(target=readiness_probe.start_server, daemon=True)

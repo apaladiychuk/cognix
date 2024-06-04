@@ -2,11 +2,11 @@
 
 # build a container
 sudo docker build . -t cognix/embedder:latest
-sudo docker build . -t cognix/chunker:latest
+sudo docker build . -t cognix/semantic:latest
 
 # run container
 docker run --name embedder cognix/embedder:latest
-docker run --name chunker cognix/chunker:latest
+docker run --name chunker cognix/semantic:latest
 
 #log inside a container
 docker exec -it CONTAINER_NAME sh
@@ -24,8 +24,8 @@ docker stats
 docker stats {conteiner name}
 
 from cognix-services
-sudo docker-compose -f deployment/docker-compose-services-test.yaml down
-sudo docker-compose -f deployment/docker-compose-services-test.yaml up
+sudo docker-compose -f deployment/docker-compose-test.yaml down
+sudo docker-compose -f deployment/docker-compose-test.yaml up
 
 sudo docker-compose -f deployment/docker-compose-test.yaml up --build semantic --force-recreate
 

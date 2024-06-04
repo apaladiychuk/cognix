@@ -7,7 +7,7 @@ import datetime
 from dotenv import load_dotenv
 from nats.aio.msg import Msg
 
-from lib.db.db_connector import ConnectorCRUD, LastAttemptStatus
+from lib.db.db_connector import ConnectorCRUD, Status
 from lib.db.db_document import DocumentCRUD
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_factory import SemanticFactory
@@ -66,27 +66,27 @@ async def semantic_event(msg: Msg):
                 connector = connector_crud.select_connector(document.connector_id)
                 last_successful_index_date = connector.last_successful_analyzed
                 connector_crud.update_connector(document.connector_id,
-                                                status=LastAttemptStatus.PROCESSING,
-                                                last_update=datetime.datetime.now())
+                                                status=Status.PROCESSING,
+                                                last_update=datetime.datetime.utcnow())
 
                 # performing semantic analysis on the source
-                analyzer = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
-                eintites_analyzed = analyzer.chunk(data=semantic_data, full_process_start_time=start_time,
-                                                  ack_wait=semantic_ack_wait)
-                last_successful_index_date = datetime.datetime.now()
+                semantic = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
+                entities_analyzed = semantic.analyze(data=semantic_data, full_process_start_time=start_time,
+                                                     ack_wait=semantic_ack_wait)
 
                 # if eintites_analyzed == 0 this means no data was stored in the vector db
                 # we shall find a way to tell the user, most likely put the message in the dead letter
 
                 # updating again the connector
                 connector_crud.update_connector(connector_id,
-                                                status=LastAttemptStatus.COMPLETED_SUCCESSFULLY,
-                                                last_successful_analyzed=datetime.datetime.now(),
-                                                last_update=datetime.datetime.now(),
-                                                total_docs_analyzed=eintites_analyzed
+                                                status=Status.COMPLETED_SUCCESSFULLY if entities_analyzed > 0 else Status.UNABLE_TO_PROCESS,
+                                                last_successful_analyzed=datetime.datetime.utcnow(),
+                                                last_update=datetime.datetime.utcnow(),
+                                                total_docs_analyzed=entities_analyzed
                                                 )
             else:
-                logger.error(f"❌ failed to process chunking data error: document_id {semantic_data.document_id} not valid")
+                logger.error(
+                    f"❌ failed to process chunking data error: document_id {semantic_data.document_id} not valid")
         # Acknowledge the message when done
         await msg.ack_sync()
         logger.info("👍 message acknowledged successfully")
@@ -99,8 +99,8 @@ async def semantic_event(msg: Msg):
             if connector_id != 0:
                 connector_crud = ConnectorCRUD(cockroach_url)
                 connector_crud.update_connector(connector_id,
-                                                status=LastAttemptStatus.COMPLETED_WITH_ERRORS,
-                                                last_update=datetime.datetime.now())
+                                                status=Status.COMPLETED_WITH_ERRORS,
+                                                last_update=datetime.datetime.utcnow())
         except Exception as e:
             error_message = str(e) if e else "Unknown error occurred"
             logger.error(f"❌ failed to process chunking data error: {error_message}")
@@ -109,8 +109,13 @@ async def semantic_event(msg: Msg):
         elapsed_time = end_time - start_time
         logger.info(f"⏰⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
-# IMPORTNAT WHEN IT DOES NOT CONNECTO TO COCKROCH IS PROCESSING!!!!!
-# this mean
+
+# TODO: IMPORTANT WHEN IT DOES NOT CONNECT TO COCKROACH IS PROCESSING!!!!!
+# Andri shall make a fix query on the db if status is processing and max ack wait is more than last update
+# then it means the process hanged but if max retries (from nats) has not reached it's limit
+# then nats will post again the message
+# orchestrator shall update to UNABLE_TO_PROCESS, if nats will post again the message this service will
+# care to set the correct status
 
 async def main():
     # Start the readiness probe server in a separate thread

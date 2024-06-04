@@ -6,7 +6,7 @@ import enum
 Base = declarative_base()
 
 
-class LastAttemptStatus(enum.Enum):
+class Status(enum.Enum):
     READY_TO_BE_PROCESSED = "READY_TO_BE_PROCESSED"
     PENDING = "PENDING"
     PROCESSING = "PROCESSING"
@@ -35,7 +35,7 @@ class Connector(Base):
     user_id = Column(UUID(as_uuid=True), nullable=False)
     tenant_id = Column(UUID(as_uuid=True), nullable=True)
     last_successful_analyzed = Column(TIMESTAMP(timezone=False), nullable=True)
-    status = Column(Enum(LastAttemptStatus), nullable=True)
+    status = Column(Enum(Status), nullable=True)
     total_docs_analyzed = Column(BigInteger, nullable=False)
     creation_date = Column(TIMESTAMP(timezone=False), nullable=False)
     last_update = Column(TIMESTAMP(timezone=False), nullable=True)

@@ -42,18 +42,18 @@ class BS4Spider:
         if page_content:
             self.collected_data.append(ChunkedItem(url=url, content=page_content))
 
-        # self.logger.warning("😱 Recursion temporarily disable for debugging purposes. Re-enable it once doce")
+        self.logger.warning("😱 Recursion temporarily disable for debugging purposes. Re-enable it once doce")
         # Extract all links from the page
-        links = [a['href'] for a in soup.find_all('a', href=True)]
-        for link in links:
-            # Convert relative links to absolute links
-            absolute_link = urljoin(url, link)
-            parsed_link = urlparse(absolute_link)
-            # Check if the link is an HTTP/HTTPS link, not visited yet, and does not contain a fragment
-            if parsed_link.scheme in ['http', 'https'] and absolute_link not in self.visited and not parsed_link.fragment:
-                # Ensure the link is within the same domain
-                if parsed_link.netloc == self.base_domain:
-                    self.process_page(absolute_link)
+        # links = [a['href'] for a in soup.find_all('a', href=True)]
+        # for link in links:
+        #     # Convert relative links to absolute links
+        #     absolute_link = urljoin(url, link)
+        #     parsed_link = urlparse(absolute_link)
+        #     # Check if the link is an HTTP/HTTPS link, not visited yet, and does not contain a fragment
+        #     if parsed_link.scheme in ['http', 'https'] and absolute_link not in self.visited and not parsed_link.fragment:
+        #         # Ensure the link is within the same domain
+        #         if parsed_link.netloc == self.base_domain:
+        #             self.process_page(absolute_link)
 
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time

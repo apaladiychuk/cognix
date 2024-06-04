@@ -211,20 +211,21 @@ CREATE TABLE "connectors" (
   "refresh_freq" integer,
   "user_id" uuid NOT NULL,
   "tenant_id" uuid NOT NULL,
-  "last_successful_analysis" timestamp, --datetime utc
+  "last_successful_analyzed" timestamp, --datetime utc
+   "total_docs_analyzed" integer, 
   "creation_date" timestamp NOT NULL DEFAULT (now()), --datetime utc
   "last_update" timestamp --datetime utc
 );
 ```
 status in the connector will have the following values:
 ```sql
-ConnectorStatusActive        = "Ready to be Processed" 
-ConnectorStatusPending       = "Pending"
-ConnectorStatusWorking       = "Processing"
-ConnectorStatusSuccess       = "Completed Successfully"
-ConnectorStatusError         = "Completed with Errors"
-ConnectorStatusDisabled      = "Disabled"
-ConnectorStatusUnableProcess = "Unable to Process"
+	ConnectorStatusReadyToProcessed = "READY_TO_BE_PROCESSED"
+	ConnectorStatusPending          = "PENDING"
+	ConnectorStatusWorking          = "PROCESSING"
+	ConnectorStatusSuccess          = "COMPLETED_SUCCESSFULLY"
+	ConnectorStatusError            = "COMPLETED_WITH_ERRORS"
+	ConnectorStatusDisabled         = "DISABLED"
+	ConnectorStatusUnableProcess    = "UNABLE_TO_PROCESS"
 ```
 
 Removed the shared field. If a connector has the tennat_id it means it is shared, if it has the user_id it means is from the user

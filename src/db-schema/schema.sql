@@ -139,3 +139,9 @@ CREATE TABLE documents (
     last_update timestamp WITHOUT TIME ZONE
 );
 
+create table chat_message_document_pairs
+(
+    id              bigint default unique_rowid() not null primary key,
+    chat_message_id bigint not null references public.chat_messages on delete cascade,
+    document_id     bigint not null references public.documents on delete cascade
+);

@@ -2,11 +2,11 @@
 
 # build a container
 sudo docker build . -t cognix/embedder:latest
-sudo docker build . -t cognix/chunker:latest
+sudo docker build . -t cognix/semantic:latest
 
 # run container
 docker run --name embedder cognix/embedder:latest
-docker run --name chunker cognix/chunker:latest
+docker run --name chunker cognix/semantic:latest
 
 #log inside a container
 docker exec -it CONTAINER_NAME sh

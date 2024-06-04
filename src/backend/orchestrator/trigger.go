@@ -42,8 +42,8 @@ func (t *trigger) Do(ctx context.Context) error {
 		// connector is working. do not send messages.
 		return nil
 	}
-	if t.connectorModel.LastSuccessfulIndexDate.IsZero() ||
-		t.connectorModel.LastSuccessfulIndexDate.Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
+	if t.connectorModel.LastSuccessfulAnalyzed.IsZero() ||
+		t.connectorModel.LastSuccessfulAnalyzed.Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
 		defer span.End()
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, t.connectorModel.ID.IntPart()))

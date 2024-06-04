@@ -31,9 +31,9 @@ type Connector struct {
 	RefreshFreq             int                  `json:"refresh_freq,omitempty"`
 	UserID                  uuid.UUID            `json:"user_id,omitempty"`
 	TenantID                uuid.NullUUID        `json:"tenant_id,omitempty"`
-	LastSuccessfulIndexDate pg.NullTime          `json:"last_successful_index_date,omitempty" pg:",use_zero"`
+	LastSuccessfulAnalyzed  pg.NullTime          `json:"last_successful_analysis,omitempty" pg:",use_zero"`
 	Status                  string               `json:"status,omitempty"`
-	TotalDocsIndexed        int                  `json:"total_docs_indexed" pg:",use_zero"`
+	TotalDocsAnalyzed       int                  `json:"total_docs_indexed" pg:",use_zero"`
 	CreationDate            time.Time            `json:"creation_date,omitempty"`
 	LastUpdate              pg.NullTime          `json:"last_update,omitempty" pg:",use_zero"`
 	DeletedDate             pg.NullTime          `json:"deleted_date,omitempty" pg:",use_zero"`

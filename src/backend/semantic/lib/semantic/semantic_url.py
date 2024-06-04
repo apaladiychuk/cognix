@@ -1,4 +1,5 @@
 from lib.db.milvus_db import Milvus_DB
+from lib.db.db_document import DocumentCRUD
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_base import BaseSemantic
 from lib.spider.spider_bs4 import BS4Spider  # Ensure you import the BS4Spider class correctly
@@ -8,18 +9,18 @@ from readiness_probe import ReadinessProbe
 
 
 class URLSemantic(BaseSemantic):
-    def chunk(self, data: SemanticData, full_process_start_time: float, ack_wait: int) -> int:
+    def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
         start_time = time.time()  # Record the start time
         self.logger.info(f"Starting BS4Spider URL: {data.url}")
 
         spider = BS4Spider(data.url)
-        collected_data = spider.process_page(data.url)
+        collected_data = spider.process_page(data.url, data.url_recursive)
         collected_items = 0
 
         if not collected_data:
             self.logger.warning(f"😱 BS4Spider was not able to retrieve any content for {data.url}, switching to "
                                 f"SeleniumSpider")
-            self.logger.warning("😱 BS4Spider is disabled, shall be re-enabled and tested as it is not working 100%")
+            self.logger.warning("😱 SeleniumSpider is disabled, shall be re-enabled and tested as it is not working 100%")
             # self.logger.info(f"Starting SeleniumSpider for: {data.url}")
             # spider = SeleniumSpider(data.url)
             # collected_data = spider.process_page(data.url)
@@ -35,6 +36,14 @@ class URLSemantic(BaseSemantic):
             # delete previous added chunks and vectors
             milvus_db.delete_by_document_id(document_id=data.document_id, collection_name=data.collection_name)
 
+            document_crud = DocumentCRUD(cockroach_url)
+            # delete previous added documents
+            document_crud.delete_by_parent_id(data.document_id)
+            # shall we delete or update the parent?
+            document_crud.delete_by_document_id(data.document_id)
+
+            # Now in this mess find the parent document!!!!
+            # all children can be added randomly
             # storing the new chunks in milvus
             for item in collected_data:
                 # verifies if the method is taking longer than ack_wait

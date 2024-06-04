@@ -15,7 +15,7 @@ class BS4Spider:
         self.base_domain = urlparse(base_url).netloc
         self.logger = logging.getLogger(__name__)
 
-    def process_page(self, url) -> list[ChunkedItem] | None:
+    def process_page(self, url: str, recursive: bool) -> list[ChunkedItem] | None:
         start_time = time.time()
 
         # notifying the readiness probe that the service is alive
@@ -44,16 +44,17 @@ class BS4Spider:
 
         self.logger.warning("😱 Recursion temporarily disable for debugging purposes. Re-enable it once doce")
         # Extract all links from the page
-        # links = [a['href'] for a in soup.find_all('a', href=True)]
-        # for link in links:
-        #     # Convert relative links to absolute links
-        #     absolute_link = urljoin(url, link)
-        #     parsed_link = urlparse(absolute_link)
-        #     # Check if the link is an HTTP/HTTPS link, not visited yet, and does not contain a fragment
-        #     if parsed_link.scheme in ['http', 'https'] and absolute_link not in self.visited and not parsed_link.fragment:
-        #         # Ensure the link is within the same domain
-        #         if parsed_link.netloc == self.base_domain:
-        #             self.process_page(absolute_link)
+        if recursive:
+            links = [a['href'] for a in soup.find_all('a', href=True)]
+            for link in links:
+                # Convert relative links to absolute links
+                absolute_link = urljoin(url, link)
+                parsed_link = urlparse(absolute_link)
+                # Check if the link is an HTTP/HTTPS link, not visited yet, and does not contain a fragment
+                if parsed_link.scheme in ['http', 'https'] and absolute_link not in self.visited and not parsed_link.fragment:
+                    # Ensure the link is within the same domain
+                    if parsed_link.netloc == self.base_domain:
+                        self.process_page(absolute_link, recursive)
 
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
@@ -82,7 +83,7 @@ class BS4Spider:
 
         for element in elements:
             text = element.get_text(strip=True)
-            #add
+
             if text and text not in paragraphs and len(text) > 10:
                 paragraphs.append(text)
 

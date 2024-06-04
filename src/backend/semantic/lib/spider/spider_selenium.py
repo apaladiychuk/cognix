@@ -55,7 +55,7 @@ class SeleniumSpider:
         formatted_text = '\n\n'.join(paragraphs)
         return formatted_text
 
-    def process_page(self, url):
+    def process_page(self, url: str, recursive: bool) -> list[ChunkedItem] | None:
         start_time = time.time()
 
         # notifying the readiness probe that the service is alive

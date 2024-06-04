@@ -24,9 +24,9 @@ services:
     networks:
       - cognix-network
   
-  chunker:
+  semantic:
     container_name: semantic
-    image: cognix/chunker:latest
+    image: cognix/semantic:latest
     build:
       context: ../src/backend/semantic
       dockerfile: Dockerfile

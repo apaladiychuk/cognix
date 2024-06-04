@@ -32,7 +32,7 @@ nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
 nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
 nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
 semantic_stream_name = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_NAME', 'semantic')
-semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'chunk_activity')
+semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'semantic_activity')
 semantic_ack_wait = int(os.getenv('NATS_CLIENT_SEMANTIC_ACK_WAIT', '3600'))  # seconds
 semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
@@ -41,7 +41,7 @@ cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
 
 
 # Define the event handler function
-async def chunking_event(msg: Msg):
+async def semantic_event(msg: Msg):
     start_time = time.time()  # Record the start time
     connector_id = 0
     try:
@@ -70,8 +70,8 @@ async def chunking_event(msg: Msg):
                                                 last_update=datetime.datetime.now())
 
                 # performing semantic analysis on the source
-                chunker = SemanticFactory.create_chunker(semantic_data.file_type)
-                eintites_analyzed = chunker.chunk(data=semantic_data, full_process_start_time=start_time,
+                analyzer = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
+                eintites_analyzed = analyzer.chunk(data=semantic_data, full_process_start_time=start_time,
                                                   ack_wait=semantic_ack_wait)
                 last_successful_index_date = datetime.datetime.now()
 
@@ -85,7 +85,8 @@ async def chunking_event(msg: Msg):
                                                 last_update=datetime.datetime.now(),
                                                 total_docs_indexed=eintites_analyzed
                                                 )
-
+            else:
+                logger.error(f"❌ failed to process chunking data error: document_id {semantic_data.document_id} not valid")
         # Acknowledge the message when done
         await msg.ack_sync()
         logger.info("👍 message acknowledged successfully")
@@ -134,7 +135,7 @@ async def main():
                 proto_message_type=SemanticData
             )
 
-            subscriber.set_event_handler(chunking_event)
+            subscriber.set_event_handler(semantic_event)
             await subscriber.connect_and_subscribe()
 
             # todo add an event to JetStreamEventSubscriber to signal that connection has been established

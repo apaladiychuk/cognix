@@ -16,7 +16,7 @@ nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
 nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
 nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
 semantic_stream_name = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_NAME', 'semantic')
-semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'chunk_activity')
+semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'semantic_activity')
 semantic_ack_wait = int(os.getenv('NATS_CLIENT_SEMANTIC_ACK_WAIT', '3600'))  # seconds
 semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
@@ -37,6 +37,7 @@ class JetStreamPublisher:
         self.stream_name = stream_name
         self.nc = NATS()
         self.js = None
+        logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")
 
     async def connect(self):
         # Connect to NATS
@@ -87,13 +88,14 @@ class JetStreamPublisher:
 
 async def main():
     # Instantiate the publisher
+    logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")
     publisher = JetStreamPublisher(subject=semantic_stream_subject, stream_name=semantic_stream_name)
 
     # Connect to NATS
     await publisher.connect()
 
     # Create a fake ChunkingData message
-    chunking_data = SemanticData(
+    semntic_data = SemanticData(
         url="https://help.collaboard.app/sticky-notes",
         # url = "https://developer.apple.com/documentation/visionos/improving-accessibility-support-in-your-app",
         # url = "https://help.collaboard.app/what-is-collaboard",
@@ -101,17 +103,17 @@ async def main():
         # url = "https://learn.microsoft.com/en-us/aspnet/core/tutorials/razor-pages/sql?view=aspnetcore-8.0&tabs=visual-studio",
         site_map="",
         search_for_sitemap=True,
-        document_id=993456789,
+        document_id=974396356851630081,
         file_type=FileType.URL,
         collection_name="user_id_998",
         model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
         model_dimension=768
     )
 
-    logger.info(f"message being sent \n {chunking_data}")
-
+    logger.info(f"message being sent \n {semntic_data}")
+    logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")
     # Publish the message
-    await publisher.publish(chunking_data)
+    await publisher.publish(semntic_data)
 
     # # Create a fake ChunkingData message
     # chunking_data = SemanticData(

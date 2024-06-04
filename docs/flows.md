@@ -203,18 +203,30 @@ URL Chunker will then create as many documents, with the parent_id set to the id
 ```sql
 CREATE TABLE "connectors" (
   "id" SERIAL PRIMARY KEY,
-  "credential_id" integer NOT NULL,
+  "credential_id" integer NOT NULL, -- remove this and related tabe
   "name" varchar NOT NULL,
   "type" varchar(50) NOT NULL, -- PDF, URL etc
+  "status" varchar,
   "connector_specific_config" jsonb NOT NULL,
   "refresh_freq" integer,
   "user_id" uuid NOT NULL,
   "tenant_id" uuid NOT NULL,
-  "last_successful_index_date" timestamp, --datetime utc
+  "last_successful_analysis" timestamp, --datetime utc
   "creation_date" timestamp NOT NULL DEFAULT (now()), --datetime utc
   "last_update" timestamp --datetime utc
 );
 ```
+status in the connector will have the following values:
+```sql
+ConnectorStatusActive        = "Ready to be Processed" 
+ConnectorStatusPending       = "Pending"
+ConnectorStatusWorking       = "Processing"
+ConnectorStatusSuccess       = "Completed Successfully"
+ConnectorStatusError         = "Completed with Errors"
+ConnectorStatusDisabled      = "Disabled"
+ConnectorStatusUnableProcess = "Unable to Process"
+```
+
 Removed the shared field. If a connector has the tennat_id it means it is shared, if it has the user_id it means is from the user
 
 ## chunking_data

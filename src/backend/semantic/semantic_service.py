@@ -66,7 +66,7 @@ async def semantic_event(msg: Msg):
                 connector = connector_crud.select_connector(document.connector_id)
                 last_successful_index_date = connector.last_successful_analyzed
                 connector_crud.update_connector(document.connector_id,
-                                                status=LastAttemptStatus.WORKING,
+                                                status=LastAttemptStatus.PROCESSING,
                                                 last_update=datetime.datetime.now())
 
                 # performing semantic analysis on the source
@@ -80,7 +80,7 @@ async def semantic_event(msg: Msg):
 
                 # updating again the connector
                 connector_crud.update_connector(connector_id,
-                                                status=LastAttemptStatus.SCAN_COMPLETED_SUCCESSFULLY,
+                                                status=LastAttemptStatus.COMPLETED_SUCCESSFULLY,
                                                 last_successful_analyzed=datetime.datetime.now(),
                                                 last_update=datetime.datetime.now(),
                                                 total_docs_analyzed=eintites_analyzed
@@ -99,7 +99,7 @@ async def semantic_event(msg: Msg):
             if connector_id != 0:
                 connector_crud = ConnectorCRUD(cockroach_url)
                 connector_crud.update_connector(connector_id,
-                                                status=LastAttemptStatus.SCAN_COMPLETED_WITH_ERRORS,
+                                                status=LastAttemptStatus.COMPLETED_WITH_ERRORS,
                                                 last_update=datetime.datetime.now())
         except Exception as e:
             error_message = str(e) if e else "Unknown error occurred"
@@ -111,6 +111,7 @@ async def semantic_event(msg: Msg):
 
 # IMPORTNAT WHEN IT DOES NOT CONNECTO TO COCKROCH IS PROCESSING!!!!!
 # this mean
+
 async def main():
     # Start the readiness probe server in a separate thread
     readiness_probe = ReadinessProbe()

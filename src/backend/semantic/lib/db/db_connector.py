@@ -5,14 +5,23 @@ import enum
 
 Base = declarative_base()
 
+
 class LastAttemptStatus(enum.Enum):
-    ACTIVE = "ACTIVE"
-    PENDING_SCAN = "PENDING SCAN"
-    WORKING = "WORKING"
-    SCAN_COMPLETED_SUCCESSFULLY = "SCAN_COMPLETED_SUCCESSFULLY"
-    SCAN_COMPLETED_WITH_ERRORS = "SCAN_COMPLETED_WITH_ERRORS"
+    READY_TO_BE_PROCESSED = "READY_TO_BE_PROCESSED"
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    COMPLETED_SUCCESSFULLY = "COMPLETED_SUCCESSFULLY"
+    COMPLETED_WITH_ERRORS = "COMPLETED_WITH_ERRORS"
     DISABLED = "DISABLED"
     UNABLE_TO_PROCESS = "UNABLE_TO_PROCESS"
+
+    # ConnectorStatusActive = "Ready to be Processed"
+    # ConnectorStatusPending = "Pending"
+    # ConnectorStatusWorking = "Processing"
+    # ConnectorStatusSuccess = "Completed Successfully"
+    # ConnectorStatusError = "Completed with Errors"
+    # ConnectorStatusDisabled = "Disabled"
+    # ConnectorStatusUnableProcess = "Unable to Process"
 
 
 class Connector(Base):
@@ -32,13 +41,12 @@ class Connector(Base):
     last_update = Column(TIMESTAMP(timezone=False), nullable=True)
     deleted_date = Column(TIMESTAMP(timezone=False), nullable=True)
 
-
     def __repr__(self):
         return (f"<Connector(id={self.id}, name={self.name}, type={self.type}, "
                 f"connector_specific_config={self.connector_specific_config}, refresh_freq={self.refresh_freq}, "
                 f"user_id={self.user_id}, tenant_id={self.tenant_id}, "
                 f"last_successful_index_date={self.last_successful_analyzed}, last_attempt_status={self.status}, "
-                f"total_docs_indexed={self.total_docs_analyzed}, creation_date={self.creation_date}, last_update={self.last_update}, "
+                f"total_docs_indexed={self.total_docs_analyzed}, creation_date={self.creation_date}, last_update={self.last_update},"
                 f"deleted_date={self.deleted_date})>")
 
 
@@ -73,9 +81,6 @@ class ConnectorCRUD:
         deleted_connectors = self.session.query(Connector).filter_by(id=connector_id).delete()
         self.session.commit()
         return deleted_connectors
-
-
-
 
 #
 # # Example usage

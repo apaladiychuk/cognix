@@ -9,7 +9,7 @@ import (
 )
 
 type Config struct {
-	RenewInterval int `env:"RENEW_INTERVAL" envDefault:"30"`
+	RenewInterval int `env:"ORCHESTRATOR_RENEW_INTERVAL" envDefault:"30"`
 	FileSizeLimit int `env:"FILE_SIZE_LIMIT,required"`
 }
 

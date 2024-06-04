@@ -42,9 +42,15 @@ func (t *trigger) Do(ctx context.Context) error {
 		// connector is working. do not send messages.
 		return nil
 	}
+	zap.S().Debugf("\n-------  %s\nlast %v\nnext %v\nnow  %v\n------- ",
+		t.connectorModel.Name,
+		t.connectorModel.LastSuccessfulAnalyzed.UTC(),
+		t.connectorModel.LastSuccessfulAnalyzed.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second),
+		time.Now().UTC())
 	if t.connectorModel.LastSuccessfulAnalyzed.IsZero() ||
-		t.connectorModel.LastSuccessfulAnalyzed.Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
+		t.connectorModel.LastSuccessfulAnalyzed.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
+		zap.S().Debugf("RUN connector")
 		defer span.End()
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, t.connectorModel.ID.IntPart()))
 		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(t.connectorModel.Type)))

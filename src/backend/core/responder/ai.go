@@ -7,9 +7,7 @@ import (
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
 	"context"
-	"fmt"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 	"strings"
 	"sync"
 	"time"
@@ -56,9 +54,15 @@ func (r *aiResponder) Send(ctx context.Context,
 		parentMessage.Message,
 		persona.Prompt.TaskPrompt,
 	}
+
 	for _, doc := range docs {
 		messageParts = append(messageParts, doc.Content)
+		message.DocumentPairs = append(message.DocumentPairs, &model.ChatMessageDocumentPair{
+			ChatMessageID: message.ID,
+			DocumentID:    doc.ID,
+		})
 	}
+	message.Citations = docs
 	message.Message = ""
 	//_ = docs
 	// docs.Content
@@ -89,22 +93,6 @@ func (r *aiResponder) Send(ctx context.Context,
 		payload.Type = ResponseError
 	}
 	ch <- payload
-	time.Sleep(10 * time.Millisecond)
-	for i := 0; i < 4; i++ {
-		ch <- &Response{
-			IsValid: true,
-			Type:    ResponseDocument,
-			Message: nil,
-			Document: &model.DocumentResponse{
-				ID:          decimal.NewFromInt(int64(i)),
-				DocumentID:  "11",
-				Link:        fmt.Sprintf("link for document %d", i),
-				Content:     fmt.Sprintf("content of document %d", i),
-				UpdatedDate: time.Now().UTC().Add(-48 * time.Hour),
-				MessageID:   message.ID,
-			},
-		}
-	}
 }
 
 func NewAIResponder(

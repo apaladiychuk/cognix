@@ -3,6 +3,7 @@ package storage
 import (
 	"cognix.ch/api/v2/core/utils"
 	"context"
+	"encoding/json"
 	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	milvus "github.com/milvus-io/milvus-sdk-go/v2/client"
@@ -15,7 +16,6 @@ import (
 const (
 	ColumnNameID         = "id"
 	ColumnNameDocumentID = "document_id"
-	ColumnNameChunk      = "chunk"
 	ColumnNameContent    = "content"
 	ColumnNameVector     = "vector"
 
@@ -26,7 +26,7 @@ const (
 	IndexStrategyNoIndex   = "NOINDEX"
 )
 
-var responseColumns = []string{ColumnNameID, ColumnNameDocumentID, ColumnNameChunk, ColumnNameContent}
+var responseColumns = []string{ColumnNameID, ColumnNameDocumentID, ColumnNameContent}
 
 type (
 	MilvusConfig struct {
@@ -80,11 +80,13 @@ func (c *milvusClient) Load(ctx context.Context, collection string, vector []flo
 	}
 	var payload []*MilvusPayload
 	for _, row := range result {
-		var pr MilvusPayload
-		if err = pr.FromResult(row); err != nil {
-			return nil, err
+		for i := 0; i < row.ResultCount; i++ {
+			var pr MilvusPayload
+			if err = pr.FromResult(i, row); err != nil {
+				return nil, err
+			}
+			payload = append(payload, &pr)
 		}
-		payload = append(payload, &pr)
 	}
 	return payload, nil
 }
@@ -133,7 +135,6 @@ func (c *milvusClient) Save(ctx context.Context, collection string, payloads ...
 	if _, err := c.client.Insert(ctx, collection, "",
 		entity.NewColumnInt64(ColumnNameID, ids),
 		entity.NewColumnInt64(ColumnNameDocumentID, documentIDs),
-		entity.NewColumnInt64(ColumnNameChunk, chunks),
 		entity.NewColumnJSONBytes(ColumnNameContent, contents),
 		entity.NewColumnFloatVector(ColumnNameVector, VectorDimension, vectors),
 	); err != nil {
@@ -168,7 +169,6 @@ func (c *milvusClient) CreateSchema(ctx context.Context, name string) error {
 		schema := entity.NewSchema().WithName(name).
 			WithField(entity.NewField().WithName(ColumnNameID).WithDataType(entity.FieldTypeInt64).WithIsPrimaryKey(true)).
 			WithField(entity.NewField().WithName(ColumnNameDocumentID).WithDataType(entity.FieldTypeInt64)).
-			WithField(entity.NewField().WithName(ColumnNameChunk).WithDataType(entity.FieldTypeInt64)).
 			WithField(entity.NewField().WithName(ColumnNameContent).WithDataType(entity.FieldTypeJSON)).
 			WithField(entity.NewField().WithName(ColumnNameVector).WithDataType(entity.FieldTypeFloatVector).WithDim(1536))
 		if err = c.client.CreateCollection(ctx, schema, 2, milvus.WithAutoID(true)); err != nil {
@@ -188,18 +188,28 @@ func (c *milvusClient) CreateSchema(ctx context.Context, name string) error {
 	return nil
 }
 
-func (p *MilvusPayload) FromResult(res milvus.SearchResult) error {
+func (p *MilvusPayload) FromResult(i int, res milvus.SearchResult) error {
 	var err error
+
 	for _, field := range res.Fields {
 		switch field.Name() {
 		case ColumnNameID:
-			p.ID, err = field.GetAsInt64(0)
+			p.ID, err = field.GetAsInt64(i)
 		case ColumnNameDocumentID:
-			p.DocumentID, err = field.GetAsInt64(0)
-		case ColumnNameChunk:
-			p.Chunk, err = field.GetAsInt64(0)
+			p.DocumentID, err = field.GetAsInt64(i)
 		case ColumnNameContent:
-			p.Content, err = field.GetAsString(0)
+			row, err := field.GetAsString(i)
+			if err != nil {
+				continue
+			}
+			contentS := ""
+			if err = json.Unmarshal([]byte(row), &contentS); err == nil {
+				contentS = strings.ReplaceAll(contentS, "\n", "")
+				content := make(map[string]string)
+				if err = json.Unmarshal([]byte(contentS), &content); err == nil {
+					p.Content = content[ColumnNameContent]
+				}
+			}
 		}
 		if err != nil {
 			return err

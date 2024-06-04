@@ -10,9 +10,7 @@ import (
 	"cognix.ch/api/v2/core/storage"
 	"cognix.ch/api/v2/core/utils"
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 	"time"
 )
@@ -94,26 +92,6 @@ func (b *chatBL) GetSessionByID(ctx context.Context, user *model.User, id int64)
 	result, err := b.chatRepo.GetSessionByID(ctx, user.ID, id)
 	if err != nil {
 		return nil, err
-	}
-	docs := make([]model.DocumentResponse, 0)
-	for i := 0; i < 4; i++ {
-		docs = append(docs, model.DocumentResponse{
-			ID:          decimal.NewFromInt(int64(i)),
-			DocumentID:  "11",
-			Link:        fmt.Sprintf("link for document %d", i),
-			Content:     fmt.Sprintf("content of document %d", i),
-			UpdatedDate: time.Now().UTC().Add(-48 * time.Hour),
-		})
-	}
-	for _, msg := range result.Messages {
-		if msg.MessageType == model.MessageTypeAssistant {
-			for _, d := range docs {
-				md := d
-				md.MessageID = msg.ID
-				msg.Citations = append(msg.Citations, &md)
-			}
-		}
-
 	}
 	return result, nil
 }

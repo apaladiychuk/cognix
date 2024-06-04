@@ -113,7 +113,6 @@ create table chat_messages
     parent_message       bigint,
     latest_child_message bigint,
     rephrased_query      text,
-    citations            jsonb  default '{}'::JSONB    not null,
     error                text
 );
 

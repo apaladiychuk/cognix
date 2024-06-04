@@ -24,8 +24,8 @@ docker stats
 docker stats {conteiner name}
 
 from cognix-services
-sudo docker-compose -f deployment/docker-compose-services-test.yaml down
-sudo docker-compose -f deployment/docker-compose-services-test.yaml up
+sudo docker-compose -f deployment/docker-compose-test.yaml down
+sudo docker-compose -f deployment/docker-compose-test.yaml up
 
 sudo docker-compose -f deployment/docker-compose-test.yaml up --build semantic --force-recreate
 

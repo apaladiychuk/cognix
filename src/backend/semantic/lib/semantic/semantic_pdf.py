@@ -5,7 +5,7 @@ import time
 
 
 class PDFSemantic(BaseSemantic):
-    def chunk(self, data: SemanticData, full_process_start_time: float, ack_wait: int) -> int:
+    def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
         try:
             start_time = time.time()  # Record the start time
             self.logger.info(f"Starting BS4Spider URL: {data.url}")

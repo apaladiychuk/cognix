@@ -18,7 +18,7 @@ class BaseSemantic:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def chunk(self, data: SemanticData, full_process_start_time: float, ack_wait: int) -> int:
+    def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
         raise NotImplementedError("Chunk method needs to be implemented by subclasses")
     def keep_processing(self, full_process_start_time: float, ack_wait: int) -> bool:
         # it returns true if the difference between start_time and now is less than ack_wait

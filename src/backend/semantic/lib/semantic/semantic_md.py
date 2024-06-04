@@ -6,7 +6,7 @@ from lib.semantic.semantic_base import BaseSemantic
 
 
 class MDSemantic(BaseSemantic):
-    def chunk(self, data: SemanticData, full_process_start_time: float, ack_wait: int) -> int:
+    def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
         # Implement TXT chunking logic here
         print(f"Chunking TXT file: {data}")
         return 0

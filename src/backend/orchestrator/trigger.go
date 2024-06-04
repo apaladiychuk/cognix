@@ -36,6 +36,10 @@ func (t *trigger) Do(ctx context.Context) error {
 	// todo we need figure out how to use multiple  orchestrators instances
 	// one approach could be that this method will extract top x rows from the database
 	// and it will book them
+	if t.connectorModel.LastAttemptStatus == model.ConnectorStatusWorking {
+		// connector is working. do not send messages.
+		return nil
+	}
 	if t.connectorModel.LastSuccessfulIndexDate.IsZero() ||
 		t.connectorModel.LastSuccessfulIndexDate.Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
@@ -58,7 +62,6 @@ func (t *trigger) Do(ctx context.Context) error {
 			}
 			return err
 		}
-
 	}
 	return nil
 }
@@ -84,7 +87,7 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 		data.DocumentId = doc.ID.IntPart()
 	}
 
-	zap.S().Infof("send message to symantic %s", t.connectorModel.Name)
+	zap.S().Infof("send message to semantic %s", t.connectorModel.Name)
 	return t.messenger.Publish(ctx, t.messenger.StreamConfig().SemanticStreamName,
 		t.messenger.StreamConfig().SemanticStreamSubject, data)
 }

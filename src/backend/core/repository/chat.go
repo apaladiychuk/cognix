@@ -14,7 +14,7 @@ type ChatRepository interface {
 	GetSessionByID(ctx context.Context, userID uuid.UUID, id int64) (*model.ChatSession, error)
 	CreateSession(ctx context.Context, session *model.ChatSession) error
 	SendMessage(ctx context.Context, message *model.ChatMessage) error
-	Update(ctx context.Context, message *model.ChatMessage) error
+	UpdateMessage(ctx context.Context, message *model.ChatMessage) error
 	GetMessageByIDAndUserID(ctx context.Context, id int64, userID uuid.UUID) (*model.ChatMessage, error)
 	MessageFeedback(ctx context.Context, feedback *model.ChatMessageFeedback) error
 }
@@ -54,13 +54,15 @@ func (r *chatRepository) SendMessage(ctx context.Context, message *model.ChatMes
 	}
 	return nil
 }
-func (r *chatRepository) Update(ctx context.Context, message *model.ChatMessage) error {
+func (r *chatRepository) UpdateMessage(ctx context.Context, message *model.ChatMessage) error {
 	return r.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
 		if _, err := tx.Model(message).Where("id = ?", message.ID).Update(); err != nil {
 			return utils.Internal.Wrap(err, "can not save message")
 		}
-		if _, err := tx.Model(&message.DocumentPairs).Insert(); err != nil {
-			return utils.Internal.Wrap(err, "can not create document pairs")
+		if len(message.DocumentPairs) > 0 {
+			if _, err := tx.Model(&message.DocumentPairs).Insert(); err != nil {
+				return utils.Internal.Wrap(err, "can not create document pairs")
+			}
 		}
 		return nil
 	})

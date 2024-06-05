@@ -1,7 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, BigInteger, Text, Boolean, UUID, TIMESTAMP, ForeignKey, func
+from sqlalchemy import create_engine, Column, Integer, BigInteger, Text, Boolean, UUID, TIMESTAMP, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import uuid
 
 Base = declarative_base()
 
@@ -10,7 +9,7 @@ class Document(Base):
     __tablename__ = 'documents'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    parent_id = Column(BigInteger, ForeignKey('documents.id'), nullable=True)
+    parent_id = Column(BigInteger, nullable=True)
     connector_id = Column(BigInteger, nullable=False)
     source_id = Column(Text, nullable=False)
     url = Column(Text, nullable=True)
@@ -40,28 +39,64 @@ class DocumentCRUD:
         self.session.commit()
         return new_document.id
 
-    def select_document(self, document_id) -> Document | None:
+    def insert_document_object(self, document: Document) -> int:
+        self.session.add(document)
+        self.session.commit()
+        return document.id
+
+    def select_document(self, document_id: int) -> Document | None:
         if document_id <= 0:
             raise ValueError("ID value must be positive")
         return self.session.query(Document).filter_by(id=document_id).first()
 
-    def update_document(self, document_id, **kwargs) -> int:
+    def update_document(self, document_id: int, **kwargs) -> int:
         if document_id <= 0:
             raise ValueError("ID value must be positive")
         updated_docs = self.session.query(Document).filter_by(id=document_id).update(kwargs)
         self.session.commit()
         return updated_docs
 
-    def delete_by_document_id(self, document_id) -> int:
+    # def update_document_object(self, document: Document) -> int:
+    #     if document.id <= 0:
+    #         raise ValueError("ID value must be positive")
+    #
+    #     existing_document = self.session.query(Document).filter_by(id=document.id).first()
+    #     if not existing_document:
+    #         raise ValueError("Document not found")
+    #
+    #     for field in document.__dict__:
+    #         if field != '_sa_instance_state':
+    #             setattr(existing_document, field, getattr(document, field))
+    #
+    #     self.session.commit()
+    #     return existing_document.id
+
+    def update_document_object(self, document: Document):
+        if document.id <= 0:
+            raise ValueError("ID value must be positive")
+
+        existing_document = self.session.query(Document).filter_by(id=document.id).first()
+        if not existing_document:
+            raise ValueError("Document not found")
+
+        # really afraid of these things!!!
+        existing_document.chunking_session = document.chunking_session
+        existing_document.analyzed = document.analyzed
+        existing_document.last_update = document.last_update
+
+        self.session.commit()
+
+
+    def delete_by_document_id(self, document_id: int) -> int:
         if document_id <= 0:
             raise ValueError("ID value must be positive")
         deleted_docs = self.session.query(Document).filter_by(id=document_id).delete()
         self.session.commit()
         return deleted_docs
 
-    def delete_by_parent_id(self, document_id) -> int:
+    def delete_by_parent_id(self, document_id: int) -> int:
         if document_id <= 0:
             raise ValueError("ID value must be positive")
-        deleted_docs = self.session.query(Document).filter_by(parent_id=parent_id).delete()
+        deleted_docs = self.session.query(Document).filter_by(parent_id=document_id).delete()
         self.session.commit()
         return deleted_docs

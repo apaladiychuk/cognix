@@ -36,6 +36,7 @@ type (
 		ctx           context.Context
 		client        *resty.Client
 		fileSizeLimit int
+		sessionID     uuid.NullUUID
 	}
 	OneDriveParameters struct {
 		Folder    string       `json:"folder"`
@@ -81,6 +82,10 @@ func (c *OneDrive) PrepareTask(ctx context.Context, task Task) error {
 
 func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *Response {
 	var fileSizeLimit int
+	c.sessionID = uuid.NullUUID{
+		UUID:  uuid.New(),
+		Valid: true,
+	}
 	if size, ok := param[ParamFileLimit]; ok {
 		fileSizeLimit, _ = strconv.Atoi(size)
 	}
@@ -123,10 +128,11 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 	fileName := ""
 	if !ok {
 		doc = &model.Document{
-			SourceID:    item.Id,
-			ConnectorID: c.model.ID,
-			URL:         item.MicrosoftGraphDownloadUrl,
-			Signature:   "",
+			SourceID:        item.Id,
+			ConnectorID:     c.model.ID,
+			URL:             item.MicrosoftGraphDownloadUrl,
+			Signature:       "",
+			ChunkingSession: c.sessionID,
 		}
 		// build unique filename for store in minio
 		fileName = c.model.BuildFileName(uuid.New().String() + "-" + item.Name)
@@ -141,6 +147,7 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 		fileName = minioFile[2]
 	}
 	doc.IsExists = true
+
 	// do not process file if hash is not changed and file already stored in vector database
 	if doc.Signature == item.File.Hashes.QuickXorHash {
 		return nil
@@ -149,6 +156,7 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 		//}
 		//todo  need to clarify should I send message to semantic service  again
 	}
+	doc.ChunkingSession = c.sessionID
 	doc.Signature = item.File.Hashes.QuickXorHash
 	payload := &Response{
 		URL:         item.MicrosoftGraphDownloadUrl,

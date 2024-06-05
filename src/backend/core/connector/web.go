@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 )
 
 type (
@@ -23,14 +24,19 @@ type (
 func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 
 	// if this connector new we need to run connectorTask for prepare document table
+	sessionID := uuid.NullUUID{
+		UUID:  uuid.New(),
+		Valid: true,
+	}
 	if len(c.model.Docs) == 0 {
 		doc, ok := c.model.DocsMap[c.param.URL]
 		if !ok {
 			doc = &model.Document{
-				SourceID:    c.param.URL,
-				ConnectorID: c.Base.model.ID,
-				URL:         c.param.URL,
-				Signature:   "",
+				SourceID:        c.param.URL,
+				ConnectorID:     c.Base.model.ID,
+				URL:             c.param.URL,
+				Signature:       "",
+				ChunkingSession: sessionID,
 			}
 			c.model.Docs = append(c.model.Docs, doc)
 		}
@@ -39,6 +45,7 @@ func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 	for _, doc := range c.model.Docs {
 		if !doc.ParentID.Valid {
 			rootDoc = doc
+			rootDoc.ChunkingSession = sessionID
 			break
 		}
 	}

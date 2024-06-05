@@ -22,9 +22,8 @@ type (
 		GetObject(ctx context.Context, bucket, filename string, writer io.Writer) error
 	}
 	minIOClient struct {
-		BucketName string
-		Region     string
-		client     *minio.Client
+		Region string
+		client *minio.Client
 	}
 	minIOMockClient struct{}
 )
@@ -44,7 +43,7 @@ func (c *minIOClient) checkOrCreateBucket(ctx context.Context, bucketName string
 }
 func (c *minIOClient) Upload(ctx context.Context, bucket, filename, contentType string, reader io.Reader) (string, string, error) {
 	// verify is bucket exists. create if not exists
-	if err := c.checkOrCreateBucket(ctx, c.BucketName); err != nil {
+	if err := c.checkOrCreateBucket(ctx, bucket); err != nil {
 		return "", "", err
 	}
 
@@ -84,8 +83,7 @@ func NewMinIOClient(cfg *MinioConfig) (MinIOClient, error) {
 		return nil, err
 	}
 	return &minIOClient{
-		BucketName: cfg.BucketName,
-		Region:     cfg.Region,
-		client:     minioClient,
+		Region: cfg.Region,
+		client: minioClient,
 	}, nil
 }

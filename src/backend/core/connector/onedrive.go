@@ -209,7 +209,7 @@ func (c *OneDrive) handleItems(ctx context.Context, folder string, items []*Driv
 		}
 		if item.Folder != nil {
 			// do not scan nested folder if user  wants to read dod from single folder
-			if item.Name == c.param.Folder && !c.param.Recursive {
+			if item.Name != c.param.Folder && !c.param.Recursive {
 				continue
 			}
 			if err := c.getFolder(ctx, folder+"/"+item.Name, item.Id); err != nil {

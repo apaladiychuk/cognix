@@ -201,6 +201,9 @@ func (c *OneDrive) handleItems(ctx context.Context, folder string, items []*Driv
 	for _, item := range items {
 		// read files if user do not configure folder name
 		// or current folder as a part of configured folder.
+		if !(strings.Contains(folder, c.param.Folder) || c.param.Folder == "") {
+			continue
+		}
 		if item.File != nil && (strings.Contains(folder, c.param.Folder) || c.param.Folder == "") {
 			if err := c.getFile(item); err != nil {
 				zap.S().Errorf("Failed to get file with id %s : %s ", item.Id, err.Error())
@@ -209,7 +212,7 @@ func (c *OneDrive) handleItems(ctx context.Context, folder string, items []*Driv
 		}
 		if item.Folder != nil {
 			// do not scan nested folder if user  wants to read dod from single folder
-			if item.Name != c.param.Folder && !c.param.Recursive {
+			if /*item.Name != c.param.Folder*/ strings.Contains(folder, c.param.Folder) && !c.param.Recursive {
 				continue
 			}
 			if err := c.getFolder(ctx, folder+"/"+item.Name, item.Id); err != nil {
@@ -254,4 +257,18 @@ func NewOneDrive(connector *model.Connector) (Connector, error) {
 		SetTimeout(time.Minute)
 
 	return &conn, nil
+}
+func (c *OneDrive) isFolderAnalysing(current string) bool {
+	mask := c.param.Folder
+	if len(current) < len(c.param.Folder) {
+		mask = c.param.Folder[:len(mask)]
+	}
+	// if user does not  set folder name. scan whole oneDrive or only root if recursive is false
+	if c.param.Folder == "" {
+		return len(current) == 0 || c.param.Recursive
+	}
+	// verify is current folder is   part of folder that user configure for scan
+	if strings.HasPrefix(current, mask) {
+		return true
+	}
 }

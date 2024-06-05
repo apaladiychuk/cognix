@@ -69,6 +69,11 @@ func JsonResult(c *gin.Context, status int, data interface{}) error {
 	return nil
 }
 
+func StringResult(c *gin.Context, status int, data []byte) error {
+	c.Data(status, "", data)
+
+	return nil
+}
 func BindJsonAndValidate(c *gin.Context, data interface{}) error {
 	if err := c.BindJSON(data); err != nil {
 		return utils.ErrorBadRequest.Wrap(err, "wrong payload")

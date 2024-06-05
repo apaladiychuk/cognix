@@ -53,7 +53,7 @@ async def semantic_event(msg: Msg):
 
         # verify document id is valid otherwise we cannot process the message
         if semantic_data.document_id <= 0:
-            logger.error(f"❌ failed to process chunking data error: document_id must value must be positive")
+            logger.error(f"❌ failed to process semantic data error: document_id must value must be positive")
         else:
             # update connector's status
             document_crud = DocumentCRUD(cockroach_url)
@@ -72,9 +72,9 @@ async def semantic_event(msg: Msg):
                 # performing semantic analysis on the source
                 semantic = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
                 entities_analyzed = semantic.analyze(data=semantic_data, full_process_start_time=start_time,
-                                                     ack_wait=semantic_ack_wait)
+                                                     ack_wait=semantic_ack_wait, cockroach_url=cockroach_url)
 
-                # if eintites_analyzed == 0 this means no data was stored in the vector db
+                # if entities_analyzed == 0 this means no data was stored in the vector db
                 # we shall find a way to tell the user, most likely put the message in the dead letter
 
                 # updating again the connector
@@ -86,13 +86,13 @@ async def semantic_event(msg: Msg):
                                                 )
             else:
                 logger.error(
-                    f"❌ failed to process chunking data error: document_id {semantic_data.document_id} not valid")
+                    f"❌ failed to process semantic data error: document_id {semantic_data.document_id} not valid")
         # Acknowledge the message when done
         await msg.ack_sync()
         logger.info("👍 message acknowledged successfully")
     except Exception as e:
         error_message = str(e) if e else "Unknown error occurred"
-        logger.error(f"❌ failed to process chunking data error: {error_message}")
+        logger.error(f"❌ failed to process semantic data error: {error_message}")
         if msg:  # Ensure msg is not None before awaiting
             await msg.nak()
         try:
@@ -103,7 +103,7 @@ async def semantic_event(msg: Msg):
                                                 last_update=datetime.datetime.utcnow())
         except Exception as e:
             error_message = str(e) if e else "Unknown error occurred"
-            logger.error(f"❌ failed to process chunking data error: {error_message}")
+            logger.error(f"❌ failed to process semantic data error: {error_message}")
     finally:
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time

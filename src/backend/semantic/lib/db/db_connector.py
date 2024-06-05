@@ -15,15 +15,6 @@ class Status(enum.Enum):
     DISABLED = "DISABLED"
     UNABLE_TO_PROCESS = "UNABLE_TO_PROCESS"
 
-    # ConnectorStatusActive = "Ready to be Processed"
-    # ConnectorStatusPending = "Pending"
-    # ConnectorStatusWorking = "Processing"
-    # ConnectorStatusSuccess = "Completed Successfully"
-    # ConnectorStatusError = "Completed with Errors"
-    # ConnectorStatusDisabled = "Disabled"
-    # ConnectorStatusUnableProcess = "Unable to Process"
-
-
 class Connector(Base):
     __tablename__ = 'connectors'
 
@@ -68,14 +59,14 @@ class ConnectorCRUD:
             raise ValueError("ID value must be positive")
         return self.session.query(Connector).filter_by(id=connector_id).first()
 
-    def update_connector(self, connector_id, **kwargs) -> int:
+    def update_connector(self, connector_id: int, **kwargs) -> int:
         if connector_id <= 0:
             raise ValueError("ID value must be positive")
         updated_connectors = self.session.query(Connector).filter_by(id=connector_id).update(kwargs)
         self.session.commit()
         return updated_connectors
 
-    def delete_connector(self, connector_id) -> int:
+    def delete_connector(self, connector_id: int) -> int:
         if connector_id <= 0:
             raise ValueError("ID value must be positive")
         deleted_connectors = self.session.query(Connector).filter_by(id=connector_id).delete()

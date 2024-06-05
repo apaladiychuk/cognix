@@ -42,7 +42,7 @@ class BS4Spider:
         if page_content:
             self.collected_data.append(ChunkedItem(url=url, content=page_content))
 
-        self.logger.warning("😱 Recursion temporarily disable for debugging purposes. Re-enable it once doce")
+        # self.logger.warning("😱 Recursion temporarily disable for debugging purposes. Re-enable it once done")
         # Extract all links from the page
         if recursive:
             links = [a['href'] for a in soup.find_all('a', href=True)]

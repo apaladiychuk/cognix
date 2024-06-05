@@ -80,7 +80,7 @@ func (r *aiResponder) Send(ctx context.Context,
 		message.Message = response.Message
 	}
 
-	if errr := r.charRepo.Update(ctx, &message); errr != nil {
+	if errr := r.charRepo.UpdateMessage(ctx, &message); errr != nil {
 		err = errr
 		message.Error = err.Error()
 	}

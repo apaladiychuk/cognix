@@ -1,15 +1,25 @@
-# CogniX
+<div align="center">
+
+# `CogniX`
 
 
 
+![Static Badge](https://img.shields.io/badge/mission-our_mission-orange)
+<br />
+![GitHub top language](https://img.shields.io/github/languages/top/gen-mind/cognix)
+![GitHub last commit](https://img.shields.io/github/last-commit/gen-mind/cognix)
 
-## Set Up 
+</div>
+
+
+
+## `Setup`
 Copy file config/.env.example to config/.env
 
 Declare env variables in config/.env
   
 
-### Run docker container 
+### `Run docker container` 
 
 ```azure
 
@@ -20,7 +30,7 @@ Declare env variables in config/.env
 
 
 
-## License
+## `License` 
 
 This project is dual-licensed:
 

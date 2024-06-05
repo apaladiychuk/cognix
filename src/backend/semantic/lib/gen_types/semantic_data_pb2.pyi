@@ -16,6 +16,7 @@ class FileType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     PPT: _ClassVar[FileType]
     TXT: _ClassVar[FileType]
     MD: _ClassVar[FileType]
+    YT: _ClassVar[FileType]
 UNKNOWN: FileType
 URL: FileType
 PDF: FileType
@@ -25,6 +26,7 @@ XLS: FileType
 PPT: FileType
 TXT: FileType
 MD: FileType
+YT: FileType
 
 class SemanticData(_message.Message):
     __slots__ = ("url", "url_recursive", "site_map", "search_for_sitemap", "document_id", "connector_id", "file_type", "collection_name", "model_name", "model_dimension")

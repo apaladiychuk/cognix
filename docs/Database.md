@@ -10,3 +10,6 @@ in this file
 -- +goose StatementBegin
 write queries for downgrade database 
 -- +goose StatementEnd`
+
+
+go orm https://github.com/go-pg/pg

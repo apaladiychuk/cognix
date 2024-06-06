@@ -1,14 +1,15 @@
-from youtube_transcript_api import YouTubeTranscriptApi
-from urllib.parse import urlparse, parse_qs
+import time
+import uuid
 from typing import List, Dict, Optional
-from lib.db.milvus_db import Milvus_DB
+from urllib.parse import urlparse, parse_qs
+
+from youtube_transcript_api import YouTubeTranscriptApi
+
+from lib.db.db_document import DocumentCRUD
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_base import BaseSemantic
-import os, time, random, string
+from lib.spider.chunked_item import ChunkedItem
 
-# load_dotenv()
-#
-# temp_path = os.getenv('LOCAL_TEMP_PATH', "../temp")
 
 class YTSemantic(BaseSemantic):
     def get_video_id(self, youtube_url: str) -> Optional[str]:
@@ -62,88 +63,27 @@ class YTSemantic(BaseSemantic):
         try:
             start_time = time.time()  # Record the start time
             self.logger.info(f"extracting transcript from: {data.url}")
-            # transcript_path: str = os.path.join(self.temp_path, self.generate_random_filename("md"))
 
-            transcript = self.get_youtube_transcript(data.url)
+            content = self.get_youtube_transcript(data.url)
 
-            if transcript:
-                self.logger.info(f"transcript \n {transcript}")
-                # if we need to save as file...
-                # markdown_filename = self.generate_random_filename("md")
-                # self.save_transcript_to_markdown(transcript, markdown_filename)
+            collected_items = 0
+            chunking_session = uuid.uuid4()
+            document_crud = DocumentCRUD(cockroach_url)
 
-                # for pdfs, llamaparse far exceeds unstructured and pymudf is also better/faster from my experience
+            if content:
+                collected_data = [ChunkedItem(url=data.url, content=content)]
 
-                # document_content = "call the appropriate tool to open and extract"
-                #
-                #
-                # milvus_db = Milvus_DB()
-                #
-                # # delete previous added chunks and vectors
-                # milvus_db.delete_by_document_id(document_id=data.document_id, collection_name=data.collection_name)
-                #
-                # chunks = self.split_data(document_content, data.url)
-                # for chunk, url in chunks:
-                #     milvus_db.store_chunk(content=chunk, data=data)
+                collected_items = self.store_collected_data(data=data, document_crud=document_crud,
+                                                            collected_data=collected_data,
+                                                            chunking_session=chunking_session,
+                                                            ack_wait=ack_wait,
+                                                            full_process_start_time=full_process_start_time)
+                self.logger.debug(f"transcript \n {content}")
             else:
-                self.logger.warning(f"😱 No content found for {data.url} ")
+                self.store_collected_data_none(data=data, document_crud=document_crud, chunking_session=chunking_session)
 
-            end_time = time.time()  # Record the end time
-            elapsed_time = end_time - start_time
-            self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
-            return 0
+            self.log_end(collected_items, start_time)
+            return collected_items
             # (if transcript: 1 else: 0)
         except Exception as e:
-            self.logger.error(f"❌ Error: Failed to process chunking data: {e}")
-
-    # def save_transcript_to_file(self, transcript: List[Dict[str, str]], output_file: str) -> None:
-    #             """
-    #             Saves the transcript to a text file.
-    #
-    #             Args:
-    #                 transcript (List[Dict[str, str]]): The transcript entries.
-    #                 output_file (str): The name of the file to save the transcript.
-    #             """
-    #             with open(output_file, 'w', encoding='utf-8') as f:
-    #                 for entry in transcript:
-    #                     start_time = entry['start']
-    #                     duration = entry['duration']
-    #                     text = entry['text']
-    #                     formatted_entry = f"Start: {start_time:.2f}s, Duration: {duration:.2f}s\n{text}\n"
-    #                     f.write(formatted_entry + "\n")
-    #
-    #                     print(f"Transcript saved to {output_file}")
-    #
-    #         def save_transcript_to_markdown(self, transcript: List[Dict[str, str]], output_file: str) -> None:
-    #             """
-    #             Saves the transcript to a markdown file.
-    #
-    #             Args:
-    #                 transcript (List[Dict[str, str]]): The transcript entries.
-    #                 output_file (str): The name of the file to save the transcript.
-    #             """
-    #             with open(output_file, 'w', encoding='utf-8') as f:
-    #                 f.write("# Video Transcript\n\n")
-    #                 for entry in transcript:
-    #                     start_time = entry['start']
-    #                     duration = entry['duration']
-    #                     text = entry['text']
-    #                     formatted_entry = f"**Start:** {start_time:.2f}s, **Duration:** {duration:.2f}s\n\n{text}\n"
-    #                     f.write(formatted_entry + "\n")
-    #             print(f"Transcript saved to {output_file}")
-    #
-    #         def generate_random_filename(self, extension: str = "md") -> str:
-    #             """
-    #             Generates a random filename with the given extension.
-    #
-    #             Args:
-    #                 extension (str): The file extension.
-    #
-    #             Returns:
-    #                 str: The generated filename.
-    #             """
-    #             random_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-    #             return f"{random_str}.{extension}"
-
-
-
+            self.logger.error(f"❌ Failed to process semantic data: {e}")

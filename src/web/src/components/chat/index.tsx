@@ -235,7 +235,7 @@ export function ChatComponent() {
       clearInterval(intervalId);
     };
   }, [newMessage]);
-
+  
   return (
     <div className="flex h-screen">
       <div className="flex flex-grow flex-col m-5 w-4/6">
@@ -255,7 +255,7 @@ export function ChatComponent() {
           isDeactivateSendingButton={isDeactivateSendingButton}
         />
       </div>
-      <div className="hidden lg:my-8 lg:w-2/5 xl:w-3/12 lg:flex lg:flex-col lg:bg-white lg:rounded-md lg:rounded-l-none lg:overflow-x-hidden lg:no-scrollbar">
+      <div className="hidden lg:my-8 lg:w-2/5 xl:w-3/12 px-2 lg:flex lg:flex-col lg:bg-white lg:rounded-md lg:rounded-l-none lg:overflow-x-hidden lg:no-scrollbar">
         <RetrievedKnowledge withHeader messages={messages} />
       </div>
     </div>

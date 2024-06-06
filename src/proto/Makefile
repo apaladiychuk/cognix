@@ -1,7 +1,7 @@
 
 gen-proto-go:
-	rm -f ../backend/core/proto/*.pb.go
-	protoc -I=. -I=vendor -I=${GOPATH}/src *.proto --go_out=.. --go-grpc_out=..
+
+	protoc -I=. -I=vendor -I=${GOPATH}/src embed_service.proto connector_messages.proto semantic_data.proto --go_out=.. --go-grpc_out=..
 
 
 #PROTOC_GEN_GRPC_PYTHON=$(shell which grpc_tools.protoc)

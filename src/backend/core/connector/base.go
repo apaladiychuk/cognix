@@ -11,6 +11,7 @@ import (
 
 const (
 	mineURL        = "url"
+	mimeYoutube    = "youtube"
 	ParamFileLimit = "file_limit"
 	GB             = 1024 * 1024 * 1024
 )
@@ -98,6 +99,8 @@ func New(connectorModel *model.Connector) (Connector, error) {
 		return NewOneDrive(connectorModel)
 	case model.SourceTypeFile:
 		return NewFile(connectorModel)
+	case model.SourceTypeYoutube:
+		return NewYoutube(connectorModel)
 	default:
 		return &nopConnector{}, nil
 	}

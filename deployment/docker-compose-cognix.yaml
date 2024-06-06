@@ -19,6 +19,9 @@
 # Run Docker Compose with Sudo:
 # sudo docker-compose -f deployment/docker-compose-test.yaml up
 
+# container versioning
+# er use the semantic versioning as described here https://semver.org/
+
 version: '3.8'
 networks:
   cognix-network:

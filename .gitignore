@@ -40,3 +40,6 @@ src/backend/semantic/testdocs/
 
 # ignore inteliJIdea configs
 .idea/
+
+# ignore temp path
+vendor/

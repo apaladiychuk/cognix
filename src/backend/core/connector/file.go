@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"time"
 )
 
 type (
@@ -22,34 +23,37 @@ type (
 
 func (c *File) PrepareTask(ctx context.Context, task Task) error {
 
+	link := fmt.Sprintf("minio:tenant-%s:%s", c.model.User.EmbeddingModel.TenantID.String(), c.param.FileName)
 	if len(c.model.Docs) == 0 {
-		// send message to connector service if new.
-		return task.RunConnector(ctx, &proto.ConnectorRequest{
-			Id:     c.model.ID.IntPart(),
-			Params: make(map[string]string),
+		c.model.Docs = append(c.model.Docs, &model.Document{
+			SourceID:     link,
+			ConnectorID:  c.model.ID,
+			URL:          link,
+			CreationDate: time.Now().UTC(),
+			IsExists:     true,
 		})
 	}
-	if !c.model.Docs[0].Analyzed {
-		// if file is not  chunked and not stored in vector database send message to chunker
-		link := fmt.Sprintf("minio:tenant-%s:%s", c.model.User.EmbeddingModel.TenantID.String(), c.param.FileName)
-		c.model.Docs[0].ChunkingSession = uuid.NullUUID{
-			UUID:  uuid.New(),
-			Valid: true,
-		}
-		return task.RunSemantic(ctx, &proto.SemanticData{
-			Url:            link,
-			DocumentId:     c.model.Docs[0].ID.IntPart(),
-			FileType:       0,
-			CollectionName: c.model.CollectionName(),
-			ModelName:      c.model.User.EmbeddingModel.ModelID,
-			ModelDimension: int32(c.model.User.EmbeddingModel.ModelDim),
-		})
+	// ignore  file that was analyzed
+	if c.model.Status == model.ConnectorStatusError || c.model.Status == model.ConnectorStatusSuccess {
+		return nil
 	}
-	// file already chunked and  stored in vector database. Update connector status.
-	return task.UpToDate(ctx)
+	c.model.Docs[0].ChunkingSession = uuid.NullUUID{
+		UUID:  uuid.New(),
+		Valid: true,
+	}
+	return task.RunSemantic(ctx, &proto.SemanticData{
+		Url:            link,
+		DocumentId:     c.model.Docs[0].ID.IntPart(),
+		ConnectorId:    c.model.ID.IntPart(),
+		FileType:       0,
+		CollectionName: c.model.CollectionName(),
+		ModelName:      c.model.User.EmbeddingModel.ModelID,
+		ModelDimension: int32(c.model.User.EmbeddingModel.ModelDim),
+	})
 }
 
 func (c *File) Execute(ctx context.Context, param map[string]string) chan *Response {
+	// do no used for this source
 	c.ctx = ctx
 	go func() {
 		defer close(c.resultCh)

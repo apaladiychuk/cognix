@@ -1,4 +1,3 @@
-import asyncio
 import logging
 
 from google.protobuf import message as _message

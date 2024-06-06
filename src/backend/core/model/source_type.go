@@ -28,6 +28,7 @@ const (
 	SourceTypeSharepoint     SourceType = "sharepoint"
 	SourceTypeOneDrive       SourceType = "one-drive"
 	SourceTypeMsTeams        SourceType = "msteams"
+	SourceTypeYoutube        SourceType = "youtube"
 )
 
 type (
@@ -47,6 +48,7 @@ var (
 	sourceTypeGmailDescription       = SourceTypeDescription{SourceTypeGMAIL, "Gmail", false}
 	sourceTypeSharepointDescription  = SourceTypeDescription{SourceTypeSharepoint, "Sharepoint", false}
 	sourceTypeOneDriveDescription    = SourceTypeDescription{SourceTypeOneDrive, "OneDrive", true}
+	sourceTypeYouTubeDescription     = SourceTypeDescription{SourceTypeYoutube, "Youtube", true}
 )
 var AllSourceTypes = map[SourceType]*SourceTypeDescription{
 	SourceTypeFile:        &sourceTypeFileDescription,
@@ -56,6 +58,7 @@ var AllSourceTypes = map[SourceType]*SourceTypeDescription{
 	SourceTypeGMAIL:       &sourceTypeGmailDescription,
 	SourceTypeSharepoint:  &sourceTypeSharepointDescription,
 	SourceTypeOneDrive:    &sourceTypeOneDriveDescription,
+	SourceTypeYoutube:     &sourceTypeYouTubeDescription,
 }
 
 var SourceTypesList = []*SourceTypeDescription{
@@ -66,4 +69,5 @@ var SourceTypesList = []*SourceTypeDescription{
 	&sourceTypeGmailDescription,
 	&sourceTypeSharepointDescription,
 	&sourceTypeOneDriveDescription,
+	&sourceTypeYouTubeDescription,
 }

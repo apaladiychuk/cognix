@@ -1,5 +1,4 @@
 import { ChatSession } from "@/models/chat";
-import { User } from "@/models/user";
 import axios from "axios";
 import React, { createContext, useEffect, useState } from "react";
 
@@ -20,24 +19,26 @@ export default function AuthProvider({
   const [chats, setChats] = useState<ChatSession[]>([]);
 
   const fetchMeToState = async () => {
-    const user_response = await axios.get<{
-      data: User;
-    }>(import.meta.env.VITE_PLATFORM_API_USER_INFO_URL);
-
-    setId(user_response.data.data.id);
-    setUserName(user_response.data.data.user_name);
-    setFirstName(user_response.data.data.first_name);
-    setLastName(user_response.data.data.last_name);
-    setRoles(user_response.data.data.roles);
-
-    await axios.get(import.meta.env.VITE_PLATFORM_API_USER_CHATS_URL)
-    .then((res) => {
-      setChats(res.data.data);
-    });
+    try {
+      const [userRes, chatsRes] = await Promise.all([
+        axios.get(import.meta.env.VITE_PLATFORM_API_USER_INFO_URL),
+        axios.get(import.meta.env.VITE_PLATFORM_API_USER_CHATS_URL),
+      ]);
+      const userData = userRes.data.data;
+      const chatsData = chatsRes.data.data;
+      setId(userData.id);
+      setUserName(userData.user_name);
+      setFirstName(userData.first_name);
+      setLastName(userData.last_name);
+      setRoles(userData.roles);
+      setChats(chatsData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   useEffect(() => {
-    setTimeout((() => fetchMeToState()), 1000);
+    setTimeout(() => fetchMeToState(), 1000);
   }, []);
 
   const value = {
@@ -55,7 +56,7 @@ export default function AuthProvider({
     setChats,
     fetchMeToState,
   } as const;
-
+  
   return {
     ...(<AuthContext.Provider value={value}>{children}</AuthContext.Provider>),
     value,

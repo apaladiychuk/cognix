@@ -8,6 +8,7 @@ import { CreateConnectorDialog } from "@/components/dialogs/ConnectorDialog";
 import axios from "axios";
 import { Connector } from "@/models/settings";
 import { AuthContext } from "@/context/AuthContext";
+import { toast } from "react-toastify";
 
 export function ConnectorsManagementComponent() {
   const { id, roles } = useContext(AuthContext);
@@ -17,9 +18,7 @@ export function ConnectorsManagementComponent() {
     Controller.useFilterHandler(connectors);
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showConnectorDialogOpen, setShowConnectorDialogOpen] =
-    useState(false);
-
+  const [showConnectorDialogOpen, setShowConnectorDialogOpen] = useState(false);
   async function getConnectors() {
     await axios
       .get(import.meta.env.VITE_PLATFORM_API_CONNECTOR_LIST_URL)
@@ -49,19 +48,27 @@ export function ConnectorsManagementComponent() {
 
   async function disableConnector(id: string) {
     const index = connectors.findIndex((obj) => obj.id === id);
-    if (index !== -1) {
-      await axios
-        .put(`${import.meta.env.VITE_PLATFORM_API_CONNECTOR_EDIT_URL}/${id}`, {
-          ...connectors[index],
-          disabled: true,
-        })
-        .then((response) => {
-          if (response.status == 200) {
-            connectors[index] = {
-              ...response.data,
-            };
-          }
-        });
+    try {
+      if (index !== -1) {
+        await axios
+          .put(
+            `${import.meta.env.VITE_PLATFORM_API_CONNECTOR_EDIT_URL}/${id}`,
+            {
+              ...connectors[index],
+              disabled: true,
+            }
+          )
+          .then((response) => {
+            if (response.status == 200) {
+              connectors[index] = {
+                ...response.data,
+              };
+            }
+          });
+        toast.success("Connector successfully paused");
+      }
+    } catch {
+      toast.error("Error: cannot pause connector, try later");
     }
   }
 
@@ -87,10 +94,20 @@ export function ConnectorsManagementComponent() {
     getConnectors();
   }, [showConnectorDialogOpen]);
 
+  const handleDelete = () => {
+    try {
+      deleteConnector(selectedRow!.id);
+      toast.success("Connector successfully deleted");
+    } catch (e) {
+      toast.error(e as string);
+    }
+  };
+
   return (
     <div className="flex flex-grow flex-col m-8 overflow-x-hidden no-scrollbar">
       <SettingHeader
-        title={"Existing Connectors"}
+        title={"Connectors"}
+        buttonTitle={"Connector"}
         withBtn
         handleClick={() => {
           setShowConnectorDialogOpen(true);
@@ -153,9 +170,7 @@ export function ConnectorsManagementComponent() {
           <ConfirmDeleteDialog
             description="Are you sure you want to delete this Connector?"
             deleteButtonText="Yes, Delete"
-            onConfirm={() => {
-              deleteConnector(selectedRow!.id);
-            }}
+            onConfirm={handleDelete}
             open={showDeleteDialog}
             onOpenChange={setShowDeleteDialog}
           />

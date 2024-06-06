@@ -64,13 +64,37 @@ The status of the connector is currently determined by a field in the connector 
 - Investigate if NATS can notify when a new item is added to the dead letter queue. If so, the orchestrator or another service should subscribe to this message and set the status to Unable to Process.
 
 ## Rules for Re-scanning Connectors
-Orchestrator shall evaluate Status and last update on the connector table to decide if to trigger a new scan or not
-A new scann request shall be triggered when: 
-- Adding the seconds defined in refresh_freq to last update (date) the resulting date is > than now_utc()
-- The connector is in status Active, Scan Completed Successfully, Scan Completed with Errors. Which means no active or pending scan (Pending Scan - Working).
-- Refresh frequency is configurable and varies by file type.
-- If the connector type is YT or File, once the connector is in an ending status it shall never be trigger again. Ending status Scan Completed Successfully, Scan Completed with Errors
-- Never trigger an scan if status is Disabled or Unable to Process
+1. **Evaluate Status and Last Update**: The orchestrator should check the connector's status and the date of the last update.
+
+2. **Trigger a New Scan**: A new scan request should be triggered if:
+    - The connector's current status is "Active", "Scan Completed Successfully", or "Scan Completed with Errors".
+    - The resulting date after adding the refresh frequency (refresh_freq) to the last update date is greater than the current UTC time (now_utc()).
+    - The connector is not in a "Pending Scan" or "Working" status.
+
+3. **Refresh Frequency Configurability**: The refresh frequency should be configurable and vary by file type. This means different connectors can have different refresh intervals based on their type and requirements.
+
+4. **One-Time Scan Connectors**:
+    - If the connector type is "YT" (YouTube) or "File", the connector should not be triggered again once it reaches an ending status (either "Scan Completed Successfully" or "Scan Completed with Errors").
+
+5. **Statuses that Prevent Scanning**:
+    - The orchestrator should never trigger a scan if the connector is in "Disabled" or "Unable to Process" status.
+
+### Corrected Logic for Re-Scanning
+
+Here's a refined version of the logic in plain language and pseudo-code for better clarity:
+
+**Conditions to Trigger a New Scan:**
+- The connector is in one of the following statuses:
+  - "Active"
+  - "Scan Completed Successfully"
+  - "Scan Completed with Errors"
+- The connector is **not** in the following statuses:
+  - "Pending Scan"
+  - "Working"
+  - "Disabled"
+  - "Unable to Process"
+- The current UTC time (`now_utc()`) is greater than the sum of the last update time (`last_update`) and the refresh frequency (`refresh_freq`).
+
 
 ## URL
 The user can connect a URL as a knowledge source, providing:
@@ -277,3 +301,8 @@ message ChunkingData {
 - Sitemap URL (optional)
 - Option to scan all links on the page (optional)
 - Option to search for a sitemap if not provided
+
+
+
+
+

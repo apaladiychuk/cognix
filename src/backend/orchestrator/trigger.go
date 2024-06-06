@@ -79,7 +79,9 @@ func (t *trigger) Do(ctx context.Context) error {
 // RunSemantic send message to semantic service
 func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) error {
 
-	if t.connectorModel.Type == model.SourceTypeWEB {
+	if t.connectorModel.Type == model.SourceTypeWEB ||
+		t.connectorModel.Type == model.SourceTypeYoutube ||
+		t.connectorModel.Type == model.SourceTypeFile {
 		doc := t.connectorModel.Docs[0]
 		var err error
 		// create or update document in database

@@ -21,6 +21,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { useMutation } from "@/lib/mutation";
+import { toast } from "react-toastify";
 import {
   CreateConnectorSchema,
   UpdateConnectorSchema,
@@ -52,12 +53,15 @@ export function CreateConnectorDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: instance && instance.name,
-      connector_specific_config:
-        instance && JSON.stringify(instance.connector_specific_config),
-      refresh_freq: instance && String(instance.refresh_freq),
-      credential_id: instance && instance.credential_id,
-      source: instance && instance.source,
+      name: instance?.name || "",
+      connector_specific_config: instance
+        ? JSON.stringify(
+            instance.connector_specific_config ?? '{"your_key": "your_value"}'
+          )
+        : "",
+      refresh_freq: instance ? String(instance.refresh_freq) : "",
+      source: instance?.source || "",
+      credential_id: instance?.credential_id || "",
       ...defaultValues,
     },
   });
@@ -74,21 +78,27 @@ export function CreateConnectorDialog({
   );
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const data = {
+      connector_specific_config: JSON.parse(values.connector_specific_config),
+      refresh_freq: Number(values.refresh_freq),
+      name: values.name,
+      source: values.source,
+      credential_id: values.credential_id ?? "0",
+    };
     if (instance) {
-      await triggerEditConnector({
-        connector_specific_config: JSON.parse(values.connector_specific_config),
-        refresh_freq: Number(values.refresh_freq),
-        credential_id: values.credential_id,
-        name: values.name,
-      });
+      try {
+        await triggerEditConnector(data);
+        toast.success("Connector successfully updated");
+      } catch (e) {
+        toast.error(e as string);
+      }
     } else {
-      await triggerCreateConnector({
-        source: values.source,
-        connector_specific_config: JSON.parse(values.connector_specific_config),
-        refresh_freq: Number(values.refresh_freq),
-        credential_id: values.credential_id,
-        name: values.name,
-      });
+      try {
+        await triggerCreateConnector(data);
+        toast.success("Connector successfully created");
+      } catch (e) {
+        toast.error(e as string);
+      }
     }
     onOpenChange(false);
   };
@@ -124,14 +134,17 @@ export function CreateConnectorDialog({
     >
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
-        className={`${step == 1 ? "sm:max-w-[800px]" : "sm:max-w-[425px]"}`}
+        className={step == 1 ? "sm:max-w-[800px]" : "sm:max-w-[425px]"}
       >
         <DialogHeader>
-          <DialogTitle>Add Connector</DialogTitle>
-          <span className="fixed right-3 top-3 text-sm">
-            {" "}
-            <span className="text-primary">Step {step}</span>/2
-          </span>
+          <DialogTitle>
+            {instance ? "Edit Connector" : "Add Connector"}
+          </DialogTitle>
+          {!instance && (
+            <span className="fixed right-3 top-3 text-sm">
+              <span className="text-primary">Step {step}</span>/2
+            </span>
+          )}
         </DialogHeader>
         <Form {...form}>
           <form
@@ -244,7 +257,7 @@ export function CreateConnectorDialog({
                     <FormItem>
                       <FormControl>
                         <TextArea
-                          placeholder="Connector Specific Configuration"
+                          placeholder={`Connector Specific Configuration \n {"your_key": "your_value"}`}
                           {...field}
                         />
                       </FormControl>
@@ -260,7 +273,7 @@ export function CreateConnectorDialog({
                     <FormItem>
                       <FormControl>
                         <Input
-                          placeholder="Refresh Frequency"
+                          placeholder="Refresh Frequency (seconds)"
                           type="number"
                           {...field}
                         />
@@ -269,22 +282,23 @@ export function CreateConnectorDialog({
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="credential_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <TextArea
-                          placeholder="Connector credential"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {!instance && (
+                  <FormField
+                    control={form.control}
+                    name="credential_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <TextArea
+                            placeholder="Connector credential"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <DialogFooter>
                   <DialogClose asChild>
                     <Button
@@ -296,8 +310,12 @@ export function CreateConnectorDialog({
                       Cancel
                     </Button>
                   </DialogClose>
-                  <Button type="submit" className="w-full h-10">
-                    Add
+                  <Button
+                    type="submit"
+                    disabled={!form.formState.errors}
+                    className="w-full h-10"
+                  >
+                    {instance ? "Update" : "Add"}
                   </Button>
                 </DialogFooter>
               </>

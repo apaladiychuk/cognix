@@ -9,13 +9,7 @@ export interface DocumentProps {
   className?: string;
   date: string;
 }
-
-const DocumentCard: React.FC<DocumentProps> = ({
-  link,
-  content,
-  className,
-  date,
-}) => {
+const DocumentCard: React.FC<DocumentProps> = ({ link, content, date }) => {
   const [timeElapsed, setTimeElapsed] = useState("");
 
   useEffect(() => {
@@ -33,21 +27,26 @@ const DocumentCard: React.FC<DocumentProps> = ({
   }, [date]);
 
   return (
-    <div className="flex flex-wrap w-full">
-      <div className={`flex flex-col p-4 ps-0 w-full ${className}`}>
-        <div className="flex h-10 bg-destructive-foreground rounded-md items-start mb-2">
-          <div className="flex flex-grow items-center justify-between ml-2 mb-4">
-            <div className="text-sm text-center pt-2.5 truncate">{link}</div>
-            <div className="pt-2.5 px-2">
-              <p className="text-xs text-[#9299A3] border border-white rounded bg-white px-2">
-                Updated {timeElapsed}
-              </p>
-            </div>
+    <div className="w-full max-w-sm sm:max-w-md bg-white shadow-lg rounded-lg overflow-hidden my-4">
+      <div className="bg-gray-100 px-3 py-4">
+        <div className="flex flex-col">
+          <div className="flex flex-row items-center justify-between flex-wrap">
+            <p className="font-bold text-sm truncate">
+              {link.length < 16 ? link : `${link.slice(0, 16)}...`}
+            </p>
+            <p className="text-gray-600 rounded-md p-1 bg-white text-sm">
+              Updated {timeElapsed}
+            </p>
           </div>
         </div>
       </div>
-      <div className="p-2 -ml-2 w-full">
-        <div className="-mt-6 text-muted-foreground break-all">{content}</div>
+      <div className="p-2 ml-2 w-full">
+        <div className="px-3 py-4 text-muted-foreground break-all">
+          AI Chat interactions, the client could indicate to NATS that multiple
+          replies should be allowed. This flexibility allows for more dynamic
+          and scalable communication between clients and servers
+          {content}
+        </div>
       </div>
     </div>
   );

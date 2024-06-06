@@ -5,6 +5,7 @@ from lib.semantic.semantic_doc import DOCXSemantic
 from lib.semantic.semantic_txt import TXTSemantic
 from lib.semantic.semantic_md import MDSemantic
 from lib.gen_types.semantic_data_pb2 import FileType
+from lib.semantic.semantic_youtube import YTSemantic
 
 
 # Plaintext	.eml, .html, .md, .msg, .rst, .rtf, .txt, .xml
@@ -17,6 +18,7 @@ class SemanticFactory:
         FileType.DOC: DOCXSemantic,
         FileType.TXT: TXTSemantic,
         FileType.MD: MDSemantic,
+        FileType.YT: YTSemantic,
         # Add other mappings here
     }
 

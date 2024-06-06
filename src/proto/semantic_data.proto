@@ -14,6 +14,7 @@ enum FileType {
   PPT = 6;
   TXT = 7;
   MD  = 8;
+  YT = 9;
   // add all supported file that in another document
   // check what with Google docs
 };
@@ -27,6 +28,13 @@ message SemanticData {
   string site_map = 3;
   bool search_for_sitemap = 4;
   int64  document_id = 5;
+
+
+
+
+
+
+
   int64  connector_id = 6;
   FileType file_type = 7;
   string collection_name = 8;

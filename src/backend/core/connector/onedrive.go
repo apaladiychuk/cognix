@@ -266,7 +266,7 @@ func NewOneDrive(connector *model.Connector) (Connector, error) {
 func (c *OneDrive) isFolderAnalysing(current string) bool {
 	mask := c.param.Folder
 	if len(current) < len(c.param.Folder) {
-		mask = c.param.Folder[:len(mask)]
+		mask = c.param.Folder[:len(current)]
 	}
 	// if user does not  set folder name. scan whole oneDrive or only root if recursive is false
 	if c.param.Folder == "" {

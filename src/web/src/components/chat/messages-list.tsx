@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { ChatMessage } from "@/models/chat";
 import { dataConverter } from "@/lib/utils";
 import MessageCard from "./components/message-card";
@@ -8,15 +8,10 @@ interface MessagesListProps {
   newMessage: ChatMessage | null | undefined;
 }
 
-const MessagesList: React.FC<MessagesListProps> = ({ messages, newMessage }) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
-    }
-  }, [messages]);
-
+const MessagesList: React.FC<MessagesListProps> = ({
+  messages,
+  newMessage,
+}) => {
   useEffect(() => {
     let index = 0;
     const intervalId = setInterval(() => {
@@ -28,17 +23,14 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, newMessage }) => 
         );
         index++;
         if (index >= newMessage.message.length) {
-          clearInterval(intervalId);
+          return () => clearInterval(intervalId);
         }
       }
     }, 25);
-    return () => {
-      clearInterval(intervalId);
-    };
   }, [newMessage, messages]);
 
   return (
-    <div ref={messagesEndRef} className="flex flex-col flex-grow lg:mx-10 md:mx-10 overflow-x-hidden no-scrollbar">
+    <div className="flex flex-col flex-grow lg:mx-10 md:mx-10 overflow-y-scroll no-scrollbar">
       <div className="flex flex-grow items-start lg:my-4 my-10">
         <hr className="my-2 mr-4 flex-grow border-t border-gray-300" />
         <div className="text-muted-foreground text-sm font-thin">

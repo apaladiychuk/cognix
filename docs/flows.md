@@ -64,10 +64,13 @@ The status of the connector is currently determined by a field in the connector 
 - Investigate if NATS can notify when a new item is added to the dead letter queue. If so, the orchestrator or another service should subscribe to this message and set the status to Unable to Process.
 
 ## Rules for Re-scanning Connectors
-- No active scan (Connector or Chunker).
-- No pending scan request (Connector or Chunker).
-- The time of the last activity must be greater than the refresh frequency (in seconds).
+Orchestrator shall evaluate Status and last update on the connector table to decide if to trigger a new scan or not
+A new scann request shall be triggered when: 
+- Adding the seconds defined in refresh_freq to last update (date) the resulting date is > than now_utc()
+- The connector is in status Active, Scan Completed Successfully, Scan Completed with Errors. Which means no active or pending scan (Pending Scan - Working).
 - Refresh frequency is configurable and varies by file type.
+- If the connector type is YT or File, once the connector is in an ending status it shall never be trigger again. Ending status Scan Completed Successfully, Scan Completed with Errors
+- Never trigger an scan if status is Disabled or Unable to Process
 
 ## URL
 The user can connect a URL as a knowledge source, providing:
@@ -248,6 +251,7 @@ enum FileType {
   PPT = 6;
   TXT = 7;
   MD  = 8;
+  YT = 9;
   // add all supported file that in another document
   // check what with Google docs
 };

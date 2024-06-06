@@ -3,8 +3,9 @@ gen-proto-go:
 	rm -f ../backend/core/proto/*.pb.go
 	protoc -I=. -I=vendor -I=${GOPATH}/src *.proto --go_out=.. --go-grpc_out=..
 
-gen-proto-python:
-	protoc --proto_path=. --python_out=./python connector_messages.proto embed_service.proto semantic_data.proto
-# do not use thi commad it is not correct for python
-# 	rm -f ./python/embedder/*pb2*.py*
-#	python3 -m grpc_tools.protoc -I . --python_out=. --pyi_out=. --grpc_python_out=. embedd_service.proto
+
+#PROTOC_GEN_GRPC_PYTHON=$(shell which grpc_tools.protoc)
+#.PHONY: gen-proto-python
+#gen-proto-python:
+#	rm -f ./python/embedder/*pb2*.py*
+#	python -I=. --proto_path=. --python_out=./python --pyi_out=./python --grpc_python_out=./python semantic_data.proto

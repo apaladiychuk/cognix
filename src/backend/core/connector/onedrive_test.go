@@ -43,11 +43,13 @@ func TestOneDrive_Folder(t *testing.T) {
 	assert.Equal(t, c.isFolderAnalysing("folder"), true)
 	assert.Equal(t, c.isFolderAnalysing("folder/chapter1"), true)
 	assert.Equal(t, c.isFolderAnalysing("folder2/chapter1"), false)
+	assert.Equal(t, c.isFolderAnalysing("docs/folder/chapter1"), false)
 
 	assert.Equal(t, c.isFilesAnalysing(""), false)
 	assert.Equal(t, c.isFilesAnalysing("folder"), true)
 	assert.Equal(t, c.isFilesAnalysing("folder/chapter1"), true)
 	assert.Equal(t, c.isFilesAnalysing("folder2/chapter1"), false)
+	assert.Equal(t, c.isFilesAnalysing("docs/folder/chapter1"), false)
 
 	// given folder name without recursive
 	c.param.Folder = "folder"

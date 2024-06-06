@@ -17,6 +17,7 @@ temp_path = os.getenv('LOCAL_TEMP_PATH', "../temp")
 class BaseSemantic:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.temp_path = temp_path
 
     def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
         raise NotImplementedError("Chunk method needs to be implemented by subclasses")

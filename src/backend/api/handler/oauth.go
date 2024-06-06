@@ -44,7 +44,7 @@ func (h *OAuthHandler) GetUrl(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-	return server.JsonResult(c, http.StatusOK, url)
+	return server.StringResult(c, http.StatusOK, []byte(url))
 }
 
 func (h *OAuthHandler) Callback(c *gin.Context) error {

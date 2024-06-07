@@ -13,7 +13,7 @@ const (
 	CollectionTenant = "tenant_%s"
 	CollectionUser   = "user_%s"
 
-	ConnectorStatusReadyToProcessed = "READY_TO_BE_PROCESSED"
+	ConnectorStatusReadyToProcessed = "READY_TO_PROCESS"
 	ConnectorStatusPending          = "PENDING"
 	ConnectorStatusWorking          = "PROCESSING"
 	ConnectorStatusSuccess          = "COMPLETED_SUCCESSFULLY"

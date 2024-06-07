@@ -17,10 +17,11 @@ spec:
         image: cognixacr.azurecr.io/cognix/ui:main
         imagePullPolicy: Always
         env:
-        - name: PORT
-          value: "80"
         - name: VITE_PLATFORM_API_URL
-          value: https://rag.cognix.ch          
+          value: https://rag.cognix.ch
+        envFrom:
+        - configMapRef:
+            name: web-srv
         ports:
         - containerPort: 80
       imagePullSecrets:

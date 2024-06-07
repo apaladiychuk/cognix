@@ -436,394 +436,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/manage/credential": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "return list of allowed credentials",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Credentials"
-                ],
-                "summary": "return list of allowed credentials",
-                "operationId": "credentials_get_all",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "source of credentials",
-                        "name": "source",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "true for include deleted credentials",
-                        "name": "archived",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Credential"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "creates new credential",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Credentials"
-                ],
-                "summary": "creates new credential",
-                "operationId": "credentials_create",
-                "parameters": [
-                    {
-                        "description": "credential create parameter",
-                        "name": "params",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/parameters.CreateCredentialParam"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.Credential"
-                        }
-                    }
-                }
-            }
-        },
-        "/manage/credential/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "return list of allowed credentials",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Credentials"
-                ],
-                "summary": "return list of allowed credentials",
-                "operationId": "credentials_get_by_id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "credential id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Credential"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "updates credential",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Credentials"
-                ],
-                "summary": "updates credential",
-                "operationId": "credentials_update",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "credential id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "credential update parameter",
-                        "name": "params",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/parameters.UpdateCredentialParam"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Credential"
-                        }
-                    }
-                }
-            }
-        },
-        "/manage/credential/{id}/{action}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "delete or restore credential",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Credentials"
-                ],
-                "summary": "delete or restore credential",
-                "operationId": "credential_delete_restore",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "credential id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "action : delete | restore ",
-                        "name": "action",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Credential"
-                        }
-                    }
-                }
-            }
-        },
-        "/manage/document_sets": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "return list of document sets for current user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Document Set"
-                ],
-                "summary": "return list of document sets for current user",
-                "operationId": "document_set_get_by_user",
-                "parameters": [
-                    {
-                        "type": "boolean",
-                        "description": "true for include deleted document sets",
-                        "name": "archived",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.DocumentSet"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "creates document sets",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Document Set"
-                ],
-                "summary": "creates document sets",
-                "operationId": "document_set_create",
-                "parameters": [
-                    {
-                        "description": "document set parameter",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/parameters.DocumentSetParam"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.DocumentSet"
-                        }
-                    }
-                }
-            }
-        },
-        "/manage/document_sets/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "return document set with connector list by id",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Document Set"
-                ],
-                "summary": "return document set with connector list by id",
-                "operationId": "document_set_get_by_id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "document set id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.DocumentSet"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "updates document sets",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Document Set"
-                ],
-                "summary": "updates document sets",
-                "operationId": "document_set_update",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "document set id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "document set parameter",
-                        "name": "payload",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/parameters.DocumentSetParam"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.DocumentSet"
-                        }
-                    }
-                }
-            }
-        },
-        "/manage/document_sets/{id}/{action}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "delete or restore document sets",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Document Set"
-                ],
-                "summary": "delete or restore document sets",
-                "operationId": "document_set_delete",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "document set id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "action : delete | restore ",
-                        "name": "action",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.DocumentSet"
-                        }
-                    }
-                }
-            }
-        },
         "/manage/embedding_models": {
             "get": {
                 "security": [
@@ -1420,7 +1032,7 @@ const docTemplate = `{
         "model.ChatSession": {
             "type": "object",
             "properties": {
-                "created_date": {
+                "creation_date": {
                     "type": "string"
                 },
                 "deleted_date": {
@@ -1458,20 +1070,11 @@ const docTemplate = `{
                 "connector_specific_config": {
                     "$ref": "#/definitions/model.JSONMap"
                 },
-                "created_date": {
+                "creation_date": {
                     "type": "string"
-                },
-                "credential": {
-                    "$ref": "#/definitions/model.Credential"
-                },
-                "credential_id": {
-                    "$ref": "#/definitions/decimal.NullDecimal"
                 },
                 "deleted_date": {
                     "$ref": "#/definitions/pg.NullTime"
-                },
-                "disabled": {
-                    "type": "boolean"
                 },
                 "docs": {
                     "type": "array",
@@ -1488,13 +1091,10 @@ const docTemplate = `{
                 "id": {
                     "type": "number"
                 },
-                "input_type": {
-                    "type": "string"
+                "last_successful_analysis": {
+                    "$ref": "#/definitions/pg.NullTime"
                 },
-                "last_attempt_status": {
-                    "type": "string"
-                },
-                "last_successful_index_time": {
+                "last_update": {
                     "$ref": "#/definitions/pg.NullTime"
                 },
                 "name": {
@@ -1503,110 +1103,55 @@ const docTemplate = `{
                 "refresh_freq": {
                     "type": "integer"
                 },
-                "shared": {
-                    "type": "boolean"
-                },
                 "source": {
                     "$ref": "#/definitions/model.SourceType"
                 },
-                "tenant_id": {
+                "status": {
                     "type": "string"
+                },
+                "tenant_id": {
+                    "$ref": "#/definitions/uuid.NullUUID"
                 },
                 "total_docs_indexed": {
                     "type": "integer"
                 },
-                "updated_date": {
-                    "$ref": "#/definitions/pg.NullTime"
-                },
                 "user_id": {
                     "type": "string"
-                }
-            }
-        },
-        "model.Credential": {
-            "type": "object",
-            "properties": {
-                "connectors": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Connector"
-                    }
-                },
-                "created_date": {
-                    "type": "string"
-                },
-                "credential_json": {
-                    "$ref": "#/definitions/model.CredentialJson"
-                },
-                "deleted_date": {
-                    "$ref": "#/definitions/pg.NullTime"
-                },
-                "id": {
-                    "type": "number"
-                },
-                "shared": {
-                    "type": "boolean"
-                },
-                "source": {
-                    "$ref": "#/definitions/model.SourceType"
-                },
-                "tenant_id": {
-                    "type": "string"
-                },
-                "updated_date": {
-                    "$ref": "#/definitions/pg.NullTime"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.CredentialJson": {
-            "type": "object",
-            "properties": {
-                "custom": {
-                    "$ref": "#/definitions/model.JSONMap"
-                },
-                "provider": {
-                    "type": "integer"
-                },
-                "token": {
-                    "$ref": "#/definitions/oauth2.Token"
                 }
             }
         },
         "model.Document": {
             "type": "object",
             "properties": {
+                "analyzed": {
+                    "type": "boolean"
+                },
+                "chunking_session": {
+                    "$ref": "#/definitions/uuid.NullUUID"
+                },
                 "connector_id": {
                     "type": "number"
                 },
-                "created_date": {
-                    "type": "string"
-                },
-                "deleted_date": {
-                    "$ref": "#/definitions/pg.NullTime"
-                },
-                "document_id": {
+                "creation_date": {
                     "type": "string"
                 },
                 "id": {
                     "type": "number"
                 },
-                "link": {
-                    "description": "Boost            int             ` + "`" + `json:\"boost,omitempty\" pg:\",use_zero\"` + "`" + `\nHidden           bool            ` + "`" + `json:\"hidden,omitempty\" pg:\",use_zero\"` + "`" + `\nSemanticID       string          ` + "`" + `json:\"semantic_id,omitempty\" pg:\",use_zero\"` + "`" + `",
-                    "type": "string"
+                "last_update": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
+                "parent_id": {
+                    "$ref": "#/definitions/decimal.NullDecimal"
                 },
                 "signature": {
-                    "description": "FromIngestionAPI bool            ` + "`" + `json:\"from_ingestion_api,omitempty\" pg:\",use_zero\"` + "`" + `",
                     "type": "string"
                 },
-                "status": {
-                    "description": "IsExists         bool            ` + "`" + `json:\"is_exists,omitempty\" pg:\"-\"` + "`" + `\nIsUpdated        bool            ` + "`" + `json:\"is_updates,omitempty\" pg:\"-\"` + "`" + `",
+                "source_id": {
                     "type": "string"
                 },
-                "updated_date": {
-                    "$ref": "#/definitions/pg.NullTime"
+                "url": {
+                    "type": "string"
                 }
             }
         },
@@ -1633,59 +1178,10 @@ const docTemplate = `{
                 }
             }
         },
-        "model.DocumentSet": {
-            "type": "object",
-            "properties": {
-                "created_date": {
-                    "type": "string"
-                },
-                "deleted_date": {
-                    "$ref": "#/definitions/pg.NullTime"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "number"
-                },
-                "is_up_to_date": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "pairs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.DocumentSetConnectorPair"
-                    }
-                },
-                "updated_date": {
-                    "$ref": "#/definitions/pg.NullTime"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.DocumentSetConnectorPair": {
-            "type": "object",
-            "properties": {
-                "connector_id": {
-                    "type": "number"
-                },
-                "document_set_id": {
-                    "type": "number"
-                },
-                "is_current": {
-                    "type": "boolean"
-                }
-            }
-        },
         "model.EmbeddingModel": {
             "type": "object",
             "properties": {
-                "created_date": {
+                "creation_date": {
                     "type": "string"
                 },
                 "deleted_date": {
@@ -1694,11 +1190,11 @@ const docTemplate = `{
                 "id": {
                     "type": "number"
                 },
-                "index_name": {
-                    "type": "string"
-                },
                 "is_active": {
                     "type": "boolean"
+                },
+                "last_update": {
+                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "model_dim": {
                     "type": "integer"
@@ -1709,20 +1205,8 @@ const docTemplate = `{
                 "model_name": {
                     "type": "string"
                 },
-                "normalize": {
-                    "type": "boolean"
-                },
-                "passage_prefix": {
-                    "type": "string"
-                },
-                "query_prefix": {
-                    "type": "string"
-                },
                 "tenant_id": {
                     "type": "string"
-                },
-                "updated_date": {
-                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "url": {
                     "type": "string"
@@ -1739,7 +1223,7 @@ const docTemplate = `{
                 "api_key": {
                     "type": "string"
                 },
-                "created_date": {
+                "creation_date": {
                     "type": "string"
                 },
                 "deleted_date": {
@@ -1751,6 +1235,9 @@ const docTemplate = `{
                 "id": {
                     "type": "number"
                 },
+                "last_update": {
+                    "$ref": "#/definitions/pg.NullTime"
+                },
                 "model_id": {
                     "type": "string"
                 },
@@ -1759,9 +1246,6 @@ const docTemplate = `{
                 },
                 "tenant_id": {
                     "type": "string"
-                },
-                "updated_date": {
-                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "url": {
                     "type": "string"
@@ -1777,7 +1261,7 @@ const docTemplate = `{
                         "$ref": "#/definitions/model.ChatSession"
                     }
                 },
-                "created_date": {
+                "creation_date": {
                     "type": "string"
                 },
                 "default_persona": {
@@ -1797,6 +1281,9 @@ const docTemplate = `{
                 },
                 "is_visible": {
                     "type": "boolean"
+                },
+                "last_update": {
+                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "llm": {
                     "$ref": "#/definitions/model.LLM"
@@ -1818,23 +1305,14 @@ const docTemplate = `{
                 },
                 "tenant_id": {
                     "type": "string"
-                },
-                "updated_date": {
-                    "$ref": "#/definitions/pg.NullTime"
                 }
             }
         },
         "model.Prompt": {
             "type": "object",
             "properties": {
-                "created_date": {
+                "creation_date": {
                     "type": "string"
-                },
-                "datetime_aware": {
-                    "type": "boolean"
-                },
-                "default_prompt": {
-                    "type": "boolean"
                 },
                 "deleted_date": {
                     "$ref": "#/definitions/pg.NullTime"
@@ -1845,8 +1323,8 @@ const docTemplate = `{
                 "id": {
                     "type": "number"
                 },
-                "include_citations": {
-                    "type": "boolean"
+                "last_update": {
+                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "name": {
                     "type": "string"
@@ -1859,9 +1337,6 @@ const docTemplate = `{
                 },
                 "task_prompt": {
                     "type": "string"
-                },
-                "updated_date": {
-                    "$ref": "#/definitions/pg.NullTime"
                 },
                 "user_id": {
                     "type": "string"
@@ -1897,7 +1372,8 @@ const docTemplate = `{
                 "loopio",
                 "sharepoint",
                 "one-drive",
-                "msteams"
+                "msteams",
+                "youtube"
             ],
             "x-enum-varnames": [
                 "SourceTypeIngestionApi",
@@ -1926,7 +1402,8 @@ const docTemplate = `{
                 "SourceTypeLoopio",
                 "SourceTypeSharepoint",
                 "SourceTypeOneDrive",
-                "SourceTypeMsTeams"
+                "SourceTypeMsTeams",
+                "SourceTypeYoutube"
             ]
         },
         "model.SourceTypeDescription": {
@@ -1982,27 +1459,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "oauth2.Token": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "description": "AccessToken is the token that authorizes and authenticates\nthe requests.",
-                    "type": "string"
-                },
-                "expiry": {
-                    "description": "Expiry is the optional expiration time of the access token.\n\nIf zero, TokenSource implementations will reuse the same\ntoken forever and RefreshToken or equivalent\nmechanisms for that TokenSource will not be used.",
-                    "type": "string"
-                },
-                "refresh_token": {
-                    "description": "RefreshToken is a token that's used by the application\n(as opposed to the user) to refresh the access token\nif it expires.",
-                    "type": "string"
-                },
-                "token_type": {
-                    "description": "TokenType is the type of token.\nThe Type method returns either this or \"Bearer\", the default.",
                     "type": "string"
                 }
             }
@@ -2068,14 +1524,8 @@ const docTemplate = `{
                 "connector_specific_config": {
                     "$ref": "#/definitions/model.JSONMap"
                 },
-                "credential_id": {
-                    "$ref": "#/definitions/decimal.NullDecimal"
-                },
                 "disabled": {
                     "type": "boolean"
-                },
-                "input_type": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -2091,31 +1541,6 @@ const docTemplate = `{
                 }
             }
         },
-        "parameters.CreateCredentialParam": {
-            "type": "object",
-            "properties": {
-                "credential_json": {
-                    "$ref": "#/definitions/model.CredentialJson"
-                },
-                "shared": {
-                    "type": "boolean"
-                },
-                "source": {
-                    "type": "string"
-                }
-            }
-        },
-        "parameters.DocumentSetParam": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "parameters.EditUserParam": {
             "type": "object",
             "properties": {
@@ -2127,9 +1552,6 @@ const docTemplate = `{
         "parameters.EmbeddingModelParam": {
             "type": "object",
             "properties": {
-                "index_name": {
-                    "type": "string"
-                },
                 "is_active": {
                     "type": "boolean"
                 },
@@ -2140,15 +1562,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "model_name": {
-                    "type": "string"
-                },
-                "normalize": {
-                    "type": "boolean"
-                },
-                "passage_prefix": {
-                    "type": "string"
-                },
-                "query_prefix": {
                     "type": "string"
                 },
                 "url": {
@@ -2222,15 +1635,6 @@ const docTemplate = `{
                 "connector_specific_config": {
                     "$ref": "#/definitions/model.JSONMap"
                 },
-                "credential_id": {
-                    "$ref": "#/definitions/decimal.NullDecimal"
-                },
-                "disabled": {
-                    "type": "boolean"
-                },
-                "input_type": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -2239,17 +1643,9 @@ const docTemplate = `{
                 },
                 "shared": {
                     "type": "boolean"
-                }
-            }
-        },
-        "parameters.UpdateCredentialParam": {
-            "type": "object",
-            "properties": {
-                "credential_json": {
-                    "$ref": "#/definitions/model.CredentialJson"
                 },
-                "shared": {
-                    "type": "boolean"
+                "status": {
+                    "type": "string"
                 }
             }
         },
@@ -2258,6 +1654,18 @@ const docTemplate = `{
             "properties": {
                 "time.Time": {
                     "type": "string"
+                }
+            }
+        },
+        "uuid.NullUUID": {
+            "type": "object",
+            "properties": {
+                "uuid": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if UUID is not NULL",
+                    "type": "boolean"
                 }
             }
         }

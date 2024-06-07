@@ -88,7 +88,9 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 	}
 	conn.TenantID = tenantID
 	conn.LastUpdate = pg.NullTime{time.Now().UTC()}
-
+	if param.Status != "" {
+		conn.Status = param.Status
+	}
 	if err = c.connectorRepo.Update(ctx, conn); err != nil {
 		return nil, err
 	}

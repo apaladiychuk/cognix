@@ -15,13 +15,45 @@ spec:
       containers:
       - name: semantic
         image: cognixacr.azurecr.io/cognix/semantic:main
-        env:
-        - name: LOG_LEVEL
-          value: "info"
-        - name: LOG_FORMAT
-          value: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        - name: NATS_URL
-          value: "nats.nats:4222"
+        envFrom:
+        - configMapRef:
+            name: semantic-srv
+        - configMapRef:
+            name: milvus-cli
+        - configMapRef:
+            name: nats-cli
+        - configMapRef:
+            name: embedder-cli
+        - configMapRef:
+            name: cockroach-cli                       
         imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /temp
+          name: temp-volume
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          initialDelaySeconds: 180
+          timeoutSeconds: 3
+          periodSeconds: 60
+          failureThreshold: 3
+          successThreshold: 1
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+        livenessProbe:
+          initialDelaySeconds: 60
+          timeoutSeconds: 3
+          periodSeconds: 60
+          failureThreshold: 60
+          successThreshold: 1
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP             
       imagePullSecrets:
-        - name: pullsecret
+        - name: pullsecret          
+      volumes:
+      - name: temp-volume
+        emptyDir: {}

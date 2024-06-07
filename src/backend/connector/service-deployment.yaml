@@ -15,33 +15,31 @@ spec:
       containers:
       - name: connectorservice
         image: cognixacr.azurecr.io/cognix/connectorservice:main
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: env-configmap
-              key: DATABASE_URL
-        - name: MINIO_ACCESS_KEY
-          value: "minioadmin"
-        - name: MINIO_SECRET_ACCESS_KEY
-          value: "minioadmin"
-        - name: MINIO_ENDPOINT
-          value: "my-release-minio-svc"
-        - name: MINIO_USE_SSL
-          value: "false"
-        - name: MINIO_BUCKET_NAME
-          value: "data"
-        - name: MINIO_REGION
-          value: "CH"
-        - name: NATS_URL
-          value: "nats.nats:4222"
-        - name: OAUTH_URL
-          value: "http://apiservice:8080"
-
+        envFrom:
+        - configMapRef:
+            name: connector-srv
+        - configMapRef:
+            name: cockroach-cli
+        - configMapRef:
+            name: minio-cli
+        - configMapRef:
+            name: milvus-cli
+        - configMapRef:
+            name: nats-cli
+        - configMapRef:
+            name: oauth_cli
+        - configMapRef:
+            name: env-configmap
         imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /backend
+          name: storage-volume
       imagePullSecrets:
         - name: pullsecret
-
+      volumes:
+        - name: storage-volume
+          persistentVolumeClaim:
+            claimName: storage-volume
 ---
 apiVersion: v1
 kind: Service

@@ -16,7 +16,7 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-vendor/
+src/backend/vendor/
 
 # Go workspace file
 go.work
@@ -40,3 +40,6 @@ src/backend/semantic/testdocs/
 
 # ignore inteliJIdea configs
 .idea/
+
+# ignore temp path
+vendor/

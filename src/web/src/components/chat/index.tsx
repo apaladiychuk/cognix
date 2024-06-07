@@ -76,85 +76,102 @@ export function ChatComponent() {
     text: string,
     passedChatId?: string
   ): Promise<void> {
-    const currentChatId = chatId === undefined ? passedChatId : chatId;
-    const userMessage: ChatMessage = {
-      id: uuidv4(),
-      message: text,
-      chat_session_id: currentChatId!,
-      message_type: "user",
-      time_sent: new Date().toString(),
-    };
-
-    const response = await fetch(
-      `${import.meta.env.VITE_PLATFORM_API_CHAT_SEND_MESSAGE_URL}`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          message: text,
-          chat_session_id: currentChatId!,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${JSON.parse(
-            String(localStorage.getItem("access_token"))
-          )}`,
-        },
+    try {
+      const currentChatId = chatId ?? passedChatId;
+      if (!currentChatId) {
+        throw new Error("Chat ID is not provided.");
       }
-    );
-    if (!response.ok || !response.body) {
-      throw response.statusText;
-    } else {
+      const userMessage: ChatMessage = {
+        id: uuidv4(),
+        message: text,
+        chat_session_id: currentChatId,
+        message_type: "user",
+        time_sent: new Date().toISOString(),
+      };
+      const response = await fetch(
+        `${import.meta.env.VITE_PLATFORM_API_CHAT_SEND_MESSAGE_URL}`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            message: text,
+            chat_session_id: currentChatId,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${JSON.parse(
+              String(localStorage.getItem("access_token"))
+            )}`,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to send message: ${response.statusText}`);
+      }
       addMessage(userMessage);
-      textInputRef!.current!.value = "";
-    }
+      if (textInputRef?.current) {
+        textInputRef.current.value = "";
+      }
+      const reader = response.body
+        ?.pipeThrough(new TextDecoderStream())
+        .getReader();
 
-    const reader = response.body
-      .pipeThrough(new TextDecoderStream())
-      .getReader();
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      const streams = value?.split("\n");
-      for (let i = 0; i < streams.length; i += 3) {
-        if (streams[i] !== "") {
-          const event = streams[i];
-          const data = streams[i + 1].split("data:")[1];
-          if (event == "event:document") {
-            const doc = JSON.parse(data);
-            setMessages((prev) => {
-              const messageIndex = prev.findIndex(
-                (message) => message.id === doc.Document.message_id
-              );
+      if (!reader) {
+        throw new Error("Failed to get reader from response body.");
+      }
 
-              if (messageIndex !== -1) {
-                const updatedMessages = [...prev];
-
-                updatedMessages[messageIndex] = {
-                  ...updatedMessages[messageIndex],
-                  citations: (
-                    updatedMessages[messageIndex].citations || []
-                  ).concat(doc.Document),
-                };
-
-                return updatedMessages;
-              }
-
-              return prev;
-            });
-          } else if (event == "event:message") {
-            const response = JSON.parse(data);
-            setMessages((prev) => [
-              ...(prev ?? []),
-              { ...response.Message, message: "" },
-            ]);
-            setNewMessage(response.Message);
-          } else if (event == "event:error") {
-            const response = JSON.parse(data);
-            router.navigate(`/chat/${currentChatId}`);
-            toast.error(response.Message.error);
+      let buffer = "";
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += value;
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || "";
+        for (const event of events) {
+          const [eventLine, dataLine] = event.split("\n");
+          if (!eventLine || !dataLine) continue;
+          const eventType = eventLine.split(":")[1]?.trim();
+          const data = dataLine.split("data:")[1]?.trim();
+          if (!eventType || !data) {
+            console.warn("Invalid event or data:", { eventLine, dataLine });
+            continue;
+          }
+          try {
+            const parsedData = JSON.parse(data);
+            if (eventType === "document") {
+              const doc = parsedData;
+              setMessages((prev) => {
+                const messageIndex = prev.findIndex(
+                  (message) => message.id === doc.Document.message_id
+                );
+                if (messageIndex !== -1) {
+                  const updatedMessages = [...prev];
+                  updatedMessages[messageIndex] = {
+                    ...updatedMessages[messageIndex],
+                    citations: (
+                      updatedMessages[messageIndex].citations || []
+                    ).concat(doc.Document),
+                  };
+                  return updatedMessages;
+                }
+                return prev;
+              });
+            } else if (eventType === "message") {
+              setMessages((prev) => [
+                ...(prev ?? []),
+                { ...parsedData.Message, message: "" },
+              ]);
+              setNewMessage(parsedData.Message);
+            } else if (eventType === "error") {
+              router.navigate(`/chat/${currentChatId}`);
+              toast.error(parsedData.Message.error);
+            }
+          } catch (error) {
+            console.error("Error parsing JSON:", error, "Data:", data);
           }
         }
       }
+    } catch (error) {
+      console.error("Error in createMessages:", error);
     }
   }
 
@@ -218,7 +235,7 @@ export function ChatComponent() {
       clearInterval(intervalId);
     };
   }, [newMessage]);
-
+  
   return (
     <div className="flex h-screen">
       <div className="flex flex-grow flex-col m-5 w-4/6">
@@ -238,7 +255,7 @@ export function ChatComponent() {
           isDeactivateSendingButton={isDeactivateSendingButton}
         />
       </div>
-      <div className="hidden lg:my-8 lg:w-2/5 xl:w-3/12 lg:flex lg:flex-col lg:bg-white lg:rounded-md lg:rounded-l-none lg:overflow-x-hidden lg:no-scrollbar">
+      <div className="hidden lg:my-8 lg:w-2/5 xl:w-3/12 px-2 lg:flex lg:flex-col lg:bg-white lg:rounded-md lg:rounded-l-none lg:overflow-x-hidden lg:no-scrollbar">
         <RetrievedKnowledge withHeader messages={messages} />
       </div>
     </div>

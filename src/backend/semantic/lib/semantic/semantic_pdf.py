@@ -1,8 +1,12 @@
-from lib.db.milvus_db import Milvus_DB
+import time
+import uuid
+from typing import List, Dict, Optional
+from urllib.parse import urlparse, parse_qs
+
+from lib.db.db_document import DocumentCRUD
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_base import BaseSemantic
-import time
-
+from lib.spider.chunked_item import ChunkedItem
 
 class PDFSemantic(BaseSemantic):
     def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
@@ -12,25 +16,27 @@ class PDFSemantic(BaseSemantic):
 
             # for pdfs, llamaparse far exceeds unstructured and pymudf is also better/faster from my experience
 
-            document_content = "call the appropriate tool to open and extract"
+            content = ""
 
-            if document_content:
-                milvus_db = Milvus_DB()
+            collected_items = 0
+            chunking_session = uuid.uuid4()
+            document_crud = DocumentCRUD(cockroach_url)
 
-                # delete previous added chunks and vectors
-                milvus_db.delete_by_document_id(document_id=data.document_id, collection_name=data.collection_name)
+            if content:
+                collected_data = [ChunkedItem(url=data.url, content=content)]
 
-                chunks = self.split_data(document_content, data.url)
-                for chunk, url in chunks:
-                    milvus_db.store_chunk(content=chunk, data=data)
-                    # await asyncio.sleep(0.5)
+                collected_items = self.store_collected_data(data=data, document_crud=document_crud,
+                                                            collected_data=collected_data,
+                                                            chunking_session=chunking_session,
+                                                            ack_wait=ack_wait,
+                                                            full_process_start_time=full_process_start_time)
+                self.logger.debug(f"transcript \n {content}")
             else:
-                self.logger.warning(f"😱 No content found for {data.url} ")
+                self.store_collected_data_none(data=data, document_crud=document_crud,
+                                               chunking_session=chunking_session)
 
-            end_time = time.time()  # Record the end time
-            elapsed_time = end_time - start_time
-            self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
-            #TODO: fix this
-            return 0
+            self.log_end(collected_items, start_time)
+            return collected_items
+            # (if transcript: 1 else: 0)
         except Exception as e:
-            self.logger.error(f"❌ Error: Failed to process chunking data: {e}")
+            self.logger.error(f"❌ Failed to process semantic data: {e}")

@@ -13,7 +13,7 @@ export const ChatInput: React.FC<ChatInputProps> = memo(
   ({ onSubmit, isDeactivateSendingButton, textInputRef }: ChatInputProps) => {
     return (
       <div className="w-full flex flex-col justify-start lg:justify-center">
-        <div className="flex flex-row items-start justify-center py-4">
+        <div className="flex flex-row items-start justify-center py-4 gap-4">
           <Input
             placeholder="Ask me anything..."
             className="lg:w-2/3 md:w-2/3"

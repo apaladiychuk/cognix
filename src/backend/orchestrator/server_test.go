@@ -23,7 +23,7 @@ func TestOrchestrator_Scheduler(t *testing.T) {
 			RenewInterval: 15,
 			FileSizeLimit: 1,
 		},
-		mocks.NewMockConnectorRepo(5, workCh),
+		mocks.NewMockConnectorRepo(10, workCh),
 		mocks.NewMockDocumentRepo(),
 		mocks.NewMockMessenger(workCh),
 		&messaging.Config{

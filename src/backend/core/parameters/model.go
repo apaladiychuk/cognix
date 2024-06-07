@@ -59,7 +59,16 @@ type UpdateConnectorParam struct {
 	ConnectorSpecificConfig model.JSONMap `json:"connector_specific_config,omitempty"`
 	RefreshFreq             int           `json:"refresh_freq,omitempty"`
 	Shared                  bool          `json:"shared,omitempty"`
-	Disabled                bool          `json:"disabled,omitempty"`
+	Status                  string        `json:"status"`
+}
+
+func (v UpdateConnectorParam) Validate() error {
+	return validation.ValidateStruct(&v,
+		validation.Field(&v.Name, validation.Required),
+		validation.Field(&v.ConnectorSpecificConfig, validation.Required),
+		validation.Field(&v.RefreshFreq, validation.Required),
+		validation.Field(&v.Status, validation.In("", model.ConnectorStatusReadyToProcessed)),
+	)
 }
 
 type AddUserParam struct {

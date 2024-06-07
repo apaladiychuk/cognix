@@ -38,7 +38,10 @@ func (t *trigger) Do(ctx context.Context) error {
 	// one approach could be that this method will extract top x rows from the database
 	// and it will book them
 
-	zap.S().Debugf("\n-------  %s\nlast %v refresh Freq %d \nnext %v\nnow  %v\nlast+refreshFreq > now %v ------- ",
+	if t.connectorModel.User == nil || t.connectorModel.User.EmbeddingModel == nil {
+		return fmt.Errorf("embedding model is not configured for %s", t.connectorModel.Name)
+	}
+	zap.S().Debugf("\n------------  %s\nlast %v refresh Freq %d \nnext %v\nnow  %v\nlast+refreshFreq > now %v\n------------- ",
 		t.connectorModel.Name,
 		t.connectorModel.LastUpdate.UTC(),
 		t.connectorModel.RefreshFreq,
@@ -49,7 +52,6 @@ func (t *trigger) Do(ctx context.Context) error {
 	if t.connectorModel.LastUpdate.IsZero() ||
 		t.connectorModel.LastUpdate.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).After(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
-		zap.S().Debugf("RUN connector")
 		defer span.End()
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, t.connectorModel.ID.IntPart()))
 		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(t.connectorModel.Type)))
@@ -62,6 +64,7 @@ func (t *trigger) Do(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+
 		if err = connWF.PrepareTask(ctx, t); err != nil {
 			span.RecordError(err)
 			zap.S().Errorf("failed to prepare task for connector %s[%d]: %v", t.connectorModel.Name, t.connectorModel.ID.IntPart(), err)

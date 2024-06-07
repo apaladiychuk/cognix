@@ -4,7 +4,6 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/repository"
 	"context"
-	"github.com/go-pg/pg/v10"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
@@ -19,11 +18,10 @@ var MockedConnectors = map[int64]*model.Connector{
 		ConnectorSpecificConfig: model.JSONMap{
 			"url": "http://testurl",
 		},
-		RefreshFreq:       90,
+		RefreshFreq:       60,
 		Status:            model.ConnectorStatusReadyToProcessed,
 		TotalDocsAnalyzed: 0,
 		CreationDate:      time.Now().UTC(),
-		LastUpdate:        pg.NullTime{time.Now().UTC()},
 		User: &model.User{
 			EmbeddingModel: &model.EmbeddingModel{
 				ModelID:  "",
@@ -38,11 +36,10 @@ var MockedConnectors = map[int64]*model.Connector{
 		ConnectorSpecificConfig: model.JSONMap{
 			"file_name": "file name",
 		},
-		RefreshFreq:       90,
+		RefreshFreq:       60,
 		Status:            model.ConnectorStatusReadyToProcessed,
 		TotalDocsAnalyzed: 0,
 		CreationDate:      time.Now().UTC(),
-		LastUpdate:        pg.NullTime{time.Now().UTC()},
 		User: &model.User{
 			EmbeddingModel: &model.EmbeddingModel{
 				ModelID:  "",
@@ -57,17 +54,29 @@ var MockedConnectors = map[int64]*model.Connector{
 		ConnectorSpecificConfig: model.JSONMap{
 			"file_name": "file name",
 		},
-		RefreshFreq:       90,
+		RefreshFreq:       60,
 		Status:            model.ConnectorStatusDisabled,
 		TotalDocsAnalyzed: 0,
 		CreationDate:      time.Now().UTC(),
-		LastUpdate:        pg.NullTime{time.Now().UTC()},
 		User: &model.User{
 			EmbeddingModel: &model.EmbeddingModel{
 				ModelID:  "",
 				ModelDim: 3,
 			},
 		},
+	},
+	4: {
+		ID:   decimal.NewFromInt(2),
+		Name: "File connector without embedding model",
+		Type: model.SourceTypeFile,
+		ConnectorSpecificConfig: model.JSONMap{
+			"file_name": "file name",
+		},
+		RefreshFreq:       60,
+		Status:            model.ConnectorStatusReadyToProcessed,
+		TotalDocsAnalyzed: 0,
+		CreationDate:      time.Now().UTC(),
+		User:              &model.User{},
 	},
 }
 

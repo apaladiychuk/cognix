@@ -71,6 +71,9 @@ class YTSemantic(BaseSemantic):
             document_crud = DocumentCRUD(cockroach_url)
 
             if content:
+                # TODO: VERY IMPORTANT
+                # We need content's summarization
+
                 collected_data = [ChunkedItem(url=data.url, content=content)]
 
                 collected_items = self.store_collected_data(data=data, document_crud=document_crud,

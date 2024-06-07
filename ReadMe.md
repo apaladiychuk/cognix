@@ -4,13 +4,30 @@
 
 
 
-![Static Badge](https://img.shields.io/badge/mission-our_mission-orange)
+![Static Badge](https://img.shields.io/badge/mission-augment_humans_with_AI-orange)
 <br />
 ![GitHub top language](https://img.shields.io/github/languages/top/gen-mind/cognix)
 ![GitHub last commit](https://img.shields.io/github/last-commit/gen-mind/cognix)
 
 </div>
 
+## `What's CogniX`
+Our mission is to augment humans with AI.
+
+## `What's CogniX`
+AI can be difficult to use, CogniX fills the gap that there is between humans and AI.
+And it augments it with all your knowledge on the palm of your hand.
+
+Imagine to be an engineer, facing an issue on the system.
+Now it would be nice to quickly find my notes and related manuals to solve the issue....
+Probably you spent more time chasing your notes than actually solving the issue :) 
+
+A teacher preparing lessons and exams for the week, or the semester 
+
+Well with CogniX you can just type in: 
+- I need to solve 
+
+being able to access information on your manuals, personal notes, 
 
 
 ## `Setup`

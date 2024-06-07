@@ -1,3 +1,4 @@
+#region imports
 import asyncio
 import logging
 import os
@@ -13,7 +14,9 @@ from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_factory import SemanticFactory
 from lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
 from readiness_probe import ReadinessProbe
+#endregion
 
+#region .env and logs
 # Load environment variables from .env file
 load_dotenv()
 
@@ -38,18 +41,18 @@ semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
 cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
                           'postgres://root:123@cockroach:26257/defaultdb?sslmode=disable')
-
+#endregion
 
 # Define the event handler function
 async def semantic_event(msg: Msg):
     start_time = time.time()  # Record the start time
     connector_id = 0
     try:
-        logger.info("🔥 received chunking event, start working....")
+        logger.info("🔥 starting semantic analysis..")
         # Deserialize the message
         semantic_data = SemanticData()
         semantic_data.ParseFromString(msg.data)
-        logger.info(f"message: {semantic_data}")
+        logger.info(f"message: \n {semantic_data}")
 
         # verify document id is valid otherwise we cannot process the message
         if semantic_data.document_id <= 0:

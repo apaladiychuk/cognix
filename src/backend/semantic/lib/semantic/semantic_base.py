@@ -119,6 +119,7 @@ class BaseSemantic:
                            creation_date=datetime.datetime.utcnow(), last_update=datetime.datetime.utcnow())
 
             document_crud.insert_document_object(doc)
+            collected_items += len(chunks)
         return collected_items
 
     def store_collected_data_none(self, data: SemanticData, document_crud: DocumentCRUD, chunking_session: uuid):

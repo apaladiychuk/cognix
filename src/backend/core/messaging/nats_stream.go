@@ -99,6 +99,9 @@ func (c *clientStream) Listen(ctx context.Context, streamName, topic string, han
 func NewClientStream(cfg *Config) (Client, error) {
 	conn, err := nats.Connect(
 		cfg.Nats.URL,
+		nats.Timeout(time.Duration(cfg.Nats.ConnectTimeout)*time.Second),
+		nats.ReconnectWait(time.Duration(cfg.Nats.ReconnectTimeout)*time.Second),
+		nats.MaxReconnects(cfg.Nats.MaxReconnectAttempts),
 	)
 	if err != nil {
 		zap.S().Errorf("Error connecting to NATS: %s", err.Error())

@@ -116,8 +116,6 @@ services:
       - minio
       - milvus
       - nats
-    volumes:
-      - ${BACKEND_PATH}:/backend
     networks:
       - cognix-network
 
@@ -138,8 +136,6 @@ services:
       - cockroach
       - minio
       - nats
-    volumes:
-      - ${BACKEND_PATH}:/backend
     networks:
       - cognix-network
 
@@ -163,8 +159,6 @@ services:
       - cockroach
       - minio
       - nats
-    volumes:
-      - ${BACKEND_PATH}:/backend
     networks:
       - cognix-network
 

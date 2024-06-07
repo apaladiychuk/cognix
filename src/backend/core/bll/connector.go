@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const minRefreshFreq = 3600
+
 type (
 	ConnectorBL interface {
 		GetAll(ctx context.Context, user *model.User) ([]*model.Connector, error)
@@ -67,6 +69,9 @@ func (c *connectorBL) Create(ctx context.Context, user *model.User, param *param
 		CreationDate:            time.Now().UTC(),
 	}
 
+	if conn.RefreshFreq < minRefreshFreq {
+		conn.RefreshFreq = minRefreshFreq
+	}
 	if err := c.connectorRepo.Create(ctx, &conn); err != nil {
 		return nil, err
 	}
@@ -86,10 +91,14 @@ func (c *connectorBL) Update(ctx context.Context, id int64, user *model.User, pa
 		tenantID.Valid = true
 		tenantID.UUID = user.TenantID
 	}
+
 	conn.TenantID = tenantID
 	conn.LastUpdate = pg.NullTime{time.Now().UTC()}
 	if param.Status != "" {
 		conn.Status = param.Status
+	}
+	if conn.RefreshFreq < minRefreshFreq {
+		conn.RefreshFreq = minRefreshFreq
 	}
 	if err = c.connectorRepo.Update(ctx, conn); err != nil {
 		return nil, err

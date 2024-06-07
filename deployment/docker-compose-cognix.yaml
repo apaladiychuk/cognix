@@ -243,6 +243,8 @@ services:
     ports:
       - "19530:19530"
       - "9091:9091"
+    expose:
+      - 9091
     depends_on:
       etcd:
         condition: service_healthy
@@ -292,6 +294,8 @@ services:
       - "4222:4222"
       - "8222:8222"
       - "6222:6222"
+    expose:
+      - 8222
     volumes:
       - nats-storage:/data/nats
     command:
@@ -325,7 +329,112 @@ services:
 #        protocol: tcp
     networks:
       - cognix-network
-  
+
+  nats-exporter:
+    image: natsio/prometheus-nats-exporter
+    # image: synadia/prometheus-nats-exporter
+    container_name: nats-exporter
+    hostname: nats-exporter
+    command: "-connz -varz -channelz -serverz -subz http://nats:8222"
+    ports:
+      - 7777:7777
+    expose:
+      - 7777
+    networks:
+      - cognix-network
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ${DATA_PATH}/prometheus:/etc/prometheus
+      - prom_data:/prometheus
+    expose:
+      - 9090
+    networks:
+      - cognix-network
+
+  grafana:
+    image: grafana/grafana:latest #grafana/alpine
+    container_name: grafana
+    ports:
+      - 3001:3001
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+      - GF_SERVER_HTTP_PORT=3001
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ${DATA_PATH}/grafana:/etc/grafana/provisioning/datasources
+    networks:
+      - cognix-network
+  loki:
+    container_name: loki
+    image: grafana/loki:latest #2.9.2
+    ports:
+      - "3100:3100"
+    expose:
+      - 3100
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ${DATA_PATH}/loki:/etc/loki
+    networks:
+      - cognix-network
+
+  promtail:
+    container_name: promtail
+    image: grafana/promtail:latest #2.9.2
+    volumes:
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - cognix-network
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "8081:8080"
+    expose:
+      - 8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    networks:
+      - cognix-network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9100
+    networks:
+      - cognix-network
 
 volumes:
   nats-storage:
@@ -334,3 +443,9 @@ volumes:
       type: none
       o: bind
       device: ../data/nats
+  prom_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../data/prometheus

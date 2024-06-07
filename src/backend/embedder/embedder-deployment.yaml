@@ -15,17 +15,9 @@ spec:
       containers:
       - name: embedder
         image: cognixacr.azurecr.io/cognix/embedder:main
-        env:
-        - name: LOG_LEVEL
-          value: "INFO"
-        - name: LOG_FORMAT
-          value: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        - name: MODEL_CACHE_LIMIT
-          value: "2"
-        - name: GRPC_PORT
-          value: "50051"
-        - name: NATS_URL
-          value: "nats.nats:4222"
+        envFrom:
+        - configMapRef:
+            name: embedder-srv
         ports:
         - containerPort: 50051
         volumeMounts:

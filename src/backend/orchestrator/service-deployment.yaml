@@ -15,20 +15,24 @@ spec:
       containers:
       - name: orchestratorservice
         image: cognixacr.azurecr.io/cognix/orchestratorservice:main
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: env-configmap
-              key: DATABASE_URL
-        - name: NATS_URL
-          value: "nats.nats:4222"
-        - name: RENEW_INTERVAL
-          value: "30"
+        envFrom:
+        - configMapRef:
+            name: rchestrator-srv
+        - configMapRef:
+            name: cockroach-cli
+        - configMapRef:
+            name: nats-cli
+        - configMapRef:
+            name: env-configmap
+        - mountPath: /backend
+          name: storage-volume
         imagePullPolicy: Always
       imagePullSecrets:
         - name: pullsecret
-
+      volumes:
+        - name: storage-volume
+          persistentVolumeClaim:
+            claimName: storage-volume
 ---
 apiVersion: v1
 kind: Service

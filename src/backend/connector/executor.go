@@ -61,6 +61,7 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 
 	zap.S().Infof("receive message : %s [%d]", connectorModel.Name, connectorModel.ID.IntPart())
 	// refresh token if needed
+	connectorModel.Status = model.ConnectorStatusWorking
 	if err = e.refreshToken(ctx, connectorModel); err != nil {
 		return err
 	}

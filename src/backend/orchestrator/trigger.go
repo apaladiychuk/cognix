@@ -37,33 +37,34 @@ func (t *trigger) Do(ctx context.Context) error {
 	// todo we need figure out how to use multiple  orchestrators instances
 	// one approach could be that this method will extract top x rows from the database
 	// and it will book them
-	if !(t.connectorModel.Status == model.ConnectorStatusReadyToProcessed ||
-		t.connectorModel.Status == model.ConnectorStatusSuccess ||
-		t.connectorModel.Status == model.ConnectorStatusError) {
-		// connector is working. do not send messages.
-		return nil
+
+	if t.connectorModel.User == nil || t.connectorModel.User.EmbeddingModel == nil {
+		return fmt.Errorf("embedding model is not configured for %s", t.connectorModel.Name)
 	}
-	zap.S().Debugf("\n-------  %s\nlast %v\nnext %v\nnow  %v\n------- ",
+	zap.S().Debugf("\n------------  %s\nlast %v refresh Freq %d \nnext %v\nnow  %v\nlast+refreshFreq > now %v\n------------- ",
 		t.connectorModel.Name,
-		t.connectorModel.LastSuccessfulAnalyzed.UTC(),
-		t.connectorModel.LastSuccessfulAnalyzed.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second),
-		time.Now().UTC())
-	if t.connectorModel.LastSuccessfulAnalyzed.IsZero() ||
-		t.connectorModel.LastSuccessfulAnalyzed.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
+		t.connectorModel.LastUpdate.UTC(),
+		t.connectorModel.RefreshFreq,
+		t.connectorModel.LastUpdate.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second),
+		time.Now().UTC(),
+		t.connectorModel.LastUpdate.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).After(time.Now().UTC()))
+
+	if t.connectorModel.LastUpdate.IsZero() ||
+		t.connectorModel.LastUpdate.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).After(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
-		zap.S().Debugf("RUN connector")
 		defer span.End()
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, t.connectorModel.ID.IntPart()))
 		span.SetAttributes(attribute.String(model.SpanAttributeConnectorSource, string(t.connectorModel.Type)))
 
-		if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
-			span.RecordError(err)
-			return err
-		}
+		//if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
+		//	span.RecordError(err)
+		//	return err
+		//}
 		connWF, err := connector.New(t.connectorModel)
 		if err != nil {
 			return err
 		}
+
 		if err = connWF.PrepareTask(ctx, t); err != nil {
 			span.RecordError(err)
 			zap.S().Errorf("failed to prepare task for connector %s[%d]: %v", t.connectorModel.Name, t.connectorModel.ID.IntPart(), err)
@@ -96,7 +97,7 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 		}
 		data.DocumentId = doc.ID.IntPart()
 	}
-	if err := t.updateStatus(ctx, model.ConnectorStatusWorking); err != nil {
+	if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
 		return err
 	}
 	zap.S().Infof("send message to semantic %s", t.connectorModel.Name)
@@ -109,15 +110,17 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 // RunConnector send message to connector service
 func (t *trigger) RunConnector(ctx context.Context, data *proto.ConnectorRequest) error {
 	data.Params[connector.ParamFileLimit] = fmt.Sprintf("%d", t.fileSizeLimit)
-	if err := t.updateStatus(ctx, model.ConnectorStatusWorking); err != nil {
+	if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
 		return err
 	}
 	zap.S().Infof("send message to connector %s", t.connectorModel.Name)
 	return t.messenger.Publish(ctx, t.messenger.StreamConfig().ConnectorStreamName,
 		t.messenger.StreamConfig().ConnectorStreamSubject, data)
 }
+
 func (t *trigger) UpToDate(ctx context.Context) error {
-	return t.updateStatus(ctx, model.ConnectorStatusSuccess)
+	// may be to be implemented in future
+	return nil
 }
 
 func NewTrigger(messenger messaging.Client,

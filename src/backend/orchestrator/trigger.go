@@ -97,7 +97,7 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 		}
 		data.DocumentId = doc.ID.IntPart()
 	}
-	if err := t.updateStatus(ctx, model.ConnectorStatusWorking); err != nil {
+	if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
 		return err
 	}
 	zap.S().Infof("send message to semantic %s", t.connectorModel.Name)
@@ -110,7 +110,7 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 // RunConnector send message to connector service
 func (t *trigger) RunConnector(ctx context.Context, data *proto.ConnectorRequest) error {
 	data.Params[connector.ParamFileLimit] = fmt.Sprintf("%d", t.fileSizeLimit)
-	if err := t.updateStatus(ctx, model.ConnectorStatusWorking); err != nil {
+	if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
 		return err
 	}
 	zap.S().Infof("send message to connector %s", t.connectorModel.Name)

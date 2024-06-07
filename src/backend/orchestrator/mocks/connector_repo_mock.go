@@ -78,6 +78,24 @@ var MockedConnectors = map[int64]*model.Connector{
 		CreationDate:      time.Now().UTC(),
 		User:              &model.User{},
 	},
+	5: {
+		ID:   decimal.NewFromInt(5),
+		Name: "One drive connector ready for processing ",
+		Type: model.SourceTypeOneDrive,
+		ConnectorSpecificConfig: model.JSONMap{
+			"file_name": "file name",
+		},
+		RefreshFreq:       60,
+		Status:            model.ConnectorStatusReadyToProcessed,
+		TotalDocsAnalyzed: 0,
+		CreationDate:      time.Now().UTC(),
+		User: &model.User{
+			EmbeddingModel: &model.EmbeddingModel{
+				ModelID:  "",
+				ModelDim: 3,
+			},
+		},
+	},
 }
 
 type MockConnectorRepo struct {

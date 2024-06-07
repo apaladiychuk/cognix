@@ -27,7 +27,10 @@ func TestOrchestrator_Scheduler(t *testing.T) {
 		mocks.NewMockDocumentRepo(),
 		mocks.NewMockMessenger(workCh),
 		&messaging.Config{
-			Stream: &messaging.StreamConfig{},
+			Stream: &messaging.StreamConfig{
+				ConnectorStreamName: "connector",
+				SemanticStreamName:  "semantic",
+			},
 		},
 	)
 	zap.S().Infof("connecto in database ")

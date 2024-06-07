@@ -4,7 +4,6 @@ import (
 	"cognix.ch/api/v2/core/bll"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
-	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
 	"cognix.ch/api/v2/core/utils"
@@ -17,8 +16,7 @@ type ConnectorHandler struct {
 	connectorBL bll.ConnectorBL
 }
 
-func NewCollectorHandler(connectorRepo repository.ConnectorRepository,
-	connectorBL bll.ConnectorBL) *ConnectorHandler {
+func NewCollectorHandler(connectorBL bll.ConnectorBL) *ConnectorHandler {
 	return &ConnectorHandler{
 		connectorBL: connectorBL,
 	}
@@ -27,10 +25,10 @@ func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFu
 	handler := route.Group("/api/manage/connector")
 	handler.Use(authMiddleware)
 	handler.GET("/source_types", server.HandlerErrorFuncAuth(h.GetSourceTypes))
-	handler.GET("/", server.HandlerErrorFunc(h.GetAll))
-	handler.GET("/:id", server.HandlerErrorFunc(h.GetById))
-	handler.POST("/", server.HandlerErrorFunc(h.Create))
-	handler.PUT("/:id", server.HandlerErrorFunc(h.Update))
+	handler.GET("/", server.HandlerErrorFuncAuth(h.GetAll))
+	handler.GET("/:id", server.HandlerErrorFuncAuth(h.GetById))
+	handler.POST("/", server.HandlerErrorFuncAuth(h.Create))
+	handler.PUT("/:id", server.HandlerErrorFuncAuth(h.Update))
 	handler.POST("/:id/:action", server.HandlerErrorFuncAuth(h.Archive))
 }
 
@@ -43,11 +41,7 @@ func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFu
 // @Security ApiKeyAuth
 // @Success 200 {array} model.Connector
 // @Router /manage/connector [get]
-func (h *ConnectorHandler) GetAll(c *gin.Context) error {
-	identity, err := server.GetContextIdentity(c)
-	if err != nil {
-		return err
-	}
+func (h *ConnectorHandler) GetAll(c *gin.Context, identity *security.Identity) error {
 	connectors, err := h.connectorBL.GetAll(c.Request.Context(), identity.User)
 	if err != nil {
 		return err
@@ -65,11 +59,7 @@ func (h *ConnectorHandler) GetAll(c *gin.Context) error {
 // @Security ApiKeyAuth
 // @Success 200 {object} model.Connector
 // @Router /manage/connector/{id} [get]
-func (h *ConnectorHandler) GetById(c *gin.Context) error {
-	identity, err := server.GetContextIdentity(c)
-	if err != nil {
-		return err
-	}
+func (h *ConnectorHandler) GetById(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return utils.ErrorBadRequest.New("id should be presented")
@@ -92,16 +82,12 @@ func (h *ConnectorHandler) GetById(c *gin.Context) error {
 // @Security ApiKeyAuth
 // @Success 201 {object} model.Connector
 // @Router /manage/connector/ [post]
-func (h *ConnectorHandler) Create(c *gin.Context) error {
-	identity, err := server.GetContextIdentity(c)
-	if err != nil {
-		return err
-	}
+func (h *ConnectorHandler) Create(c *gin.Context, identity *security.Identity) error {
 	var param parameters.CreateConnectorParam
-	if err = c.BindJSON(&param); err != nil {
+	if err := c.BindJSON(&param); err != nil {
 		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
 	}
-	if err = param.Validate(); err != nil {
+	if err := param.Validate(); err != nil {
 		return utils.ErrorBadRequest.Wrap(err, err.Error())
 	}
 	connector, err := h.connectorBL.Create(c.Request.Context(), identity.User, &param)
@@ -122,11 +108,7 @@ func (h *ConnectorHandler) Create(c *gin.Context) error {
 // @Security ApiKeyAuth
 // @Success 200 {object} model.Connector
 // @Router /manage/connector/{id} [put]
-func (h *ConnectorHandler) Update(c *gin.Context) error {
-	identity, err := server.GetContextIdentity(c)
-	if err != nil {
-		return err
-	}
+func (h *ConnectorHandler) Update(c *gin.Context, identity *security.Identity) error {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return utils.ErrorBadRequest.New("id should be presented")
@@ -134,6 +116,9 @@ func (h *ConnectorHandler) Update(c *gin.Context) error {
 	var param parameters.UpdateConnectorParam
 	if err = c.BindJSON(&param); err != nil {
 		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
+	}
+	if err = param.Validate(); err != nil {
+		return utils.ErrorBadRequest.Wrapf(err, "validation error %s", err.Error())
 	}
 	connector, err := h.connectorBL.Update(c.Request.Context(), id, identity.User, &param)
 	if err != nil {

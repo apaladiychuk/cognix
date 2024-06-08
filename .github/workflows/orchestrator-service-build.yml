@@ -1,9 +1,4 @@
-name: Build api service
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+name: Build orchestrator service
 
 # on:
 #   push:
@@ -45,8 +40,8 @@ jobs:
     - name: Orchestrator Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./src/backend/golang
-        file: ./src/backend/golang/Dockerfile
+        context: ./src/backend
+        file: ./src/backend/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |

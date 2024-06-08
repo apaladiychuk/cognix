@@ -17,7 +17,7 @@ spec:
         image: cognixacr.azurecr.io/cognix/orchestratorservice:main
         envFrom:
         - configMapRef:
-            name: rchestrator-srv
+            name: orchestrator-srv
         - configMapRef:
             name: cockroach-cli
         - configMapRef:

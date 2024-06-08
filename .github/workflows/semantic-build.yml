@@ -1,9 +1,4 @@
-name: Build api service
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+name: Build semantic service
 
 # on:
 #   push:
@@ -14,14 +9,17 @@ on:
     branches:
       - main
     paths:
-      - 'src/backend/connector/**'
-      - 'src/backend/core/**'
-      - 'src/backend/go.mod'
-      - '.github/workflows/connector-service-build.yml'
+      - 'src/backend/semantic/**'
+      - '.github/workflows/semantic-build.yml'
+  
 env:
+  # Use docker.io for Docker Hub if empty
+  #REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  #IMAGE_NAME: ${{ github.repository }}
   RGNAME: AKS_RG
   ACRNAME: cognixacr
-  AKSNAME: Cognix_AKS
+  AKSNAME: Cognix_AKS  
   GITHUB_SHA: ${{ github.sha }}
 
 jobs:
@@ -42,18 +40,17 @@ jobs:
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
 
-    - name: Connector Service Image Docker Build and Push
+    - name: Embedder Service Image Docker Build and Push
       uses: docker/build-push-action@v2
       with:
-        context: ./src/backend
-        file: ./src/backend/Dockerfile
+        context: ./src/backend/semantic
+        file: ./src/backend/semantic/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ env.ACRNAME }}.azurecr.io/cognix/connectorservice:${{env.GITHUB_SHA}}
+          ${{ env.ACRNAME }}.azurecr.io/cognix/semantic:${{env.GITHUB_SHA}}
         build-args: |
           COGNIX_VERSION=${{env.GITHUB_SHA}}
-          service=connector
 
     - name: Login to Azure
       uses: azure/login@v1
@@ -63,14 +60,14 @@ jobs:
     - name: Get AKS kubeconfig
       run: az aks get-credentials --resource-group $RGNAME --name $AKSNAME
 
-    - name: Update Connector server manifest
+    - name: Update Semantic server manifest
       run:
-        sed -ie "s/connectorservice:main/connectorservice:${{env.GITHUB_SHA}}/g" ./src/backend/connector/service-deployment.yaml
+        sed -ie "s/semantic:main/semantic:${{env.GITHUB_SHA}}/g" ./src/backend/semantic/semantic-deployment.yaml
 
-    - name: Deploy Connector server manifests
+    - name: Deploy Semantic server manifest
       run: |
-        kubectl apply -f ./src/backend/connector/service-deployment.yaml 
+        kubectl apply -f ./src/backend/semantic/semantic-deployment.yaml 
 
-    - name: Delete Connector server pod
+    - name: Delete Semantic server pod
       run: |
-        kubectl rollout restart deploy/connectorservice
+        kubectl rollout restart deploy/semantic

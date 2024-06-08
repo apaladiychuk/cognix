@@ -27,7 +27,7 @@ spec:
         - configMapRef:
             name: nats-cli
         - configMapRef:
-            name: oauth_cli
+            name: oauth-cli
         - configMapRef:
             name: env-configmap
         imagePullPolicy: Always
@@ -40,14 +40,6 @@ spec:
         - name: storage-volume
           persistentVolumeClaim:
             claimName: storage-volume
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: connector
-spec:
-  selector:
-    app: connectorservice
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

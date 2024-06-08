@@ -1,4 +1,4 @@
-name: Build api service
+name: Build connector service
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by

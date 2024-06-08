@@ -24,23 +24,16 @@ spec:
             name: nats-cli
         - configMapRef:
             name: env-configmap
+        imagePullPolicy: Always
+        volumeMounts:
         - mountPath: /backend
           name: storage-volume
-        imagePullPolicy: Always
       imagePullSecrets:
         - name: pullsecret
       volumes:
         - name: storage-volume
           persistentVolumeClaim:
             claimName: storage-volume
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: orchestrator
-spec:
-  selector:
-    app: orchestratorservice
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

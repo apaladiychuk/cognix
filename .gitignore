@@ -16,20 +16,30 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+src/backend/vendor/
 
 # Go workspace file
 go.work
 
 
-#Python
-# Ignore Python cache files
+
+# ignore Python cache files
 __pycache__/
 
-# Ignore model directories
-src/python/embedder/models/
-src/python/chunker/models/
+# ignore data path
+data/
 
-# ignore data directory
-src/data
+# pycharme
 
+
+# ignore model path
+src/backend/embedder/models/
+
+# ignore temp path
+src/backend/semantic/testdocs/
+
+# ignore inteliJIdea configs
+.idea/
+
+# ignore temp path
+vendor/

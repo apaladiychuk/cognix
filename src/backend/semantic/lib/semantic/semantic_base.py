@@ -6,6 +6,7 @@ import uuid
 
 import pymupdf4llm
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from minio import Minio, S3Error
 
 from lib.db.db_document import Document, DocumentCRUD
 from lib.db.milvus_db import Milvus_DB
@@ -13,8 +14,11 @@ from lib.gen_types.semantic_data_pb2 import SemanticData
 from typing import List, Tuple
 from dotenv import load_dotenv
 
+from lib.semantic.markdown_extractor import MarkdownSectionExtractor
 from lib.spider.chunked_item import ChunkedItem
 from readiness_probe import ReadinessProbe
+
+from typing import List
 
 # Load environment variables from .env file
 load_dotenv()
@@ -23,14 +27,24 @@ chunk_size = int(os.getenv('CHUNK_SIZE', 500))
 chunk_overlap = int(os.getenv('CHUNK_OVERLAP', 3))
 temp_path = os.getenv('LOCAL_TEMP_PATH', "../temp")
 
+minio_endpoint = os.getenv('MINIO_ENDPOINT', "minio:9000")
+minio_access_key = os.getenv('MINIO_ACCESS_KEY', "minioadmin")
+minio_secret_key = os.getenv('MINIO_SECRET_ACCESS_KEY', "minioadmin")
+minio_use_ssl = os.getenv('MINIO_USE_SSL', 'false').lower() == 'true'
+
 
 class BaseSemantic:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.temp_path = temp_path
+        self.minio_endpoint = minio_endpoint
+        self.minio_access_key = minio_access_key
+        self.minio_secret_key = minio_secret_key
+        self.minio_use_ssl = minio_use_ssl
 
     def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
         raise NotImplementedError("Chunk method needs to be implemented by subclasses")
+
     def keep_processing(self, full_process_start_time: float, ack_wait: int) -> bool:
         # it returns true if the difference between start_time and now is less than ack_wait
         # it returns false if the difference between start_time and now is equal or greater than ack_wait
@@ -140,3 +154,73 @@ class BaseSemantic:
 
     def convert_to_markdown(self, file_path: str) -> str:
         return pymupdf4llm.to_markdown(file_path)
+
+    def download_from_minio(self, url: str) -> str:
+        """
+        Download a file from MinIO using the provided URL and save it to the specified local temporary path.
+
+        :param url: The MinIO URL of the file to be downloaded.
+        :return: The full path to the downloaded file.
+        """
+        # Extract bucket name and object name from the URL
+        parts = url.split(':')
+        bucket_name = parts[1]
+        object_name = parts[-1]
+
+        # Extract the file name from the object name
+        file_name = object_name.split('-')[-1]
+        # Combine the temporary path and the file name
+        save_path = os.path.join(self.temp_path, file_name)
+
+        # Initialize the MinIO client
+        client = Minio(
+            self.minio_endpoint,
+            access_key=self.minio_access_key,
+            secret_key=self.minio_secret_key,
+            secure=self.minio_use_ssl  # Use SSL if minio_use_ssl is true
+        )
+
+        # Download the file from the bucket
+        client.fget_object(bucket_name, object_name, save_path)
+        print(f"File downloaded successfully and saved to {save_path}")
+        return save_path
+
+    def analyze_doc(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
+        try:
+            start_time = time.time()  # Record the start time
+            self.logger.info(f"Starting pdf analysis for {data.url}")
+            t0 = time.perf_counter()
+
+            #minio:tenant-c20a9f75-a363-40ea-86ef-eabcedbac7df:86eafa6e-95b3-4b29-859a-c38bd4552f26-Document.docx
+
+            downloaded_file_path = self.download_from_minio(data.url)
+
+            markdown_content = pymupdf4llm.to_markdown(downloaded_file_path)
+            # print(markdown_content)
+
+            extractor = MarkdownSectionExtractor()
+            # sections = extractor.extract_sections(markdown_content)
+            results = extractor.extract_chunks(markdown_content)
+            collected_data = ChunkedItem.create_chunked_items(results, data.url)
+
+            collected_items = 0
+            if not collected_data:
+                self.logger.warning(f"😱no content found in {data.url}")
+
+            chunking_session = uuid.uuid4()
+            document_crud = DocumentCRUD(cockroach_url)
+
+            if collected_data:
+                collected_items = self.store_collected_data(data=data, document_crud=document_crud,
+                                                            collected_data=collected_data,
+                                                            chunking_session=chunking_session,
+                                                            ack_wait=ack_wait,
+                                                            full_process_start_time=full_process_start_time)
+            else:
+                self.store_collected_data_none(data=data, document_crud=document_crud,
+                                               chunking_session=chunking_session)
+
+            self.log_end(collected_items, start_time)
+            return collected_items
+        except Exception as e:
+            self.logger.error(f"❌ Failed to process semantic data: {e}")

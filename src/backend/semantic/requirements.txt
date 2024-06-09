@@ -16,5 +16,7 @@ youtube-transcript-api==0.6.2
 pymupdf4llm==0.0.5
 PyMuPDFb==1.24.3
 mistune==3.0.2
+minio==7.2.7
+
 
 

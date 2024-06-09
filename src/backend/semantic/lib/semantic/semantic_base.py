@@ -4,6 +4,7 @@ import logging
 import time
 import uuid
 
+import pymupdf4llm
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from lib.db.db_document import Document, DocumentCRUD
@@ -136,3 +137,6 @@ class BaseSemantic:
         elapsed_time = end_time - start_time
         self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
         self.logger.info(f"📖 number of URLs analyzed: {collected_items}")
+
+    def convert_to_markdown(self, file_path: str) -> str:
+        return pymupdf4llm.to_markdown(file_path)

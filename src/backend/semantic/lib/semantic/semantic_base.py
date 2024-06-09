@@ -79,7 +79,7 @@ class BaseSemantic:
         return [(chunk.page_content, url) for chunk in texts if chunk]
 
     def store_collected_data(self, data: SemanticData, document_crud: DocumentCRUD, collected_data: list[ChunkedItem],
-                             chunking_session: uuid, ack_wait: int, full_process_start_time: float):
+                             chunking_session: uuid, ack_wait: int, full_process_start_time: float, split_data: bool):
         collected_items = 0
         # verifies if the method is taking longer than ack_wait
         # if so we have to stop
@@ -109,8 +109,16 @@ class BaseSemantic:
                     f"exceeded maximum processing time defined in NATS_CLIENT_SEMANTIC_ACK_WAIT of {ack_wait}")
 
             # insert in milvus
-            chunks = self.split_data(item.content, item.url)
+            chunks = List[Tuple[str, str]]
+            if split_data == True:
+                logging.info(f"splitting ")
+                chunks = self.split_data(item.content, item.url)
+            else:
+                logging.info(f"not splitting ")
+                chunks = [(item.content, item.url)]
+
             for chunk, url in chunks:
+                logging.info(f"saving in milvus ")
                 # notifying the readiness probe that the service is alive
                 ReadinessProbe().update_last_seen()
 
@@ -155,6 +163,39 @@ class BaseSemantic:
     def convert_to_markdown(self, file_path: str) -> str:
         return pymupdf4llm.to_markdown(file_path)
 
+    def delete_from_storages(self, url: str) -> None:
+        try:
+            """
+            Delete a file from MinIO using the provided URL.
+    
+            :param url: The MinIO URL of the file to be deleted.
+            """
+            # Extract bucket name and object name from the URL
+            parts = url.split(':')
+            bucket_name = parts[1]
+            object_name = parts[-1]
+            # Extract the file name from the object name
+            file_name = object_name.split('-')[-1]
+            # Combine the temporary path and the file name
+            local_path = os.path.join(self.temp_path, file_name)
+
+            # Initialize the MinIO client
+            client = Minio(
+                self.minio_endpoint,
+                access_key=self.minio_access_key,
+                secret_key=self.minio_secret_key,
+                secure=self.minio_use_ssl  # Use SSL if minio_use_ssl is true
+            )
+
+            # Delete the file from the bucket
+            client.remove_object(bucket_name, object_name)
+            self.logger.info(f"File {object_name} deleted successfully from bucket {bucket_name}")
+            os.remove(local_path)
+            self.logger.info(f"File {local_path} deleted successfully from temp storage")
+        except Exception as e:
+            error_message = str(e) if e else "Unknown error occurred"
+            self.logger.error(f"❌ {error_message}")
+
     def download_from_minio(self, url: str) -> str:
         """
         Download a file from MinIO using the provided URL and save it to the specified local temporary path.
@@ -191,12 +232,9 @@ class BaseSemantic:
             self.logger.info(f"Starting pdf analysis for {data.url}")
             t0 = time.perf_counter()
 
-            #minio:tenant-c20a9f75-a363-40ea-86ef-eabcedbac7df:86eafa6e-95b3-4b29-859a-c38bd4552f26-Document.docx
-
             downloaded_file_path = self.download_from_minio(data.url)
 
             markdown_content = pymupdf4llm.to_markdown(downloaded_file_path)
-            # print(markdown_content)
 
             extractor = MarkdownSectionExtractor()
             # sections = extractor.extract_sections(markdown_content)
@@ -215,7 +253,8 @@ class BaseSemantic:
                                                             collected_data=collected_data,
                                                             chunking_session=chunking_session,
                                                             ack_wait=ack_wait,
-                                                            full_process_start_time=full_process_start_time)
+                                                            full_process_start_time=full_process_start_time,
+                                                            split_data=False)
             else:
                 self.store_collected_data_none(data=data, document_crud=document_crud,
                                                chunking_session=chunking_session)

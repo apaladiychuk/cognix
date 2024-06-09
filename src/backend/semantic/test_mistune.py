@@ -50,7 +50,7 @@ class MarkdownSectionExtractor:
 
         return sections
 
-    def foo(self, markdown: str) -> list[str]:
+    def extract_chunks(self, markdown: str) -> list[str]:
         sections = self.extract_sections(markdown)
         results = []
         # Process the extracted sections
@@ -72,7 +72,7 @@ class MarkdownSectionExtractor:
             headings_text = ' > '.join(section['headings'])
             result = f"{headings_text}\n{readable_text}\n"
             results.append(result)
-            return results
+        return results
 
 if __name__ == "__main__":
     import pathlib
@@ -86,11 +86,11 @@ if __name__ == "__main__":
     t0 = time.perf_counter()
 
     markdown_content = pymupdf4llm.to_markdown(filename)
-    print(markdown_content)
+    # print(markdown_content)
 
     extractor = MarkdownSectionExtractor()
     # sections = extractor.extract_sections(markdown_content)
-    results = extractor.foo(markdown_content)
+    results = extractor.extract_chunks(markdown_content)
 
 
     # Print the results

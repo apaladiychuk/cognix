@@ -4,7 +4,9 @@ import logging
 import time
 import uuid
 
+import pymupdf4llm
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from minio import Minio, S3Error
 
 from lib.db.db_document import Document, DocumentCRUD
 from lib.db.milvus_db import Milvus_DB
@@ -12,8 +14,11 @@ from lib.gen_types.semantic_data_pb2 import SemanticData
 from typing import List, Tuple
 from dotenv import load_dotenv
 
+from lib.semantic.markdown_extractor import MarkdownSectionExtractor
 from lib.spider.chunked_item import ChunkedItem
 from readiness_probe import ReadinessProbe
+
+from typing import List
 
 # Load environment variables from .env file
 load_dotenv()
@@ -22,14 +27,24 @@ chunk_size = int(os.getenv('CHUNK_SIZE', 500))
 chunk_overlap = int(os.getenv('CHUNK_OVERLAP', 3))
 temp_path = os.getenv('LOCAL_TEMP_PATH', "../temp")
 
+minio_endpoint = os.getenv('MINIO_ENDPOINT', "minio:9000")
+minio_access_key = os.getenv('MINIO_ACCESS_KEY', "minioadmin")
+minio_secret_key = os.getenv('MINIO_SECRET_ACCESS_KEY', "minioadmin")
+minio_use_ssl = os.getenv('MINIO_USE_SSL', 'false').lower() == 'true'
+
 
 class BaseSemantic:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.temp_path = temp_path
+        self.minio_endpoint = minio_endpoint
+        self.minio_access_key = minio_access_key
+        self.minio_secret_key = minio_secret_key
+        self.minio_use_ssl = minio_use_ssl
 
     def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
         raise NotImplementedError("Chunk method needs to be implemented by subclasses")
+
     def keep_processing(self, full_process_start_time: float, ack_wait: int) -> bool:
         # it returns true if the difference between start_time and now is less than ack_wait
         # it returns false if the difference between start_time and now is equal or greater than ack_wait
@@ -64,7 +79,7 @@ class BaseSemantic:
         return [(chunk.page_content, url) for chunk in texts if chunk]
 
     def store_collected_data(self, data: SemanticData, document_crud: DocumentCRUD, collected_data: list[ChunkedItem],
-                             chunking_session: uuid, ack_wait: int, full_process_start_time: float):
+                             chunking_session: uuid, ack_wait: int, full_process_start_time: float, split_data: bool):
         collected_items = 0
         # verifies if the method is taking longer than ack_wait
         # if so we have to stop
@@ -94,8 +109,16 @@ class BaseSemantic:
                     f"exceeded maximum processing time defined in NATS_CLIENT_SEMANTIC_ACK_WAIT of {ack_wait}")
 
             # insert in milvus
-            chunks = self.split_data(item.content, item.url)
+            chunks = List[Tuple[str, str]]
+            if split_data == True:
+                logging.info(f"splitting ")
+                chunks = self.split_data(item.content, item.url)
+            else:
+                logging.info(f"not splitting ")
+                chunks = [(item.content, item.url)]
+
             for chunk, url in chunks:
+                logging.info(f"saving in milvus ")
                 # notifying the readiness probe that the service is alive
                 ReadinessProbe().update_last_seen()
 
@@ -136,3 +159,107 @@ class BaseSemantic:
         elapsed_time = end_time - start_time
         self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
         self.logger.info(f"📖 number of URLs analyzed: {collected_items}")
+
+    def convert_to_markdown(self, file_path: str) -> str:
+        return pymupdf4llm.to_markdown(file_path)
+
+    def delete_from_storages(self, url: str) -> None:
+        try:
+            """
+            Delete a file from MinIO using the provided URL.
+    
+            :param url: The MinIO URL of the file to be deleted.
+            """
+            # Extract bucket name and object name from the URL
+            parts = url.split(':')
+            bucket_name = parts[1]
+            object_name = parts[-1]
+            # Extract the file name from the object name
+            file_name = object_name.split('-')[-1]
+            # Combine the temporary path and the file name
+            local_path = os.path.join(self.temp_path, file_name)
+
+            # Initialize the MinIO client
+            client = Minio(
+                self.minio_endpoint,
+                access_key=self.minio_access_key,
+                secret_key=self.minio_secret_key,
+                secure=self.minio_use_ssl  # Use SSL if minio_use_ssl is true
+            )
+
+            # Delete the file from the bucket
+            client.remove_object(bucket_name, object_name)
+            self.logger.info(f"File {object_name} deleted successfully from bucket {bucket_name}")
+            os.remove(local_path)
+            self.logger.info(f"File {local_path} deleted successfully from temp storage")
+        except Exception as e:
+            error_message = str(e) if e else "Unknown error occurred"
+            self.logger.error(f"❌ {error_message}")
+
+    def download_from_minio(self, url: str) -> str:
+        """
+        Download a file from MinIO using the provided URL and save it to the specified local temporary path.
+
+        :param url: The MinIO URL of the file to be downloaded.
+        :return: The full path to the downloaded file.
+        """
+        # Extract bucket name and object name from the URL
+        parts = url.split(':')
+        bucket_name = parts[1]
+        object_name = parts[-1]
+
+        # Extract the file name from the object name
+        file_name = object_name.split('-')[-1]
+        # Combine the temporary path and the file name
+        save_path = os.path.join(self.temp_path, file_name)
+
+        # Initialize the MinIO client
+        client = Minio(
+            self.minio_endpoint,
+            access_key=self.minio_access_key,
+            secret_key=self.minio_secret_key,
+            secure=self.minio_use_ssl  # Use SSL if minio_use_ssl is true
+        )
+
+        # Download the file from the bucket
+        client.fget_object(bucket_name, object_name, save_path)
+        print(f"File downloaded successfully and saved to {save_path}")
+        return save_path
+
+    def analyze_doc(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
+        try:
+            start_time = time.time()  # Record the start time
+            self.logger.info(f"Starting pdf analysis for {data.url}")
+            t0 = time.perf_counter()
+
+            downloaded_file_path = self.download_from_minio(data.url)
+
+            markdown_content = pymupdf4llm.to_markdown(downloaded_file_path)
+
+            extractor = MarkdownSectionExtractor()
+            # sections = extractor.extract_sections(markdown_content)
+            results = extractor.extract_chunks(markdown_content)
+            collected_data = ChunkedItem.create_chunked_items(results, data.url)
+
+            collected_items = 0
+            if not collected_data:
+                self.logger.warning(f"😱no content found in {data.url}")
+
+            chunking_session = uuid.uuid4()
+            document_crud = DocumentCRUD(cockroach_url)
+
+            if collected_data:
+                collected_items = self.store_collected_data(data=data, document_crud=document_crud,
+                                                            collected_data=collected_data,
+                                                            chunking_session=chunking_session,
+                                                            ack_wait=ack_wait,
+                                                            full_process_start_time=full_process_start_time,
+                                                            split_data=False)
+            else:
+                self.store_collected_data_none(data=data, document_crud=document_crud,
+                                               chunking_session=chunking_session)
+
+            self.log_end(collected_items, start_time)
+            return collected_items
+        except Exception as e:
+            self.logger.error(f"❌ Failed to process semantic data: {e}")

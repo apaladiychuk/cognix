@@ -80,28 +80,35 @@ class BaseSemantic:
 
     def store_collected_data(self, data: SemanticData, document_crud: DocumentCRUD, collected_data: list[ChunkedItem],
                              chunking_session: uuid, ack_wait: int, full_process_start_time: float, split_data: bool):
+
+        # needed to sum up all the entities that were analyzed/stored
         collected_items = 0
+
         # verifies if the method is taking longer than ack_wait
         # if so we have to stop
         if not self.keep_processing(full_process_start_time=full_process_start_time, ack_wait=ack_wait):
             raise Exception(f"exceeded maximum processing time defined in NATS_CLIENT_SEMANTIC_ACK_WAIT of {ack_wait}")
-        if self.logger.level == logging.DEBUG:
-            collected_items = len(collected_data)
-            self.logger.debug(f"collected {collected_items} URLs")
+
         milvus_db = Milvus_DB()
         # delete previous added chunks and vectors
+        # it deletes all the entries in Milvus related to the document which means it delete the document and
+        # and any related child (by parent_id)
         milvus_db.delete_by_document_id(document_id=data.document_id, collection_name=data.collection_name)
-        # delete previous added documents
+
+        # delete previous added child (chunks) documents
         document_crud.delete_by_parent_id(data.document_id)
-        doc = document_crud.select_document(data.document_id)
-        doc.chunking_session = chunking_session
-        doc.analyzed = True
-        doc.last_update = datetime.datetime.utcnow()
-        document_crud.update_document_object(doc)
-        # Now in this mess find the parent document!!!!
+
+        # updating the status of the parent doc
+        parent_doc = document_crud.select_document(data.document_id)
+        parent_doc.chunking_session = chunking_session
+        parent_doc.analyzed = False
+        parent_doc.last_update = datetime.datetime.utcnow()
+        document_crud.update_document_object(parent_doc)
+
         # all children can be added randomly
         # storing the new chunks in milvus
         for item in collected_data:
+            logging.info(f"storing in milvus {len(collected_data)} chunks")
             # verifies if the method is taking longer than ack_wait
             # if so we have to stop
             if not self.keep_processing(full_process_start_time=full_process_start_time, ack_wait=ack_wait):
@@ -118,7 +125,7 @@ class BaseSemantic:
                 chunks = [(item.content, item.url)]
 
             for chunk, url in chunks:
-                logging.info(f"saving in milvus ")
+                logging.info(f"saving in milvus {len(chunks)} chunks")
                 # notifying the readiness probe that the service is alive
                 ReadinessProbe().update_last_seen()
 
@@ -128,21 +135,33 @@ class BaseSemantic:
                     raise Exception(
                         f"exceeded maximum processing time defined in NATS_CLIENT_SEMANTIC_ACK_WAIT of {ack_wait}")
 
-                # and finally the real job!!!
-                milvus_db.store_chunk(content=chunk, data=data)
+
 
                 if self.logger.level == logging.DEBUG:
                     result_size_kb = len(chunk.encode('utf-8')) / 1024
                     self.logger.debug(f"Chunk size for {url}: {result_size_kb:.2f} KB")
                     self.logger.debug(f"{url} chunk content: {chunk}")
 
-            # let's store the doc in the relational db
-            doc = Document(parent_id=data.document_id, connector_id=data.connector_id, source_id=item.url,
-                           url=item.url, chunking_session=chunking_session, analyzed=True,
-                           creation_date=datetime.datetime.utcnow(), last_update=datetime.datetime.utcnow())
+                # let's store the chunk in the relational db
+                child_doc = Document(parent_id=data.document_id, connector_id=data.connector_id, source_id=item.url,
+                                     url=item.url, chunking_session=chunking_session, analyzed=True,
+                                     creation_date=datetime.datetime.utcnow(), last_update=datetime.datetime.utcnow())
+                document_crud.insert_document_object(child_doc)
 
-            document_crud.insert_document_object(doc)
+                # and finally the real job!!!
+                analyzed = milvus_db.store_chunk(content=chunk, data=data,document_id=child_doc.id, parent_id=child_doc.parent_id)
+
             collected_items += len(chunks)
+
+        # update the status of the parent doc
+        parent_doc.analyzed = True
+        parent_doc.last_update = datetime.datetime.utcnow()
+        document_crud.update_document_object(parent_doc)
+
+        if self.logger.level == logging.DEBUG:
+            collected_items = len(collected_data)
+            self.logger.debug(f"collected {collected_items} URLs")
+
         return collected_items
 
     def store_collected_data_none(self, data: SemanticData, document_crud: DocumentCRUD, chunking_session: uuid):
@@ -152,16 +171,12 @@ class BaseSemantic:
                        url=data.url, chunking_session=chunking_session, analyzed=False,
                        creation_date=datetime.datetime.utcnow(), last_update=datetime.datetime.utcnow())
         document_crud.update_document_object(doc)
-        self.logger.warning(f"😱 no content found for {data.url} using either BS4Spider or SeleniumSpider.")
 
     def log_end(self, collected_items, start_time):
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
         self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
-        self.logger.info(f"📖 number of URLs analyzed: {collected_items}")
-
-    def convert_to_markdown(self, file_path: str) -> str:
-        return pymupdf4llm.to_markdown(file_path)
+        self.logger.info(f"📖 number of docs analyzed: {collected_items}")
 
     def delete_from_storages(self, url: str) -> None:
         try:
@@ -227,21 +242,26 @@ class BaseSemantic:
         return save_path
 
     def analyze_doc(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
-        try:
-            start_time = time.time()  # Record the start time
-            self.logger.info(f"Starting pdf analysis for {data.url}")
-            t0 = time.perf_counter()
+        collected_items = 0
+        # TODO: move all the time.time to perf_counter()
+        t0 = time.perf_counter()
 
+        try:
+            # downloads the file from minio and stores locally
             downloaded_file_path = self.download_from_minio(data.url)
 
+            # converts the file to MD
             markdown_content = pymupdf4llm.to_markdown(downloaded_file_path)
 
+            # detracts markdown sections with headers ready to be stored in chunks
+            # on the vector and relational db
             extractor = MarkdownSectionExtractor()
-            # sections = extractor.extract_sections(markdown_content)
             results = extractor.extract_chunks(markdown_content)
+
+            # converting results to alist of ChunkedItems to that it can be passed
+            # to the store and collect method
             collected_data = ChunkedItem.create_chunked_items(results, data.url)
 
-            collected_items = 0
             if not collected_data:
                 self.logger.warning(f"😱no content found in {data.url}")
 
@@ -259,7 +279,7 @@ class BaseSemantic:
                 self.store_collected_data_none(data=data, document_crud=document_crud,
                                                chunking_session=chunking_session)
 
-            self.log_end(collected_items, start_time)
-            return collected_items
         except Exception as e:
-            self.logger.error(f"❌ Failed to process semantic data: {e}")
+            self.logger.error(f"❌ Failed to analyze_doc data: {e}")
+        finally:
+            return collected_items

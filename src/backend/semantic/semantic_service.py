@@ -55,19 +55,22 @@ async def semantic_event(msg: Msg):
         logger.info(f"message: \n {semantic_data}")
         if semantic_data.model_name == "":
             logger.error(f"❌ no model nameeeeeeee")
-            # semantic_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
-            # semantic_data.model_dimension = 768
+            semantic_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
+            semantic_data.model_dimension = 768
+            logger.warning(f"😱 Addning model name and dimension manually remove this code ASAP")
 
         # verify document id is valid otherwise we cannot process the message
         if semantic_data.document_id <= 0:
             logger.error(f"❌ failed to process semantic data error: document_id must value must be positive")
         else:
-            # update connector's status
+            # see if doc exists
             document_crud = DocumentCRUD(cockroach_url)
             document = document_crud.select_document(semantic_data.document_id)
+
             if document:
                 # needed for th finally block
                 connector_id = document.connector_id
+
                 # update connector's status
                 connector_crud = ConnectorCRUD(cockroach_url)
                 connector = connector_crud.select_connector(document.connector_id)

@@ -59,13 +59,16 @@ class Milvus_DB:
                 # collection.is_empty  # Return the boolean value that indicates if the collection is empty.
                 self.logger.info(f"collection: {collection_name} has {collection.num_entities} entities")
 
-                utility.drop_collection(collection_name)
-
+                # do not delete the entire collection
+                # utility.drop_collection(collection_name)
+                expr = f"document_id == {document_id} || parent_id == {document_id}"
+                collection.delete(expr)
+                collection.flush()
                 self.logger.info(f"deleted document with document_id: {document_id}")
             else:
                 self.logger.info(f"collection {collection_name} does not exist.")
         except Exception as e:
-            self.logger.error(f"❌ failed to delete document with document_id {document_id}: {e}")
+            self.logger.error(f"❌ failed to delete documents with document_id and parent_id {document_id}: {e}")
         finally:
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
@@ -131,8 +134,9 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
 
-    def store_chunk(self, content: str, data: SemanticData):
+    def store_chunk(self, content: str, data: SemanticData, document_id: int64, parent_id: int64) -> bool:
         start_time = time.time()  # Record the start time
+        success = False
         try:
             # self.ensure_connection()
             # if self.is_connected() == False:
@@ -154,6 +158,7 @@ class Milvus_DB:
             fields = [
                 FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
                 FieldSchema(name="document_id", dtype=DataType.INT64),
+                FieldSchema(name="parent_id", dtype=DataType.INT64),
                 # text content expected format {"content":""}
                 FieldSchema(name="content", dtype=DataType.JSON),
                 FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=data.model_dimension),
@@ -189,20 +194,24 @@ class Milvus_DB:
 
             collection.insert([
                 {
-                    "document_id": data.document_id,
+                    "document_id": document_id,
+                    "parent_id": parent_id,
                     "content": f'{{"content":"{content}"}}',
                     "vector": embedding
                 }
             ])
 
             collection.flush()
+            success = True
             self.logger.info(f"element successfully inserted in collection {data.collection_name}")
         except Exception as e:
             self.logger.error(f"❌ {e}")
+            success = False
         finally:
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
             self.logger.info(f"Total elapsed time: {elapsed_time:.2f} seconds")
+            return success
 
     def embedd(self, content_to_embedd: str, model: str) -> List[float]:
         # TODO: get padams fom env

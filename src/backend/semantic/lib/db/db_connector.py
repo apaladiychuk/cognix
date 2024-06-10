@@ -67,7 +67,6 @@ class ConnectorCRUD:
         return updated_connectors
 
 
-
     def delete_connector(self, connector_id: int) -> int:
         if connector_id <= 0:
             raise ValueError("ID value must be positive")

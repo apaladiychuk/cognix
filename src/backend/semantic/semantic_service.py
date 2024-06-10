@@ -53,6 +53,10 @@ async def semantic_event(msg: Msg):
         semantic_data = SemanticData()
         semantic_data.ParseFromString(msg.data)
         logger.info(f"message: \n {semantic_data}")
+        if semantic_data.model_name == "":
+            logger.error(f"❌ no model nameeeeeeee")
+            # semantic_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
+            # semantic_data.model_dimension = 768
 
         # verify document id is valid otherwise we cannot process the message
         if semantic_data.document_id <= 0:

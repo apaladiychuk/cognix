@@ -22,7 +22,10 @@ type (
 		Stream *StreamConfig
 	}
 	natsConfig struct {
-		URL string `env:"NATS_CLIENT_URL"`
+		URL                  string `env:"NATS_CLIENT_URL,required"`
+		ConnectTimeout       int    `env:"NATS_CLIENT_CONNECT_TIMEOUT" envDefault:"3"`
+		ReconnectTimeout     int    `env:"NATS_CLIENT_RECONNECT_TIME_WAIT" envDefault:"30"`
+		MaxReconnectAttempts int    `env:"NATS_CLIENT_MAX_RECONNECT_ATTEMPTS" envDefault:"3"`
 	}
 	// StreamConfig contains variables for configure streams
 	StreamConfig struct {
@@ -52,7 +55,6 @@ const (
 var NatsModule = fx.Options(
 	fx.Provide(func() (*Config, error) {
 		cfg := Config{
-			//Pulsar: &pulsarConfig{},
 			Nats:   &natsConfig{},
 			Stream: &StreamConfig{},
 		}
@@ -63,18 +65,6 @@ var NatsModule = fx.Options(
 		}
 		return &cfg, nil
 	},
-		NewClient,
+		NewClientStream,
 	),
 )
-
-func NewClient(cfg *Config) (Client, error) {
-	//return newNatsClient(cfg.Nats)
-	return NewClientStream(cfg)
-	//switch cfg.Provider {
-	//case providerNats:
-	//	return NewClientStream(cfg.Nats)
-	//case providerPulsar:
-	//	return NewPulsar(cfg.Pulsar)
-	//}
-	//return nil, fmt.Errorf("unknown provider %s", cfg.Provider)
-}

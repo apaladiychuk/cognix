@@ -21,6 +21,10 @@ type (
 	}
 )
 
+func (c *File) Validate() error {
+	return nil
+}
+
 func (c *File) PrepareTask(ctx context.Context, task Task) error {
 
 	link := fmt.Sprintf("minio:tenant-%s:%s", c.model.User.EmbeddingModel.TenantID.String(), c.param.FileName)

@@ -35,6 +35,7 @@ type Task interface {
 type Connector interface {
 	Execute(ctx context.Context, param map[string]string) chan *Response
 	PrepareTask(ctx context.Context, task Task) error
+	Validate() error
 }
 
 type Base struct {

@@ -45,6 +45,10 @@ type (
 	}
 )
 
+func (c *OneDrive) Validate() error {
+	return nll
+}
+
 type GetDriveResponse struct {
 	Value []*DriveChildBody `json:"value"`
 }

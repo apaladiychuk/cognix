@@ -115,6 +115,8 @@ func (m *Microsoft) RefreshToken(token *oauth2.Token) (*oauth2.Token, error) {
 	}, nil
 }
 
+//urn:ietf:params:oauth:grant-type:jwt-bearer
+
 func NewMicrosoft(cfg *MicrosoftConfig) Proxy {
 	return &Microsoft{
 		cfg:        cfg,

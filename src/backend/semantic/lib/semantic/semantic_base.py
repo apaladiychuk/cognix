@@ -107,8 +107,8 @@ class BaseSemantic:
 
         # all children can be added randomly
         # storing the new chunks in milvus
+        logging.info(f"storing in milvus {len(collected_data)} entities. One entity might be split in several chunks")
         for item in collected_data:
-            logging.info(f"storing in milvus {len(collected_data)} chunks")
             # verifies if the method is taking longer than ack_wait
             # if so we have to stop
             if not self.keep_processing(full_process_start_time=full_process_start_time, ack_wait=ack_wait):
@@ -118,14 +118,15 @@ class BaseSemantic:
             # insert in milvus
             chunks = List[Tuple[str, str]]
             if split_data == True:
-                logging.info(f"splitting ")
+                logging.info(f"splitting the entity")
                 chunks = self.split_data(item.content, item.url)
             else:
-                logging.info(f"not splitting ")
                 chunks = [(item.content, item.url)]
 
+            if chunks is not None:
+                logging.info(f"saving in milvus {len(chunks)} chunk(s)")
+
             for chunk, url in chunks:
-                logging.info(f"saving in milvus {len(chunks)} chunks")
                 # notifying the readiness probe that the service is alive
                 ReadinessProbe().update_last_seen()
 
@@ -134,8 +135,6 @@ class BaseSemantic:
                 if not self.keep_processing(full_process_start_time=full_process_start_time, ack_wait=ack_wait):
                     raise Exception(
                         f"exceeded maximum processing time defined in NATS_CLIENT_SEMANTIC_ACK_WAIT of {ack_wait}")
-
-
 
                 if self.logger.level == logging.DEBUG:
                     result_size_kb = len(chunk.encode('utf-8')) / 1024

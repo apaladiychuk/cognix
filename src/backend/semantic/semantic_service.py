@@ -93,7 +93,7 @@ async def semantic_event(msg: Msg):
                     entities_analyzed = 0
                 # updating again the connector
                 connector_crud.update_connector(connector_id,
-                                                status=Status.COMPLETED_SUCCESSFULLY if entities_analyzed > 0 else Status.UNABLE_TO_PROCESS,
+                                                status=Status.COMPLETED_SUCCESSFULLY,
                                                 last_successful_analyzed=datetime.datetime.utcnow(),
                                                 last_update=datetime.datetime.utcnow(),
                                                 total_docs_analyzed=entities_analyzed

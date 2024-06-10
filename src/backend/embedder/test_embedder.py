@@ -1,5 +1,5 @@
 from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
-from lib.gen_types import EmbedRequest
+from lib.gen_types.embed_service_pb2 import EmbedRequest
 import grpc
 
 def run():
@@ -13,11 +13,11 @@ def run():
         embed_request = EmbedRequest(content=content_to_embedd, model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
         embed_response = stub.GetEmbeding(embed_request)
 
-        embed_request = EmbedRequest(content=content_to_embedd, model="microsoft/mpnet-base")
-        embed_response = stub.GetEmbeding(embed_request)
-
-        embed_request = EmbedRequest(content=content_to_embedd, model="distilbert/distilroberta-base")
-        embed_response = stub.GetEmbeding(embed_request)
+        # embed_request = EmbedRequest(content=content_to_embedd, model="microsoft/mpnet-base")
+        # embed_response = stub.GetEmbeding(embed_request)
+        #
+        # embed_request = EmbedRequest(content=content_to_embedd, model="distilbert/distilroberta-base")
+        # embed_response = stub.GetEmbeding(embed_request)
 
         # embed_request = EmbedRequest(content=content_to_embedd, model="sentence-transformers/paraphrase-multilingual-mpnet-base-v2")
         # embed_response = stub.GetEmbeding(embed_request)

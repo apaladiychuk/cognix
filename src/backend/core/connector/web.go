@@ -21,6 +21,10 @@ type (
 	}
 )
 
+func (c *Web) Validate() error {
+	return nil
+}
+
 func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 
 	// if this connector new we need to run connectorTask for prepare document table

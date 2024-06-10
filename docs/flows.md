@@ -75,7 +75,7 @@ The status of the connector is currently determined by a field in the connector 
   - "Working"
   - "Disabled"
   - "Unable to Process"
-- The resulting date after adding the refresh frequency (refresh_freq) to the last update date is greater than the current UTC time (now_utc()).
+- The resulting date after adding the refresh frequency (refresh_freq) to the last update date is less than the current UTC time (now_utc()).
 - One-Time Scan Connectors
     - If the connector type is "YT" (YouTube) or "File", the connector should not be triggered again once it reaches an ending status (either "Scan Completed Successfully" or "Scan Completed with Errors").
 - Statuses that Prevent Scanning

@@ -47,6 +47,7 @@ cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
 async def semantic_event(msg: Msg):
     start_time = time.time()  # Record the start time
     connector_id = 0
+    entities_analyzed = 0
     try:
         logger.info("🔥 starting semantic analysis..")
         # Deserialize the message
@@ -55,19 +56,22 @@ async def semantic_event(msg: Msg):
         logger.info(f"message: \n {semantic_data}")
         if semantic_data.model_name == "":
             logger.error(f"❌ no model nameeeeeeee")
-            # semantic_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
-            # semantic_data.model_dimension = 768
+            semantic_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
+            semantic_data.model_dimension = 768
+            logger.warning(f"😱 Addning model name and dimension manually remove this code ASAP")
 
         # verify document id is valid otherwise we cannot process the message
         if semantic_data.document_id <= 0:
             logger.error(f"❌ failed to process semantic data error: document_id must value must be positive")
         else:
-            # update connector's status
+            # see if doc exists
             document_crud = DocumentCRUD(cockroach_url)
             document = document_crud.select_document(semantic_data.document_id)
+
             if document:
                 # needed for th finally block
                 connector_id = document.connector_id
+
                 # update connector's status
                 connector_crud = ConnectorCRUD(cockroach_url)
                 connector = connector_crud.select_connector(document.connector_id)
@@ -84,6 +88,9 @@ async def semantic_event(msg: Msg):
                 # if entities_analyzed == 0 this means no data was stored in the vector db
                 # we shall find a way to tell the user, most likely put the message in the dead letter
 
+                if entities_analyzed is None:
+                    logger.error(f"❌ entities_analyzed is none!!!!!")
+                    entities_analyzed = 0
                 # updating again the connector
                 connector_crud.update_connector(connector_id,
                                                 status=Status.COMPLETED_SUCCESSFULLY if entities_analyzed > 0 else Status.UNABLE_TO_PROCESS,
@@ -96,7 +103,7 @@ async def semantic_event(msg: Msg):
                     f"❌ failed to process semantic data error: document_id {semantic_data.document_id} not valid")
         # Acknowledge the message when done
         await msg.ack_sync()
-        logger.info("👍 message acknowledged successfully")
+        logger.info(f"👍 message acknowledged successfully, total entities stored {entities_analyzed}")
     except Exception as e:
         error_message = str(e) if e else "Unknown error occurred"
         logger.error(f"❌ failed to process semantic data error: {error_message}")

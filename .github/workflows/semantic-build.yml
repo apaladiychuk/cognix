@@ -1,10 +1,5 @@
 name: Build semantic service
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 # on:
 #   push:
 #     tags:
@@ -53,7 +48,7 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          ${{ env.ACRNAME }}.azurecr.io/cognix/chunker:${{env.GITHUB_SHA}}
+          ${{ env.ACRNAME }}.azurecr.io/cognix/semantic:${{env.GITHUB_SHA}}
         build-args: |
           COGNIX_VERSION=${{env.GITHUB_SHA}}
 
@@ -65,14 +60,14 @@ jobs:
     - name: Get AKS kubeconfig
       run: az aks get-credentials --resource-group $RGNAME --name $AKSNAME
 
-    - name: Update Chunker server manifest
+    - name: Update Semantic server manifest
       run:
         sed -ie "s/semantic:main/semantic:${{env.GITHUB_SHA}}/g" ./src/backend/semantic/semantic-deployment.yaml
 
-    - name: Deploy Chunker server manifest
+    - name: Deploy Semantic server manifest
       run: |
-        kubectl apply -f ./src/backend/chunker/chunker-deployment.yaml 
+        kubectl apply -f ./src/backend/semantic/semantic-deployment.yaml 
 
-    - name: Delete Chunker server pod
+    - name: Delete Semantic server pod
       run: |
-        kubectl rollout restart deploy/chunker
+        kubectl rollout restart deploy/semantic

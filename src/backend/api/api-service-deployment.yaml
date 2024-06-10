@@ -15,63 +15,25 @@ spec:
       containers:
       - name: apiservice
         image: cognixacr.azurecr.io/cognix/apiservice:main
-        env:
-        - name: PORT
-          value: "8080"
-        - name: STORAGE_PATH
-          value: "/storage_volume/data"
-        - name: UI_URL
-          value: "http://api:8080/"
-        - name: REDIRECT_URL
-          value: "http://localhost:5173"
-        - name: GOOGLE_CLIENT_ID
-          valueFrom:
-            configMapKeyRef:
-              name: env-configmap
-              key: OAUTH_CLIENT_ID
-        - name: GOOGLE_SECRET
-          valueFrom:
-            configMapKeyRef:
-              name: env-configmap
-              key: OAUTH_CLIENT_SECRET
-        - name: DATABASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: env-configmap
-              key: DATABASE_URL
-        - name: MINIO_ACCESS_KEY
-          value: "minioadmin"
-        - name: MINIO_SECRET_ACCESS_KEY
-          value: "minioadmin"         
-        - name: MINIO_ENDPOINT
-          value: "my-release-minio-svc"
-        - name: MINIO_USE_SSL
-          value: "false"
-        - name: MINIO_BUCKET_NAME
-          value: "data"        
-        - name: MINIO_REGION
-          value: "CH"
-        - name: NATS_URL
-          value: "nats.nats:4222"
-        - name: MILVUS_URL
-          value: "my-release-milvus.milvus2.svc.cluster.local:19530"
-        - name: EMBEDDING_GRPC_URL
-          value: "embeddingservice:50051"
-        - name: MICROSOFT_CLIENT_ID
-          valueFrom:
-            configMapKeyRef:
-              name: env-configmap
-              key: MICROSOFT_CLIENT_ID
-        - name: MICROSOFT_CLIENT_SECRET
-          valueFrom:
-            configMapKeyRef:
-              name: env-configmap
-              key: MICROSOFT_CLIENT_SECRET
-
+        envFrom:
+        - configMapRef:
+            name: api-srv
+        - configMapRef:
+            name: cockroach-cli
+        - configMapRef:
+            name: minio-cli
+        - configMapRef:
+            name: milvus-cli
+        - configMapRef:
+            name: nats-cli
+        - configMapRef:
+            name: embedder-cli
+        - configMapRef:
+            name: env-configmap
         ports:
         - containerPort: 8080
         volumeMounts:
-        - mountPath: /storage_volume
+        - mountPath: /backend
           name: storage-volume 
         imagePullPolicy: Always
       imagePullSecrets:

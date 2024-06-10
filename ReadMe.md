@@ -9,7 +9,10 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/gen-mind/cognix)
 ![GitHub last commit](https://img.shields.io/github/last-commit/gen-mind/cognix)
 
-</div>
+[![Join our community on Slack](https://img.shields.io/badge/Join%20our%20community%20on%20Slack-Invite-brightgreen)](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg)
+
+
+[Join our community on Slack](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg)
 
 ## `What's CogniX`
 Our mission is to augment humans with AI.

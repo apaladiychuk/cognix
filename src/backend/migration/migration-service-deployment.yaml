@@ -15,11 +15,28 @@ spec:
       containers:
       - name: migrationservice
         image: cognixacr.azurecr.io/cognix/migrationservice:main
-        env:
-          - name: DATABASE_URL
-            valueFrom:
-              configMapKeyRef:
-                name: env-configmap
-                key: DATABASE_URL
+        envFrom:
+        - configMapRef:
+            name: cockroach-cli
+        volumeMounts:
+        - mountPath: /versions
+          name: storage-volume             
       imagePullSecrets:
         - name: pullsecret
+      volumes:
+        - name: storage-volume
+          persistentVolumeClaim:
+            claimName: versions-volume
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: versions-volume
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: azurefile-csi           

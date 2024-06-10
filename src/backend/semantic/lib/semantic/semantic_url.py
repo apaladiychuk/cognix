@@ -11,6 +11,7 @@ from readiness_probe import ReadinessProbe
 class URLSemantic(BaseSemantic):
         def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
             try:
+                self.logger.info("Analyzing URL")
                 start_time = time.time()  # Record the start time
                 self.logger.info(f"Starting BS4Spider URL: {data.url}")
 
@@ -35,7 +36,8 @@ class URLSemantic(BaseSemantic):
                                                                 collected_data=collected_data,
                                                                 chunking_session=chunking_session,
                                                                 ack_wait=ack_wait,
-                                                                full_process_start_time=full_process_start_time)
+                                                                full_process_start_time=full_process_start_time,
+                                                                split_data=True)
                 else:
                     self.store_collected_data_none(data=data, document_crud=document_crud, chunking_session=chunking_session)
 

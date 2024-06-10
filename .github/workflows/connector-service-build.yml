@@ -1,4 +1,4 @@
-name: Build api service
+name: Build connector service
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -69,7 +69,7 @@ jobs:
 
     - name: Deploy Connector server manifests
       run: |
-        kubectl apply -f ./backend/connector/service-deployment.yaml 
+        kubectl apply -f ./src/backend/connector/service-deployment.yaml 
 
     - name: Delete Connector server pod
       run: |

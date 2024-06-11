@@ -37,8 +37,8 @@ class JetStreamEventSubscriber:
             await self.nc.connect(servers=[self.nats_url],
                                   connect_timeout=self.connect_timeout,
                                   reconnect_time_wait=self.reconnect_time_wait,
-                                  max_reconnect_attempts=self.max_reconnect_attempts,
-                                  ping_interval=460000)
+                                  max_reconnect_attempts=self.max_reconnect_attempts)
+                                  # ping_interval=460000)
             # https://github.com/nats-io/nats.py/discussions/299
 
             self.logger.info(f"successfully connected {self.nats_url}")

@@ -35,7 +35,7 @@ class Milvus_DB:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def delete_by_document_id(self, document_id: int64, collection_name: str):
+    def delete_by_document_id_and_parent_id(self, document_id: int64, collection_name: str):
         start_time = time.time()  # Record the start time
         self.logger.info(f"deleting all entities related to document {document_id}")
         try:
@@ -56,6 +56,7 @@ class Milvus_DB:
 
                 # do not delete the entire collection
                 # utility.drop_collection(collection_name)
+
                 # Create expressions to find matching entities
                 expr = f"document_id == {document_id} or parent_id == {document_id}"
 

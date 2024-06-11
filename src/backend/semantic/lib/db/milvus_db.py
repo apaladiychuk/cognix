@@ -230,10 +230,10 @@ class Milvus_DB:
             embed_request = EmbedRequest(content=content_to_embedd, model=model)
             embed_response = stub.GetEmbeding(embed_request)
 
-            self.logger.debug("GetEbedding gRPC call received correctly")
+            self.logger.debug("GetEmbedding gRPC call received correctly")
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
-            self.logger.debug(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
+            self.logger.info(f"⏰ total elapsed time to create embedding: {elapsed_time:.2f} seconds")
 
             return list(embed_response.vector)
 

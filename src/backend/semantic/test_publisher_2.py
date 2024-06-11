@@ -1,5 +1,7 @@
 import asyncio
 from nats.aio.client import Client as NATS
+
+from lib.db.jetstream_publisher import JetStreamPublisher
 from lib.gen_types.semantic_data_pb2 import SemanticData, FileType
 from nats.errors import TimeoutError, NoRespondersError
 from nats.js.api import StreamConfig, RetentionPolicy
@@ -11,7 +13,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
+nats_url = os.getenv('NATS_CLIENT_URL', 'nats://nats:4222')
 nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
 nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
 nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
@@ -30,71 +32,15 @@ logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 
 
-class JetStreamPublisher:
-    def __init__(self, subject, stream_name):
-        self.logger = None
-        self.subject = subject
-        self.stream_name = stream_name
-        self.nc = NATS()
-        self.js = None
-        logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")
-
-    async def connect(self):
-        # Connect to NATS
-        await self.nc.connect(servers=[nats_url],
-                              connect_timeout=nats_connect_timeout,
-                              reconnect_time_wait=nats_reconnect_time_wait,
-                              max_reconnect_attempts=nats_max_reconnect_attempts)
-        # Create JetStream context
-        self.js = self.nc.jetstream()
-
-        # Create the stream configuration
-        stream_config = StreamConfig(
-            name=self.stream_name,
-            subjects=[self.subject],
-            # A work-queue retention policy satisfies a very common use case of queuing up messages that are intended
-            # to be processed once and only once. https://natsbyexample.com/examples/jetstream/workqueue-stream/go
-            retention=RetentionPolicy.WORK_QUEUE
-        )
-
-        try:
-            await self.js.add_stream(stream_config)
-        except BadRequestError as e:
-            if e.code == 400:
-                self.logger.info(
-                    "Jetstream stream was using a different configuration. Destroying and recreating with the right "
-                    "configuration")
-                try:
-                    await self.js.delete_stream(stream_config.name)
-                    await self.js.add_stream(stream_config)
-                    self.logger.info("Jetstream stream re-created successfully")
-                except Exception as e:
-                    self.logger.exception(f"Exception while deleting and recreating Jetstream: {e}")
-
-    async def publish(self, message):
-        try:
-            await self.js.publish(self.subject, message.SerializeToString())
-            logger.info("Message published successfully!")
-        except NoRespondersError:
-            logger.error("❌ No responders available for request")
-        except TimeoutError:
-            logger.error("❌ Request to JetStream timed out")
-        except Exception as e:
-            logger.error(f"❌ Failed to publish message: {e}")
-
-    async def close(self):
-        await self.nc.close()
-
-
-async def main():
+def main():
     # Instantiate the publisher
     logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")
     publisher = JetStreamPublisher(subject=semantic_stream_subject, stream_name=semantic_stream_name)
 
     # Connect to NATS
-    await publisher.connect()
+    publisher.connect()
     semntic_data = SemanticData(url="minio:tenant-c20a9f75-a363-40ea-86ef-eabcedbac7df:0493eb3a-4475-462e-a791-e47834ea7ba8-small.pdf",
-                                document_id=976165447229833217,
+                                document_id=976345414660126765,
                                 connector_id= 975493320735424513,
                                 file_type= FileType.PDF,
                                 collection_name= "user_625ece7e042d4f40bd2588b16bec7be6")
@@ -118,7 +64,7 @@ async def main():
     logger.info(f"message being sent \n {semntic_data}")
     logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")
     # Publish the message
-    await publisher.publish(semntic_data)
+    publisher.publish(semntic_data)
 
     # # Create a fake ChunkingData message
     # chunking_data = SemanticData(
@@ -155,8 +101,8 @@ async def main():
     # await publisher.publish(chunking_data)
 
     # Close the connection
-    await publisher.close()
+    publisher.close()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

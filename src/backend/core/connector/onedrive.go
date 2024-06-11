@@ -3,6 +3,7 @@ package connector
 import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
+	"cognix.ch/api/v2/core/utils"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -177,12 +178,16 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 		response, err := c.client.R().
 			SetDoNotParseResponse(true).
 			Get(item.MicrosoftGraphDownloadUrl)
-		if err == nil && !response.IsError() {
+		if err = utils.WrapleRestyError(response, err); err == nil {
 			if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
 				payload.MimeType = mime.String()
 			}
+		} else {
+			zap.S().Errorf(err.Error())
 		}
-		response.RawBody().Close()
+		if response.RawBody() != nil {
+			response.RawBody().Close()
+		}
 	}
 
 	if payload.GetType() == proto.FileType_UNKNOWN {
@@ -241,9 +246,9 @@ func (c *OneDrive) request(ctx context.Context, url string) (*GetDriveResponse, 
 			c.param.Token.TokenType,
 			c.param.Token.AccessToken)).
 		Get(url)
-	if err != nil || response.IsError() {
-		zap.S().Errorw("Error executing OneDrive", "error", err, "response", response)
-		return nil, fmt.Errorf("%v:%v", err, response.Error())
+	if err = utils.WrapleRestyError(response, err); err != nil {
+		zap.S().Error(err.Error())
+		return nil, err
 	}
 	var body GetDriveResponse
 	if err = json.Unmarshal(response.Body(), &body); err != nil {

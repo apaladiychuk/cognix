@@ -5,16 +5,39 @@ option go_package = "backend/core/proto;proto";
 
 
 enum FileType {
-  UNKNOWN = 0;
-  URL = 1;
-  PDF = 2;
-  RTF = 3;
-  DOC = 4;
-  XLS = 5;
-  PPT = 6;
-  TXT = 7;
-  MD  = 8;
-  YT = 9;
+    // ORCHESTRATOR SEND TO CONNECTOR:
+    UNKNOWN = 0;
+    PDF = 1;
+    XPS = 2;
+    TXT = 3;
+    PDF = 4;
+    XPS = 5;
+    DOCX = 6;
+    DOC = 7;
+    XLSX = 8;
+    XLS = 9;
+    PPTX = 10;
+    PPT = 11;
+    HWPX = 12;
+    EPUB = 13;
+    MOBI = 14;
+    FB2 = 15;
+    CBZ = 16;
+    MD = 17;
+    // ORCHESTRATOR SEND TO SEMANTIC
+    URL = 18;
+    YT = 19
+
+    ORCHESTRATOR SEND TO MEDIA
+    MP4 = 20;
+    MP3 = 21;
+    MPEG = 22;
+    MPGA = 23;
+    M4A = 24;
+    WAV = 25;
+    WEBM = 26;
+    MOV = 27
+
   // add all supported file that in another document
   // check what with Google docs
 };

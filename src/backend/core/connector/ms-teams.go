@@ -3,6 +3,7 @@ package connector
 import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
+	"cognix.ch/api/v2/core/utils"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -15,7 +16,7 @@ import (
 
 const (
 	msTeamsChannelsURL = "https://graph.microsoft.com/v1.0/teams/%s/channels"
-	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages"
+	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/microsoft.graph.delta()"
 	msTeamsInfoURL     = "https://graph.microsoft.com/v1.0/teams"
 
 	msTeamsChats           = "https://graph.microsoft.com/v1.0/chats"
@@ -72,7 +73,9 @@ type MessageBody struct {
 	Attachments          []*Attachment `json:"attachments"`
 }
 type MessageResponse struct {
-	Value []*MessageBody `json:"value"`
+	OdataContext   string         `json:"@odata.context"`
+	OdataDeltaLink string         `json:"@odata.deltaLink"`
+	Value          []*MessageBody `json:"value"`
 }
 type Attachment struct {
 	Id           string      `json:"id"`
@@ -187,13 +190,17 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 }
 
 func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error) {
-
-}
-
-func (c *MSTeams) getMessagesByChannel(ctx context.Context, teamID, channelID string) (string, error) {
 	var channels []*ChannelResponse
 	response, err := c.client.R().SetContext(ctx).Get(fmt.Sprintf(msTeamsChannelsURL, teamID))
+	if err = utils.WrapleRestyError(response, err); err != nil {
+		return "", err
+	}
+}
 
+func (c *MSTeams) getMessagesByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
+	var channels []*MessageResponse
+	response, err := c.client.R().SetContext(ctx).Get(fmt.Sprintf(msTeamsChannelsURL, teamID))
+	msTeamsMessagesURL
 }
 
 func (c *MSTeams) getGroup(ctx context.Context) (string, error) {
@@ -201,7 +208,7 @@ func (c *MSTeams) getGroup(ctx context.Context) (string, error) {
 	response, err := c.client.R().
 		SetContext(ctx).
 		Get(msTeamsInfoURL)
-	if err != nil || response.IsError() {
+	if err = utils.WrapleRestyError(response, err); err != nil {
 		return "", err
 	}
 	if err = json.Unmarshal(response.Body(), &team); err != nil {

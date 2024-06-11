@@ -74,8 +74,8 @@ func (m *Microsoft) ExchangeCode(ctx context.Context, code string) (*IdentityRes
 	var response tokenResponse
 	resp, err := m.httpClient.R().SetFormData(payload).
 		Post(microsoftToken)
-	if err != nil || resp.IsError() {
-		return nil, utils.ErrorPermission.Newf("exchange code error %v : %v ", err, resp.Error())
+	if err = utils.WrapleRestyError(resp, err); err != nil {
+		return nil, utils.ErrorPermission.Newf("exchange code error: %s", err.Error())
 	}
 	if err = json.Unmarshal(resp.Body(), &response); err != nil {
 		return nil, err
@@ -101,8 +101,8 @@ func (m *Microsoft) RefreshToken(token *oauth2.Token) (*oauth2.Token, error) {
 	var response tokenResponse
 	resp, err := m.httpClient.R().SetFormData(payload).
 		Post(microsoftToken)
-	if err != nil || resp.IsError() {
-		return nil, utils.ErrorPermission.Newf("exchange code error %v : %v ", err, resp.Error())
+	if err = utils.WrapleRestyError(resp, err); err != nil {
+		return nil, utils.ErrorPermission.Newf("exchange code error: %s", err.Error())
 	}
 	if err = json.Unmarshal(resp.Body(), &response); err != nil {
 		return nil, err

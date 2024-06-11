@@ -66,6 +66,8 @@ type MessageBody struct {
 	Id                   string        `json:"id"`
 	Etag                 string        `json:"etag"`
 	MessageType          string        `json:"messageType"`
+	ReplyToId            string        `json:"replyToId"`
+	Subject              string        `json:"subject"`
 	CreatedDateTime      time.Time     `json:"createdDateTime"`
 	LastModifiedDateTime time.Time     `json:"lastModifiedDateTime"`
 	From                 *TeamFrom     `json:"from"`
@@ -110,9 +112,14 @@ https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/chan
 https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/channels/19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2/messages/
 https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/channels/19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2/messages/1718016334912/replies
 
-	"id": "19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2",
-	      "createdDateTime": "2024-06-10T10:45:10.413Z",
-	      "displayName": "developmanet",
+https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/channels/19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2/messages/1718121958378/replies
+
+	 -- delete topic
+
+
+		"id": "19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2",
+		      "createdDateTime": "2024-06-10T10:45:10.413Z",
+		      "displayName": "developmanet",
 
 chat 19:09c30123-8d63-4fca-909a-3af0d3f03a4a_5d51d22a-6b76-4177-928b-28e15caf71cd@unq.gbl.spaces
 
@@ -141,10 +148,10 @@ type (
 		chResult      chan *Response
 	}
 	MSTeamParameters struct {
-		Channel string       `json:"channel"`
-		Topics  []string     `json:"topics"`
-		Chat    string       `json:"chat"`
-		Token   oauth2.Token `json:"token"`
+		Channel string            `json:"channel"`
+		Topics  model.StringSlice `json:"topics"`
+		Chat    string            `json:"chat"`
+		Token   oauth2.Token      `json:"token"`
 	}
 )
 
@@ -190,17 +197,41 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 }
 
 func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error) {
-	var channels []*ChannelResponse
+	var channelResp ChannelResponse
 	response, err := c.client.R().SetContext(ctx).Get(fmt.Sprintf(msTeamsChannelsURL, teamID))
 	if err = utils.WrapleRestyError(response, err); err != nil {
 		return "", err
 	}
+	if err = json.Unmarshal(response.Body(), &channelResp); err != nil {
+		return "", err
+	}
+	for _, channel := range channelResp.Value {
+		if channel.DisplayName == c.param.Channel {
+			return channel.Id, nil
+		}
+	}
 }
 
 func (c *MSTeams) getMessagesByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
-	var channels []*MessageResponse
-	response, err := c.client.R().SetContext(ctx).Get(fmt.Sprintf(msTeamsChannelsURL, teamID))
-	msTeamsMessagesURL
+	var channelResp MessageResponse
+	response, err := c.client.R().SetContext(ctx).Get(fmt.Sprintf(msTeamsMessagesURL, teamID, channelID))
+	if err = utils.WrapleRestyError(response, err); err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(response.Body(), &channelResp); err != nil {
+		return nil, err
+	}
+	// todo store url for incremental request
+	//_ = channelResp.OdataDeltaLink
+
+	// todo add validation on Subject == null - topic was deleted.
+	messagesForScan := make([]*MessageBody, 0)
+	for _, msg := range channelResp.Value {
+		if c.param.Topics.InArray(msg.Subject) {
+			messagesForScan = append(messagesForScan, msg)
+		}
+	}
+	return messagesForScan, nil
 }
 
 func (c *MSTeams) getGroup(ctx context.Context) (string, error) {

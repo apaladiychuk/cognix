@@ -69,6 +69,14 @@ func (t *StringSlice) Scan(value interface{}) error {
 	*t = []string(items)
 	return nil
 }
+func (t StringSlice) InArray(val string) bool {
+	for _, item := range t {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}
 
 type JSON json.RawMessage
 

@@ -31,7 +31,8 @@ minio_endpoint = os.getenv('MINIO_ENDPOINT', "minio:9000")
 minio_access_key = os.getenv('MINIO_ACCESS_KEY', "minioadmin")
 minio_secret_key = os.getenv('MINIO_SECRET_ACCESS_KEY', "minioadmin")
 minio_use_ssl = os.getenv('MINIO_USE_SSL', 'false').lower() == 'true'
-
+semantic_stream_name = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_NAME', 'semantic')
+semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'semantic_activity')
 
 class BaseSemantic:
     def __init__(self):
@@ -41,8 +42,10 @@ class BaseSemantic:
         self.minio_access_key = minio_access_key
         self.minio_secret_key = minio_secret_key
         self.minio_use_ssl = minio_use_ssl
+        self.semantic_stream_name = semantic_stream_name
+        self.semantic_stream_subject = semantic_stream_subject
 
-    def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
+    async def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
         raise NotImplementedError("Chunk method needs to be implemented by subclasses")
 
     def keep_processing(self, full_process_start_time: float, ack_wait: int) -> bool:
@@ -93,7 +96,7 @@ class BaseSemantic:
         # delete previous added chunks and vectors
         # it deletes all the entries in Milvus related to the document which means it delete the document and
         # and any related child (by parent_id)
-        milvus_db.delete_by_document_id(document_id=data.document_id, collection_name=data.collection_name)
+        milvus_db.delete_by_document_id_and_parent_id(document_id=data.document_id, collection_name=data.collection_name)
 
         # delete previous added child (chunks) documents
         document_crud.delete_by_parent_id(data.document_id)

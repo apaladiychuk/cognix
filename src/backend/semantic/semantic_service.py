@@ -27,7 +27,10 @@ log_level = getattr(logging, log_level_str, logging.INFO)
 log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
+
 logger = logging.getLogger(__name__)
+logger.info(f"Logging configured with level {log_level_str} and format {log_format}")
+
 
 # loading from env env
 nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
@@ -92,12 +95,13 @@ async def semantic_event(msg: Msg):
                     logger.error(f"❌ entities_analyzed is none!!!!!")
                     entities_analyzed = 0
                 # updating again the connector
-                connector_crud.update_connector(connector_id,
-                                                status=Status.COMPLETED_SUCCESSFULLY if entities_analyzed > 0 else Status.UNABLE_TO_PROCESS,
+                a =connector_crud.update_connector(connector_id,
+                                                status=Status.COMPLETED_SUCCESSFULLY,
                                                 last_successful_analyzed=datetime.datetime.utcnow(),
                                                 last_update=datetime.datetime.utcnow(),
-                                                total_docs_analyzed=entities_analyzed
+                                                total_docs_analyzed=entities_analyzed # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
                                                 )
+                logger.info(a)
             else:
                 logger.error(
                     f"❌ failed to process semantic data error: document_id {semantic_data.document_id} not valid")

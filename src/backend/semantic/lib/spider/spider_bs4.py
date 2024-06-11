@@ -19,7 +19,7 @@ class BS4Spider:
         start_time = time.time()
 
         # notifying the readiness probe that the service is alive
-        (readiness := ReadinessProbe()).update_last_seen()
+        ReadinessProbe().update_last_seen()
 
         # Check if the URL has been visited
         if url in self.visited:

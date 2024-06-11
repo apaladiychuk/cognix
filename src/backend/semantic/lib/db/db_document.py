@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy import create_engine, Column, Integer, BigInteger, Text, Boolean, UUID, TIMESTAMP, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -43,6 +45,13 @@ class DocumentCRUD:
         self.session.add(document)
         self.session.commit()
         return document.id
+
+    def insert_documents_batch(self, documents: List[Document]) -> List[Document]:
+        self.session.add_all(documents)
+        self.session.commit()
+        for document in documents:
+            self.session.refresh(document)  # Refresh each document to get the IDs from the database
+        return documents
 
     def select_document(self, document_id: int) -> Document | None:
         if document_id <= 0:

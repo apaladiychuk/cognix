@@ -47,10 +47,10 @@ func (t *trigger) Do(ctx context.Context) error {
 		t.connectorModel.RefreshFreq,
 		t.connectorModel.LastUpdate.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second),
 		time.Now().UTC(),
-		t.connectorModel.LastUpdate.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).After(time.Now().UTC()))
+		t.connectorModel.LastUpdate.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()))
 
 	if t.connectorModel.LastUpdate.IsZero() ||
-		t.connectorModel.LastUpdate.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).After(time.Now().UTC()) {
+		t.connectorModel.LastUpdate.UTC().Add(time.Duration(t.connectorModel.RefreshFreq)*time.Second).Before(time.Now().UTC()) {
 		ctx, span := t.tracer.Start(ctx, ConnectorSchedulerSpan)
 		defer span.End()
 		span.SetAttributes(attribute.Int64(model.SpanAttributeConnectorID, t.connectorModel.ID.IntPart()))
@@ -68,7 +68,7 @@ func (t *trigger) Do(ctx context.Context) error {
 		if err = connWF.PrepareTask(ctx, t); err != nil {
 			span.RecordError(err)
 			zap.S().Errorf("failed to prepare task for connector %s[%d]: %v", t.connectorModel.Name, t.connectorModel.ID.IntPart(), err)
-			if errr := t.updateStatus(ctx, model.ConnectorStatusError); errr != nil {
+			if errr := t.updateStatus(ctx, model.ConnectorStatusUnableProcess); errr != nil {
 				span.RecordError(errr)
 			}
 			return err

@@ -1,0 +1,408 @@
+ORCHESTRATOR SEND TO CONNECTOR:
+PDF
+XPS
+TXT
+PDF
+XPS
+DOCX
+DOC
+XLSX
+XLS
+PPTX
+PPT
+HWPX
+XPS
+EPUB
+MOBI
+FB2
+CBZ
+MD
+
+ORCHESTRATOR SEND TO SEMANTIC
+WEB
+YT
+
+ORCHESTRATOR SEND TO MEDIA
+MP4
+MP3
+MPEG
+MPGA
+M4A
+WAV
+WEBM
+MOV
+
+
+2024-06-10 13:49:34,794 - URLSemantic - INFO - Starting BS4Spider URL: https://help.collaboard.app/
+2024-06-10T13:49:34.795232714Z 2024-06-10 13:49:34,794 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/
+2024-06-10T13:49:34.972093798Z 2024-06-10 13:49:34,971 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de
+2024-06-10T13:49:35.079583339Z 2024-06-10 13:49:35,079 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app
+2024-06-10T13:49:35.336947464Z 2024-06-10 13:49:35,336 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/_hcms/mem/login?redirect_url=/
+2024-06-10T13:49:35.484847131Z 2024-06-10 13:49:35,484 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/_hcms/mem/reset/request?hsLang=en
+2024-06-10T13:49:35.894279798Z 2024-06-10 13:49:35,893 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/_hcms/mem/login?hsLang=en
+2024-06-10T13:49:36.009903548Z 2024-06-10 13:49:36,008 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:36.009937590Z 2024-06-10 13:49:36,009 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.53 seconds
+2024-06-10T13:49:36.009940756Z 2024-06-10 13:49:36,009 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.67 seconds
+2024-06-10T13:49:36.011103381Z 2024-06-10 13:49:36,009 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/getting-started
+2024-06-10T13:49:36.126777215Z 2024-06-10 13:49:36,126 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/erste-schritte
+2024-06-10T13:49:36.435228132Z 2024-06-10 13:49:36,435 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/_hcms/mem/login?redirect_url=/de/
+2024-06-10T13:49:36.548095298Z 2024-06-10 13:49:36,547 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:36.548116465Z 2024-06-10 13:49:36,548 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/arbeiten-mit-collaboard
+2024-06-10T13:49:36.792311465Z 2024-06-10 13:49:36,792 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/abos-rechnung
+2024-06-10T13:49:36.913860173Z 2024-06-10 13:49:36,911 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/administration
+2024-06-10T13:49:37.073029090Z 2024-06-10 13:49:37,072 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/technische-fragen-probleme
+2024-06-10T13:49:37.236465549Z 2024-06-10 13:49:37,236 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/technical-questions-issues
+2024-06-10T13:49:37.393037424Z 2024-06-10 13:49:37,392 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/working-with-collaboard
+2024-06-10T13:49:37.531987632Z 2024-06-10 13:49:37,531 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/plans-billing
+2024-06-10T13:49:37.680326257Z 2024-06-10 13:49:37,680 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/administration
+2024-06-10T13:49:37.917312341Z 2024-06-10 13:49:37,915 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/contact-support
+2024-06-10T13:49:38.050961007Z 2024-06-10 13:49:38,050 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/support-kontaktieren
+2024-06-10T13:49:38.212681341Z 2024-06-10 13:49:38,212 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/support
+2024-06-10T13:49:38.344305424Z 2024-06-10 13:49:38,344 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/anfragefehler-401-beim-einloggen
+2024-06-10T13:49:38.468289049Z 2024-06-10 13:49:38,467 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:38.468334841Z 2024-06-10 13:49:38,467 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/ich-kann-keine-nutzer-zu-meinem-abonnement-hinzufügen
+2024-06-10T13:49:38.624880549Z 2024-06-10 13:49:38,624 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.16 seconds
+2024-06-10T13:49:38.624905549Z 2024-06-10 13:49:38,624 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/ich-habe-meine-e-mail-adresse-vergessen
+2024-06-10T13:49:38.754760174Z 2024-06-10 13:49:38,754 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.13 seconds
+2024-06-10T13:49:38.754778924Z 2024-06-10 13:49:38,754 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/passwort-vergessen
+2024-06-10T13:49:38.933971424Z 2024-06-10 13:49:38,933 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.18 seconds
+2024-06-10T13:49:38.933985591Z 2024-06-10 13:49:38,933 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.72 seconds
+2024-06-10T13:49:38.934251633Z 2024-06-10 13:49:38,934 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/support-kontakieren
+2024-06-10T13:49:39.048455383Z 2024-06-10 13:49:39,048 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-contact-collaboard-support
+2024-06-10T13:49:39.164131050Z 2024-06-10 13:49:39,163 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:39.164820300Z 2024-06-10 13:49:39,164 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.23 seconds
+2024-06-10T13:49:39.164832300Z 2024-06-10 13:49:39,164 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 1.11 seconds
+2024-06-10T13:49:39.164834133Z 2024-06-10 13:49:39,164 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 1.25 seconds
+2024-06-10T13:49:39.165046591Z 2024-06-10 13:49:39,164 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/change-language
+2024-06-10T13:49:39.272486050Z 2024-06-10 13:49:39,272 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/sprache-ändern
+2024-06-10T13:49:39.429434050Z 2024-06-10 13:49:39,429 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.16 seconds
+2024-06-10T13:49:39.429987633Z 2024-06-10 13:49:39,429 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.26 seconds
+2024-06-10T13:49:39.429997091Z 2024-06-10 13:49:39,429 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/login-problems
+2024-06-10T13:49:39.554763091Z 2024-06-10 13:49:39,554 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/login-probleme
+2024-06-10T13:49:39.672681966Z 2024-06-10 13:49:39,672 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/login-probleme-unautorisierter-fehler
+2024-06-10T13:49:39.810802008Z 2024-06-10 13:49:39,810 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/login-issues
+2024-06-10T13:49:39.924932883Z 2024-06-10 13:49:39,924 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/do-you-have-connection-issues
+2024-06-10T13:49:40.066478258Z 2024-06-10 13:49:40,066 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/verbindungsprobleme
+2024-06-10T13:49:40.217205383Z 2024-06-10 13:49:40,217 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/unterst%C3%BCtze-browser
+2024-06-10T13:49:40.346340842Z 2024-06-10 13:49:40,346 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/which-are-the-supported-browsers
+2024-06-10T13:49:40.491841967Z 2024-06-10 13:49:40,491 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/unterstütze-browser
+2024-06-10T13:49:40.635903884Z 2024-06-10 13:49:40,635 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.14 seconds
+2024-06-10T13:49:40.636645800Z 2024-06-10 13:49:40,636 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.29 seconds
+2024-06-10T13:49:40.637325800Z 2024-06-10 13:49:40,637 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.42 seconds
+2024-06-10T13:49:40.637335759Z 2024-06-10 13:49:40,637 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.57 seconds
+2024-06-10T13:49:40.637961342Z 2024-06-10 13:49:40,637 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.71 seconds
+2024-06-10T13:49:40.637969050Z 2024-06-10 13:49:40,637 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.83 seconds
+2024-06-10T13:49:40.638676134Z 2024-06-10 13:49:40,638 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.97 seconds
+2024-06-10T13:49:40.638706009Z 2024-06-10 13:49:40,638 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 1.08 seconds
+2024-06-10T13:49:40.639403259Z 2024-06-10 13:49:40,639 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 1.21 seconds
+2024-06-10T13:49:40.639408925Z 2024-06-10 13:49:40,639 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-delete-my-account
+2024-06-10T13:49:40.770582342Z 2024-06-10 13:49:40,770 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/benutzer-löschen
+2024-06-10T13:49:40.905477300Z 2024-06-10 13:49:40,905 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.14 seconds
+2024-06-10T13:49:40.907614009Z 2024-06-10 13:49:40,905 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.27 seconds
+2024-06-10T13:49:40.907628550Z 2024-06-10 13:49:40,906 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/2-factor-authentication
+2024-06-10T13:49:41.058113925Z 2024-06-10 13:49:41,057 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/authentifizierungsmodus-in-collaboard
+2024-06-10T13:49:41.280594342Z 2024-06-10 13:49:41,280 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.22 seconds
+2024-06-10T13:49:41.280909009Z 2024-06-10 13:49:41,280 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.37 seconds
+2024-06-10T13:49:41.280919926Z 2024-06-10 13:49:41,280 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-do-i-reset-my-password
+2024-06-10T13:49:41.437459717Z 2024-06-10 13:49:41,437 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/passwort-zurücksetzen
+2024-06-10T13:49:41.557721092Z 2024-06-10 13:49:41,557 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:41.558702634Z 2024-06-10 13:49:41,558 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.28 seconds
+2024-06-10T13:49:41.558710801Z 2024-06-10 13:49:41,558 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/merge-accounts
+2024-06-10T13:49:41.672065301Z 2024-06-10 13:49:41,671 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/benutzer-zusammenführen
+2024-06-10T13:49:41.792368634Z 2024-06-10 13:49:41,792 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:41.793212176Z 2024-06-10 13:49:41,792 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.23 seconds
+2024-06-10T13:49:41.793219384Z 2024-06-10 13:49:41,792 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-create-a-new-collaboard-account
+2024-06-10T13:49:41.938089926Z 2024-06-10 13:49:41,937 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-erstelle-ich-ein-neues-collaboard-konto
+2024-06-10T13:49:42.075326926Z 2024-06-10 13:49:42,075 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.14 seconds
+2024-06-10T13:49:42.076423801Z 2024-06-10 13:49:42,075 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.28 seconds
+2024-06-10T13:49:42.076446051Z 2024-06-10 13:49:42,075 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-change-the-project-owner
+2024-06-10T13:49:42.182669218Z 2024-06-10 13:49:42,182 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-kann-der-projektbesitzer-geändert-werden
+2024-06-10T13:49:42.281806676Z 2024-06-10 13:49:42,281 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.10 seconds
+2024-06-10T13:49:42.282097093Z 2024-06-10 13:49:42,281 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.21 seconds
+2024-06-10T13:49:42.282422426Z 2024-06-10 13:49:42,282 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-do-i-delete-a-project
+2024-06-10T13:49:42.399424801Z 2024-06-10 13:49:42,398 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/projekt-löschen
+2024-06-10T13:49:42.556026218Z 2024-06-10 13:49:42,555 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.16 seconds
+2024-06-10T13:49:42.556726218Z 2024-06-10 13:49:42,556 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.27 seconds
+2024-06-10T13:49:42.556736009Z 2024-06-10 13:49:42,556 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-do-i-rename-a-project
+2024-06-10T13:49:42.671158510Z 2024-06-10 13:49:42,670 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/how-do-i-rename-a-project
+2024-06-10T13:49:42.801485801Z 2024-06-10 13:49:42,801 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.13 seconds
+2024-06-10T13:49:42.801989801Z 2024-06-10 13:49:42,801 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.25 seconds
+2024-06-10T13:49:42.801995885Z 2024-06-10 13:49:42,801 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-do-i-copy-a-project-1
+2024-06-10T13:49:42.969448510Z 2024-06-10 13:49:42,968 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/projekt-kopieren
+2024-06-10T13:49:43.136952301Z 2024-06-10 13:49:43,136 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.17 seconds
+2024-06-10T13:49:43.137759843Z 2024-06-10 13:49:43,137 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.34 seconds
+2024-06-10T13:49:43.137774635Z 2024-06-10 13:49:43,137 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-organize-tag-projects
+2024-06-10T13:49:43.279211343Z 2024-06-10 13:49:43,278 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/projekt-mit-tags-organisieren
+2024-06-10T13:49:43.458806427Z 2024-06-10 13:49:43,458 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.18 seconds
+2024-06-10T13:49:43.459683802Z 2024-06-10 13:49:43,459 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.32 seconds
+2024-06-10T13:49:43.459695218Z 2024-06-10 13:49:43,459 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-manage-user-permissions
+2024-06-10T13:49:43.633798427Z 2024-06-10 13:49:43,633 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/benutzer-berechtigungen-anpassen
+2024-06-10T13:49:43.764463427Z 2024-06-10 13:49:43,764 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.13 seconds
+2024-06-10T13:49:43.765169135Z 2024-06-10 13:49:43,764 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.31 seconds
+2024-06-10T13:49:43.765189052Z 2024-06-10 13:49:43,764 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/migrate-projects
+2024-06-10T13:49:44.115372177Z 2024-06-10 13:49:44,113 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/projekte-migrieren
+2024-06-10T13:49:44.233659844Z 2024-06-10 13:49:44,233 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:44.234286885Z 2024-06-10 13:49:44,234 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.47 seconds
+2024-06-10T13:49:44.234297385Z 2024-06-10 13:49:44,234 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-remove-a-user-from-my-team
+2024-06-10T13:49:44.335098635Z 2024-06-10 13:49:44,334 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/benutzer-von-meinem-team-entfernen
+2024-06-10T13:49:44.447660969Z 2024-06-10 13:49:44,447 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:44.448345385Z 2024-06-10 13:49:44,448 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.21 seconds
+2024-06-10T13:49:44.448353219Z 2024-06-10 13:49:44,448 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-add-users-to-my-team
+2024-06-10T13:49:44.545991885Z 2024-06-10 13:49:44,545 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/benutzer-zu-meinem-team-hinzufügen
+2024-06-10T13:49:44.639516552Z 127.0.0.1 - - [10/Jun/2024 13:49:44] "GET /healthz HTTP/1.1" 200 -
+2024-06-10T13:49:44.639532385Z 2024-06-10 13:49:44,639 - ReadinessProbeHandler - INFO - /healthz response 200
+2024-06-10T13:49:44.654608385Z 2024-06-10 13:49:44,654 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:44.655001760Z 2024-06-10 13:49:44,654 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.21 seconds
+2024-06-10T13:49:44.655006594Z 2024-06-10 13:49:44,654 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/add-multiple-managers-for-one-subscription
+2024-06-10T13:49:44.772687094Z 2024-06-10 13:49:44,772 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/fuege-einem-abonnement-mehrere-manager-hinzu
+2024-06-10T13:49:44.904510469Z 2024-06-10 13:49:44,904 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.13 seconds
+2024-06-10T13:49:44.905753594Z 2024-06-10 13:49:44,904 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.25 seconds
+2024-06-10T13:49:44.905769011Z 2024-06-10 13:49:44,904 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-can-i-change-the-email-address-of-a-user-in-my-team-1
+2024-06-10T13:49:45.034637844Z 2024-06-10 13:49:45,034 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-kann-ich-die-e-mail-adresse-eines-benutzers-aus-meinem-team-ändern
+2024-06-10T13:49:45.208897302Z 2024-06-10 13:49:45,208 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-kann-ich-meinem-team-in-collaboard-nutzer-hinzuf%C3%BCgen
+2024-06-10T13:49:45.342397761Z 2024-06-10 13:49:45,342 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/administration/manage-your-team
+2024-06-10T13:49:45.753213094Z 2024-06-10 13:49:45,753 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/administration/team-verwalten
+2024-06-10T13:49:46.144377095Z 2024-06-10 13:49:46,144 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-kann-ich-meinem-team-in-collaboard-nutzer-hinzufügen
+2024-06-10T13:49:46.281947595Z 2024-06-10 13:49:46,281 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.14 seconds
+2024-06-10T13:49:46.281964303Z 2024-06-10 13:49:46,281 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/exportieren-der-collaboard-nutzenden-als-liste
+2024-06-10T13:49:46.470542720Z 2024-06-10 13:49:46,470 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/export-user-list
+2024-06-10T13:49:46.582360136Z 2024-06-10 13:49:46,582 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:46.582850136Z 2024-06-10 13:49:46,582 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.30 seconds
+2024-06-10T13:49:46.582856303Z 2024-06-10 13:49:46,582 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-füge-ich-ein-projekt-zu-einem-raum-hinzu
+2024-06-10T13:49:46.780337887Z 2024-06-10 13:49:46,780 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-add
+2024-06-10T13:49:46.882982428Z 2024-06-10 13:49:46,882 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.10 seconds
+2024-06-10T13:49:46.883811762Z 2024-06-10 13:49:46,883 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.30 seconds
+2024-06-10T13:49:46.883819595Z 2024-06-10 13:49:46,883 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/so-fügst-du-deinem-raum-nutzer-hinzu
+2024-06-10T13:49:47.012270762Z 2024-06-10 13:49:47,012 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-add-users-to-your-space
+2024-06-10T13:49:47.158294803Z 2024-06-10 13:49:47,158 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.15 seconds
+2024-06-10T13:49:47.158802470Z 2024-06-10 13:49:47,158 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.28 seconds
+2024-06-10T13:49:47.158807970Z 2024-06-10 13:49:47,158 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-erstelle-ich-einen-raum-in-collaboard
+2024-06-10T13:49:47.309186970Z 2024-06-10 13:49:47,308 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-create-a-space-in-collaboard
+2024-06-10T13:49:47.562658720Z 2024-06-10 13:49:47,562 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.25 seconds
+2024-06-10T13:49:47.563028304Z 2024-06-10 13:49:47,562 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.40 seconds
+2024-06-10T13:49:47.563034179Z 2024-06-10 13:49:47,562 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/hinzufügen-und-ändern-von-raumadministratoren
+2024-06-10T13:49:47.677379345Z 2024-06-10 13:49:47,677 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-add-and-change-space-admins
+2024-06-10T13:49:47.786383429Z 2024-06-10 13:49:47,786 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:47.787129304Z 2024-06-10 13:49:47,786 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.22 seconds
+2024-06-10T13:49:47.787135970Z 2024-06-10 13:49:47,786 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/microsoft-teams-integration
+2024-06-10T13:49:47.977581887Z 2024-06-10 13:49:47,977 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/microsoft-teams-integration
+2024-06-10T13:49:48.089180345Z 2024-06-10 13:49:48,088 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:48.089678345Z 2024-06-10 13:49:48,089 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.30 seconds
+2024-06-10T13:49:48.089687387Z 2024-06-10 13:49:48,089 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-funktioniert-die-zoom-integration
+2024-06-10T13:49:48.227385012Z 2024-06-10 13:49:48,227 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/administration/integrations
+2024-06-10T13:49:48.593107221Z 2024-06-10 13:49:48,592 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/administration/integrationen
+2024-06-10T13:49:49.271902721Z 2024-06-10 13:49:49,271 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/branding-gestalte-dein-collaboard
+2024-06-10T13:49:49.386230346Z 2024-06-10 13:49:49,386 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/branding
+2024-06-10T13:49:49.503599679Z 2024-06-10 13:49:49,502 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:49.503607179Z 2024-06-10 13:49:49,503 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.23 seconds
+2024-06-10T13:49:49.503608346Z 2024-06-10 13:49:49,503 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/konfigurationen
+2024-06-10T13:49:49.673994930Z 2024-06-10 13:49:49,673 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/feature-flags
+2024-06-10T13:49:49.880650513Z 2024-06-10 13:49:49,880 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.21 seconds
+2024-06-10T13:49:49.881151471Z 2024-06-10 13:49:49,880 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.38 seconds
+2024-06-10T13:49:49.881159471Z 2024-06-10 13:49:49,880 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 1.29 seconds
+2024-06-10T13:49:49.881912638Z 2024-06-10 13:49:49,881 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/api-key
+2024-06-10T13:49:50.042056388Z 2024-06-10 13:49:50,041 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.16 seconds
+2024-06-10T13:49:50.042067721Z 2024-06-10 13:49:50,041 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/rocket.chat-integration
+2024-06-10T13:49:50.174276888Z 2024-06-10 13:49:50,174 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.13 seconds
+2024-06-10T13:49:50.174322513Z 2024-06-10 13:49:50,174 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/collaboard-for-webex
+2024-06-10T13:49:50.276081263Z 2024-06-10 13:49:50,275 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.10 seconds
+2024-06-10T13:49:50.276106055Z 2024-06-10 13:49:50,275 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/customize-terms-of-service-tos
+2024-06-10T13:49:50.378624930Z 2024-06-10 13:49:50,378 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/administration/einstellungen
+2024-06-10T13:49:50.809114763Z 2024-06-10 13:49:50,808 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/administration/settings
+2024-06-10T13:49:51.192346514Z 2024-06-10 13:49:51,191 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.38 seconds
+2024-06-10T13:49:51.192929889Z 2024-06-10 13:49:51,192 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.81 seconds
+2024-06-10T13:49:51.193295889Z 2024-06-10 13:49:51,192 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.92 seconds
+2024-06-10T13:49:51.193301972Z 2024-06-10 13:49:51,192 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 2.97 seconds
+2024-06-10T13:49:51.193833597Z 2024-06-10 13:49:51,193 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 3.10 seconds
+2024-06-10T13:49:51.193845555Z 2024-06-10 13:49:51,193 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 5.44 seconds
+2024-06-10T13:49:51.194309555Z 2024-06-10 13:49:51,193 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 5.85 seconds
+2024-06-10T13:49:51.194710555Z 2024-06-10 13:49:51,194 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 5.99 seconds
+2024-06-10T13:49:51.194714847Z 2024-06-10 13:49:51,194 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/personen-einladen
+2024-06-10T13:49:51.299460055Z 2024-06-10 13:49:51,299 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/invite-collaborators
+2024-06-10T13:49:51.383417389Z 2024-06-10 13:49:51,383 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.08 seconds
+2024-06-10T13:49:51.384009722Z 2024-06-10 13:49:51,383 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.19 seconds
+2024-06-10T13:49:51.384019930Z 2024-06-10 13:49:51,383 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-kann-der-projektbesitzer-ge%C3%A4ndert-werden
+2024-06-10T13:49:51.489842639Z 2024-06-10 13:49:51,489 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:51.489861930Z 2024-06-10 13:49:51,489 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 6.45 seconds
+2024-06-10T13:49:51.489913764Z 2024-06-10 13:49:51,489 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 6.59 seconds
+2024-06-10T13:49:51.490573889Z 2024-06-10 13:49:51,489 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 13.81 seconds
+2024-06-10T13:49:51.491092305Z 2024-06-10 13:49:51,490 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-cancel-my-collaboard-subscription
+2024-06-10T13:49:51.612927847Z 2024-06-10 13:49:51,612 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-kann-ich-ein-collaboard-abonnement-erwerben
+2024-06-10T13:49:51.733596889Z 2024-06-10 13:49:51,733 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:51.734028639Z 2024-06-10 13:49:51,733 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.24 seconds
+2024-06-10T13:49:51.734033222Z 2024-06-10 13:49:51,733 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-buy-a-collaboard-subscription
+2024-06-10T13:49:51.888073139Z 2024-06-10 13:49:51,887 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-kann-ich-ein-collaboard-abonnement-erwerben-1
+2024-06-10T13:49:52.008140097Z 2024-06-10 13:49:52,007 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:52.008711306Z 2024-06-10 13:49:52,008 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.27 seconds
+2024-06-10T13:49:52.008716722Z 2024-06-10 13:49:52,008 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-redeem-a-license-code-in-collaboard
+2024-06-10T13:49:52.112563972Z 2024-06-10 13:49:52,112 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-löse-ich-einen-lizenzcode-in-collaboard-ein
+2024-06-10T13:49:52.220114264Z 2024-06-10 13:49:52,219 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:52.220625681Z 2024-06-10 13:49:52,220 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.21 seconds
+2024-06-10T13:49:52.220634847Z 2024-06-10 13:49:52,220 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/what-is-a-guest-user-in-collaboard
+2024-06-10T13:49:52.328151014Z 2024-06-10 13:49:52,327 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/gastbenutzer
+2024-06-10T13:49:52.446322264Z 2024-06-10 13:49:52,446 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:52.446843514Z 2024-06-10 13:49:52,446 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.23 seconds
+2024-06-10T13:49:52.446847973Z 2024-06-10 13:49:52,446 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 14.91 seconds
+2024-06-10T13:49:52.447000806Z 2024-06-10 13:49:52,446 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/move-on-the-canvas
+2024-06-10T13:49:52.547520264Z 2024-06-10 13:49:52,547 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/sich-auf-der-leinwand-bewegen
+2024-06-10T13:49:52.657869056Z 2024-06-10 13:49:52,657 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:52.658907306Z 2024-06-10 13:49:52,657 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.21 seconds
+2024-06-10T13:49:52.658911889Z 2024-06-10 13:49:52,658 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/zoom-in-and-out-the-canvas
+2024-06-10T13:49:52.789519389Z 2024-06-10 13:49:52,789 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/zoom-in-and-out-of-the-canvas
+2024-06-10T13:49:52.913786973Z 2024-06-10 13:49:52,913 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.12 seconds
+2024-06-10T13:49:52.913807681Z 2024-06-10 13:49:52,913 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.26 seconds
+2024-06-10T13:49:52.913809514Z 2024-06-10 13:49:52,913 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/your-browser-is-zoomed
+2024-06-10T13:49:53.009388014Z 2024-06-10 13:49:53,008 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/dein-browser-ist-gezoomt
+2024-06-10T13:49:53.138105223Z 2024-06-10 13:49:53,137 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.13 seconds
+2024-06-10T13:49:53.138609306Z 2024-06-10 13:49:53,138 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.22 seconds
+2024-06-10T13:49:53.138613473Z 2024-06-10 13:49:53,138 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/select-and-move-multiple-objects
+2024-06-10T13:49:53.309578098Z 2024-06-10 13:49:53,308 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/mehrere-objekte-auswählen-und-verschieben
+2024-06-10T13:49:53.418243431Z 2024-06-10 13:49:53,417 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.11 seconds
+2024-06-10T13:49:53.418686806Z 2024-06-10 13:49:53,418 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.28 seconds
+2024-06-10T13:49:53.418693181Z 2024-06-10 13:49:53,418 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/group-/-ungroup-objects
+2024-06-10T13:49:53.612710306Z 2024-06-10 13:49:53,612 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/objekte-gruppieren-/-gruppierung-aufheben
+2024-06-10T13:49:53.760915932Z 2024-06-10 13:49:53,760 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.15 seconds
+2024-06-10T13:49:53.760936515Z 2024-06-10 13:49:53,760 - lib.spider.spider_bs4 - INFO - ⏰ total elapsed time: 0.34 seconds
+
+
+
+2024-06-10T13:49:53.761125182Z 2024-06-10 13:49:53,760 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-ot-lock-and-unlock-objects-in-collaboard
+2024-06-10T13:49:53.889099682Z 2024-06-10 13:49:53,888 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/objekte-sperren-und-entsperren
+2024-06-10T13:49:53.993197265Z 2024-06-10 13:49:53,993 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/arrange-objects
+2024-06-10T13:49:54.149906348Z 2024-06-10 13:49:54,149 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/objekte-anordner
+2024-06-10T13:49:54.253796390Z 2024-06-10 13:49:54,253 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/undo-/-redo
+2024-06-10T13:49:54.449282515Z 2024-06-10 13:49:54,449 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/rückgängig-machen-/-wiederherstellen
+2024-06-10T13:49:54.579115765Z 2024-06-10 13:49:54,578 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/copy-objects
+2024-06-10T13:49:54.710208849Z 2024-06-10 13:49:54,709 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/objekte-kopieren
+2024-06-10T13:49:54.825375640Z 2024-06-10 13:49:54,825 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-add-and-create-links-in-collaboard
+2024-06-10T13:49:54.926354515Z 2024-06-10 13:49:54,926 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/links-erstellen
+2024-06-10T13:49:55.041223474Z 2024-06-10 13:49:55,040 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/pin
+2024-06-10T13:49:55.163886016Z 2024-06-10 13:49:55,163 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/anpinnen-und-lösen-von-objekten
+2024-06-10T13:49:55.278855557Z 2024-06-10 13:49:55,278 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/sticky-notes
+2024-06-10T13:49:55.399853516Z 2024-06-10 13:49:55,399 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/karten
+2024-06-10T13:49:55.542946766Z 2024-06-10 13:49:55,542 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/karten-aus-einer-tabelle-erstellen
+
+2024-06-10T13:49:55.671303266Z 2024-06-10 13:49:55,671 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/create-sticky-notes-from-a-tabel
+2024-06-10T13:49:55.866298933Z 2024-06-10 13:49:55,865 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/sticky-notes-default-setting
+2024-06-10T13:49:55.985860808Z 2024-06-10 13:49:55,985 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/arbeiten-mit-collaboard/karten
+2024-06-10T13:49:56.496219474Z 2024-06-10 13:49:56,495 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/working-with-collaboard/sticky-notes
+2024-06-10T13:49:56.885163641Z 2024-06-10 13:49:56,884 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/extract-pages-from-a-document
+2024-06-10T13:49:57.002066600Z 2024-06-10 13:49:57,001 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/seiten-aus-einem-dokument-extrahieren
+2024-06-10T13:49:57.203379433Z 2024-06-10 13:49:57,203 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/anpinnen-und-l%C3%B6sen-von-objekten
+2024-06-10T13:49:57.313521350Z 2024-06-10 13:49:57,313 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/upload-documents
+2024-06-10T13:49:57.417167642Z 2024-06-10 13:49:57,416 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/dokumente-hochladen
+2024-06-10T13:49:57.517687725Z 2024-06-10 13:49:57,517 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/upload-images
+2024-06-10T13:49:57.659168058Z 2024-06-10 13:49:57,658 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/bilder-hochladen
+2024-06-10T13:49:57.771258767Z 2024-06-10 13:49:57,769 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/take-a-photo
+2024-06-10T13:49:57.875244225Z 2024-06-10 13:49:57,874 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/ein-foto-machen
+2024-06-10T13:49:58.016749684Z 2024-06-10 13:49:58,016 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/add-an-image-from-the-web-search
+2024-06-10T13:49:58.126321392Z 2024-06-10 13:49:58,126 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/ein-bild-aus-der-websuche-hinzufügen
+2024-06-10T13:49:58.239781559Z 2024-06-10 13:49:58,239 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/upload-media
+
+2024-06-10T13:49:58.343882475Z 2024-06-10 13:49:58,343 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/upload-videos
+2024-06-10T13:49:58.471975225Z 2024-06-10 13:49:58,471 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/record-media
+2024-06-10T13:49:58.601669559Z 2024-06-10 13:49:58,601 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/video
+2024-06-10T13:49:58.723671392Z 2024-06-10 13:49:58,723 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/add-a-video-from-youtube-search
+2024-06-10T13:49:58.838885892Z 2024-06-10 13:49:58,838 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/ein-video-aus-der-youtube-suche-hinzufügen
+2024-06-10T13:49:58.983173101Z 2024-06-10 13:49:58,983 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/connectors
+2024-06-10T13:49:59.096346767Z 2024-06-10 13:49:59,096 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/konnektoren
+2024-06-10T13:49:59.210607642Z 2024-06-10 13:49:59,210 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/all-line-options
+2024-06-10T13:49:59.422925351Z 2024-06-10 13:49:59,422 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/alle-linien-optionen
+2024-06-10T13:49:59.547209726Z 2024-06-10 13:49:59,547 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/add-a-line
+2024-06-10T13:49:59.669054976Z 2024-06-10 13:49:59,668 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/linie-hinzufügen
+2024-06-10T13:49:59.790739934Z 2024-06-10 13:49:59,789 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/add-shapes
+2024-06-10T13:49:59.902001393Z 2024-06-10 13:49:59,901 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/formen
+2024-06-10T13:50:00.023914143Z 2024-06-10 13:50:00,023 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/all-shape-options
+2024-06-10T13:50:00.157261893Z 2024-06-10 13:50:00,156 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/alle-formoptionen
+2024-06-10T13:50:00.324438810Z 2024-06-10 13:50:00,324 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-use-the-pen-with-collaboard
+2024-06-10T13:50:00.459934726Z 2024-06-10 13:50:00,459 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-benutzt-man-einen-stift-mit-collaboard
+2024-06-10T13:50:00.660502810Z 2024-06-10 13:50:00,660 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-do-i-embed-iframes-and-other-applications-in-collaboard
+2024-06-10T13:50:00.795254310Z 2024-06-10 13:50:00,794 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/iframes-oder-andere-applikationen-in-collaboard-einbinden
+2024-06-10T13:50:01.068019893Z 2024-06-10 13:50:01,067 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/comments
+2024-06-10T13:50:01.212049477Z 2024-06-10 13:50:01,211 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/kommentare
+2024-06-10T13:50:01.337477227Z 2024-06-10 13:50:01,337 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/text
+2024-06-10T13:50:01.458344977Z 2024-06-10 13:50:01,458 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/text
+2024-06-10T13:50:01.599671435Z 2024-06-10 13:50:01,599 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-add-a-hyperlink-to-the-board
+2024-06-10T13:50:01.783837602Z 2024-06-10 13:50:01,783 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-fügt-man-eine-hyperlink-zu-einem-board-hinzu
+2024-06-10T13:50:01.923742685Z 2024-06-10 13:50:01,923 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/table
+2024-06-10T13:50:02.095560102Z 2024-06-10 13:50:02,095 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/tabelle
+2024-06-10T13:50:02.245027769Z 2024-06-10 13:50:02,244 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/export-quick-links
+2024-06-10T13:50:02.380245894Z 2024-06-10 13:50:02,380 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/quick-links-exportieren
+2024-06-10T13:50:02.566041102Z 2024-06-10 13:50:02,565 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/display-quick-links
+2024-06-10T13:50:02.726783686Z 2024-06-10 13:50:02,726 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/quick-links-anzeigen
+2024-06-10T13:50:02.874948728Z 2024-06-10 13:50:02,874 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/re-arrange-quick-links
+2024-06-10T13:50:03.052300603Z 2024-06-10 13:50:03,051 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/quick-links-neu-anordnen
+2024-06-10T13:50:03.181213519Z 2024-06-10 13:50:03,181 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-use-quick-links-in-collaboad
+2024-06-10T13:50:03.295308978Z 2024-06-10 13:50:03,295 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/was-sind-quicklinks
+2024-06-10T13:50:03.424195103Z 2024-06-10 13:50:03,424 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/set-start-view
+2024-06-10T13:50:03.562858186Z 2024-06-10 13:50:03,562 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/startansicht-festlegen
+2024-06-10T13:50:03.725041020Z 2024-06-10 13:50:03,724 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/focus-mode
+2024-06-10T13:50:03.829946145Z 2024-06-10 13:50:03,829 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/fokus-modus
+2024-06-10T13:50:03.976878728Z 2024-06-10 13:50:03,976 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/hide-objects
+2024-06-10T13:50:04.090784645Z 2024-06-10 13:50:04,090 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/objekte-verbergen
+2024-06-10T13:50:04.210670811Z 2024-06-10 13:50:04,210 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-start-the-timer-in-collaboard
+2024-06-10T13:50:04.320876145Z 2024-06-10 13:50:04,320 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/timer
+2024-06-10T13:50:04.456078978Z 2024-06-10 13:50:04,455 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-start-the-presentation-mode-in-collaboard
+2024-06-10T13:50:04.663041437Z 2024-06-10 13:50:04,662 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/präsentationsmodus
+2024-06-10T13:50:04.815218728Z 2024-06-10 13:50:04,815 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-use-the-get-attention-feature-in-collaboard
+2024-06-10T13:50:04.961480062Z 2024-06-10 13:50:04,961 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/aufmerksamkeit-erhalten
+2024-06-10T13:50:05.097156229Z 2024-06-10 13:50:05,096 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/voting
+2024-06-10T13:50:05.220051604Z 2024-06-10 13:50:05,219 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/how-does-voting-work-in-collaboard
+2024-06-10T13:50:05.362381145Z 2024-06-10 13:50:05,362 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-display-users-mouse-movement
+2024-06-10T13:50:05.538399562Z 2024-06-10 13:50:05,538 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/mauszeiger-von-benutzern-anzeigen
+2024-06-10T13:50:05.680705104Z 2024-06-10 13:50:05,680 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/what-do-they-grey-boarders-in-presentation-mode-mean
+2024-06-10T13:50:05.811094479Z 2024-06-10 13:50:05,810 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/was-bedeuten-die-grauen-ränder-im-präsentationsmodus
+2024-06-10T13:50:05.960255771Z 2024-06-10 13:50:05,959 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/activity-logbook
+2024-06-10T13:50:06.163494146Z 2024-06-10 13:50:06,163 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/aktivitaetenlogbook
+2024-06-10T13:50:06.342637646Z 2024-06-10 13:50:06,342 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/versions
+2024-06-10T13:50:06.460213063Z 2024-06-10 13:50:06,459 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/versionen
+2024-06-10T13:50:06.591508729Z 2024-06-10 13:50:06,591 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/template-library
+2024-06-10T13:50:06.706371646Z 2024-06-10 13:50:06,706 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/vorlagenbibliothek
+2024-06-10T13:50:06.836516188Z 2024-06-10 13:50:06,836 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/export-as-text
+2024-06-10T13:50:06.989187438Z 2024-06-10 13:50:06,988 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/text-exportieren
+2024-06-10T13:50:07.103839855Z 2024-06-10 13:50:07,103 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/export-as-pdf
+2024-06-10T13:50:07.230953230Z 2024-06-10 13:50:07,230 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/pdf-exportieren
+2024-06-10T13:50:07.397705730Z 2024-06-10 13:50:07,397 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/export-as-image
+2024-06-10T13:50:07.554450813Z 2024-06-10 13:50:07,554 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/bild-exportieren
+2024-06-10T13:50:07.676003230Z 2024-06-10 13:50:07,675 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-export-a-collaboard-project
+2024-06-10T13:50:07.829723938Z 2024-06-10 13:50:07,829 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-exportiert-man-ein-colllaboard-projekt
+2024-06-10T13:50:07.959402105Z 2024-06-10 13:50:07,959 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/ausschnitt-eines-export-exportieren
+2024-06-10T13:50:08.443203105Z 2024-06-10 13:50:08,442 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/general-settings
+2024-06-10T13:50:08.610013730Z 2024-06-10 13:50:08,609 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/allgemeine-einstellungen
+2024-06-10T13:50:08.756592939Z 2024-06-10 13:50:08,756 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/how-to-activate-the-background-grid
+2024-06-10T13:50:08.933763314Z 2024-06-10 13:50:08,933 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/hintergrundraster
+2024-06-10T13:50:09.059540272Z 2024-06-10 13:50:09,059 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/canvas-background-color-/-dark-mode
+2024-06-10T13:50:09.293120689Z 2024-06-10 13:50:09,292 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/leinwand-hintergrundfarbe-
+2024-06-10T13:50:09.456028897Z 2024-06-10 13:50:09,455 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/user-interface-size
+2024-06-10T13:50:09.603087689Z 2024-06-10 13:50:09,602 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/user-interface-grösse
+2024-06-10T13:50:09.804064189Z 2024-06-10 13:50:09,803 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/which-keyboard-shortcuts-are-available
+2024-06-10T13:50:09.986273148Z 2024-06-10 13:50:09,986 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/welche-tastenkürzel-gibt-es
+2024-06-10T13:50:10.146496189Z 2024-06-10 13:50:10,146 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/bild-zuschneiden
+2024-06-10T13:50:10.289377606Z 2024-06-10 13:50:10,289 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/working-with-collaboard/images-media
+2024-06-10T13:50:10.741658898Z 2024-06-10 13:50:10,741 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/arbeiten-mit-collaboard/bilder-medien
+2024-06-10T13:50:11.152933565Z 2024-06-10 13:50:11,152 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/wie-funktioniert-das-abstimmen-und-bewerten-in-collaboard
+2024-06-10T13:50:11.330012190Z 2024-06-10 13:50:11,328 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/teile-eines-projektes-exportieren
+2024-06-10T13:50:11.462369857Z 2024-06-10 13:50:11,462 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/working-with-collaboard/export
+2024-06-10T13:50:11.901498190Z 2024-06-10 13:50:11,901 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/arbeiten-mit-collaboard/export
+2024-06-10T13:50:12.353782732Z 2024-06-10 13:50:12,352 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/technical-requirements-for-collaboard
+2024-06-10T13:50:12.506457440Z 2024-06-10 13:50:12,506 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/technische-voraussetzungen-für-collaboard
+2024-06-10T13:50:12.860725691Z 2024-06-10 13:50:12,860 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/user-presence
+2024-06-10T13:50:13.095352482Z 2024-06-10 13:50:13,095 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/umgebungen
+2024-06-10T13:50:13.214688024Z 2024-06-10 13:50:13,214 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/hosting-environments
+2024-06-10T13:50:13.331881608Z 2024-06-10 13:50:13,331 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/was-ist-collaboard
+2024-06-10T13:50:13.446117899Z 2024-06-10 13:50:13,445 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/what-is-collaboard
+2024-06-10T13:50:13.746073233Z 2024-06-10 13:50:13,745 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/neuer-account-erstellen
+2024-06-10T13:50:13.859533108Z 2024-06-10 13:50:13,859 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/ein-neues-collaboard-konto-erstellen
+2024-06-10T13:50:13.975342024Z 2024-06-10 13:50:13,974 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/create-a-new-collaboard-account
+2024-06-10T13:50:14.122277025Z 2024-06-10 13:50:14,121 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/login-with-your-google-account
+2024-06-10T13:50:14.263347900Z 2024-06-10 13:50:14,263 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/mit-google-anmelden
+2024-06-10T13:50:14.475912566Z 2024-06-10 13:50:14,475 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/register/login-with-your-microsoft-account
+2024-06-10T13:50:14.589687441Z 2024-06-10 13:50:14,589 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/melde-dich-bei-microsoft-an
+2024-06-10T13:50:14.728643150Z 2024-06-10 13:50:14,728 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/de/create-a-project-this-article-describes-how-to-create-a-project-in-collaboard.-in-collaboard-you-can-create-a-project-and-invite-others-to-collaborate.-a-proj-1670345590517
+2024-06-10T13:50:14.889014775Z 2024-06-10 13:50:14,888 - lib.spider.spider_bs4 - INFO - Processing URL: https://help.collaboard.app/create-a-project
+
+
+2024-06-10T13:47:44.020720703Z 2024-06-10 13:47:44,020 - root - INFO - saving in milvus 1 chunk(s)
+2024-06-10T13:47:44.379377286Z 127.0.0.1 - - [10/Jun/2024 13:47:44] "GET /healthz HTTP/1.1" 200 -
+2024-06-10T13:47:44.380149703Z 2024-06-10 13:47:44,379 - ReadinessProbeHandler - INFO - /healthz response 200
+2024-06-10T13:47:47.676892996Z 2024-06-10 13:47:47,676 - Milvus_DB - INFO - ⏰ store into vector db, including embedding generation, total elapsed time: 3.65 seconds

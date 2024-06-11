@@ -20,6 +20,9 @@ const (
 
 	msTeamsChats           = "https://graph.microsoft.com/v1.0/chats"
 	msTeamsChatMessagesURL = "https://graph.microsoft.com/v1.0/chats/%s/messages"
+
+	msTeamsParamTeamID    = "team_id"
+	msTeamsParamChannelID = "channel_id"
 )
 
 type (
@@ -132,9 +135,11 @@ type (
 		client        *resty.Client
 		fileSizeLimit int
 		sessionID     uuid.NullUUID
+		chResult      chan *Response
 	}
 	MSTeamParameters struct {
 		Channel string       `json:"channel"`
+		Topics  []string     `json:"topics"`
 		Chat    string       `json:"chat"`
 		Token   oauth2.Token `json:"token"`
 	}
@@ -145,20 +150,39 @@ func (c *MSTeams) Validate() error {
 }
 
 func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Response {
-	resultCh := make(chan *Response)
-	defer close(resultCh)
+	c.resultCh = make(chan *Response)
+	defer close(c.resultCh)
+	if err := c.execute(ctx, param); err != nil {
+		zap.S().Errorf(err.Error())
+	}
+	return c.chResult
+}
+func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
+
+	teamID, ok := param[msTeamsParamTeamID]
+	if !ok {
+		return fmt.Errorf("team_id is not configured")
+	}
+	channelID, ok := param[msTeamsParamChannelID]
+	if !ok {
+		return fmt.Errorf("channel_id is not configured")
+	}
+	messages, err := c.getMessagesByChannel(ctx, teamID, channelID)
+
+}
+
+func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
+	params := make(map[string]string)
+
 	teamID, err := c.getGroup(ctx)
 	if err != nil {
 		zap.S().Errorf(err.Error())
 	}
-	channes, err := c.getChannel()
-}
+	params[msTeamsParamTeamID] = teamID
 
-func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
-	//	for one drive always send message to connector
 	return task.RunConnector(ctx, &proto.ConnectorRequest{
 		Id:     c.model.ID.IntPart(),
-		Params: make(map[string]string),
+		Params: params,
 	})
 }
 
@@ -167,6 +191,8 @@ func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error)
 }
 
 func (c *MSTeams) getMessagesByChannel(ctx context.Context, teamID, channelID string) (string, error) {
+	var channels []*ChannelResponse
+	response, err := c.client.R().SetContext(ctx).Get(fmt.Sprintf(msTeamsChannelsURL, teamID))
 
 }
 
@@ -203,42 +229,4 @@ func NewMSTeams(connector *model.Connector) (Connector, error) {
 			conn.param.Token.AccessToken))
 
 	return &conn, nil
-}
-
-func Run() {
-
-	//cred, _ := azidentity.NewOnBehalfOfCredentialWithSecret(
-	//	"tenantID", "clientID", "userAssertion", "clientSecret", nil)
-	//
-	//graphClient, _ := msgraphsdk.NewGraphServiceClientWithCredentials(
-	//	cred, []string{"https://graph.microsoft.com/.default"})
-	//
-	//azidentity.NewChainedTokenCredential()
-	//
-	//cred, _ := azidentity.NewInteractiveBrowserCredential(azidentity.InteractiveBrowserCredentialOptions{
-	//	ClientOptions: azcore.ClientOptions{
-	//		APIVersion:                      "",
-	//		Cloud:                           cloud.Configuration{},
-	//		InsecureAllowCredentialWithHTTP: false,
-	//		Logging:                         policy.LogOptions{},
-	//		Retry:                           policy.RetryOptions{},
-	//		Telemetry:                       policy.TelemetryOptions{},
-	//		TracingProvider:                 tracing.Provider{},
-	//		Transport:                       nil,
-	//		PerCallPolicies:                 nil,
-	//		PerRetryPolicies:                nil,
-	//	},
-	//	AdditionallyAllowedTenants: nil,
-	//	ClientID:                   "",
-	//	DisableInstanceDiscovery:   false,
-	//	LoginHint:                  "",
-	//	RedirectURL:                "",
-	//	TenantID:                   "",
-	//})
-	//cred.
-	//	client, err := msgraphsdk.NewGraphServiceClientWithCredentials(cred, []string{"Files.Read"})
-	//if err != nil {
-	//	fmt.Printf("Error creating client: %v\n", err)
-	//	return
-	//}
 }

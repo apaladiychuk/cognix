@@ -26,7 +26,7 @@ enum FileType {
     MD = 17;
     // ORCHESTRATOR SEND TO SEMANTIC
     URL = 18;
-    YT = 19
+    YT = 19;
 
     ORCHESTRATOR SEND TO MEDIA
     MP4 = 20;
@@ -36,7 +36,7 @@ enum FileType {
     M4A = 24;
     WAV = 25;
     WEBM = 26;
-    MOV = 27
+    MOV = 27;
 
   // add all supported file that in another document
   // check what with Google docs

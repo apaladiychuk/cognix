@@ -94,7 +94,7 @@ async def main():
     # Connect to NATS
     await publisher.connect()
     semntic_data = SemanticData(url="minio:tenant-c20a9f75-a363-40ea-86ef-eabcedbac7df:0493eb3a-4475-462e-a791-e47834ea7ba8-small.pdf",
-                                document_id=976165447229833217,
+                                document_id=976345414660126765,
                                 connector_id= 975493320735424513,
                                 file_type= FileType.PDF,
                                 collection_name= "user_625ece7e042d4f40bd2588b16bec7be6")

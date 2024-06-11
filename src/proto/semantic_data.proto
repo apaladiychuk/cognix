@@ -5,16 +5,35 @@ option go_package = "backend/core/proto;proto";
 
 
 enum FileType {
-  UNKNOWN = 0;
-  URL = 1;
-  PDF = 2;
-  RTF = 3;
-  DOC = 4;
-  XLS = 5;
-  PPT = 6;
-  TXT = 7;
-  MD  = 8;
-  YT = 9;
+    UNKNOWN = 0;
+    URL = 1; // send to semantic
+    PDF = 2;
+    XPS = 3;
+    TXT = 7;
+    MD  = 8;
+    YT = 9; // youtube send to semantic
+    DOCX = 10;
+    DOC = 11;
+    XLSX = 12;
+    XLS = 13;
+    PPTX = 14;
+    PPT = 15;
+    HWPX = 16;
+    XPS = 17;
+    EPUB = 18;
+    MOBI = 19;
+    FB2 = 20;
+    CBZ = 21;
+    MD = 22;
+    MP4 = 23;
+    MP3 = 24;
+    MPEG = 25;
+    MPGA = 26;
+    M4A = 27;
+    WAV = 28;
+    WEBM = 29;
+    MOV = 30;
+
   // add all supported file that in another document
   // check what with Google docs
 };
@@ -28,13 +47,6 @@ message SemanticData {
   string site_map = 3;
   bool search_for_sitemap = 4;
   int64  document_id = 5;
-
-
-
-
-
-
-
   int64  connector_id = 6;
   FileType file_type = 7;
   string collection_name = 8;

@@ -10,33 +10,31 @@ enum FileType {
     PDF = 1;
     XPS = 2;
     TXT = 3;
-    PDF = 4;
-    XPS = 5;
-    DOCX = 6;
-    DOC = 7;
-    XLSX = 8;
-    XLS = 9;
-    PPTX = 10;
-    PPT = 11;
-    HWPX = 12;
-    EPUB = 13;
-    MOBI = 14;
-    FB2 = 15;
-    CBZ = 16;
-    MD = 17;
+    DOCX = 4;
+    DOC = 5;
+    XLSX = 6;
+    XLS = 7;
+    PPTX = 8;
+    PPT = 9;
+    HWPX = 10;
+    EPUB = 11;
+    MOBI = 12;
+    FB2 = 13;
+    CBZ = 14;
+    MD = 15;
     // ORCHESTRATOR SEND TO SEMANTIC
-    URL = 18; 
-    YT = 19;
+    URL = 16;
+    YT = 17;
 
-    ORCHESTRATOR SEND TO MEDIA
-    MP4 = 20;
-    MP3 = 21;
-    MPEG = 22;
-    MPGA = 23;
-    M4A = 24;
-    WAV = 25;
-    WEBM = 26;
-    MOV = 27;
+    // ORCHESTRATOR SEND TO MEDIA
+    MP4 = 18;
+    MP3 = 19;
+    MPEG = 20;
+    MPGA = 21;
+    M4A = 22;
+    WAV = 23;
+    WEBM = 24;
+    MOV = 25;
 
   // add all supported file that in another document
   // check what with Google docs

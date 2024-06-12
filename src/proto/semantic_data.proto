@@ -22,7 +22,6 @@ enum FileType {
     FB2 = 13;
     CBZ = 14;
     MD = 15;
-    RTF = 26;
     // ORCHESTRATOR SEND TO SEMANTIC
     URL = 16;
     YT = 17;

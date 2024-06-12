@@ -80,7 +80,8 @@ class YTSemantic(BaseSemantic):
                                                             collected_data=collected_data,
                                                             chunking_session=chunking_session,
                                                             ack_wait=ack_wait,
-                                                            full_process_start_time=full_process_start_time)
+                                                            full_process_start_time=full_process_start_time,
+                                                            split_data=True)
                 self.logger.debug(f"transcript \n {content}")
             else:
                 self.store_collected_data_none(data=data, document_crud=document_crud, chunking_session=chunking_session)

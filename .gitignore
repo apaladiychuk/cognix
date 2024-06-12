@@ -43,3 +43,7 @@ src/backend/semantic/testdocs/
 
 # ignore temp path
 vendor/
+
+
+# personal access token for one drive
+docs/connectors/personal

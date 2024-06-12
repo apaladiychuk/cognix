@@ -7,7 +7,7 @@ Base = declarative_base()
 
 
 class Status(enum.Enum):
-    READY_TO_BE_PROCESSED = "READY_TO_BE_PROCESSED"
+    READY_TO_PROCESS = "READY_TO_PROCESS"
     PENDING = "PENDING"
     PROCESSING = "PROCESSING"
     COMPLETED_SUCCESSFULLY = "COMPLETED_SUCCESSFULLY"
@@ -66,63 +66,10 @@ class ConnectorCRUD:
         self.session.commit()
         return updated_connectors
 
+
     def delete_connector(self, connector_id: int) -> int:
         if connector_id <= 0:
             raise ValueError("ID value must be positive")
         deleted_connectors = self.session.query(Connector).filter_by(id=connector_id).delete()
         self.session.commit()
         return deleted_connectors
-
-#
-# # Example usage
-# if __name__ == "__main__":
-#     connection_string = "postgresql+psycopg2://username:password@host:port/database"
-#
-#     # Document operations
-#     document_crud = DocumentCRUD(connection_string)
-#     new_doc_id = document_crud.insert_document(
-#         parent_id=None,
-#         connector_id=1,
-#         source_id='unique_source_id',
-#         url='http://example.com',
-#         signature='signature_example',
-#         chunking_session=uuid.uuid4(),
-#         analyzed=False,
-#         creation_date=func.now(),
-#         last_update=None
-#     )
-#     print(f"Inserted document ID: {new_doc_id}")
-#
-#     document = document_crud.select_document(new_doc_id)
-#     print(f"Selected document: {document}")
-#
-#     document_crud.update_document(new_doc_id, url='http://newexample.com')
-#     document_crud.delete_document(new_doc_id)
-#     print(f"Deleted document ID: {new_doc_id}")
-#
-#     # Connector operations
-#     connector_crud = ConnectorCRUD(connection_string)
-#     new_connector_id = connector_crud.insert_connector(
-#         credential_id=None,
-#         name='Connector Name',
-#         type='Connector Type',
-#         connector_specific_config={},
-#         refresh_freq=3600,
-#         user_id=uuid.uuid4(),
-#         tenant_id=None,
-#         disabled=False,
-#         last_successful_index_date=None,
-#         last_attempt_status=None,
-#         total_docs_indexed=0,
-#         creation_date=func.now(),
-#         last_update=None,
-#         deleted_date=None
-#     )
-#     print(f"Inserted connector ID: {new_connector_id}")
-#
-#     connector = connector_crud.select_connector(new_connector_id)
-#     print(f"Selected connector: {connector}")
-#
-#     connector_crud.update_connector(new_connector_id, name='Updated Connector Name')
-#     connector_crud.delete_connector(new_connector_id)
-#     print(f"Deleted connector ID: {new_connector_id}")

@@ -1,43 +1,17 @@
-"""
-This script accepts a PDF document filename and converts it to a text file
-in Markdown format, compatible with the GitHub standard.
 
-It must be invoked with the filename like this:
-
-python pymupdf_rag.py input.pdf [-pages PAGES]
-
-The "PAGES" parameter is a string (containing no spaces) of comma-separated
-page numbers to consider. Each item is either a single page number or a
-number range "m-n". Use "N" to address the document's last page number.
-Example: "-pages 2-15,40,43-N"
-
-It will produce a markdown text file called "input.md".
-
-Text will be sorted in Western reading order. Any table will be included in
-the text in markdwn format as well.
-
-Dependencies
--------------
-PyMuPDF v1.24.2 or later
-
-Copyright and License
-----------------------
-Copyright 2024 Artifex Software, Inc.
-License GNU Affero GPL 3.0
-"""
 
 import os
 import string
-
-try:
-    import pymupdf as fitz  # available with v1.24.3
-except ImportError:
-    import fitz
+import pymupdf
+# try:
+#     import pymupdf as fitz  # available with v1.24.3
+# except ImportError:
+#     import fitz
 
 from pymupdf4llm.helpers.get_text_lines import get_raw_lines, is_white
 from pymupdf4llm.helpers.multi_column import column_boxes
 
-if fitz.pymupdf_version_tuple < (1, 24, 2):
+if pymupdf.pymupdf_version_tuple < (1, 24, 2):
     raise NotImplementedError("PyMuPDF version 1.24.2 or later is needed.")
 
 bullet = ("- ", "* ", chr(0xF0A7), chr(0xF0B7), chr(0xB7), chr(8226), chr(9679))
@@ -59,10 +33,10 @@ class IdentifyHeaders:
             pages: optional list of pages to consider
             body_limit: consider text with larger font size as some header
         """
-        if isinstance(doc, fitz.Document):
+        if isinstance(doc, pymupdf.Document):
             mydoc = doc
         else:
-            mydoc = fitz.open(doc)
+            mydoc = pymupdf.open(doc)
 
         if pages is None:  # use all pages if omitted
             pages = range(mydoc.page_count)
@@ -70,7 +44,7 @@ class IdentifyHeaders:
         fontsizes = {}
         for pno in pages:
             page = mydoc.load_page(pno)
-            blocks = page.get_text("dict", flags=fitz.TEXTFLAGS_TEXT)["blocks"]
+            blocks = page.get_text("dict", flags=pymupdf.TEXTFLAGS_TEXT)["blocks"]
             for span in [  # look at all non-empty horizontal spans
                 s
                 for b in blocks
@@ -135,7 +109,7 @@ def to_markdown(
     """Process the document and return the text of its selected pages."""
 
     if isinstance(doc, str):
-        doc = fitz.open(doc)
+        doc = pymupdf.open(doc)
 
     if pages is None:  # use all pages if no selection given
         pages = list(range(doc.page_count))
@@ -161,7 +135,7 @@ def to_markdown(
 
     def resolve_links(links, span):
         """Accept a span and return a markdown link string."""
-        bbox = fitz.Rect(span["bbox"])  # span bbox
+        bbox = pymupdf.Rect(span["bbox"])  # span bbox
         # a link should overlap at least 70% of the span
         bbox_area = 0.7 * abs(bbox)
         for link in links:
@@ -183,9 +157,9 @@ def to_markdown(
         return ""
 
     def write_text(
-        page: fitz.Page,
-        textpage: fitz.TextPage,
-        clip: fitz.Rect,
+        page: pymupdf.Page,
+        textpage: pymupdf.TextPage,
+        clip: pymupdf.Rect,
         tabs=None,
         tab_rects: dict = None,
         img_rects: dict = None,
@@ -447,7 +421,7 @@ def to_markdown(
         # Must include the header bbox (may exist outside tab.bbox)
         tab_rects = {}
         for i, t in enumerate(tabs):
-            tab_rects[i] = fitz.Rect(t.bbox) | fitz.Rect(t.header.bbox)
+            tab_rects[i] = pymupdf.Rect(t.bbox) | pymupdf.Rect(t.header.bbox)
             tab_dict = {
                 "bbox": tuple(tab_rects[i]),
                 "rows": t.row_count,
@@ -491,7 +465,7 @@ def to_markdown(
         ]
 
         if write_images is True:
-            vg_clusters0 += [fitz.Rect(i["bbox"]) for i in img_info]
+            vg_clusters0 += [pymupdf.Rect(i["bbox"]) for i in img_info]
 
         vg_clusters = dict((i, r) for i, r in enumerate(vg_clusters0))
 
@@ -538,7 +512,7 @@ def to_markdown(
 
     # read the Table of Contents
     toc = doc.get_toc()
-    textflags = fitz.TEXT_DEHYPHENATE | fitz.TEXT_MEDIABOX_CLIP
+    textflags = pymupdf.TEXT_DEHYPHENATE | pymupdf.TEXT_MEDIABOX_CLIP
     for pno in pages:
 
         page_output, images, tables, graphics = get_page_output(
@@ -578,29 +552,31 @@ if __name__ == "__main__":
 
     t0 = time.perf_counter()  # start a time
 
-    doc = fitz.open(filename)  # open input file
+    doc = pymupdf.open(filename)  # open input file
     parms = sys.argv[2:]  # contains ["-pages", "PAGES"] or empty list
     pages = range(doc.page_count)  # default page range
-    if len(parms) == 2 and parms[0] == "-pages":  # page sub-selection given
-        pages = []  # list of desired page numbers
 
-        # replace any variable "N" by page count
-        pages_spec = parms[1].replace("N", f"{doc.page_count}")
-        for spec in pages_spec.split(","):
-            if "-" in spec:
-                start, end = map(int, spec.split("-"))
-                pages.extend(range(start - 1, end))
-            else:
-                pages.append(int(spec) - 1)
-
-        # make a set of invalid page numbers
-        wrong_pages = set([n + 1 for n in pages if n >= doc.page_count][:4])
-        if wrong_pages != set():  # if any invalid numbers given, exit.
-            sys.exit(f"Page number(s) {wrong_pages} not in '{doc}'.")
+    # needed if we want to pass the number of pages to parse
+    # if len(parms) == 2 and parms[0] == "-pages":  # page sub-selection given
+    #     pages = []  # list of desired page numbers
+    #
+    #     # replace any variable "N" by page count
+    #     pages_spec = parms[1].replace("N", f"{doc.page_count}")
+    #     for spec in pages_spec.split(","):
+    #         if "-" in spec:
+    #             start, end = map(int, spec.split("-"))
+    #             pages.extend(range(start - 1, end))
+    #         else:
+    #             pages.append(int(spec) - 1)
+    #
+    #     # make a set of invalid page numbers
+    #     wrong_pages = set([n + 1 for n in pages if n >= doc.page_count][:4])
+    #     if wrong_pages != set():  # if any invalid numbers given, exit.
+    #         sys.exit(f"Page number(s) {wrong_pages} not in '{doc}'.")
 
     # get the markdown string
     md_string = to_markdown(doc, pages=pages)
-
+    print(md_string)
     # output to a text file with extension ".md"
     outname = doc.name.replace(".pdf", ".md")
     pathlib.Path(outname).write_bytes(md_string.encode())

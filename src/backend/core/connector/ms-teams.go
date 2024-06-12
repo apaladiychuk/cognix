@@ -7,16 +7,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/go-pg/pg/v10"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
+	"jaytaylor.com/html2text"
 	"time"
 )
 
 const (
 	msTeamsChannelsURL = "https://graph.microsoft.com/v1.0/teams/%s/channels"
 	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/microsoft.graph.delta()"
+	msTeamRepliesURL   = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/%s/replies"
 	msTeamsInfoURL     = "https://graph.microsoft.com/v1.0/teams"
 
 	msTeamsChats           = "https://graph.microsoft.com/v1.0/chats"
@@ -70,6 +73,7 @@ type MessageBody struct {
 	Subject              string        `json:"subject"`
 	CreatedDateTime      time.Time     `json:"createdDateTime"`
 	LastModifiedDateTime time.Time     `json:"lastModifiedDateTime"`
+	DeletedDateTime      pg.NullTime   `json:"deletedDateTime"`
 	From                 *TeamFrom     `json:"from"`
 	Body                 *TeamBody     `json:"body"`
 	Attachments          []*Attachment `json:"attachments"`
@@ -142,6 +146,7 @@ type (
 	MSTeams struct {
 		Base
 		param         *MSTeamParameters
+		state         *MSTeamState
 		client        *resty.Client
 		fileSizeLimit int
 		sessionID     uuid.NullUUID
@@ -152,6 +157,20 @@ type (
 		Topics  model.StringSlice `json:"topics"`
 		Chat    string            `json:"chat"`
 		Token   oauth2.Token      `json:"token"`
+	}
+	// MSTeamState store ms team state after each execute
+	MSTeamState struct {
+		// Link for request changes after last execution
+		DeltaLink string                         `json:"delta_link"`
+		Topics    map[string]*MSTeamMessageState `json:"topics"`
+	}
+	// MSTeamMessageState store
+	MSTeamMessageState struct {
+		LastCreatedDateTime time.Time `json:"last_created_date_time"`
+	}
+	MSTeamsResult struct {
+		From    string
+		Message string
 	}
 )
 
@@ -184,7 +203,7 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 	params := make(map[string]string)
 
-	teamID, err := c.getGroup(ctx)
+	teamID, err := c.getTeamID(ctx)
 	if err != nil {
 		zap.S().Errorf(err.Error())
 	}
@@ -198,11 +217,7 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 
 func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error) {
 	var channelResp ChannelResponse
-	response, err := c.client.R().SetContext(ctx).Get(fmt.Sprintf(msTeamsChannelsURL, teamID))
-	if err = utils.WrapleRestyError(response, err); err != nil {
-		return "", err
-	}
-	if err = json.Unmarshal(response.Body(), &channelResp); err != nil {
+	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsChannelsURL, teamID), &channelResp); err != nil {
 		return "", err
 	}
 	for _, channel := range channelResp.Value {
@@ -210,15 +225,48 @@ func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error)
 			return channel.Id, nil
 		}
 	}
+	return "", fmt.Errorf("channel not found")
 }
 
-func (c *MSTeams) getMessagesByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
-	var channelResp MessageResponse
-	response, err := c.client.R().SetContext(ctx).Get(fmt.Sprintf(msTeamsMessagesURL, teamID, channelID))
-	if err = utils.WrapleRestyError(response, err); err != nil {
+func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg *MessageBody) ([]*MSTeamsResult, error) {
+	var repliesResp MessageResponse
+	err := c.requestAndParse(ctx, fmt.Sprintf(msTeamRepliesURL, teamID, channelID, msg.Id), &repliesResp)
+	if err != nil {
 		return nil, err
 	}
-	if err = json.Unmarshal(response.Body(), &channelResp); err != nil {
+	state, ok := c.state.Topics[msg.Id]
+	if !ok {
+		state = &MSTeamMessageState{}
+	}
+	lastTime := state.LastCreatedDateTime
+	var results []*MSTeamsResult
+	for _, repl := range repliesResp.Value {
+		if repl.CreatedDateTime.Before(state.LastCreatedDateTime) {
+			// ignore messages that were analyzed before
+			continue
+		}
+		if lastTime.Before(repl.CreatedDateTime) {
+			// store timestamp of last message
+			lastTime = repl.CreatedDateTime
+		}
+
+		message := repl.Body.Content
+		if repl.Body.ContentType == "html" {
+			message, err = html2text.FromString(message, html2text.Options{
+				PrettyTables: true,
+			})
+		}
+		results = append(results, &MSTeamsResult{
+			From:    repl.From.User.DisplayName,
+			Message: message,
+		})
+	}
+	return results, nil
+}
+func (c *MSTeams) getMessagesByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
+	var messagesResp MessageResponse
+
+	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsMessagesURL, teamID, channelID), &messagesResp); err != nil {
 		return nil, err
 	}
 	// todo store url for incremental request
@@ -226,7 +274,7 @@ func (c *MSTeams) getMessagesByChannel(ctx context.Context, teamID, channelID st
 
 	// todo add validation on Subject == null - topic was deleted.
 	messagesForScan := make([]*MessageBody, 0)
-	for _, msg := range channelResp.Value {
+	for _, msg := range messagesResp.Value {
 		if c.param.Topics.InArray(msg.Subject) {
 			messagesForScan = append(messagesForScan, msg)
 		}
@@ -234,21 +282,25 @@ func (c *MSTeams) getMessagesByChannel(ctx context.Context, teamID, channelID st
 	return messagesForScan, nil
 }
 
-func (c *MSTeams) getGroup(ctx context.Context) (string, error) {
+// getTeamID get team id for current user
+func (c *MSTeams) getTeamID(ctx context.Context) (string, error) {
 	var team TeamResponse
-	response, err := c.client.R().
-		SetContext(ctx).
-		Get(msTeamsInfoURL)
-	if err = utils.WrapleRestyError(response, err); err != nil {
-		return "", err
-	}
-	if err = json.Unmarshal(response.Body(), &team); err != nil {
+
+	if err := c.requestAndParse(ctx, msTeamsInfoURL, &team); err != nil {
 		return "", err
 	}
 	if len(team.Value) == 0 {
 		return "", fmt.Errorf("team not found")
 	}
 	return team.Value[0].Id, nil
+}
+
+func (c *MSTeams) requestAndParse(ctx context.Context, url string, result interface{}) error {
+	response, err := c.client.R().SetContext(ctx).Get(url)
+	if err = utils.WrapleRestyError(response, err); err != nil {
+		return err
+	}
+	return json.Unmarshal(response.Body(), result)
 }
 
 // NewMSTeams creates new instance of MsTeams connector

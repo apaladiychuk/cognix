@@ -109,16 +109,22 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 
 		// send message to chunking service
 		zap.S().Infof("send message to semantic %s", connectorModel.Name)
+		semanticData := proto.SemanticData{
+			Url:            result.URL,
+			DocumentId:     doc.ID.IntPart(),
+			ConnectorId:    connectorModel.ID.IntPart(),
+			FileType:       result.GetType(),
+			CollectionName: connectorModel.CollectionName(),
+			ModelName:      connectorModel.User.EmbeddingModel.ModelID,
+			ModelDimension: int32(connectorModel.User.EmbeddingModel.ModelDim),
+		}
+		buf, _ := json.Marshal(semanticData)
+		zap.S().Debugf("semantic data : %s ", string(buf))
+
 		if loopErr = e.msgClient.Publish(ctx,
 			e.msgClient.StreamConfig().SemanticStreamName,
 			e.msgClient.StreamConfig().SemanticStreamSubject,
-			&proto.SemanticData{
-				Url:            result.URL,
-				DocumentId:     doc.ID.IntPart(),
-				ConnectorId:    connectorModel.ID.IntPart(),
-				FileType:       result.GetType(),
-				CollectionName: connectorModel.CollectionName(),
-			}); loopErr != nil {
+			&semanticData); loopErr != nil {
 			err = loopErr
 			zap.S().Errorf("Failed to update document: %v", loopErr)
 			continue

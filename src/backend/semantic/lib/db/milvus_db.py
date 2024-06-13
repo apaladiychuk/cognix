@@ -97,7 +97,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             collection = Collection(name=data.collection_name)
@@ -162,7 +164,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             fields = [
@@ -250,7 +254,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             self.logger.info(utility.connections.has_connection("defaul"))

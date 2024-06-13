@@ -275,7 +275,8 @@ services:
     ports:
       - "26257:26257"
       - "28080:8080"
-    command: start-single-node --insecure
+    # command: start-single-node --insecure
+    command: start-single-node --insecure --cache=1.5GiB --max-sql-memory=1.5GiB
     volumes:
       - "../data/cockroach:/cockroach/cockroach-data"
     healthcheck:

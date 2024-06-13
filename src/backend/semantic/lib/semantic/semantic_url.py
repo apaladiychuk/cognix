@@ -12,7 +12,8 @@ from readiness_probe import ReadinessProbe
 
 
 class URLSemantic(BaseSemantic):
-    async def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
+    async def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int,
+                      cockroach_url: str) -> int:
         try:
             self.logger.info("Analyzing URL")
             start_time = time.time()  # Record the start time
@@ -37,14 +38,13 @@ class URLSemantic(BaseSemantic):
             document_crud = DocumentCRUD(cockroach_url)
 
             if collected_data:
+                # we store only the entities on the database
+                # and we send a message to semantic for each collected data item
+                # this way we avoid long run and NATS timeouts
+                # step 1. prepare the ground delete all the documents with parent_id = data.document_id
+                # delete previous added child (chunks) documents
+                document_crud.delete_by_parent_id(data.document_id)
                 if data.url_recursive:
-                    # we store only the entities on the database
-                    # and we send a message to semantic for each collected data item
-                    # this way we avoid long run and NATS timeouts
-                    # step 1. prepare the ground delete all the documents with parent_id = data.document_id
-                    # delete previous added child (chunks) documents
-                    document_crud.delete_by_parent_id(data.document_id)
-
                     #step 2 we isert all the docs
                     # Create Document objects from ChunkedItem objects
                     documents_to_insert = []
@@ -59,23 +59,29 @@ class URLSemantic(BaseSemantic):
                     # step 3 prepare to send the docs
                     publisher = JetStreamPublisher(subject=self.semantic_stream_subject,
                                                    stream_name=self.semantic_stream_name)
-                    # await publisher.connect()
-                    #
-                    # for doc in documents_to_send:
-                    #     self.logger.info(f"doc id {doc.id}")
-                    #     semantic_data = SemanticData(
-                    #         url=doc.url,
-                    #         document_id=doc.id,
-                    #         url_recursive=False,
-                    #         # TODO ADD PARENT ID TO PROTO ????
-                    #         connector_id=data.connector_id,
-                    #         file_type=FileType.URL,
-                    #         collection_name=data.collection_name)
-                    #     await publisher.publish(semantic_data)
-                    #     self.logger.info("✉️ sending message to jetstream")
-                    # await publisher.close()
+                    await publisher.connect()
+
+                    for doc in documents_to_send:
+                        self.logger.info(f"doc id {doc.id}")
+                        semantic_data = SemanticData(
+                            url=doc.url,
+                            document_id=doc.id,
+                            url_recursive=False,
+                            # TODO ADD PARENT ID TO PROTO ????
+                            connector_id=data.connector_id,
+                            file_type=FileType.URL,
+                            collection_name=data.collection_name)
+                        await publisher.publish(semantic_data)
+                        self.logger.info("✉️ sending message to jetstream")
+                    await publisher.close()
 
                     collected_items = 1
+                    # TODO: Important. Now, returning collected_items = 1 the status of the connector
+                    # will be set to COMPLETED_SUCCESSFULLY which is not true because
+                    # all the messages for each url still need to be processed
+                    # also each of the single url will set again the connector to successfully completed
+                    # we shall set successfully completed only when all the parent ids of the chunking session
+                    # are analyzed. Invent something fancy like select top1 from docs where analyzed = false
                 else:
                     collected_items = self.store_collected_data(data=data, document_crud=document_crud,
                                                                 collected_data=collected_data,

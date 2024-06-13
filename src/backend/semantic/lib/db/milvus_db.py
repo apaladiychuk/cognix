@@ -43,7 +43,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=root,
+                password=sq5/6<$Y4aD`2;Gba'E#
             )
 
             if utility.has_collection(collection_name):

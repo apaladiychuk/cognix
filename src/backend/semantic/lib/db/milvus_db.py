@@ -22,6 +22,9 @@ milvus_port = os.getenv("MILVUS_PORT", "19530")
 milvus_index_type = os.getenv("MILVUS_INDEX_TYPE", "DISKANN")
 milvus_metric_type = os.getenv("MILVUS_METRIC_TYPE", "COSINE")
 
+milvus_user = "root"
+milvus_pass = "sq5/6<$Y4aD`2;Gba'E#"
+
 embedder_grpc_host = os.getenv("EMBEDDER_GRPC_HOST", "localhost")
 embedder_grpc_port = os.getenv("EMBEDDER_GRPC_PORT", "50051")
 
@@ -44,8 +47,8 @@ class Milvus_DB:
                 host=milvus_host,
                 # host='milvus-standalone'
                 port=milvus_port,
-                user=root,
-                password=sq5/6<$Y4aD`2;Gba'E#
+                user=milvus_user,
+                password=milvus_pass
             )
 
             if utility.has_collection(collection_name):
@@ -94,7 +97,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             collection = Collection(name=data.collection_name)
@@ -159,7 +164,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             fields = [
@@ -247,7 +254,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             self.logger.info(utility.connections.has_connection("defaul"))

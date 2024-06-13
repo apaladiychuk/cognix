@@ -48,8 +48,9 @@ class ConnectorCRUD:
         self.session = Session()
         # IMPORTANT: Cockroach by default uses isolation level SERIALIZABLE
         # Set the isolation level to READ COMMITTED
-        self.session.connection().execution_options(isolation_level="READ COMMITTED")
+        # self.session.connection().execution_options(isolation_level="READ COMMITTED")
         Base.metadata.create_all(self.engine)
+
 
     def insert_connector(self, **kwargs) -> int:
         new_connector = Connector(**kwargs)

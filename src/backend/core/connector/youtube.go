@@ -39,7 +39,10 @@ func (c *Youtube) PrepareTask(ctx context.Context, task Task) error {
 			c.model.Docs = append(c.model.Docs, doc)
 		}
 	}
-
+	// ignore  file that was analyzed
+	if c.model.Status == model.ConnectorStatusError || c.model.Status == model.ConnectorStatusSuccess {
+		return nil
+	}
 	return task.RunSemantic(ctx, &proto.SemanticData{
 		Url:            c.param.URL,
 		ConnectorId:    c.model.ID.IntPart(),

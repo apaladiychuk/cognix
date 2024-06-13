@@ -16,11 +16,15 @@ from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
 load_dotenv()
 
 # Get nats url from env 
-milvus_alias = os.getenv("MILVUS_ALIAS", 'cognix_vector')
+milvus_alias = os.getenv("MILVUS_ALIAS", 'default')
 milvus_host = os.getenv("MILVUS_HOST", "127.0.0.1")
 milvus_port = os.getenv("MILVUS_PORT", "19530")
 milvus_index_type = os.getenv("MILVUS_INDEX_TYPE", "DISKANN")
 milvus_metric_type = os.getenv("MILVUS_METRIC_TYPE", "COSINE")
+
+milvus_user = "root"
+milvus_pass = "sq5/6<$Y4aD`2;Gba'E#"
+
 
 embedder_grpc_host = os.getenv("EMBEDDER_GRPC_HOST", "localhost")
 embedder_grpc_port = os.getenv("EMBEDDER_GRPC_PORT", "50051")
@@ -43,7 +47,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             if utility.has_collection(collection_name):
@@ -92,7 +98,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             collection = Collection(name=data.collection_name)
@@ -157,7 +165,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             fields = [
@@ -245,7 +255,9 @@ class Milvus_DB:
                 alias=milvus_alias,
                 host=milvus_host,
                 # host='milvus-standalone'
-                port=milvus_port
+                port=milvus_port,
+                user=milvus_user,
+                password=milvus_pass
             )
 
             self.logger.info(utility.connections.has_connection("defaul"))

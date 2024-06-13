@@ -108,7 +108,9 @@ var MilvusModule = fx.Options(
 
 func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
 	client, err := milvus.NewClient(context.Background(), milvus.Config{
-		Address: cfg.Address,
+		Address:  cfg.Address,
+		Username: "root",
+		Password: "sq5/6<$Y4aD`2;Gba'E#",
 	})
 	if err != nil {
 		return nil, err

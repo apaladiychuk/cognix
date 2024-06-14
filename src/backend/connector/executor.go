@@ -118,7 +118,7 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 			Url:            result.URL,
 			DocumentId:     doc.ID.IntPart(),
 			ConnectorId:    connectorModel.ID.IntPart(),
-			FileType:       result.GetType(),
+			FileType:       result.FileType,
 			CollectionName: connectorModel.CollectionName(),
 			ModelName:      connectorModel.User.EmbeddingModel.ModelID,
 			ModelDimension: int32(connectorModel.User.EmbeddingModel.ModelDim),

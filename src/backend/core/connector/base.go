@@ -5,7 +5,6 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"context"
-	"strings"
 	"time"
 )
 
@@ -15,14 +14,6 @@ const (
 	ParamFileLimit = "file_limit"
 	GB             = 1024 * 1024 * 1024
 )
-
-var supportedMimeTypes = map[string]proto.FileType{
-	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":       proto.FileType_XLS,
-	"application/vnd.openxmlformats-officedocument.wordprocessingml.document": proto.FileType_DOC,
-	"application/pdf": proto.FileType_PDF,
-	"text/plain":      proto.FileType_TXT,
-	"application/vnd.openxmlformats-officedocument.presentationml.presentation": proto.FileType_PPT,
-}
 
 type Task interface {
 	RunConnector(ctx context.Context, data *proto.ConnectorRequest) error
@@ -48,6 +39,7 @@ type Response struct {
 	DocumentID       int64
 	//Content          []byte
 	MimeType    string
+	FileType    proto.FileType
 	Signature   string
 	Bucket      string
 	SaveContent bool
@@ -56,19 +48,6 @@ type Response struct {
 
 type Builder struct {
 	connectorRepo repository.ConnectorRepository
-}
-
-func (r *Response) GetType() proto.FileType {
-	switch r.MimeType {
-	case mineURL:
-		return proto.FileType_URL
-	}
-	mimeType := strings.Split(r.MimeType, ";")
-
-	if fileType, ok := supportedMimeTypes[mimeType[0]]; ok {
-		return fileType
-	}
-	return proto.FileType_UNKNOWN
 }
 
 type nopConnector struct {

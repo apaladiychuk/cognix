@@ -1,9 +1,6 @@
 from lib.semantic.semantic_base import BaseSemantic
 from lib.semantic.semantic_url import URLSemantic
-from lib.semantic.semantic_pdf import PDFSemantic
-from lib.semantic.semantic_doc import DOCXSemantic
-from lib.semantic.semantic_txt import TXTSemantic
-from lib.semantic.semantic_md import MDSemantic
+from lib.semantic.semantic_generic import GenericSemantic
 from lib.gen_types.semantic_data_pb2 import FileType
 from lib.semantic.semantic_youtube import YTSemantic
 
@@ -14,10 +11,10 @@ from lib.semantic.semantic_youtube import YTSemantic
 class SemanticFactory:
     factories = {
         FileType.URL: URLSemantic,
-        FileType.PDF: PDFSemantic,
-        FileType.DOC: DOCXSemantic,
-        FileType.TXT: TXTSemantic,
-        FileType.MD: MDSemantic,
+        FileType.PDF: GenericSemantic,
+        FileType.DOC: GenericSemantic,
+        FileType.TXT: GenericSemantic,
+        FileType.MD: GenericSemantic,
         FileType.YT: YTSemantic,
         # Add other mappings here
     }

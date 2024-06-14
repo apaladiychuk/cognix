@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -77,11 +78,16 @@ func (c *File) Execute(ctx context.Context, param map[string]string) chan *Respo
 			c.model.DocsMap[url] = doc
 		}
 		doc.IsExists = true
-		c.resultCh <- &Response{
-			URL:      url,
-			SourceID: url,
-			MimeType: c.param.MIMEType,
+		if fileType, ok := supportedMimeTypes[c.param.MIMEType]; ok {
+			c.resultCh <- &Response{
+				URL:      url,
+				SourceID: url,
+				FileType: fileType,
+			}
+		} else {
+			zap.S().Errorf("Upsupported file type : %s ", c.param.MIMEType)
 		}
+
 	}()
 	return c.resultCh
 }

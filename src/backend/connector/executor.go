@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
@@ -8,6 +10,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
+	"cognix.ch/api/v2/core/utils"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -17,6 +20,8 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
+	"io"
+	"strings"
 	"time"
 )
 
@@ -85,7 +90,7 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 			break
 		}
 		// save content in minio
-		if result.SaveContent {
+		if result.Content != nil {
 			if err = e.saveContent(ctx, result); err != nil {
 				loopErr = err
 				zap.S().Errorf("failed to save content: %v", err)
@@ -162,19 +167,42 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 }
 
 func (e *Executor) saveContent(ctx context.Context, response *connector.Response) error {
-	fileResponse, err := e.downloadClient.R().
-		SetDoNotParseResponse(true).
-		Get(response.URL)
-	defer fileResponse.RawBody().Close()
-	if err != nil || fileResponse.IsError() {
-		return fmt.Errorf("read file %s %v", err.Error(), fileResponse.Error())
+
+	var reader io.Reader
+	//  download file if url presented.
+	if response.Content.URL != "" {
+		fileResponse, err := e.downloadClient.R().
+			SetDoNotParseResponse(true).
+			Get(response.Content.URL)
+		defer fileResponse.RawBody().Close()
+		if err = utils.WrapRestyError(fileResponse, err); err != nil {
+			return err
+		}
+		reader = fileResponse.RawBody()
+	} else {
+		// create reader from raw content
+		var buffer bytes.Buffer
+		writer := bufio.NewWriter(&buffer)
+		if response.Content.AppendContent && response.URL != "" {
+			// load existing file
+			urls := strings.Split(response.URL, ":")
+			if len(urls) == 3 {
+				if err := e.minioClient.GetObject(ctx, urls[1], urls[2], writer); err != nil {
+					return err
+				}
+			}
+		}
+		if _, err := writer.Write(response.Content.Body); err != nil {
+			return err
+		}
+		reader = bufio.NewReader(&buffer)
 	}
 
-	url, _, err := e.minioClient.Upload(ctx, response.Bucket, response.Name, response.MimeType, fileResponse.RawBody())
+	fileName, _, err := e.minioClient.Upload(ctx, response.Content.Bucket, response.Name, response.MimeType, reader)
 	if err != nil {
 		return err
 	}
-	response.URL = fmt.Sprintf("minio:%s:%s", response.Bucket, url)
+	response.URL = fmt.Sprintf("minio:%s:%s", response.Content.Bucket, fileName)
 	return nil
 }
 
@@ -210,9 +238,8 @@ func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error 
 
 	response, err := e.oauthClient.R().SetContext(ctx).
 		SetBody(token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", provider))
-
-	if err != nil || response.IsError() {
-		return fmt.Errorf("failed to refresh token: %v : %v", err, response.Error())
+	if err = utils.WrapRestyError(response, err); err != nil {
+		return err
 	}
 	var payload struct {
 		Data oauth2.Token `json:"data"`

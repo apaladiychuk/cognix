@@ -47,12 +47,18 @@ type Response struct {
 	Name             string
 	SourceID         string
 	DocumentID       int64
-	//Content          []byte
-	MimeType    string
-	Signature   string
-	Bucket      string
-	SaveContent bool
-	UpToData    bool
+	MimeType         string
+	Signature        string
+	Content          *Content
+	UpToData         bool
+}
+
+// Content  defines action for stop content in minio database
+type Content struct {
+	Bucket        string
+	URL           string // URL for download
+	Body          []byte // Body raw content  for store
+	AppendContent bool   // if true content will be added to existing file on minio
 }
 
 type Builder struct {
@@ -74,6 +80,10 @@ func (r *Response) GetType() proto.FileType {
 
 type nopConnector struct {
 	Base
+}
+
+func (n *nopConnector) Validate() error {
+	return nil
 }
 
 func (n *nopConnector) PrepareTask(ctx context.Context, task Task) error {

@@ -47,7 +47,7 @@ type (
 )
 
 func (c *OneDrive) Validate() error {
-	return nll
+	return nil
 }
 
 type GetDriveResponse struct {
@@ -164,13 +164,15 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 	doc.ChunkingSession = c.sessionID
 	doc.Signature = item.File.Hashes.QuickXorHash
 	payload := &Response{
-		URL:         item.MicrosoftGraphDownloadUrl,
-		SourceID:    item.Id,
-		Name:        fileName,
-		DocumentID:  doc.ID.IntPart(),
-		Bucket:      model.BucketName(c.model.User.EmbeddingModel.TenantID),
-		MimeType:    item.File.MimeType,
-		SaveContent: true,
+		URL:        item.MicrosoftGraphDownloadUrl,
+		SourceID:   item.Id,
+		Name:       fileName,
+		DocumentID: doc.ID.IntPart(),
+		MimeType:   item.File.MimeType,
+		Content: &Content{
+			Bucket: model.BucketName(c.model.User.EmbeddingModel.TenantID),
+			URL:    item.MicrosoftGraphDownloadUrl,
+		},
 	}
 
 	// try to recognize type of file by content
@@ -178,7 +180,7 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 		response, err := c.client.R().
 			SetDoNotParseResponse(true).
 			Get(item.MicrosoftGraphDownloadUrl)
-		if err = utils.WrapleRestyError(response, err); err == nil {
+		if err = utils.WrapRestyError(response, err); err == nil {
 			if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
 				payload.MimeType = mime.String()
 			}
@@ -246,7 +248,7 @@ func (c *OneDrive) request(ctx context.Context, url string) (*GetDriveResponse, 
 			c.param.Token.TokenType,
 			c.param.Token.AccessToken)).
 		Get(url)
-	if err = utils.WrapleRestyError(response, err); err != nil {
+	if err = utils.WrapRestyError(response, err); err != nil {
 		zap.S().Error(err.Error())
 		return nil, err
 	}

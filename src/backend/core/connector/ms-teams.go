@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"jaytaylor.com/html2text"
+	"strings"
 	"time"
 )
 
@@ -172,10 +173,38 @@ type (
 		From    string
 		Message string
 	}
+	MSTeamsResults []*MSTeamsResult
 )
 
+func (r MSTeamsResults) ToString() string {
+	result := make([]string, 0, len(r))
+	for _, row := range r {
+		result = append(result, fmt.Sprintf("%s : %s ", row.From, row.Message))
+	}
+	return strings.Join(result, "\n")
+}
 func (c *MSTeams) Validate() error {
 	return nil
+}
+
+func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
+	params := make(map[string]string)
+
+	teamID, err := c.getTeamID(ctx)
+	if err != nil {
+		zap.S().Errorf(err.Error())
+	}
+	params[msTeamsParamTeamID] = teamID
+
+	channelID, err := c.getChannel(ctx, teamID)
+	if err != nil {
+		zap.S().Errorf(err.Error())
+	}
+	params[msTeamsParamChannelID] = channelID
+	return task.RunConnector(ctx, &proto.ConnectorRequest{
+		Id:     c.model.ID.IntPart(),
+		Params: params,
+	})
 }
 
 func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Response {
@@ -196,23 +225,51 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 	if !ok {
 		return fmt.Errorf("channel_id is not configured")
 	}
-	messages, err := c.getMessagesByChannel(ctx, teamID, channelID)
-
-}
-
-func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
-	params := make(map[string]string)
-
-	teamID, err := c.getTeamID(ctx)
+	topics, err := c.getTopicsByChannel(ctx, teamID, channelID)
 	if err != nil {
-		zap.S().Errorf(err.Error())
+		return err
 	}
-	params[msTeamsParamTeamID] = teamID
-
-	return task.RunConnector(ctx, &proto.ConnectorRequest{
-		Id:     c.model.ID.IntPart(),
-		Params: params,
-	})
+	sessionID := uuid.NullUUID{
+		UUID:  uuid.New(),
+		Valid: true,
+	}
+	for _, topic := range topics {
+		doc, ok := c.model.DocsMap[topic.Id]
+		if !ok {
+			// add document for new topic
+			doc = &model.Document{
+				SourceID:        topic.Id,
+				ConnectorID:     c.model.ID,
+				URL:             "",
+				ChunkingSession: sessionID,
+				Analyzed:        false,
+				CreationDate:    time.Now().UTC(),
+				LastUpdate:      pg.NullTime{time.Now().UTC()},
+				IsExists:        true,
+			}
+			c.model.DocsMap[topic.Id] = doc
+		}
+		replies, err := c.getReplies(ctx, teamID, channelID, topic)
+		if err != nil {
+			return err
+		}
+		c.chResult <- &Response{
+			URL:        doc.URL,
+			Name:       topic.Subject,
+			SourceID:   topic.Id,
+			DocumentID: doc.ID.IntPart(),
+			MimeType:   "",
+			Signature:  "",
+			Content: &Content{
+				Bucket:        model.BucketName(c.model.User.EmbeddingModel.TenantID),
+				URL:           "",
+				AppendContent: true,
+				Body:          []byte(replies.ToString()),
+			},
+			UpToData: false,
+		}
+	}
+	return nil
 }
 
 func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error) {
@@ -228,7 +285,7 @@ func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error)
 	return "", fmt.Errorf("channel not found")
 }
 
-func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg *MessageBody) ([]*MSTeamsResult, error) {
+func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg *MessageBody) (MSTeamsResults, error) {
 	var repliesResp MessageResponse
 	err := c.requestAndParse(ctx, fmt.Sprintf(msTeamRepliesURL, teamID, channelID, msg.Id), &repliesResp)
 	if err != nil {
@@ -239,7 +296,7 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 		state = &MSTeamMessageState{}
 	}
 	lastTime := state.LastCreatedDateTime
-	var results []*MSTeamsResult
+	var results MSTeamsResults
 	for _, repl := range repliesResp.Value {
 		if repl.CreatedDateTime.Before(state.LastCreatedDateTime) {
 			// ignore messages that were analyzed before
@@ -263,7 +320,7 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 	}
 	return results, nil
 }
-func (c *MSTeams) getMessagesByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
+func (c *MSTeams) getTopicsByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
 	var messagesResp MessageResponse
 
 	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsMessagesURL, teamID, channelID), &messagesResp); err != nil {
@@ -297,7 +354,7 @@ func (c *MSTeams) getTeamID(ctx context.Context) (string, error) {
 
 func (c *MSTeams) requestAndParse(ctx context.Context, url string, result interface{}) error {
 	response, err := c.client.R().SetContext(ctx).Get(url)
-	if err = utils.WrapleRestyError(response, err); err != nil {
+	if err = utils.WrapRestyError(response, err); err != nil {
 		return err
 	}
 	return json.Unmarshal(response.Body(), result)

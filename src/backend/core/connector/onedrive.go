@@ -164,35 +164,20 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 	doc.ChunkingSession = c.sessionID
 	doc.Signature = item.File.Hashes.QuickXorHash
 	payload := &Response{
-		URL:        item.MicrosoftGraphDownloadUrl,
-		SourceID:   item.Id,
-		Name:       fileName,
-		DocumentID: doc.ID.IntPart(),
-		MimeType:   item.File.MimeType,
+		URL:         item.MicrosoftGraphDownloadUrl,
+		SourceID:    item.Id,
+		Name:        fileName,
+		DocumentID:  doc.ID.IntPart(),
 		Content: &Content{
 			Bucket: model.BucketName(c.model.User.EmbeddingModel.TenantID),
 			URL:    item.MicrosoftGraphDownloadUrl,
 		},
 	}
+	payload.MimeType, payload.FileType = c.recognizeFiletype(item)
 
 	// try to recognize type of file by content
-	if _, ok = supportedMimeTypes[item.File.MimeType]; !ok {
-		response, err := c.client.R().
-			SetDoNotParseResponse(true).
-			Get(item.MicrosoftGraphDownloadUrl)
-		if err = utils.WrapRestyError(response, err); err == nil {
-			if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
-				payload.MimeType = mime.String()
-			}
-		} else {
-			zap.S().Errorf(err.Error())
-		}
-		if response.RawBody() != nil {
-			response.RawBody().Close()
-		}
-	}
 
-	if payload.GetType() == proto.FileType_UNKNOWN {
+	if payload.FileType == proto.FileType_UNKNOWN {
 		zap.S().Infof("unsupported file %s type %s -- %s", item.Name, item.File.MimeType, payload.MimeType)
 		return nil
 	}
@@ -200,6 +185,34 @@ func (c *OneDrive) getFile(item *DriveChildBody) error {
 	return nil
 }
 
+func (c *OneDrive) recognizeFiletype(item *DriveChildBody) (string, proto.FileType) {
+
+	mimeTypeParts := strings.Split(item.File.MimeType, ";")
+
+	if fileType, ok := supportedMimeTypes[mimeTypeParts[0]]; ok {
+		return mimeTypeParts[0], fileType
+	}
+	// recognize fileType by filename extension
+	fileNameParts := strings.Split(item.Name, ".")
+	if len(fileNameParts) > 1 {
+		if mimeType, ok := supportedExtensions[strings.ToUpper(fileNameParts[len(fileNameParts)-1])]; ok {
+			return mimeType, supportedMimeTypes[mimeType]
+		}
+	}
+	// recognize filetype by content
+	response, err := c.client.R().
+		SetDoNotParseResponse(true).
+		Get(item.MicrosoftGraphDownloadUrl)
+	if err == nil && !response.IsError() {
+		if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
+			if fileType, ok := supportedMimeTypes[mime.String()]; ok {
+				return mime.String(), fileType
+			}
+		}
+	}
+	response.RawBody().Close()
+	return "", proto.FileType_UNKNOWN
+}
 func (c *OneDrive) getFolder(ctx context.Context, folder string, id string) error {
 	body, err := c.request(ctx, fmt.Sprintf(getFolderChild, id))
 	if err != nil {

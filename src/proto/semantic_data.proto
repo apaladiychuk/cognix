@@ -3,7 +3,6 @@ syntax = "proto3";
 package com.embedd;
 option go_package = "backend/core/proto;proto";
 
-
 enum FileType {
     // ORCHESTRATOR SEND TO CONNECTOR:
     UNKNOWN = 0;

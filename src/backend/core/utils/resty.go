@@ -5,7 +5,7 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-func WrapleRestyError(resp *resty.Response, err error) error {
+func WrapRestyError(resp *resty.Response, err error) error {
 	if err != nil {
 		return err
 	}

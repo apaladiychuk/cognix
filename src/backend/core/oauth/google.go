@@ -55,7 +55,7 @@ func (g *googleProvider) ExchangeCode(ctx context.Context, code string) (*Identi
 		return nil, utils.Internal.Wrapf(err, "code exchange wrong: %s", err.Error())
 	}
 	response, err := g.httpClient.R().Get(oauthGoogleUrlAPI + token.AccessToken)
-	if err = utils.WrapleRestyError(response, err); err != nil {
+	if err = utils.WrapRestyError(response, err); err != nil {
 		return nil, utils.Internal.Newf("failed getting user info: %s", err.Error())
 	}
 

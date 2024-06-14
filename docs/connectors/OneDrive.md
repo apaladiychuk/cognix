@@ -1,5 +1,6 @@
-#### OneDrive 
+# OneDrive 
 
+## Setup in CogniX
 From CogniX UI navigate to connectors and create a new connector
 Choose OneDrive
 At step 2:
@@ -96,3 +97,9 @@ Paste it into the connector specific configuration <br/>
 Make it at least 86400 (one day in seconds) <br/>
 **connector credentials**
 not used add a number
+
+## Microsoft Configuration
+If you don't have a M365 account, you need to set it up. Instructions [here](https://learn.microsoft.com/en-us/microsoft-365/admin/simplified-signup/signup-business-standard?view=o365-worldwide#sign-up-for-microsoft-365-for-business)
+
+Once you have a M365 account
+Go to our Azure subscription and create a new app registration

@@ -8,12 +8,7 @@ import (
 	"time"
 )
 
-const (
-	mineURL        = "url"
-	mimeYoutube    = "youtube"
-	ParamFileLimit = "file_limit"
-	GB             = 1024 * 1024 * 1024
-)
+const ()
 
 type Task interface {
 	RunConnector(ctx context.Context, data *proto.ConnectorRequest) error
@@ -39,11 +34,11 @@ type Response struct {
 	SourceID         string
 	DocumentID       int64
 	//Content          []byte
-	MimeType    string
-	FileType    proto.FileType
-	Signature   string
-	Content          *Content
-	UpToData    bool
+	MimeType  string
+	FileType  proto.FileType
+	Signature string
+	Content   *Content
+	UpToData  bool
 }
 
 // Content  defines action for stop content in minio database

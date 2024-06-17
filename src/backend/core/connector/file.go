@@ -78,7 +78,7 @@ func (c *File) Execute(ctx context.Context, param map[string]string) chan *Respo
 			c.model.DocsMap[url] = doc
 		}
 		doc.IsExists = true
-		if fileType, ok := supportedMimeTypes[c.param.MIMEType]; ok {
+		if fileType, ok := model.SupportedMimeTypes[c.param.MIMEType]; ok {
 			c.resultCh <- &Response{
 				URL:      url,
 				SourceID: url,

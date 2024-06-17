@@ -1,6 +1,7 @@
 package connector
 
 import (
+	microsoft_core "cognix.ch/api/v2/core/connector/microsoft-core"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/utils"
@@ -119,12 +120,82 @@ https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/chan
 
 https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/channels/19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2/messages/1718121958378/replies
 
-	 -- delete topic
+https://graph.microsoft.com/v1.0/drives/01SZITRJYIBUNPFKHAYJCLISV4DXJPIJV4/items/
+
+https://graph.microsoft.com/v1.0/drives/b!oxsuyS45_EKmyHYegUv4SmEjVp8sBIFPvH1TNMZJZqPviFyz50UFTqjI-nC6wDfJ
+
+https://graph.microsoft.com/v1.0/groups/94100e5f-a30f-433d-965e-bde4e817f62a/drive/root/children
+
+// get drive items for channel
+https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/channels/19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2/filesFolder
+// get files from channel
+https://graph.microsoft.com/v1.0/groups/94100e5f-a30f-433d-965e-bde4e817f62a/drive/items/01SZITRJYIBUNPFKHAYJCLISV4DXJPIJV4/children
+
+	/groups/94100e5f-a30f-433d-965e-bde4e817f62a/drive/items/01SZITRJYIBUNPFKHAYJCLISV4DXJPIJV4
+
+/teams/{id}/channels/{id}/filesFolder
+
+	      {
+	            "createdDateTime": "2024-06-10T14:39:40Z",
+	            "eTag": "\"{F21A0D08-E0A8-44C2-B44A-BC1DD2F426BC},2\"",
+	            "id": "01SZITRJYIBUNPFKHAYJCLISV4DXJPIJV4",
+	            "lastModifiedDateTime": "2024-06-10T14:39:40Z",
+	            "name": "developmanet",
+	            "webUrl": "https://foppaladiichuk.sharepoint.com/sites/FOPPaladiichuk9/Shared%20Documents/developmanet",
+	            "cTag": "\"c:{F21A0D08-E0A8-44C2-B44A-BC1DD2F426BC},0\"",
+	            "size": 180634,
+	            "createdBy": {
+	                "application": {
+	                    "id": "cc15fd57-2c6c-4117-a88c-83b1d56b4bbe",
+	                    "displayName": "Microsoft Teams Services"
+	                },
+	                "user": {
+	                    "email": "AndriiPaladiichuk@FOPPaladiichuk.onmicrosoft.com",
+	                    "id": "09c30123-8d63-4fca-909a-3af0d3f03a4a",
+	                    "displayName": "Andrii Paladiichuk"
+	                }
+	            },
+	            "lastModifiedBy": {
+	                "application": {
+	                    "id": "cc15fd57-2c6c-4117-a88c-83b1d56b4bbe",
+	                    "displayName": "Microsoft Teams Services"
+	                },
+	                "user": {
+	                    "email": "AndriiPaladiichuk@FOPPaladiichuk.onmicrosoft.com",
+	                    "id": "09c30123-8d63-4fca-909a-3af0d3f03a4a",
+	                    "displayName": "Andrii Paladiichuk"
+	                }
+	            },
+	            "parentReference": {
+	                "driveType": "documentLibrary",
+	                "driveId": "b!oxsuyS45_EKmyHYegUv4SmEjVp8sBIFPvH1TNMZJZqPviFyz50UFTqjI-nC6wDfJ",
+	                "id": "01SZITRJ56Y2GOVW7725BZO354PWSELRRZ",
+	                "name": "Shared Documents",
+	                "path": "/drive/root:",
+	                "siteId": "c92e1ba3-392e-42fc-a6c8-761e814bf84a"
+	            },
+	            "fileSystemInfo": {
+	                "createdDateTime": "2024-06-10T14:39:40Z",
+	                "lastModifiedDateTime": "2024-06-10T14:39:40Z"
+	            },
+	            "folder": {
+	                "childCount": 2
+	            },
+	            "shared": {
+	                "scope": "users"
+	            }
+	        },
 
 
-		"id": "19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2",
-		      "createdDateTime": "2024-06-10T10:45:10.413Z",
-		      "displayName": "developmanet",
+
+
+
+		 -- delete topic
+
+
+			"id": "19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2",
+			      "createdDateTime": "2024-06-10T10:45:10.413Z",
+			      "displayName": "developmanet",
 
 chat 19:09c30123-8d63-4fca-909a-3af0d3f03a4a_5d51d22a-6b76-4177-928b-28e15caf71cd@unq.gbl.spaces
 
@@ -154,10 +225,11 @@ type (
 		chResult      chan *Response
 	}
 	MSTeamParameters struct {
-		Channel string            `json:"channel"`
-		Topics  model.StringSlice `json:"topics"`
-		Chat    string            `json:"chat"`
-		Token   oauth2.Token      `json:"token"`
+		Channel string                       `json:"channel"`
+		Topics  model.StringSlice            `json:"topics"`
+		Chat    string                       `json:"chat"`
+		Token   *oauth2.Token                `json:"token"`
+		Drive   *microsoft_core.MSDriveParam `json:"drive"`
 	}
 	// MSTeamState store ms team state after each execute
 	MSTeamState struct {
@@ -360,6 +432,10 @@ func (c *MSTeams) requestAndParse(ctx context.Context, url string, result interf
 	return json.Unmarshal(response.Body(), result)
 }
 
+func (c *MSTeams) getFile(payload *microsoft_core.Response) {
+
+}
+
 // NewMSTeams creates new instance of MsTeams connector
 func NewMSTeams(connector *model.Connector) (Connector, error) {
 	conn := MSTeams{}
@@ -374,6 +450,5 @@ func NewMSTeams(connector *model.Connector) (Connector, error) {
 		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
 			conn.param.Token.TokenType,
 			conn.param.Token.AccessToken))
-
 	return &conn, nil
 }

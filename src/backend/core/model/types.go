@@ -8,6 +8,11 @@ import (
 	"github.com/lib/pq"
 )
 
+const (
+	GB             = 1024 * 1024 * 1024
+	ParamFileLimit = "file_limit"
+)
+
 type JSONMap map[string]interface{}
 
 func (j JSONMap) Value() (driver.Value, error) {

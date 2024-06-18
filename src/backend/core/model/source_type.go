@@ -48,6 +48,7 @@ var (
 	sourceTypeGmailDescription       = SourceTypeDescription{SourceTypeGMAIL, "Gmail", false}
 	sourceTypeSharepointDescription  = SourceTypeDescription{SourceTypeSharepoint, "Sharepoint", false}
 	sourceTypeOneDriveDescription    = SourceTypeDescription{SourceTypeOneDrive, "OneDrive", true}
+	sourceTypeMsTeamsDescription     = SourceTypeDescription{SourceTypeMsTeams, "Teams", true}
 	sourceTypeYouTubeDescription     = SourceTypeDescription{SourceTypeYoutube, "Youtube", true}
 )
 var AllSourceTypes = map[SourceType]*SourceTypeDescription{
@@ -58,6 +59,7 @@ var AllSourceTypes = map[SourceType]*SourceTypeDescription{
 	SourceTypeGMAIL:       &sourceTypeGmailDescription,
 	SourceTypeSharepoint:  &sourceTypeSharepointDescription,
 	SourceTypeOneDrive:    &sourceTypeOneDriveDescription,
+	SourceTypeMsTeams:     &sourceTypeMsTeamsDescription,
 	SourceTypeYoutube:     &sourceTypeYouTubeDescription,
 }
 
@@ -69,5 +71,6 @@ var SourceTypesList = []*SourceTypeDescription{
 	&sourceTypeGmailDescription,
 	&sourceTypeSharepointDescription,
 	&sourceTypeOneDriveDescription,
+	&sourceTypeMsTeamsDescription,
 	&sourceTypeYouTubeDescription,
 }

@@ -21,7 +21,9 @@ const (
 	*/
 )
 
-var microsoftScope = "offline_access Files.Read.All Sites.ReadWrite.All"
+const microsoftScope = "offline_access Files.Read.All Sites.ReadWrite.All"
+
+const teamsScope = "ChannelMessage.Read.All Chat.Read Chat.ReadBasic Team.ReadBasic.All TeamSettings.Read.All TeamSettings.ReadWrite.All ChannelSettings.Read.All Channel.ReadBasic.All Group.Read.All Directory.Read.All"
 
 type (
 	Config struct {
@@ -59,7 +61,7 @@ type (
 
 func (m *Microsoft) GetAuthURL(ctx context.Context, redirectUrl, state string) (string, error) {
 	m.cfg.RedirectUL = fmt.Sprintf("%s/api/oauth/microsoft/callback", redirectUrl)
-	return fmt.Sprintf(microsoftLoginURL, m.cfg.ClientID, microsoftScope, m.cfg.RedirectUL), nil
+	return fmt.Sprintf(microsoftLoginURL, m.cfg.ClientID, microsoftScope+" "+teamsScope, m.cfg.RedirectUL), nil
 }
 
 func (m *Microsoft) ExchangeCode(ctx context.Context, code string) (*IdentityResponse, error) {

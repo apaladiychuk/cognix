@@ -4,6 +4,7 @@ import (
 	microsoft_core "cognix.ch/api/v2/core/connector/microsoft-core"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
+	"cognix.ch/api/v2/core/repository"
 	"context"
 	"fmt"
 	_ "github.com/AzureAD/microsoft-authentication-library-for-go/apps/confidential"
@@ -39,7 +40,7 @@ type (
 	}
 	OneDriveParameters struct {
 		microsoft_core.MSDriveParam
-		Token oauth2.Token `json:"token"`
+		Token *oauth2.Token `json:"token"`
 	}
 )
 
@@ -118,23 +119,6 @@ func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *R
 	return c.resultCh
 }
 
-//	func (c *OneDrive) execute(ctx context.Context) {
-//		defer func() {
-//			close(c.resultCh)
-//		}()
-//
-//		body, err := c.request(ctx, getDrive)
-//		if err != nil {
-//			zap.S().Errorf(err.Error())
-//			time.Sleep(50 * time.Millisecond)
-//			return
-//		}
-//		if body != nil {
-//			if err := c.handleItems(ctx, "", body.Value); err != nil {
-//				zap.S().Errorf(err.Error())
-//			}
-//		}
-//	}
 func (c *OneDrive) getFile(payload *microsoft_core.Response) {
 	response := &Response{
 		URL:        payload.URL,
@@ -242,12 +226,29 @@ func (c *OneDrive) getFile(payload *microsoft_core.Response) {
 //}
 
 // NewOneDrive creates new instance of OneDrive connector
-func NewOneDrive(connector *model.Connector) (Connector, error) {
-	conn := OneDrive{}
+func NewOneDrive(connector *model.Connector,
+	connectorRepo repository.ConnectorRepository,
+	oauthURL string) (Connector, error) {
+	conn := OneDrive{
+		Base: Base{
+			connectorRepo: connectorRepo,
+			oauthClient: resty.New().
+				SetTimeout(time.Minute).
+				SetBaseURL(oauthURL),
+		},
+		param: &OneDriveParameters{},
+	}
+
 	conn.Base.Config(connector)
-	conn.param = &OneDriveParameters{}
 	if err := connector.ConnectorSpecificConfig.ToStruct(conn.param); err != nil {
 		return nil, err
+	}
+	newToken, err := conn.refreshToken(conn.param.Token)
+	if err != nil {
+		return nil, err
+	}
+	if newToken != nil {
+		conn.param.Token = newToken
 	}
 
 	conn.client = resty.New().
@@ -255,7 +256,6 @@ func NewOneDrive(connector *model.Connector) (Connector, error) {
 		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
 			conn.param.Token.TokenType,
 			conn.param.Token.AccessToken))
-
 	return &conn, nil
 }
 func (c *OneDrive) isFolderAnalysing(current string) bool {

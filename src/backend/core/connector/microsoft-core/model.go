@@ -33,13 +33,12 @@ type Folder struct {
 }
 
 type Response struct {
-	URL              string
-	SiteMap          string
-	SearchForSitemap bool
-	Name             string
-	SourceID         string
-	DocumentID       int64
-	MimeType         string
-	FileType         proto.FileType
-	Signature        string
+	URL        string
+	Name       string
+	SourceID   string
+	ParentID   string
+	DocumentID int64
+	MimeType   string
+	FileType   proto.FileType
+	Signature  string
 }

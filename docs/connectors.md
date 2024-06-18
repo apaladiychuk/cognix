@@ -103,6 +103,10 @@ copy token from response
 {
   "channel": "",
   "topics": ["",""],
+  "files": {
+    "folder": "",
+    "recursive": false,
+  },
   "token": {
     "access_token": "",
     "expiry": "",
@@ -111,6 +115,20 @@ copy token from response
   }
 }
 ```
+
+scoup 
+
+- Team.ReadBasic.All
+- TeamSettings.Read.All
+- TeamSettings.ReadWrite.All
+- ChannelSettings.Read.All
+- Channel.ReadBasic.All
+- Group.Read.All
+- Directory.Read.All
+- 
+- ChannelSettings.ReadWrite.All 
+- Group.ReadWrite.All
+- Directory.ReadWrite.All
 
 
 - channel : name of channel for analyzing 

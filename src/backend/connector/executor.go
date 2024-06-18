@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/connector"
@@ -19,9 +18,8 @@ import (
 	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
-	"golang.org/x/oauth2"
+
 	"io"
-	"strings"
 	"time"
 )
 
@@ -67,13 +65,9 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	zap.S().Infof("receive message : %s [%d]", connectorModel.Name, connectorModel.ID.IntPart())
 	// refresh token if needed
 	connectorModel.Status = model.ConnectorStatusWorking
-	if err = e.refreshToken(ctx, connectorModel); err != nil {
-		zap.S().Errorf(err.Error())
-		return err
-	}
 
 	// create new instance of connector by connector model
-	connectorWF, err := connector.New(connectorModel)
+	connectorWF, err := connector.New(connectorModel, e.connectorRepo, e.cfg.OAuthURL)
 	if err != nil {
 		return err
 	}
@@ -181,21 +175,7 @@ func (e *Executor) saveContent(ctx context.Context, response *connector.Response
 		reader = fileResponse.RawBody()
 	} else {
 		// create reader from raw content
-		var buffer bytes.Buffer
-		writer := bufio.NewWriter(&buffer)
-		if response.Content.AppendContent && response.URL != "" {
-			// load existing file
-			urls := strings.Split(response.URL, ":")
-			if len(urls) == 3 {
-				if err := e.minioClient.GetObject(ctx, urls[1], urls[2], writer); err != nil {
-					return err
-				}
-			}
-		}
-		if _, err := writer.Write(response.Content.Body); err != nil {
-			return err
-		}
-		reader = bufio.NewReader(&buffer)
+		reader = bytes.NewReader(response.Content.Body)
 	}
 
 	fileName, _, err := e.minioClient.Upload(ctx, response.Content.Bucket, response.Name, response.MimeType, reader)
@@ -226,34 +206,34 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 }
 
 // refreshToken  refresh OAuth token and store credential in database
-func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
-	provider, ok := model.ConnectorAuthProvider[cm.Type]
-	if !ok {
-		return nil
-	}
-	token, ok := cm.ConnectorSpecificConfig["token"]
-	if !ok {
-		return fmt.Errorf("wrong token")
-	}
-
-	response, err := e.oauthClient.R().SetContext(ctx).
-		SetBody(token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", provider))
-	if err = utils.WrapRestyError(response, err); err != nil {
-		return err
-	}
-	var payload struct {
-		Data oauth2.Token `json:"data"`
-	}
-
-	if err = json.Unmarshal(response.Body(), &payload); err != nil {
-		return fmt.Errorf("failed to unmarshl token: %v : %v", err, response.Error())
-	}
-	cm.ConnectorSpecificConfig["token"] = payload.Data
-	if err = e.connectorRepo.Update(ctx, cm); err != nil {
-		return err
-	}
-	return nil
-}
+//func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
+//	provider, ok := model.ConnectorAuthProvider[cm.Type]
+//	if !ok {
+//		return nil
+//	}
+//	token, ok := cm.ConnectorSpecificConfig["token"]
+//	if !ok {
+//		return fmt.Errorf("wrong token")
+//	}
+//
+//	response, err := e.oauthClient.R().SetContext(ctx).
+//		SetBody(token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", provider))
+//	if err = utils.WrapRestyError(response, err); err != nil {
+//		return err
+//	}
+//	var payload struct {
+//		Data oauth2.Token `json:"data"`
+//	}
+//
+//	if err = json.Unmarshal(response.Body(), &payload); err != nil {
+//		return fmt.Errorf("failed to unmarshl token: %v : %v", err, response.Error())
+//	}
+//	cm.ConnectorSpecificConfig["token"] = payload.Data
+//	if err = e.connectorRepo.Update(ctx, cm); err != nil {
+//		return err
+//	}
+//	return nil
+//}
 
 func NewExecutor(
 	cfg *Config,

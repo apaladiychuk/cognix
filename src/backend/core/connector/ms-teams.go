@@ -4,6 +4,7 @@ import (
 	microsoft_core "cognix.ch/api/v2/core/connector/microsoft-core"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
+	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/utils"
 	"context"
 	"encoding/json"
@@ -14,7 +15,6 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"jaytaylor.com/html2text"
-	"strings"
 	"time"
 )
 
@@ -23,6 +23,9 @@ const (
 	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/microsoft.graph.delta()"
 	msTeamRepliesURL   = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/%s/replies"
 	msTeamsInfoURL     = "https://graph.microsoft.com/v1.0/teams"
+
+	msTeamsFilesFolder   = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/filesFolder"
+	msTeamsFolderContent = "https://graph.microsoft.com/v1.0/groups/%s/drive/items/%s/children"
 
 	msTeamsChats           = "https://graph.microsoft.com/v1.0/chats"
 	msTeamsChatMessagesURL = "https://graph.microsoft.com/v1.0/chats/%s/messages"
@@ -67,6 +70,10 @@ type (
 	}
 )
 
+type TeamFilesFolder struct {
+	Id string `json:"id"`
+}
+
 type MessageBody struct {
 	Id                   string        `json:"id"`
 	Etag                 string        `json:"etag"`
@@ -82,6 +89,7 @@ type MessageBody struct {
 }
 type MessageResponse struct {
 	OdataContext   string         `json:"@odata.context"`
+	OdataNextLink  string         `json:"@odata.nextLink"`
 	OdataDeltaLink string         `json:"@odata.deltaLink"`
 	Value          []*MessageBody `json:"value"`
 }
@@ -133,72 +141,6 @@ https://graph.microsoft.com/v1.0/groups/94100e5f-a30f-433d-965e-bde4e817f62a/dri
 
 	/groups/94100e5f-a30f-433d-965e-bde4e817f62a/drive/items/01SZITRJYIBUNPFKHAYJCLISV4DXJPIJV4
 
-/teams/{id}/channels/{id}/filesFolder
-
-	      {
-	            "createdDateTime": "2024-06-10T14:39:40Z",
-	            "eTag": "\"{F21A0D08-E0A8-44C2-B44A-BC1DD2F426BC},2\"",
-	            "id": "01SZITRJYIBUNPFKHAYJCLISV4DXJPIJV4",
-	            "lastModifiedDateTime": "2024-06-10T14:39:40Z",
-	            "name": "developmanet",
-	            "webUrl": "https://foppaladiichuk.sharepoint.com/sites/FOPPaladiichuk9/Shared%20Documents/developmanet",
-	            "cTag": "\"c:{F21A0D08-E0A8-44C2-B44A-BC1DD2F426BC},0\"",
-	            "size": 180634,
-	            "createdBy": {
-	                "application": {
-	                    "id": "cc15fd57-2c6c-4117-a88c-83b1d56b4bbe",
-	                    "displayName": "Microsoft Teams Services"
-	                },
-	                "user": {
-	                    "email": "AndriiPaladiichuk@FOPPaladiichuk.onmicrosoft.com",
-	                    "id": "09c30123-8d63-4fca-909a-3af0d3f03a4a",
-	                    "displayName": "Andrii Paladiichuk"
-	                }
-	            },
-	            "lastModifiedBy": {
-	                "application": {
-	                    "id": "cc15fd57-2c6c-4117-a88c-83b1d56b4bbe",
-	                    "displayName": "Microsoft Teams Services"
-	                },
-	                "user": {
-	                    "email": "AndriiPaladiichuk@FOPPaladiichuk.onmicrosoft.com",
-	                    "id": "09c30123-8d63-4fca-909a-3af0d3f03a4a",
-	                    "displayName": "Andrii Paladiichuk"
-	                }
-	            },
-	            "parentReference": {
-	                "driveType": "documentLibrary",
-	                "driveId": "b!oxsuyS45_EKmyHYegUv4SmEjVp8sBIFPvH1TNMZJZqPviFyz50UFTqjI-nC6wDfJ",
-	                "id": "01SZITRJ56Y2GOVW7725BZO354PWSELRRZ",
-	                "name": "Shared Documents",
-	                "path": "/drive/root:",
-	                "siteId": "c92e1ba3-392e-42fc-a6c8-761e814bf84a"
-	            },
-	            "fileSystemInfo": {
-	                "createdDateTime": "2024-06-10T14:39:40Z",
-	                "lastModifiedDateTime": "2024-06-10T14:39:40Z"
-	            },
-	            "folder": {
-	                "childCount": 2
-	            },
-	            "shared": {
-	                "scope": "users"
-	            }
-	        },
-
-
-
-
-
-		 -- delete topic
-
-
-			"id": "19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2",
-			      "createdDateTime": "2024-06-10T10:45:10.413Z",
-			      "displayName": "developmanet",
-
-chat 19:09c30123-8d63-4fca-909a-3af0d3f03a4a_5d51d22a-6b76-4177-928b-28e15caf71cd@unq.gbl.spaces
-
 Team.ReadBasic.All,
 TeamSettings.Read.All,
 TeamSettings.ReadWrite.All'.
@@ -222,14 +164,13 @@ type (
 		client        *resty.Client
 		fileSizeLimit int
 		sessionID     uuid.NullUUID
-		chResult      chan *Response
 	}
 	MSTeamParameters struct {
 		Channel string                       `json:"channel"`
 		Topics  model.StringSlice            `json:"topics"`
 		Chat    string                       `json:"chat"`
 		Token   *oauth2.Token                `json:"token"`
-		Drive   *microsoft_core.MSDriveParam `json:"drive"`
+		Files   *microsoft_core.MSDriveParam `json:"files"`
 	}
 	// MSTeamState store ms team state after each execute
 	MSTeamState struct {
@@ -242,19 +183,15 @@ type (
 		LastCreatedDateTime time.Time `json:"last_created_date_time"`
 	}
 	MSTeamsResult struct {
-		From    string
-		Message string
+		PrevLoadTime string
+		Messages     []*MSTeamsResultMessages
 	}
-	MSTeamsResults []*MSTeamsResult
+	MSTeamsResultMessages struct {
+		User    string `json:"user"`
+		Message string `json:"message"`
+	}
 )
 
-func (r MSTeamsResults) ToString() string {
-	result := make([]string, 0, len(r))
-	for _, row := range r {
-		result = append(result, fmt.Sprintf("%s : %s ", row.From, row.Message))
-	}
-	return strings.Join(result, "\n")
-}
 func (c *MSTeams) Validate() error {
 	return nil
 }
@@ -280,12 +217,21 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 }
 
 func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Response {
-	c.resultCh = make(chan *Response)
-	defer close(c.resultCh)
-	if err := c.execute(ctx, param); err != nil {
-		zap.S().Errorf(err.Error())
+	c.resultCh = make(chan *Response, 10)
+	for _, doc := range c.model.Docs {
+		if doc.Signature == "" {
+			// do not delete document with chat history.
+			doc.IsExists = true
+		}
 	}
-	return c.chResult
+	go func() {
+		defer close(c.resultCh)
+		if err := c.execute(ctx, param); err != nil {
+			zap.S().Errorf(err.Error())
+		}
+		return
+	}()
+	return c.resultCh
 }
 func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 
@@ -301,47 +247,83 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 	if err != nil {
 		return err
 	}
-	sessionID := uuid.NullUUID{
+	c.sessionID = uuid.NullUUID{
 		UUID:  uuid.New(),
 		Valid: true,
 	}
+	//  load topics
 	for _, topic := range topics {
-		doc, ok := c.model.DocsMap[topic.Id]
-		if !ok {
-			// add document for new topic
-			doc = &model.Document{
-				SourceID:        topic.Id,
-				ConnectorID:     c.model.ID,
-				URL:             "",
-				ChunkingSession: sessionID,
-				Analyzed:        false,
-				CreationDate:    time.Now().UTC(),
-				LastUpdate:      pg.NullTime{time.Now().UTC()},
-				IsExists:        true,
-			}
-			c.model.DocsMap[topic.Id] = doc
-		}
+		// create unique id for store new messages in new document
+		sourceID := fmt.Sprintf("%s-%s", topic.Id, uuid.New().String())
 		replies, err := c.getReplies(ctx, teamID, channelID, topic)
 		if err != nil {
 			return err
 		}
-		c.chResult <- &Response{
+		body, err := json.Marshal(replies.Messages)
+		if err != nil {
+			return err
+		}
+		doc := &model.Document{
+			SourceID:        sourceID,
+			ConnectorID:     c.model.ID,
+			URL:             "",
+			ChunkingSession: c.sessionID,
+			Analyzed:        false,
+			CreationDate:    time.Now().UTC(),
+			LastUpdate:      pg.NullTime{time.Now().UTC()},
+			IsExists:        true,
+		}
+		c.model.DocsMap[sourceID] = doc
+
+		fileName := topic.Subject
+		if replies.PrevLoadTime != "" {
+			fileName += "-" + replies.PrevLoadTime
+		}
+		fileName += ".json"
+		c.resultCh <- &Response{
 			URL:        doc.URL,
-			Name:       topic.Subject,
-			SourceID:   topic.Id,
+			Name:       fileName,
+			SourceID:   doc.SourceID,
 			DocumentID: doc.ID.IntPart(),
-			MimeType:   "",
+			MimeType:   "plain/text",
+			FileType:   proto.FileType_TXT,
 			Signature:  "",
 			Content: &Content{
 				Bucket:        model.BucketName(c.model.User.EmbeddingModel.TenantID),
 				URL:           "",
 				AppendContent: true,
-				Body:          []byte(replies.ToString()),
+				Body:          body,
 			},
 			UpToData: false,
 		}
 	}
+	if c.param.Files != nil {
+		if err = c.loadFiles(ctx, param, teamID, channelID); err != nil {
+			return err
+		}
+	}
+	// save current state
+	if err = c.model.State.FromStruct(c.state); err == nil {
+		return c.connectorRepo.Update(ctx, c.model)
+	}
 	return nil
+}
+
+func (c *MSTeams) loadFiles(ctx context.Context, param map[string]string, teamID, channelID string) error {
+	var folderInfo TeamFilesFolder
+	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsFilesFolder, teamID, channelID), &folderInfo); err != nil {
+		return err
+	}
+	baseUrl := fmt.Sprintf(msTeamsFolderContent, teamID, folderInfo.Id)
+	folderURL := fmt.Sprintf(msTeamsFolderContent, teamID, `%s`)
+	msDrive := microsoft_core.NewMSDrive(c.param.Files,
+		c.model,
+		c.sessionID, c.client,
+		baseUrl, folderURL,
+		c.getFile,
+	)
+	return msDrive.Execute(ctx, param)
+
 }
 
 func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error) {
@@ -357,24 +339,29 @@ func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error)
 	return "", fmt.Errorf("channel not found")
 }
 
-func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg *MessageBody) (MSTeamsResults, error) {
+func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg *MessageBody) (*MSTeamsResult, error) {
 	var repliesResp MessageResponse
 	err := c.requestAndParse(ctx, fmt.Sprintf(msTeamRepliesURL, teamID, channelID, msg.Id), &repliesResp)
 	if err != nil {
 		return nil, err
 	}
+	var result MSTeamsResult
 	state, ok := c.state.Topics[msg.Id]
 	if !ok {
 		state = &MSTeamMessageState{}
+		c.state.Topics[msg.Id] = state
+	} else {
+		result.PrevLoadTime = state.LastCreatedDateTime.Format("2006-01-02-15-04-05")
 	}
 	lastTime := state.LastCreatedDateTime
-	var results MSTeamsResults
+
 	for _, repl := range repliesResp.Value {
-		if repl.CreatedDateTime.Before(state.LastCreatedDateTime) {
+		if state.LastCreatedDateTime.After(repl.CreatedDateTime) ||
+			state.LastCreatedDateTime.Equal(repl.CreatedDateTime) {
 			// ignore messages that were analyzed before
 			continue
 		}
-		if lastTime.Before(repl.CreatedDateTime) {
+		if repl.CreatedDateTime.After(lastTime) {
 			// store timestamp of last message
 			lastTime = repl.CreatedDateTime
 		}
@@ -385,26 +372,40 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 				PrettyTables: true,
 			})
 		}
-		results = append(results, &MSTeamsResult{
-			From:    repl.From.User.DisplayName,
+		result.Messages = append(result.Messages, &MSTeamsResultMessages{
+			User:    repl.From.User.DisplayName,
 			Message: message,
 		})
 	}
-	return results, nil
+	state.LastCreatedDateTime = lastTime
+	return &result, nil
 }
+
 func (c *MSTeams) getTopicsByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
 	var messagesResp MessageResponse
-
-	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsMessagesURL, teamID, channelID), &messagesResp); err != nil {
+	// Get url from state. Load changes from previous scan.
+	url := c.state.DeltaLink
+	if url == "" {
+		// Load all history if stored lin is empty
+		url = fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)
+	}
+	if err := c.requestAndParse(ctx, url, &messagesResp); err != nil {
 		return nil, err
 	}
-	// todo store url for incremental request
-	//_ = channelResp.OdataDeltaLink
+	if messagesResp.OdataNextLink != "" {
+		c.state.DeltaLink = messagesResp.OdataNextLink
+	}
+	if messagesResp.OdataDeltaLink != "" {
+		c.state.DeltaLink = messagesResp.OdataDeltaLink
+	}
 
-	// todo add validation on Subject == null - topic was deleted.
 	messagesForScan := make([]*MessageBody, 0)
 	for _, msg := range messagesResp.Value {
-		if c.param.Topics.InArray(msg.Subject) {
+		if msg.Subject == "" {
+			// todo add validation on Subject == null - topic was deleted.
+			continue
+		}
+		if len(c.param.Topics) == 0 || c.param.Topics.InArray(msg.Subject) {
 			messagesForScan = append(messagesForScan, msg)
 		}
 	}
@@ -433,16 +434,54 @@ func (c *MSTeams) requestAndParse(ctx context.Context, url string, result interf
 }
 
 func (c *MSTeams) getFile(payload *microsoft_core.Response) {
-
+	response := &Response{
+		URL:        payload.URL,
+		Name:       payload.Name,
+		SourceID:   payload.SourceID,
+		DocumentID: payload.DocumentID,
+		MimeType:   payload.MimeType,
+		FileType:   payload.FileType,
+		Signature:  payload.Signature,
+		Content: &Content{
+			Bucket: model.BucketName(c.model.User.EmbeddingModel.TenantID),
+			URL:    payload.URL,
+		},
+	}
+	c.resultCh <- response
 }
 
 // NewMSTeams creates new instance of MsTeams connector
-func NewMSTeams(connector *model.Connector) (Connector, error) {
-	conn := MSTeams{}
+func NewMSTeams(connector *model.Connector,
+	connectorRepo repository.ConnectorRepository,
+	oauthURL string) (Connector, error) {
+	conn := MSTeams{
+		Base: Base{
+			connectorRepo: connectorRepo,
+			oauthClient: resty.New().
+				SetTimeout(time.Minute).
+				SetBaseURL(oauthURL),
+		},
+		param: &MSTeamParameters{},
+		state: &MSTeamState{},
+	}
 	conn.Base.Config(connector)
-	conn.param = &MSTeamParameters{}
+
 	if err := connector.ConnectorSpecificConfig.ToStruct(conn.param); err != nil {
 		return nil, err
+	}
+
+	newToken, err := conn.refreshToken(conn.param.Token)
+	if err != nil {
+		return nil, err
+	}
+	if newToken != nil {
+		conn.param.Token = newToken
+	}
+	if err = connector.State.ToStruct(conn.state); err != nil {
+		zap.S().Infof("can not parse state %v", err)
+	}
+	if conn.state.Topics == nil {
+		conn.state.Topics = make(map[string]*MSTeamMessageState)
 	}
 
 	conn.client = resty.New().

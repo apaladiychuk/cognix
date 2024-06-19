@@ -104,22 +104,6 @@ type Attachment struct {
 }
 
 /*
-soups
-
-TeamMember.Read.All,
-TeamMember.ReadWrite.All
-
-Chat.ReadBasic, Chat.Read, Chat.ReadWrite
-AuditLogsQuery-OneDrive.Read.All, Files.Read.All
-
-ServiceActivity-OneDrive.Read.All, TeamsApp.Read.All, TeamsApp.ReadWrite.All, User.Read, email, TeamMember.ReadWrite.All'",
-
-	"id": "6fd101cf-ddca-4bef-9fdc-f7fd024c7063",
-	"id": "94100e5f-a30f-433d-965e-bde4e817f62a",
-
-94100e5f-a30f-433d-965e-bde4e817f62a
-19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2
-
 https://graph.microsoft.com/v1.0/groups/94100e5f-a30f-433d-965e-bde4e817f62a/team/channels/19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2
 https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/channels
 https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/channels/19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2/messages
@@ -140,21 +124,6 @@ https://graph.microsoft.com/v1.0/teams/94100e5f-a30f-433d-965e-bde4e817f62a/chan
 https://graph.microsoft.com/v1.0/groups/94100e5f-a30f-433d-965e-bde4e817f62a/drive/items/01SZITRJYIBUNPFKHAYJCLISV4DXJPIJV4/children
 
 	/groups/94100e5f-a30f-433d-965e-bde4e817f62a/drive/items/01SZITRJYIBUNPFKHAYJCLISV4DXJPIJV4
-
-Team.ReadBasic.All,
-TeamSettings.Read.All,
-TeamSettings.ReadWrite.All'.
-ChannelMessage.Read.All
-
-	APIConnectors.Read.All,
-
-APIConnectors.ReadWrite.All,
-AuditLogsQuery-OneDrive.Read.All,
-Chat.Read,
-Chat.ReadBasic,
-Files.Read.All, openid, profile,
-ServiceActivity-OneDrive.Read.All,
-TeamMember.Read.All, TeamMember.ReadWrite.All, TeamsApp.Read.All, TeamsApp.ReadWrite.All, User.Read, email, Group.Read.All
 */
 type (
 	MSTeams struct {
@@ -425,6 +394,7 @@ func (c *MSTeams) getTeamID(ctx context.Context) (string, error) {
 	return team.Value[0].Id, nil
 }
 
+// requestAndParse request graph endpoint and parse result.
 func (c *MSTeams) requestAndParse(ctx context.Context, url string, result interface{}) error {
 	response, err := c.client.R().SetContext(ctx).Get(url)
 	if err = utils.WrapRestyError(response, err); err != nil {
@@ -433,6 +403,7 @@ func (c *MSTeams) requestAndParse(ctx context.Context, url string, result interf
 	return json.Unmarshal(response.Body(), result)
 }
 
+// getFile callback for receive files
 func (c *MSTeams) getFile(payload *microsoft_core.Response) {
 	response := &Response{
 		URL:        payload.URL,

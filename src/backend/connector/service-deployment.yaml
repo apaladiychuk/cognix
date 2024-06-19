@@ -17,8 +17,6 @@ spec:
         image: cognixacr.azurecr.io/cognix/connectorservice:main
         envFrom:
         - configMapRef:
-            name: connector-srv
-        - configMapRef:
             name: cockroach-cli
         - configMapRef:
             name: minio-cli

@@ -372,6 +372,12 @@ func (c *MSTeams) getTopicsByChannel(ctx context.Context, teamID, channelID stri
 	for _, msg := range messagesResp.Value {
 		if msg.Subject == "" {
 			// todo add validation on Subject == null - topic was deleted.
+			//for _, doc := range c.model.DocsMap {
+			//	if strings.HasPrefix(doc.SourceID, msg.Id) {
+			//		doc.IsExists = false
+			//	}
+			//}
+			//delete(c.state.Topics, msg.Id)
 			continue
 		}
 		if len(c.param.Topics) == 0 || c.param.Topics.InArray(msg.Subject) {

@@ -88,6 +88,7 @@ func (c *Web) Execute(ctx context.Context, param map[string]string) chan *Respon
 			SearchForSitemap: c.param.SearchForSitemap,
 			DocumentID:       doc.ID.IntPart(),
 			MimeType:         mineURL,
+			FileType:         proto.FileType_URL,
 		}
 		close(c.resultCh)
 	}()

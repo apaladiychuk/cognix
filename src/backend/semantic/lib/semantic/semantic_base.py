@@ -262,7 +262,8 @@ class BaseSemantic:
 
             # converting results to alist of ChunkedItems to that it can be passed
             # to the store and collect method
-            collected_data = ChunkedItem.create_chunked_items(results, data.url)
+            collected_data = ChunkedItem.create_chunked_items(results=results, url=data.url, document_id=data.document_id, parent_id=0)
+            #results: List[str], url: str, document_id: int, parent_id: int)
 
             if not collected_data:
                 self.logger.warning(f"😱no content found in {data.url}")

@@ -116,21 +116,22 @@ copy token from response
 }
 ```
 
-scoup 
-
-- Team.ReadBasic.All
-- TeamSettings.Read.All
-- TeamSettings.ReadWrite.All
-- ChannelSettings.Read.All
-- Channel.ReadBasic.All
-- Group.Read.All
-- Directory.Read.All
-- 
-- ChannelSettings.ReadWrite.All 
-- Group.ReadWrite.All
-- Directory.ReadWrite.All
-
-
-- channel : name of channel for analyzing 
+- channel : name of channel for analyzing
 - recursive :  false - scan only given folder , true - scan nested folders
 - token : OAuth token for access to ```one drive```
+- files : 
+  - folder : optional, folder name for scanning
+  - recursive :  false - scan only given folder , true - scan nested folders
+
+
+#### scope for oauth service 
+
+ - ChannelMessage.Read.All 
+ - Chat.Read Chat.ReadBasic 
+ - Team.ReadBasic.All 
+ - TeamSettings.Read.All  
+ - ChannelSettings.Read.All 
+ - Channel.ReadBasic.All 
+ - Group.Read.All 
+ - Directory.Read.All
+

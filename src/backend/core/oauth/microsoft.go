@@ -13,17 +13,11 @@ import (
 const (
 	microsoftLoginURL = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=%s&scope=%s&response_type=code&redirect_uri=%s`
 	microsoftToken    = `https://login.microsoftonline.com/organizations/oauth2/v2.0/token`
-	/*
-	   	client_id={client_id}&redirect_uri={redirect_uri}&client_secret={client_secret}
-	   &code={code}&grant_type=authorization_code
-	   	microsoftRefreshToken = ``
-
-	*/
 )
 
 const microsoftScope = "offline_access Files.Read.All Sites.ReadWrite.All"
 
-const teamsScope = "ChannelMessage.Read.All Chat.Read Chat.ReadBasic Team.ReadBasic.All TeamSettings.Read.All TeamSettings.ReadWrite.All ChannelSettings.Read.All Channel.ReadBasic.All Group.Read.All Directory.Read.All"
+const teamsScope = "ChannelMessage.Read.All Chat.Read Chat.ReadBasic Team.ReadBasic.All TeamSettings.Read.All ChannelSettings.Read.All Channel.ReadBasic.All Group.Read.All Directory.Read.All"
 
 type (
 	Config struct {

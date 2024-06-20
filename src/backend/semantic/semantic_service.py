@@ -54,7 +54,7 @@ async def semantic_event(msg: Msg):
     connector_id = 0
     entities_analyzed = 0
     try:
-        logger.info("🔥 starting semantic analysis..")
+        logger.info("🔥 starting semantic analysis.. new version..")
         # Deserialize the message
         semantic_data = SemanticData()
         semantic_data.ParseFromString(msg.data)

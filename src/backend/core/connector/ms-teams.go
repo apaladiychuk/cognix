@@ -172,14 +172,17 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 	teamID, err := c.getTeamID(ctx)
 	if err != nil {
 		zap.S().Errorf(err.Error())
+		return err
 	}
 	params[msTeamsParamTeamID] = teamID
 
 	channelID, err := c.getChannel(ctx, teamID)
 	if err != nil {
 		zap.S().Errorf(err.Error())
+		return err
 	}
 	params[msTeamsParamChannelID] = channelID
+	zap.S().Infof("teamID %s channelID %s", teamID, channelID)
 	return task.RunConnector(ctx, &proto.ConnectorRequest{
 		Id:     c.model.ID.IntPart(),
 		Params: params,

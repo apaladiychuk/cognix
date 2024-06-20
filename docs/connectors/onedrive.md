@@ -1,8 +1,8 @@
 # OneDrive 
 
-## Setup in CogniX
+## Setup 
 From CogniX UI navigate to connectors and create a new connector
-Choose OneDrive
+Choose `OneDrive`
 At step 2:
 - Choose a name, it's just a description
 - Fill the "Connector Specific Configration" with the json below filled with the corect data
@@ -34,8 +34,8 @@ bool, (default false), you can omit. It indicates if CogniX shall analyze all th
 **token**  <br/> 
 The OAuth token you generate from OneDrive for CogniX to have access to the resource. Below a detailed description on how to get it
 
-Since the UI is still under costruction folling some manual steps to get the OneDrive toke.
-This process will be automated with the UI evelution
+Since the UI is still under construction you'll need to do some manual steps to get the OneDrive token.
+This process will be automated with the UI evolution
 
 paste in your browser the following link if you are running CogniX on your private Docker deployment
 ```js

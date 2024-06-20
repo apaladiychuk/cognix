@@ -8,6 +8,11 @@ import (
 	"github.com/lib/pq"
 )
 
+const (
+	GB             = 1024 * 1024 * 1024
+	ParamFileLimit = "file_limit"
+)
+
 type JSONMap map[string]interface{}
 
 func (j JSONMap) Value() (driver.Value, error) {
@@ -68,6 +73,14 @@ func (t *StringSlice) Scan(value interface{}) error {
 	}
 	*t = []string(items)
 	return nil
+}
+func (t StringSlice) InArray(val string) bool {
+	for _, item := range t {
+		if item == val {
+			return true
+		}
+	}
+	return false
 }
 
 type JSON json.RawMessage

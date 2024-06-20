@@ -6,6 +6,7 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
+
 	"context"
 	"encoding/json"
 	"fmt"
@@ -29,6 +30,7 @@ type (
 		tracer         trace.Tracer
 		connectorModel *model.Connector
 		fileSizeLimit  int
+		oauthURL       string
 	}
 )
 
@@ -60,7 +62,7 @@ func (t *trigger) Do(ctx context.Context) error {
 		//	span.RecordError(err)
 		//	return err
 		//}
-		connWF, err := connector.New(t.connectorModel)
+		connWF, err := connector.New(t.connectorModel, t.connectorRepo, t.oauthURL)
 		if err != nil {
 			return err
 		}
@@ -109,7 +111,7 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 
 // RunConnector send message to connector service
 func (t *trigger) RunConnector(ctx context.Context, data *proto.ConnectorRequest) error {
-	data.Params[connector.ParamFileLimit] = fmt.Sprintf("%d", t.fileSizeLimit)
+	data.Params[model.ParamFileLimit] = fmt.Sprintf("%d", t.fileSizeLimit)
 	if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
 		return err
 	}
@@ -127,13 +129,15 @@ func NewTrigger(messenger messaging.Client,
 	connectorRepo repository.ConnectorRepository,
 	docRepo repository.DocumentRepository,
 	connectorModel *model.Connector,
-	fileSizeLimit int) *trigger {
+	fileSizeLimit int,
+	oauthURL string) *trigger {
 	return &trigger{
 		messenger:      messenger,
 		connectorRepo:  connectorRepo,
 		docRepo:        docRepo,
 		connectorModel: connectorModel,
 		fileSizeLimit:  fileSizeLimit,
+		oauthURL:       oauthURL,
 		tracer:         otel.Tracer(model.TracerConnector),
 	}
 }

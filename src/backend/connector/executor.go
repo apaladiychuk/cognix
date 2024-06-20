@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
@@ -8,6 +9,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
+	"cognix.ch/api/v2/core/utils"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -16,7 +18,9 @@ import (
 	proto2 "github.com/golang/protobuf/proto"
 	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/zap"
-	"golang.org/x/oauth2"
+	"strings"
+
+	"io"
 	"time"
 )
 
@@ -62,13 +66,9 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	zap.S().Infof("receive message : %s [%d]", connectorModel.Name, connectorModel.ID.IntPart())
 	// refresh token if needed
 	connectorModel.Status = model.ConnectorStatusWorking
-	if err = e.refreshToken(ctx, connectorModel); err != nil {
-		zap.S().Errorf(err.Error())
-		return err
-	}
 
 	// create new instance of connector by connector model
-	connectorWF, err := connector.New(connectorModel)
+	connectorWF, err := connector.New(connectorModel, e.connectorRepo, e.cfg.OAuthURL)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 			break
 		}
 		// save content in minio
-		if result.SaveContent {
+		if result.Content != nil {
 			if err = e.saveContent(ctx, result); err != nil {
 				loopErr = err
 				zap.S().Errorf("failed to save content: %v", err)
@@ -130,51 +130,69 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 			continue
 		}
 	}
-	//remove documents that were removed from source
-	var ids []int64
-	for _, doc := range connectorModel.DocsMap {
-		if doc.IsExists || doc.ID.IntPart() == 0 {
-			continue
-		}
-
-		ids = append(ids, doc.ID.IntPart())
-	}
-	if len(ids) > 0 {
-		if loopErr := e.docRepo.DeleteByIDS(ctx, ids...); loopErr != nil {
-			err = loopErr
+	if errr := e.deleteUnusedFiles(ctx, connectorModel); err != nil {
+		zap.S().Errorf("deleting unused files: %v", errr)
+		if err == nil {
+			err = errr
 		}
 	}
-
 	if err != nil {
 		zap.S().Errorf("failed to update documents: %v", err)
-		connectorModel.Status = model.ConnectorStatusError
+		connectorModel.Status = model.ConnectorStatusUnableProcess
 	}
 	connectorModel.LastUpdate = pg.NullTime{time.Now().UTC()}
-	if len(ids) > 0 {
-		if err = e.milvusClient.Delete(ctx, connectorModel.CollectionName(), ids...); err != nil {
-			//return err
-		}
-	}
+
 	if err = e.connectorRepo.Update(ctx, connectorModel); err != nil {
 		return err
 	}
 	return nil
 }
 
+func (e *Executor) deleteUnusedFiles(ctx context.Context, connector *model.Connector) error {
+	var ids []int64
+	for _, doc := range connector.DocsMap {
+		if doc.IsExists || doc.ID.IntPart() == 0 {
+			continue
+		}
+		filepath := strings.Split(doc.URL, ":")
+		if len(filepath) == 3 && filepath[0] == "minio" {
+			if err := e.minioClient.DeleteObject(ctx, filepath[1], filepath[2]); err != nil {
+				return err
+			}
+		}
+		ids = append(ids, doc.ID.IntPart())
+	}
+	if len(ids) > 0 {
+		if err := e.milvusClient.Delete(ctx, connector.CollectionName(), ids...); err != nil {
+			return err
+		}
+		return e.docRepo.DeleteByIDS(ctx, ids...)
+	}
+	return nil
+}
 func (e *Executor) saveContent(ctx context.Context, response *connector.Response) error {
-	fileResponse, err := e.downloadClient.R().
-		SetDoNotParseResponse(true).
-		Get(response.URL)
-	defer fileResponse.RawBody().Close()
-	if err != nil || fileResponse.IsError() {
-		return fmt.Errorf("read file %s %v", err.Error(), fileResponse.Error())
+
+	var reader io.Reader
+	//  download file if url presented.
+	if response.Content.URL != "" {
+		fileResponse, err := e.downloadClient.R().
+			SetDoNotParseResponse(true).
+			Get(response.Content.URL)
+		defer fileResponse.RawBody().Close()
+		if err = utils.WrapRestyError(fileResponse, err); err != nil {
+			return err
+		}
+		reader = fileResponse.RawBody()
+	} else {
+		// create reader from raw content
+		reader = bytes.NewReader(response.Content.Body)
 	}
 
-	url, _, err := e.minioClient.Upload(ctx, response.Bucket, response.Name, response.MimeType, fileResponse.RawBody())
+	fileName, _, err := e.minioClient.Upload(ctx, response.Content.Bucket, response.Name, response.MimeType, reader)
 	if err != nil {
 		return err
 	}
-	response.URL = fmt.Sprintf("minio:%s:%s", response.Bucket, url)
+	response.URL = fmt.Sprintf("minio:%s:%s", response.Content.Bucket, fileName)
 	return nil
 }
 
@@ -198,35 +216,34 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 }
 
 // refreshToken  refresh OAuth token and store credential in database
-func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
-	provider, ok := model.ConnectorAuthProvider[cm.Type]
-	if !ok {
-		return nil
-	}
-	token, ok := cm.ConnectorSpecificConfig["token"]
-	if !ok {
-		return fmt.Errorf("wrong token")
-	}
-
-	response, err := e.oauthClient.R().SetContext(ctx).
-		SetBody(token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", provider))
-
-	if err != nil || response.IsError() {
-		return fmt.Errorf("failed to refresh token: %v : %v", err, response.Error())
-	}
-	var payload struct {
-		Data oauth2.Token `json:"data"`
-	}
-
-	if err = json.Unmarshal(response.Body(), &payload); err != nil {
-		return fmt.Errorf("failed to unmarshl token: %v : %v", err, response.Error())
-	}
-	cm.ConnectorSpecificConfig["token"] = payload.Data
-	if err = e.connectorRepo.Update(ctx, cm); err != nil {
-		return err
-	}
-	return nil
-}
+//func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
+//	provider, ok := model.ConnectorAuthProvider[cm.Type]
+//	if !ok {
+//		return nil
+//	}
+//	token, ok := cm.ConnectorSpecificConfig["token"]
+//	if !ok {
+//		return fmt.Errorf("wrong token")
+//	}
+//
+//	response, err := e.oauthClient.R().SetContext(ctx).
+//		SetBody(token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", provider))
+//	if err = utils.WrapRestyError(response, err); err != nil {
+//		return err
+//	}
+//	var payload struct {
+//		Data oauth2.Token `json:"data"`
+//	}
+//
+//	if err = json.Unmarshal(response.Body(), &payload); err != nil {
+//		return fmt.Errorf("failed to unmarshl token: %v : %v", err, response.Error())
+//	}
+//	cm.ConnectorSpecificConfig["token"] = payload.Data
+//	if err = e.connectorRepo.Update(ctx, cm); err != nil {
+//		return err
+//	}
+//	return nil
+//}
 
 func NewExecutor(
 	cfg *Config,

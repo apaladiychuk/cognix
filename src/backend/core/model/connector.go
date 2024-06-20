@@ -37,6 +37,7 @@ type Connector struct {
 	CreationDate            time.Time            `json:"creation_date,omitempty"`
 	LastUpdate              pg.NullTime          `json:"last_update,omitempty" pg:",use_zero"`
 	DeletedDate             pg.NullTime          `json:"deleted_date,omitempty" pg:",use_zero"`
+	State                   JSONMap              `json:"-"`
 	Docs                    []*Document          `json:"docs,omitempty" pg:"rel:has-many"`
 	DocsMap                 map[string]*Document `json:"docs_map,omitempty" pg:"-"`
 	User                    *User                `json:"-" pg:"rel:has-one,fk:user_id"`

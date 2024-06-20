@@ -244,7 +244,7 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 		}
 		c.model.DocsMap[sourceID] = doc
 
-		fileName := topic.Subject
+		fileName := topic.Id + "_" + topic.Subject
 		if replies.PrevLoadTime != "" {
 			fileName += "-" + replies.PrevLoadTime
 		}

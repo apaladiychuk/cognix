@@ -20,6 +20,7 @@ type (
 	MinIOClient interface {
 		Upload(ctx context.Context, bucket, filename, contentType string, reader io.Reader) (string, string, error)
 		GetObject(ctx context.Context, bucket, filename string, writer io.Writer) error
+		DeleteObject(ctx context.Context, bucket, filename string) error
 	}
 	minIOClient struct {
 		Region string
@@ -27,6 +28,12 @@ type (
 	}
 	minIOMockClient struct{}
 )
+
+func (c *minIOClient) DeleteObject(ctx context.Context, bucket, filename string) error {
+	return c.client.RemoveObject(ctx, bucket, filename, minio.RemoveObjectOptions{
+		ForceDelete: true,
+	})
+}
 
 func (c *minIOClient) checkOrCreateBucket(ctx context.Context, bucketName string) error {
 	ok, err := c.client.BucketExists(ctx, bucketName)

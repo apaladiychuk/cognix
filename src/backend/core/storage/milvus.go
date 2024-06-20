@@ -54,12 +54,30 @@ type (
 	}
 )
 
-func (c *milvusClient) Delete(ctx context.Context, collection string, documentID ...int64) error {
-	ids := make([]string, 0, len(documentID))
-	for _, id := range documentID {
-		ids = append(ids, strconv.FormatInt(id, 10))
+func (c *milvusClient) Delete(ctx context.Context, collection string, documentIDs ...int64) error {
+	var docsID []string
+	for _, id := range documentIDs {
+		docsID = append(docsID, strconv.FormatInt(id, 10))
 	}
-	return c.client.Delete(ctx, collection, "", fmt.Sprintf("document_id in [%s]", strings.Join(ids, ",")))
+	queryResult, err := c.client.Query(ctx, collection, []string{},
+		fmt.Sprintf("document_id in [%s]", strings.Join(docsID, ",")),
+		[]string{"id"},
+	)
+	if err != nil {
+		return err
+	}
+	var ids []string
+	for _, result := range queryResult {
+		for i := 0; i < result.Len(); i++ {
+			if id, err := result.GetAsInt64(i); err == nil {
+				ids = append(ids, strconv.FormatInt(id, 10))
+			}
+		}
+	}
+	if len(ids) == 0 {
+		return c.client.Delete(ctx, collection, "", fmt.Sprintf("id in [%s]", strings.Join(ids, ",")))
+	}
+	return nil
 }
 
 func (v MilvusConfig) Validate() error {

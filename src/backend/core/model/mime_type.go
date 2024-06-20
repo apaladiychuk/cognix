@@ -1,9 +1,13 @@
-package connector
+package model
 
 import "cognix.ch/api/v2/core/proto"
 
-var supportedMimeTypes = map[string]proto.FileType{
-	mineURL: proto.FileType_URL,
+const (
+	MIMEURL = "url"
+)
+
+var SupportedMimeTypes = map[string]proto.FileType{
+	MIMEURL: proto.FileType_URL,
 	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": proto.FileType_XLSX,
 	"application/vnd.ms-excel": proto.FileType_XLS,
 	"application/vnd.openxmlformats-officedocument.wordprocessingml.document": proto.FileType_DOCX,
@@ -21,7 +25,7 @@ var supportedMimeTypes = map[string]proto.FileType{
 	"application/fb2":                                                           proto.FileType_FB2,
 }
 
-var supportedExtensions = map[string]string{
+var SupportedExtensions = map[string]string{
 	"MD":   "text/markdown",
 	"HWPX": "application/hwp+zip",
 	"MOBI": "application/x-mobipocket-ebook",

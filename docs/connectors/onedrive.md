@@ -1,8 +1,8 @@
 # OneDrive 
 
-## Setup in CogniX
+## Setup 
 From CogniX UI navigate to connectors and create a new connector
-Choose OneDrive
+Choose `OneDrive`
 At step 2:
 - Choose a name, it's just a description
 - Fill the "Connector Specific Configration" with the json below filled with the corect data

@@ -20,7 +20,8 @@ import (
 
 const (
 	msTeamsChannelsURL = "https://graph.microsoft.com/v1.0/teams/%s/channels"
-	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/microsoft.graph.delta()"
+	//msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/microsoft.graph.delta()"
+	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages"
 	msTeamRepliesURL   = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/%s/replies"
 	msTeamsInfoURL     = "https://graph.microsoft.com/v1.0/teams"
 
@@ -353,20 +354,22 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 func (c *MSTeams) getTopicsByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
 	var messagesResp MessageResponse
 	// Get url from state. Load changes from previous scan.
-	url := c.state.DeltaLink
-	if url == "" {
-		// Load all history if stored lin is empty
-		url = fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)
-	}
+
+	//url := c.state.DeltaLink
+	//if url == "" {
+	//	// Load all history if stored lin is empty
+	//	url = fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)incremental request
+	//}
+	url := fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)
 	if err := c.requestAndParse(ctx, url, &messagesResp); err != nil {
 		return nil, err
 	}
-	if messagesResp.OdataNextLink != "" {
-		c.state.DeltaLink = messagesResp.OdataNextLink
-	}
-	if messagesResp.OdataDeltaLink != "" {
-		c.state.DeltaLink = messagesResp.OdataDeltaLink
-	}
+	//if messagesResp.OdataNextLink != "" {
+	//	c.state.DeltaLink = messagesResp.OdataNextLink
+	//}
+	//if messagesResp.OdataDeltaLink != "" {
+	//	c.state.DeltaLink = messagesResp.OdataDeltaLink
+	//}
 
 	messagesForScan := make([]*MessageBody, 0)
 	for _, msg := range messagesResp.Value {

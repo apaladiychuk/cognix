@@ -87,8 +87,7 @@ async def semantic_event(msg: Msg):
 
                 # performing semantic analysis on the source
                 semantic = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
-                entities_analyzed = 0
-                await semantic.analyze(data=semantic_data, full_process_start_time=start_time,
+                entities_analyzed = await semantic.analyze(data=semantic_data, full_process_start_time=start_time,
                                                            ack_wait=semantic_ack_wait, cockroach_url=cockroach_url)
 
                 # if entities_analyzed == 0 this means no data was stored in the vector db

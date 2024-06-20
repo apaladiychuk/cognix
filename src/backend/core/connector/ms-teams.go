@@ -403,6 +403,9 @@ func (c *MSTeams) getTeamID(ctx context.Context) (string, error) {
 	if len(team.Value) == 0 {
 		return "", fmt.Errorf("team not found")
 	}
+	for _, tm := range team.Value {
+		zap.S().Infof("team %s (%s) ", tm.Id, tm.DisplayName)
+	}
 	return team.Value[0].Id, nil
 }
 

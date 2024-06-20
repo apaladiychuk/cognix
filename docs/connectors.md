@@ -96,3 +96,42 @@ copy token from response
   }
 }
 ```
+
+#### Microsoft Teams
+
+```json
+{
+  "channel": "",
+  "topics": ["",""],
+  "files": {
+    "folder": "",
+    "recursive": false,
+  },
+  "token": {
+    "access_token": "",
+    "expiry": "",
+    "refresh_token": "",
+    "token_type": ""
+  }
+}
+```
+
+- channel : name of channel for analyzing
+- recursive :  false - scan only given folder , true - scan nested folders
+- token : OAuth token for access to ```one drive```
+- files : 
+  - folder : optional, folder name for scanning
+  - recursive :  false - scan only given folder , true - scan nested folders
+
+
+#### scope for oauth service 
+
+ - ChannelMessage.Read.All 
+ - Chat.Read Chat.ReadBasic 
+ - Team.ReadBasic.All 
+ - TeamSettings.Read.All  
+ - ChannelSettings.Read.All 
+ - Channel.ReadBasic.All 
+ - Group.Read.All 
+ - Directory.Read.All
+

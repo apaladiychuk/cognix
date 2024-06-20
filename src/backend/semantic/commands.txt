@@ -25,7 +25,7 @@ docker stats {conteiner name}
 
 from cognix-services
 sudo docker-compose -f deployment/docker-compose-cognix.yaml down
-sudo docker-compose -f deployment/docker-compose-cognix.yaml up
+sudo docker-compose -f deployment/docker-compose-cognix.yaml up -d
 
 sudo docker-compose -f deployment/docker-compose-test.yaml up --build semantic --force-recreate
 
@@ -75,3 +75,16 @@ pycharm debug
 Run to next breakpoint: F9
 Step Over: F8
 Step Into: F7
+
+
+view gpu perf
+https://tlkh.github.io/asitop/
+
+pip install asitop
+
+sudo asitop
+
+
+docker run -d -p 3009:8080 -v ollama:/root/.ollama -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:ollama
+
+

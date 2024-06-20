@@ -21,6 +21,8 @@ spec:
         - configMapRef:
             name: milvus-cli
         - configMapRef:
+            name: minio-cli
+        - configMapRef:
             name: nats-cli
         - configMapRef:
             name: embedder-cli

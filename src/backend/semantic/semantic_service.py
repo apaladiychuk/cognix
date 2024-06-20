@@ -14,6 +14,7 @@ from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_factory import SemanticFactory
 from lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
 from readiness_probe import ReadinessProbe
+
 #endregion
 
 #region .env and logs
@@ -31,7 +32,6 @@ logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 logger.info(f"Logging configured with level {log_level_str} and format {log_format}")
 
-
 # loading from env env
 nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
 nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
@@ -44,6 +44,8 @@ semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
 cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
                           'postgres://root:123@cockroach:26257/defaultdb?sslmode=disable')
+
+
 #endregion
 
 # Define the event handler function
@@ -85,8 +87,9 @@ async def semantic_event(msg: Msg):
 
                 # performing semantic analysis on the source
                 semantic = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
-                entities_analyzed = await semantic.analyze(data=semantic_data, full_process_start_time=start_time,
-                                                     ack_wait=semantic_ack_wait, cockroach_url=cockroach_url)
+                entities_analyzed = 0
+                await semantic.analyze(data=semantic_data, full_process_start_time=start_time,
+                                                           ack_wait=semantic_ack_wait, cockroach_url=cockroach_url)
 
                 # if entities_analyzed == 0 this means no data was stored in the vector db
                 # we shall find a way to tell the user, most likely put the message in the dead letter
@@ -95,12 +98,13 @@ async def semantic_event(msg: Msg):
                     logger.error(f"❌ entities_analyzed is none!!!!!")
                     entities_analyzed = 0
                 # updating again the connector
-                a =connector_crud.update_connector(connector_id,
-                                                status=Status.COMPLETED_SUCCESSFULLY,
-                                                last_successful_analyzed=datetime.datetime.utcnow(),
-                                                last_update=datetime.datetime.utcnow(),
-                                                total_docs_analyzed=entities_analyzed # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
-                                                )
+                a = connector_crud.update_connector(connector_id,
+                                                    status=Status.COMPLETED_SUCCESSFULLY,
+                                                    last_successful_analyzed=datetime.datetime.utcnow(),
+                                                    last_update=datetime.datetime.utcnow(),
+                                                    total_docs_analyzed=entities_analyzed
+                                                    # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
+                                                    )
                 logger.info(a)
             else:
                 logger.error(

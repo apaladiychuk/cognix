@@ -17,6 +17,10 @@ type (
 	}
 )
 
+func (c *Youtube) Validate() error {
+	return nil
+}
+
 func (c *Youtube) PrepareTask(ctx context.Context, task Task) error {
 	sessionID := uuid.NullUUID{
 		UUID:  uuid.New(),

@@ -117,7 +117,7 @@ copy token from response
 ```
 
 - channel : name of channel for analyzing
-- recursive :  false - scan only given folder , true - scan nested folders
+- topics :  false - scan only given folder , true - scan nested folders
 - token : OAuth token for access to ```one drive```
 - files : 
   - folder : optional, folder name for scanning

@@ -13,15 +13,11 @@ import (
 const (
 	microsoftLoginURL = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=%s&scope=%s&response_type=code&redirect_uri=%s`
 	microsoftToken    = `https://login.microsoftonline.com/organizations/oauth2/v2.0/token`
-	/*
-	   	client_id={client_id}&redirect_uri={redirect_uri}&client_secret={client_secret}
-	   &code={code}&grant_type=authorization_code
-	   	microsoftRefreshToken = ``
-
-	*/
 )
 
-var microsoftScope = "offline_access Files.Read.All Sites.ReadWrite.All"
+const microsoftScope = "offline_access Files.Read.All Sites.ReadWrite.All"
+
+const teamsScope = "ChannelMessage.Read.All Chat.Read Chat.ReadBasic Team.ReadBasic.All TeamSettings.Read.All ChannelSettings.Read.All Channel.ReadBasic.All Group.Read.All Directory.Read.All"
 
 type (
 	Config struct {
@@ -59,7 +55,7 @@ type (
 
 func (m *Microsoft) GetAuthURL(ctx context.Context, redirectUrl, state string) (string, error) {
 	m.cfg.RedirectUL = fmt.Sprintf("%s/api/oauth/microsoft/callback", redirectUrl)
-	return fmt.Sprintf(microsoftLoginURL, m.cfg.ClientID, microsoftScope, m.cfg.RedirectUL), nil
+	return fmt.Sprintf(microsoftLoginURL, m.cfg.ClientID, microsoftScope+" "+teamsScope, m.cfg.RedirectUL), nil
 }
 
 func (m *Microsoft) ExchangeCode(ctx context.Context, code string) (*IdentityResponse, error) {
@@ -74,8 +70,8 @@ func (m *Microsoft) ExchangeCode(ctx context.Context, code string) (*IdentityRes
 	var response tokenResponse
 	resp, err := m.httpClient.R().SetFormData(payload).
 		Post(microsoftToken)
-	if err != nil || resp.IsError() {
-		return nil, utils.ErrorPermission.Newf("exchange code error %v : %v ", err, resp.Error())
+	if err = utils.WrapRestyError(resp, err); err != nil {
+		return nil, utils.ErrorPermission.Newf("exchange code error: %s", err.Error())
 	}
 	if err = json.Unmarshal(resp.Body(), &response); err != nil {
 		return nil, err
@@ -101,8 +97,8 @@ func (m *Microsoft) RefreshToken(token *oauth2.Token) (*oauth2.Token, error) {
 	var response tokenResponse
 	resp, err := m.httpClient.R().SetFormData(payload).
 		Post(microsoftToken)
-	if err != nil || resp.IsError() {
-		return nil, utils.ErrorPermission.Newf("exchange code error %v : %v ", err, resp.Error())
+	if err = utils.WrapRestyError(resp, err); err != nil {
+		return nil, utils.ErrorPermission.Newf("exchange code error: %s", err.Error())
 	}
 	if err = json.Unmarshal(resp.Body(), &response); err != nil {
 		return nil, err
@@ -114,6 +110,8 @@ func (m *Microsoft) RefreshToken(token *oauth2.Token) (*oauth2.Token, error) {
 		Expiry:       time.Now().Add(time.Duration(response.ExpiresIn) * time.Second),
 	}, nil
 }
+
+//urn:ietf:params:oauth:grant-type:jwt-bearer
 
 func NewMicrosoft(cfg *MicrosoftConfig) Proxy {
 	return &Microsoft{

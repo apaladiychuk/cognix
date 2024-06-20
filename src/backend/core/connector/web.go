@@ -21,6 +21,10 @@ type (
 	}
 )
 
+func (c *Web) Validate() error {
+	return nil
+}
+
 func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 
 	// if this connector new we need to run connectorTask for prepare document table
@@ -87,7 +91,7 @@ func (c *Web) Execute(ctx context.Context, param map[string]string) chan *Respon
 			SiteMap:          c.param.SiteMap,
 			SearchForSitemap: c.param.SearchForSitemap,
 			DocumentID:       doc.ID.IntPart(),
-			MimeType:         mineURL,
+			MimeType:         model.MIMEURL,
 			FileType:         proto.FileType_URL,
 		}
 		close(c.resultCh)

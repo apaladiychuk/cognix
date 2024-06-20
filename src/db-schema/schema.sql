@@ -80,6 +80,7 @@ create table connectors
     name                      varchar                       not null,
     type                      varchar(50)                   not null,
     connector_specific_config jsonb                         not null,
+    state                     jsonb                         not null default '{}'::jsonb,
     refresh_freq              bigint,
     user_id                   uuid                          not null        references public.users,
     tenant_id                 uuid        references public.tenants,

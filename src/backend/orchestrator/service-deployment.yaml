@@ -23,6 +23,8 @@ spec:
         - configMapRef:
             name: nats-cli
         - configMapRef:
+            name: oauth-cli
+        - configMapRef:
             name: env-configmap
         imagePullPolicy: Always
         volumeMounts:

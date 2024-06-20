@@ -39,27 +39,28 @@ def main():
 
     # Connect to NATS
     publisher.connect()
-    semntic_data = SemanticData(url="minio:tenant-c20a9f75-a363-40ea-86ef-eabcedbac7df:0493eb3a-4475-462e-a791-e47834ea7ba8-small.pdf",
-                                document_id=976345414660126765,
-                                connector_id= 975493320735424513,
-                                file_type= FileType.PDF,
-                                collection_name= "user_625ece7e042d4f40bd2588b16bec7be6")
+    # semntic_data = SemanticData(url="minio:tenant-c20a9f75-a363-40ea-86ef-eabcedbac7df:0493eb3a-4475-462e-a791-e47834ea7ba8-small.pdf",
+    #                             document_id=976345414660126765,
+    #                             connector_id= 975493320735424513,
+    #                             file_type= FileType.PDF,
+    #                             collection_name= "user_625ece7e042d4f40bd2588b16bec7be6")
 
     # Create a fake ChunkingData message
-    # semntic_data = SemanticData(
-    #     url="https://help.collaboard.app/sticky-notes",
-    #     # url = "https://developer.apple.com/documentation/visionos/improving-accessibility-support-in-your-app",
-    #     # url = "https://help.collaboard.app/what-is-collaboard",
-    #     # url = "https://learn.microsoft.com/en-us/aspnet/core/tutorials/razor-pages/?view=aspnetcore-8.0",
-    #     # url = "https://learn.microsoft.com/en-us/aspnet/core/tutorials/razor-pages/sql?view=aspnetcore-8.0&tabs=visual-studio",
-    #     site_map="",
-    #     search_for_sitemap=True,
-    #     document_id=974396356851630081,
-    #     file_type=FileType.URL,
-    #     collection_name="user_id_998",
-    #     model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
-    #     model_dimension=768
-    # )
+    semntic_data = SemanticData(
+        url="https://help.collaboard.app/sticky-notes",
+        # url = "https://developer.apple.com/documentation/visionos/improving-accessibility-support-in-your-app",
+        # url = "https://help.collaboard.app/what-is-collaboard",
+        # url = "https://learn.microsoft.com/en-us/aspnet/core/tutorials/razor-pages/?view=aspnetcore-8.0",
+        # url = "https://learn.microsoft.com/en-us/aspnet/core/tutorials/razor-pages/sql?view=aspnetcore-8.0&tabs=visual-studio",
+        site_map="",
+        url_recursive=False,
+        search_for_sitemap=True,
+        document_id=974396356851630081,
+        file_type=FileType.URL,
+        collection_name="user_id_998",
+        model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+        model_dimension=768
+    )
 
     logger.info(f"message being sent \n {semntic_data}")
     logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")

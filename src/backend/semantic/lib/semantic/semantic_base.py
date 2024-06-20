@@ -243,7 +243,7 @@ class BaseSemantic:
         print(f"File downloaded successfully and saved to {save_path}")
         return save_path
 
-    def analyze_doc(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
+    async def analyze_doc(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
         collected_items = 0
         # TODO: move all the time.time to perf_counter()
         t0 = time.perf_counter()

@@ -13,6 +13,6 @@ from minio.error import S3Error
 
 
 class GenericSemantic(BaseSemantic):
-    def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
-        return self.analyze_doc(data=data, full_process_start_time=full_process_start_time, ack_wait=ack_wait,
+    async def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
+        return await self.analyze_doc(data=data, full_process_start_time=full_process_start_time, ack_wait=ack_wait,
                                 cockroach_url=cockroach_url)

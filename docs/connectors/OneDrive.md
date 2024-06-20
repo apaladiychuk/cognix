@@ -1,5 +1,6 @@
-#### OneDrive 
+# OneDrive 
 
+## Setup in CogniX
 From CogniX UI navigate to connectors and create a new connector
 Choose OneDrive
 At step 2:
@@ -43,17 +44,14 @@ paste in your browser the following link if you are running CogniX on your priva
 
 If you are using CogniX from [rag.cognix.ch](https://rag.cognix.ch)
 ```js
-    https://rag.cognix.ch:8080/api/oauth/microsoft/auth_url?redirect_url=http://rag.cognix.ch:8080
+    https://rag.cognix.ch/api/oauth/microsoft/auth_url?redirect_url=http://rag.cognix.ch
 ```
 
-once you paste the link above in the browser you will get a json. copy only the content of data without " taking care not to forget any char at the beginning or at the end of the text <br/>
+once you paste the link above in the browser you will get a json. copy link <br/>
 you will get something similar to the json below:<br/>
 
 ```json
-{
-  "status": 200,
-  "data": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=<id>>&scope=offline_access Files.Read.All Sites.ReadWrite.All&response_type=code&redirect_uri=http://localhost:8080/api/oauth/microsoft/callback"
-}
+https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=<id>>&scope=offline_access Files.Read.All Sites.ReadWrite.All&response_type=code&redirect_uri=http://localhost:8080/api/oauth/microsoft/callback
 ```
 
 paste the link as described above in a new browser window <br/>. 
@@ -96,3 +94,9 @@ Paste it into the connector specific configuration <br/>
 Make it at least 86400 (one day in seconds) <br/>
 **connector credentials**
 not used add a number
+
+## Microsoft Configuration
+If you don't have a M365 account, you need to set it up. Instructions [here](https://learn.microsoft.com/en-us/microsoft-365/admin/simplified-signup/signup-business-standard?view=o365-worldwide#sign-up-for-microsoft-365-for-business)
+
+Once you have a M365 account
+Go to our Azure subscription and create a new app registration

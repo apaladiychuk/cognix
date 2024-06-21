@@ -20,7 +20,8 @@ import (
 
 const (
 	msTeamsChannelsURL = "https://graph.microsoft.com/v1.0/teams/%s/channels"
-	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/microsoft.graph.delta()"
+	//msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/microsoft.graph.delta()"
+	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages"
 	msTeamRepliesURL   = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/%s/replies"
 	msTeamsInfoURL     = "https://graph.microsoft.com/v1.0/teams"
 
@@ -171,14 +172,17 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 	teamID, err := c.getTeamID(ctx)
 	if err != nil {
 		zap.S().Errorf(err.Error())
+		return err
 	}
 	params[msTeamsParamTeamID] = teamID
 
 	channelID, err := c.getChannel(ctx, teamID)
 	if err != nil {
 		zap.S().Errorf(err.Error())
+		return err
 	}
 	params[msTeamsParamChannelID] = channelID
+	zap.S().Infof("teamID %s channelID %s", teamID, channelID)
 	return task.RunConnector(ctx, &proto.ConnectorRequest{
 		Id:     c.model.ID.IntPart(),
 		Params: params,
@@ -353,20 +357,22 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 func (c *MSTeams) getTopicsByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
 	var messagesResp MessageResponse
 	// Get url from state. Load changes from previous scan.
-	url := c.state.DeltaLink
-	if url == "" {
-		// Load all history if stored lin is empty
-		url = fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)
-	}
+
+	//url := c.state.DeltaLink
+	//if url == "" {
+	//	// Load all history if stored lin is empty
+	//	url = fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)incremental request
+	//}
+	url := fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)
 	if err := c.requestAndParse(ctx, url, &messagesResp); err != nil {
 		return nil, err
 	}
-	if messagesResp.OdataNextLink != "" {
-		c.state.DeltaLink = messagesResp.OdataNextLink
-	}
-	if messagesResp.OdataDeltaLink != "" {
-		c.state.DeltaLink = messagesResp.OdataDeltaLink
-	}
+	//if messagesResp.OdataNextLink != "" {
+	//	c.state.DeltaLink = messagesResp.OdataNextLink
+	//}
+	//if messagesResp.OdataDeltaLink != "" {
+	//	c.state.DeltaLink = messagesResp.OdataDeltaLink
+	//}
 
 	messagesForScan := make([]*MessageBody, 0)
 	for _, msg := range messagesResp.Value {
@@ -396,6 +402,9 @@ func (c *MSTeams) getTeamID(ctx context.Context) (string, error) {
 	}
 	if len(team.Value) == 0 {
 		return "", fmt.Errorf("team not found")
+	}
+	for _, tm := range team.Value {
+		zap.S().Infof("team %s (%s) ", tm.Id, tm.DisplayName)
 	}
 	return team.Value[0].Id, nil
 }

@@ -42,3 +42,15 @@ then choose Save.
    - Authentication 
        - Add platform 
          -  choose web and define redirect URL https://rag.cognix.ch/api/oauth/microsoft/callback
+#### Scope for MS TEAMS 
+
+- ChannelMessage.Read.All
+- Chat.Read
+- Chat.ReadBasic
+- Team.ReadBasic.All
+- TeamSettings.Read.All
+- ChannelSettings.Read.All
+- Channel.ReadBasic.All
+- Group.Read.All
+- Directory.Read.All
+       

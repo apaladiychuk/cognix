@@ -14,16 +14,16 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
-	"jaytaylor.com/html2text"
+	"strings"
 	"time"
 )
 
 const (
 	msTeamsChannelsURL = "https://graph.microsoft.com/v1.0/teams/%s/channels"
-	//msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/microsoft.graph.delta()"
-	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages"
-	msTeamRepliesURL   = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/%s/replies"
-	msTeamsInfoURL     = "https://graph.microsoft.com/v1.0/teams"
+	msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/microsoft.graph.delta()"
+	//msTeamsMessagesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages"
+	msTeamRepliesURL = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/messages/%s/replies"
+	msTeamsInfoURL   = "https://graph.microsoft.com/v1.0/teams"
 
 	msTeamsFilesFolder   = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/filesFolder"
 	msTeamsFolderContent = "https://graph.microsoft.com/v1.0/groups/%s/drive/items/%s/children"
@@ -31,8 +31,7 @@ const (
 	msTeamsChats           = "https://graph.microsoft.com/v1.0/chats"
 	msTeamsChatMessagesURL = "https://graph.microsoft.com/v1.0/chats/%s/messages"
 
-	msTeamsParamTeamID    = "team_id"
-	msTeamsParamChannelID = "channel_id"
+	msTeamsParamTeamID = "team_id"
 )
 
 type (
@@ -136,14 +135,16 @@ type (
 		sessionID     uuid.NullUUID
 	}
 	MSTeamParameters struct {
-		Channel string                       `json:"channel"`
-		Topics  model.StringSlice            `json:"topics"`
-		Chat    string                       `json:"chat"`
-		Token   *oauth2.Token                `json:"token"`
-		Files   *microsoft_core.MSDriveParam `json:"files"`
+		Team  string                       `json:"team"`
+		Token *oauth2.Token                `json:"token"`
+		Files *microsoft_core.MSDriveParam `json:"files"`
 	}
 	// MSTeamState store ms team state after each execute
 	MSTeamState struct {
+		Channels map[string]*MSTeamChannelState `json:"channels"`
+	}
+
+	MSTeamChannelState struct {
 		// Link for request changes after last execution
 		DeltaLink string                         `json:"delta_link"`
 		Topics    map[string]*MSTeamMessageState `json:"topics"`
@@ -154,11 +155,7 @@ type (
 	}
 	MSTeamsResult struct {
 		PrevLoadTime string
-		Messages     []*MSTeamsResultMessages
-	}
-	MSTeamsResultMessages struct {
-		User    string `json:"user"`
-		Message string `json:"message"`
+		Messages     []byte
 	}
 )
 
@@ -176,13 +173,6 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 	}
 	params[msTeamsParamTeamID] = teamID
 
-	channelID, err := c.getChannel(ctx, teamID)
-	if err != nil {
-		zap.S().Errorf(err.Error())
-		return err
-	}
-	params[msTeamsParamChannelID] = channelID
-	zap.S().Infof("teamID %s channelID %s", teamID, channelID)
 	return task.RunConnector(ctx, &proto.ConnectorRequest{
 		Id:     c.model.ID.IntPart(),
 		Params: params,
@@ -212,11 +202,8 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 	if !ok {
 		return fmt.Errorf("team_id is not configured")
 	}
-	channelID, ok := param[msTeamsParamChannelID]
-	if !ok {
-		return fmt.Errorf("channel_id is not configured")
-	}
-	topics, err := c.getTopicsByChannel(ctx, teamID, channelID)
+
+	channelIDs, err := c.getChannel(ctx, teamID)
 	if err != nil {
 		return err
 	}
@@ -224,57 +211,77 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 		UUID:  uuid.New(),
 		Valid: true,
 	}
-	//  load topics
-	for _, topic := range topics {
-		// create unique id for store new messages in new document
-		sourceID := fmt.Sprintf("%s-%s", topic.Id, uuid.New().String())
-		replies, err := c.getReplies(ctx, teamID, channelID, topic)
-		if err != nil {
-			return err
+	// loop by channels
+	for _, channelID := range channelIDs {
+		// prepare state for channel
+		channelState, ok := c.state.Channels[channelID]
+		if !ok {
+			channelState = &MSTeamChannelState{
+				DeltaLink: "",
+				Topics:    make(map[string]*MSTeamMessageState),
+			}
+			c.state.Channels[channelID] = channelState
 		}
-		body, err := json.Marshal(replies.Messages)
-		if err != nil {
-			return err
-		}
-		doc := &model.Document{
-			SourceID:        sourceID,
-			ConnectorID:     c.model.ID,
-			URL:             "",
-			ChunkingSession: c.sessionID,
-			Analyzed:        false,
-			CreationDate:    time.Now().UTC(),
-			LastUpdate:      pg.NullTime{time.Now().UTC()},
-			IsExists:        true,
-		}
-		c.model.DocsMap[sourceID] = doc
 
-		fileName := topic.Id + "_" + topic.Subject
-		if replies.PrevLoadTime != "" {
-			fileName += "-" + replies.PrevLoadTime
-		}
-		fileName += ".json"
-		c.resultCh <- &Response{
-			URL:        doc.URL,
-			Name:       fileName,
-			SourceID:   doc.SourceID,
-			DocumentID: doc.ID.IntPart(),
-			MimeType:   "plain/text",
-			FileType:   proto.FileType_TXT,
-			Signature:  "",
-			Content: &Content{
-				Bucket:        model.BucketName(c.model.User.EmbeddingModel.TenantID),
-				URL:           "",
-				AppendContent: true,
-				Body:          body,
-			},
-			UpToData: false,
-		}
-	}
-	if c.param.Files != nil {
-		if err = c.loadFiles(ctx, param, teamID, channelID); err != nil {
+		topics, err := c.getTopicsByChannel(ctx, teamID, channelID)
+		if err != nil {
 			return err
 		}
+
+		//  load topics
+		for _, topic := range topics {
+			// create unique id for store new messages in new document
+			sourceID := fmt.Sprintf("%s-%s-%s", channelID, topic.Id, uuid.New().String())
+
+			replies, err := c.getReplies(ctx, teamID, channelID, topic)
+			if err != nil {
+				return err
+			}
+			if len(replies.Messages) == 0 {
+				continue
+			}
+			doc := &model.Document{
+				SourceID:        sourceID,
+				ConnectorID:     c.model.ID,
+				URL:             "",
+				ChunkingSession: c.sessionID,
+				Analyzed:        false,
+				CreationDate:    time.Now().UTC(),
+				LastUpdate:      pg.NullTime{time.Now().UTC()},
+				IsExists:        true,
+			}
+			c.model.DocsMap[sourceID] = doc
+
+			fileName := fmt.Sprintf("%s_%s.md",
+				strings.ReplaceAll(uuid.New().String(), "-", ""),
+				strings.ReplaceAll(topic.Subject, " ", ""))
+			c.resultCh <- &Response{
+				URL:        doc.URL,
+				Name:       fileName,
+				SourceID:   doc.SourceID,
+				DocumentID: doc.ID.IntPart(),
+				MimeType:   "plain/text",
+				FileType:   proto.FileType_MD,
+				Signature:  "",
+				Content: &Content{
+					Bucket:        model.BucketName(c.model.User.EmbeddingModel.TenantID),
+					URL:           "",
+					AppendContent: true,
+					Body:          replies.Messages,
+				},
+				UpToData: false,
+			}
+
+			if c.param.Files != nil {
+				if err = c.loadFiles(ctx, param, teamID, channelID); err != nil {
+					return err
+				}
+			}
+
+		}
+
 	}
+
 	// save current state
 	if err = c.model.State.FromStruct(c.state); err == nil {
 		return c.connectorRepo.Update(ctx, c.model)
@@ -282,6 +289,7 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 	return nil
 }
 
+// loadFiles scrap channel files
 func (c *MSTeams) loadFiles(ctx context.Context, param map[string]string, teamID, channelID string) error {
 	var folderInfo TeamFilesFolder
 	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsFilesFolder, teamID, channelID), &folderInfo); err != nil {
@@ -299,17 +307,17 @@ func (c *MSTeams) loadFiles(ctx context.Context, param map[string]string, teamID
 
 }
 
-func (c *MSTeams) getChannel(ctx context.Context, teamID string) (string, error) {
+// getChannel get channels from team
+func (c *MSTeams) getChannel(ctx context.Context, teamID string) ([]string, error) {
 	var channelResp ChannelResponse
 	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsChannelsURL, teamID), &channelResp); err != nil {
-		return "", err
+		return nil, err
 	}
+	var channels []string
 	for _, channel := range channelResp.Value {
-		if channel.DisplayName == c.param.Channel {
-			return channel.Id, nil
-		}
+		channels = append(channels, channel.Id)
 	}
-	return "", fmt.Errorf("channel not found")
+	return channels, nil
 }
 
 func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg *MessageBody) (*MSTeamsResult, error) {
@@ -319,10 +327,21 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 		return nil, err
 	}
 	var result MSTeamsResult
-	state, ok := c.state.Topics[msg.Id]
+	var messages []string
+
+	state, ok := c.state.Channels[channelID].Topics[msg.Id]
 	if !ok {
 		state = &MSTeamMessageState{}
-		c.state.Topics[msg.Id] = state
+		c.state.Channels[channelID].Topics[msg.Id] = state
+		userName := msg.Subject
+		if msg.From != nil && msg.From.User != nil {
+			userName = msg.From.User.DisplayName
+		}
+		message := msg.Subject
+		if msg.Body != nil {
+			message = msg.Body.Content
+		}
+		messages = append(messages, fmt.Sprintf("%s\n```html\n%s\n```\n", userName, message))
 	} else {
 		result.PrevLoadTime = state.LastCreatedDateTime.Format("2006-01-02-15-04-05")
 	}
@@ -339,17 +358,12 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 			lastTime = repl.CreatedDateTime
 		}
 
-		message := repl.Body.Content
-		if repl.Body.ContentType == "html" {
-			message, err = html2text.FromString(message, html2text.Options{
-				PrettyTables: true,
-			})
-		}
-		result.Messages = append(result.Messages, &MSTeamsResultMessages{
-			User:    repl.From.User.DisplayName,
-			Message: message,
-		})
+		message := fmt.Sprintf("%s\n```html\n%s\n```\n", repl.From.User.DisplayName, repl.Body.Content)
+
+		messages = append(messages, message)
+
 	}
+	result.Messages = []byte(strings.Join(messages, "\n"))
 	state.LastCreatedDateTime = lastTime
 	return &result, nil
 }
@@ -357,40 +371,26 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 func (c *MSTeams) getTopicsByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
 	var messagesResp MessageResponse
 	// Get url from state. Load changes from previous scan.
+	state := c.state.Channels[channelID]
 
-	//url := c.state.DeltaLink
-	//if url == "" {
-	//	// Load all history if stored lin is empty
-	//	url = fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)incremental request
-	//}
-	url := fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)
+	url := state.DeltaLink
+	if url == "" {
+		// Load all history if stored lin is empty
+		url = fmt.Sprintf(msTeamsMessagesURL, teamID, channelID)
+	}
+
 	if err := c.requestAndParse(ctx, url, &messagesResp); err != nil {
 		return nil, err
 	}
-	//if messagesResp.OdataNextLink != "" {
-	//	c.state.DeltaLink = messagesResp.OdataNextLink
-	//}
-	//if messagesResp.OdataDeltaLink != "" {
-	//	c.state.DeltaLink = messagesResp.OdataDeltaLink
-	//}
-
-	messagesForScan := make([]*MessageBody, 0)
-	for _, msg := range messagesResp.Value {
-		if msg.Subject == "" {
-			// todo add validation on Subject == null - topic was deleted.
-			//for _, doc := range c.model.DocsMap {
-			//	if strings.HasPrefix(doc.SourceID, msg.Id) {
-			//		doc.IsExists = false
-			//	}
-			//}
-			//delete(c.state.Topics, msg.Id)
-			continue
+	if len(messagesResp.Value) > 0 {
+		if messagesResp.OdataNextLink != "" {
+			state.DeltaLink = messagesResp.OdataNextLink
 		}
-		if len(c.param.Topics) == 0 || c.param.Topics.InArray(msg.Subject) {
-			messagesForScan = append(messagesForScan, msg)
+		if messagesResp.OdataDeltaLink != "" {
+			state.DeltaLink = messagesResp.OdataDeltaLink
 		}
 	}
-	return messagesForScan, nil
+	return messagesResp.Value, nil
 }
 
 // getTeamID get team id for current user
@@ -404,9 +404,11 @@ func (c *MSTeams) getTeamID(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("team not found")
 	}
 	for _, tm := range team.Value {
-		zap.S().Infof("team %s (%s) ", tm.Id, tm.DisplayName)
+		if tm.DisplayName == c.param.Team {
+			return tm.Id, nil
+		}
 	}
-	return team.Value[0].Id, nil
+	return "", fmt.Errorf("team not found")
 }
 
 // requestAndParse request graph endpoint and parse result.
@@ -466,8 +468,8 @@ func NewMSTeams(connector *model.Connector,
 	if err = connector.State.ToStruct(conn.state); err != nil {
 		zap.S().Infof("can not parse state %v", err)
 	}
-	if conn.state.Topics == nil {
-		conn.state.Topics = make(map[string]*MSTeamMessageState)
+	if conn.state.Channels == nil {
+		conn.state.Channels = make(map[string]*MSTeamChannelState)
 	}
 
 	conn.client = resty.New().

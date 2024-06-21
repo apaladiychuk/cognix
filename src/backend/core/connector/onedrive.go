@@ -19,7 +19,6 @@ import (
 	"time"
 )
 
-// todo max file size 1G
 const (
 	authorizationHeader = "Authorization"
 	apiBase             = "https://graph.microsoft.com/v2.0"
@@ -135,95 +134,6 @@ func (c *OneDrive) getFile(payload *microsoft_core.Response) {
 	}
 	c.resultCh <- response
 }
-
-//
-//func (c *OneDrive) recognizeFiletype(item *DriveChildBody) (string, proto.FileType) {
-//
-//	mimeTypeParts := strings.Split(item.File.MimeType, ";")
-//
-//	if fileType, ok := supportedMimeTypes[mimeTypeParts[0]]; ok {
-//		return mimeTypeParts[0], fileType
-//	}
-//	// recognize fileType by filename extension
-//	fileNameParts := strings.Split(item.Name, ".")
-//	if len(fileNameParts) > 1 {
-//		if mimeType, ok := supportedExtensions[strings.ToUpper(fileNameParts[len(fileNameParts)-1])]; ok {
-//			return mimeType, supportedMimeTypes[mimeType]
-//		}
-//	}
-//	// recognize filetype by content
-//	response, err := c.client.R().
-//		SetDoNotParseResponse(true).
-//		Get(item.MicrosoftGraphDownloadUrl)
-//	if err == nil && !response.IsError() {
-//		if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
-//			if fileType, ok := supportedMimeTypes[mime.String()]; ok {
-//				return mime.String(), fileType
-//			}
-//		}
-//	}
-//	response.RawBody().Close()
-//	return "", proto.FileType_UNKNOWN
-//}
-//func (c *OneDrive) getFolder(ctx context.Context, folder string, id string) error {
-//	body, err := c.request(ctx, fmt.Sprintf(getFolderChild, id))
-//	if err != nil {
-//		return err
-//	}
-//	return c.handleItems(ctx, folder, body.Value)
-//}
-//
-//func (c *OneDrive) handleItems(ctx context.Context, folder string, items []*DriveChildBody) error {
-//	for _, item := range items {
-//		// read files if user do not configure folder name
-//		// or current folder as a part of configured folder.
-//		if !c.isFolderAnalysing(folder) {
-//			continue
-//		}
-//		//if item.File != nil && (strings.Contains(folder, c.param.Folder) || c.param.Folder == "") {
-//		if item.File != nil && c.isFilesAnalysing(folder) {
-//			if err := c.getFile(item); err != nil {
-//				zap.S().Errorf("Failed to get file with id %s : %s ", item.Id, err.Error())
-//				continue
-//			}
-//		}
-//		if item.Folder != nil {
-//			// do not scan nested folder if user  wants to read dod from single folder
-//			if /*item.Name != c.param.Folder*/ strings.Contains(folder, c.param.Folder) && !c.param.Recursive {
-//				continue
-//			}
-//			nextFolder := folder
-//			if nextFolder != "" {
-//				nextFolder += "/"
-//			}
-//			if err := c.getFolder(ctx, nextFolder+item.Name, item.Id); err != nil {
-//				zap.S().Errorf("Failed to get folder with id %s : %s ", item.Id, err.Error())
-//				continue
-//			}
-//		}
-//
-//	}
-//	return nil
-//}
-//
-//func (c *OneDrive) request(ctx context.Context, url string) (*GetDriveResponse, error) {
-//	response, err := c.client.R().
-//		SetContext(ctx).
-//		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
-//			c.param.Token.TokenType,
-//			c.param.Token.AccessToken)).
-//		Get(url)
-//	if err = utils.WrapRestyError(response, err); err != nil {
-//		zap.S().Error(err.Error())
-//		return nil, err
-//	}
-//	var body GetDriveResponse
-//	if err = json.Unmarshal(response.Body(), &body); err != nil {
-//		zap.S().Errorw("unmarshal failed", "error", err)
-//		return nil, err
-//	}
-//	return &body, nil
-//}
 
 // NewOneDrive creates new instance of OneDrive connector
 func NewOneDrive(connector *model.Connector,

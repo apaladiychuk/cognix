@@ -36,7 +36,9 @@ jobs:
     - name: Login to Azure
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        registry: ${{ env.ACRNAME }}.azurecr.io
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
 
     - name: Migration Service Image Docker Build and Push
       uses: docker/build-push-action@v2

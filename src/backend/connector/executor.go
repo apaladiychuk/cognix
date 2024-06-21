@@ -24,6 +24,10 @@ import (
 	"time"
 )
 
+var whisperFileTypes = []proto.FileType{
+	proto.FileType_MP3,
+}
+
 type Executor struct {
 	cfg            *Config
 	connectorRepo  repository.ConnectorRepository
@@ -221,36 +225,6 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 
 	return doc
 }
-
-// refreshToken  refresh OAuth token and store credential in database
-//func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
-//	provider, ok := model.ConnectorAuthProvider[cm.Type]
-//	if !ok {
-//		return nil
-//	}
-//	token, ok := cm.ConnectorSpecificConfig["token"]
-//	if !ok {
-//		return fmt.Errorf("wrong token")
-//	}
-//
-//	response, err := e.oauthClient.R().SetContext(ctx).
-//		SetBody(token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", provider))
-//	if err = utils.WrapRestyError(response, err); err != nil {
-//		return err
-//	}
-//	var payload struct {
-//		Data oauth2.Token `json:"data"`
-//	}
-//
-//	if err = json.Unmarshal(response.Body(), &payload); err != nil {
-//		return fmt.Errorf("failed to unmarshl token: %v : %v", err, response.Error())
-//	}
-//	cm.ConnectorSpecificConfig["token"] = payload.Data
-//	if err = e.connectorRepo.Update(ctx, cm); err != nil {
-//		return err
-//	}
-//	return nil
-//}
 
 func NewExecutor(
 	cfg *Config,

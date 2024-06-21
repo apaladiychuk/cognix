@@ -13,8 +13,7 @@ At step 2:
 
 ```json
 {
-  "channel": "",
-  "topics": [],
+  "team": "",
   "files": {
     "folder": "",
     "recursive": true
@@ -28,9 +27,8 @@ At step 2:
 }
 ```
 
-- channel : name of channel for analyzing
-- recursive :  false - scan only given folder , true - scan nested folders
-- token : OAuth token for access to ```one drive```
+- team : name of team for analyzing
+- token : OAuth token for access to ```ms teams```
 - files : 
   - folder : optional, folder name for scanning
   - recursive :  false - scan only given folder , true - scan nested folders

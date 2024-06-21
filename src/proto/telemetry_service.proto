@@ -1,7 +1,7 @@
 // gRPC Service
 syntax = "proto3";
 
-package com.embedd;
+package com.cognix;
 option go_package = "backend/core/proto;proto";
 
 message TelemetryMessage {

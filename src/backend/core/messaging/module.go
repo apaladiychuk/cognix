@@ -33,6 +33,8 @@ type (
 		ConnectorStreamSubject string `env:"NATS_CLIENT_CONNECTOR_STREAM_SUBJECT,required"`
 		SemanticStreamName     string `env:"NATS_CLIENT_SEMANTIC_STREAM_NAME,required"`
 		SemanticStreamSubject  string `env:"NATS_CLIENT_SEMANTIC_STREAM_SUBJECT,required"`
+		WhisperStreamName      string `env:"NATS_CLIENT_WHISPER_STREAM_NAME,required"`
+		WhisperStreamSubject   string `env:"NATS_CLIENT_WHISPER_STREAM_SUBJECT,required"`
 		AckWait                int    `env:"NATS_CLIENT_CONNECTOR_ACK_WAIT,required"`
 		MaxDeliver             int    `env:"NATS_CLIENT_CONNECTOR_MAX_DELIVER,required"`
 	}

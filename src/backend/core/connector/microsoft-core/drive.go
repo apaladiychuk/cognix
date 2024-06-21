@@ -94,11 +94,10 @@ func (c *MSDrive) getFile(item *DriveChildBody) error {
 	} else {
 		// when file was stored in minio URL should be minio:bucket:filename
 		minioFile := strings.Split(doc.URL, ":")
-		if len(minioFile) != 3 {
-			return fmt.Errorf("invalid file url: %s", doc.URL)
+		if len(minioFile) == 3 && minioFile[0] == "minio" {
+			fileName = minioFile[2]
 		}
 		// use previous file name for update file in minio
-		fileName = minioFile[2]
 	}
 	doc.IsExists = true
 

@@ -135,9 +135,10 @@ type (
 		sessionID     uuid.NullUUID
 	}
 	MSTeamParameters struct {
-		Team  string                       `json:"team"`
-		Token *oauth2.Token                `json:"token"`
-		Files *microsoft_core.MSDriveParam `json:"files"`
+		Team     string                       `json:"team"`
+		Channels model.StringSlice            `json:"channels"`
+		Token    *oauth2.Token                `json:"token"`
+		Files    *microsoft_core.MSDriveParam `json:"files"`
 	}
 	// MSTeamState store ms team state after each execute
 	MSTeamState struct {
@@ -168,7 +169,7 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 
 	teamID, err := c.getTeamID(ctx)
 	if err != nil {
-		zap.S().Errorf(err.Error())
+		zap.S().Errorf("Prepare task get teamID : %s ", err.Error())
 		return err
 	}
 	params[msTeamsParamTeamID] = teamID
@@ -190,7 +191,7 @@ func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Re
 	go func() {
 		defer close(c.resultCh)
 		if err := c.execute(ctx, param); err != nil {
-			zap.S().Errorf(err.Error())
+			zap.S().Errorf("execute %s ", err.Error())
 		}
 		return
 	}()
@@ -283,6 +284,7 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 	}
 
 	// save current state
+	zap.S().Infof("save connector state.")
 	if err = c.model.State.FromStruct(c.state); err == nil {
 		return c.connectorRepo.Update(ctx, c.model)
 	}
@@ -315,7 +317,13 @@ func (c *MSTeams) getChannel(ctx context.Context, teamID string) ([]string, erro
 	}
 	var channels []string
 	for _, channel := range channelResp.Value {
-		channels = append(channels, channel.Id)
+		if len(c.param.Channels) == 0 ||
+			c.param.Channels.InArray(channel.DisplayName) {
+			channels = append(channels, channel.Id)
+		}
+	}
+	if len(channels) == 0 {
+		return nil, fmt.Errorf("channel not found")
 	}
 	return channels, nil
 }

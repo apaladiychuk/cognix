@@ -25,7 +25,7 @@ enum FileType {
     URL = 16;
     YT = 17;
 
-    // ORCHESTRATOR SEND TO MEDIA
+    // ORCHESTRATOR SEND TO WHISPER
     MP4 = 18;
     MP3 = 19;
     MPEG = 20;

@@ -1,7 +1,6 @@
 syntax = "proto3";
 import "file_type.proto";
-
-package com.embedd;
+package com.cognix;
 option go_package = "backend/core/proto;proto";
 
 message SemanticData {

@@ -1,3 +1,6 @@
+syntax = "proto3";
+package com.cognix;
+option go_package = "backend/core/proto;proto";
 enum FileType {
     // ORCHESTRATOR SEND TO CONNECTOR:
     UNKNOWN = 0;

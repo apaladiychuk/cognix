@@ -78,12 +78,15 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	// execute connector
 	resultCh := connectorWF.Execute(ctx, trigger.Params)
 	// read result from channel
+	hasSemanticMessage := false
 	for result := range resultCh {
 		var loopErr error
 		// empty result when channel was closed.
 		if result.SourceID == "" {
 			break
 		}
+		hasSemanticMessage = true
+
 		// save content in minio
 		if result.Content != nil {
 			if err = e.saveContent(ctx, result); err != nil {
@@ -139,6 +142,10 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	if err != nil {
 		zap.S().Errorf("failed to update documents: %v", err)
 		connectorModel.Status = model.ConnectorStatusUnableProcess
+	} else {
+		if !hasSemanticMessage {
+			connectorModel.Status = model.ConnectorStatusSuccess
+		}
 	}
 	connectorModel.LastUpdate = pg.NullTime{time.Now().UTC()}
 

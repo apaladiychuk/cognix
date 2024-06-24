@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
+	"jaytaylor.com/html2text"
 	"strings"
 	"time"
 )
@@ -32,6 +33,10 @@ const (
 	msTeamsChatMessagesURL = "https://graph.microsoft.com/v1.0/chats/%s/messages"
 
 	msTeamsParamTeamID = "team_id"
+
+	messageTemplate = `#%s
+##%s
+`
 )
 
 type (
@@ -259,7 +264,7 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 			c.resultCh <- &Response{
 				URL:        doc.URL,
 				Name:       fileName,
-				SourceID:   doc.SourceID,
+				SourceID:   sourceID,
 				DocumentID: doc.ID.IntPart(),
 				MimeType:   "plain/text",
 				FileType:   proto.FileType_MD,
@@ -341,15 +346,10 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 	if !ok {
 		state = &MSTeamMessageState{}
 		c.state.Channels[channelID].Topics[msg.Id] = state
-		userName := msg.Subject
-		if msg.From != nil && msg.From.User != nil {
-			userName = msg.From.User.DisplayName
+
+		if message := c.buildMDMessage(msg); message != "" {
+			messages = append(messages, message)
 		}
-		message := msg.Subject
-		if msg.Body != nil {
-			message = msg.Body.Content
-		}
-		messages = append(messages, fmt.Sprintf("%s\n```html\n%s\n```\n", userName, message))
 	} else {
 		result.PrevLoadTime = state.LastCreatedDateTime.Format("2006-01-02-15-04-05")
 	}
@@ -365,10 +365,9 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 			// store timestamp of last message
 			lastTime = repl.CreatedDateTime
 		}
-
-		message := fmt.Sprintf("%s\n```html\n%s\n```\n", repl.From.User.DisplayName, repl.Body.Content)
-
-		messages = append(messages, message)
+		if message := c.buildMDMessage(repl); message != "" {
+			messages = append(messages, message)
+		}
 
 	}
 	result.Messages = []byte(strings.Join(messages, "\n"))
@@ -444,6 +443,30 @@ func (c *MSTeams) getFile(payload *microsoft_core.Response) {
 		},
 	}
 	c.resultCh <- response
+}
+
+func (c *MSTeams) buildMDMessage(msg *MessageBody) string {
+	userName := msg.Subject
+	if msg.From != nil && msg.From.User != nil {
+		userName = msg.From.User.DisplayName
+	}
+	message := msg.Subject
+	if msg.Body != nil {
+		message = msg.Body.Content
+		if msg.Body.ContentType == "html" {
+			if m, err := html2text.FromString(message, html2text.Options{
+				PrettyTables: true,
+			}); err != nil {
+				zap.S().Errorf("error building html message: %v", err)
+			} else {
+				message = m
+			}
+		}
+	}
+	if userName == "" && message == "" {
+		return ""
+	}
+	return fmt.Sprintf(messageTemplate, userName, message)
 }
 
 // NewMSTeams creates new instance of MsTeams connector

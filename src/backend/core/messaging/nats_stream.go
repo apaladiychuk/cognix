@@ -35,8 +35,7 @@ func (c *clientStream) Publish(ctx context.Context, streamName, topic string, bo
 	_, err := c.js.CreateOrUpdateStream(context.Background(), jetstream.StreamConfig{
 		Name:      streamName,
 		Retention: jetstream.WorkQueuePolicy,
-		//AllowDirect: true,
-		Subjects: []string{topic},
+		Subjects:  []string{topic},
 	})
 	if err != nil {
 		zap.S().Errorf("Error creating stream: %s", err.Error())
@@ -48,8 +47,6 @@ func (c *clientStream) Publish(ctx context.Context, streamName, topic string, bo
 		return err
 	}
 	_, err = c.js.Publish(ctx, topic, message)
-	//,
-	//		nats.AckWait(time.Minute*2)
 	if err != nil {
 		return err
 	}
@@ -61,8 +58,7 @@ func (c *clientStream) Listen(ctx context.Context, streamName, topic string, han
 	stream, err := c.js.CreateOrUpdateStream(context.Background(), jetstream.StreamConfig{
 		Name:      streamName,
 		Retention: jetstream.WorkQueuePolicy,
-		//AllowDirect: true,
-		Subjects: []string{topic},
+		Subjects:  []string{topic},
 	})
 	if err != nil {
 		zap.S().Errorf("Error creating stream: %s", err.Error())

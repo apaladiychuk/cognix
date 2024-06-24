@@ -36,7 +36,7 @@ services:
     image: gen-mind/cognix-embedder:latest
     build:
       context: ../src/backend/embedder
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_cpu
     ports:
       - "50051:50051"
     volumes:

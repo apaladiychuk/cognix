@@ -1,4 +1,6 @@
-
+import os
+import logging
+from dotenv import load_dotenv
 from sqlalchemy import Column, BigInteger, String, ForeignKey, TIMESTAMP, Boolean, func, Text, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
@@ -10,6 +12,19 @@ import uuid
 from typing import List
 from sqlalchemy.exc import OperationalError
 import time
+
+load_dotenv()
+
+# get log level from env
+log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
+log_level = getattr(logging, log_level_str, logging.INFO)
+# get log format from env
+log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
+# Configure logging
+logging.basicConfig(level=log_level, format=log_format)
+
+logger = logging.getLogger(__name__)
+
 
 Base = declarative_base()
 
@@ -40,6 +55,7 @@ def with_retry(func):
                 return func(*args, **kwargs)
             except OperationalError as e:
                 if i < retries - 1:
+                    logger.warning(f"😱 cockroach falls in retry mode{e}")
                     time.sleep(2 ** i)  # Exponential backoff
                 else:
                     raise e

@@ -43,7 +43,7 @@ class Milvus_DB:
                 user=milvus_user,
                 password=milvus_pass
             )
-            self.logger.info("Connected to Milvus")
+            # self.logger.info("Connected to Milvus")
         except Exception as e:
             self.logger.error(f"❌ Failed to connect to Milvus: {e}")
 
@@ -54,7 +54,7 @@ class Milvus_DB:
 
     def delete_by_document_id_and_parent_id(self, document_id: int64, collection_name: str):
         start_time = time.time()  # Record the start time
-        self.logger.info(f"deleting all entities related to document {document_id}")
+        # self.logger.info(f"deleting all entities related to document {document_id}")
         self.ensure_connection()
         try:
             if utility.has_collection(collection_name):
@@ -115,10 +115,10 @@ class Milvus_DB:
         finally:
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
-            self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
+            self.logger.debug(f"⏰🤖 milvus query total elapsed time: {elapsed_time:.2f} seconds")
 
     def store_chunk(self, content: str, data: SemanticData, document_id: int64, parent_id: int64) -> bool:
-        start_time = time.time()  # Record the start time
+        # start_time = time.time()  # Record the start time
         success = False
         self.ensure_connection()
         try:
@@ -159,10 +159,10 @@ class Milvus_DB:
             self.logger.error(f"❌ {e}")
             success = False
         finally:
-            end_time = time.time()  # Record the end time
-            elapsed_time = end_time - start_time
-            self.logger.info(
-                f"⏰ store into vector db, including embedding generation, total elapsed time: {elapsed_time:.2f} seconds")
+            # end_time = time.time()  # Record the end time
+            # elapsed_time = end_time - start_time
+            # self.logger.info(
+            #     f"⏰ store into vector db, including embedding generation, total elapsed time: {elapsed_time:.2f} seconds")
             return success
 
     # def store_chunk_list(self, contents: List[str], data: SemanticData, document_ids: List[int64],
@@ -184,7 +184,7 @@ class Milvus_DB:
     #         return success
 
     def store_chunk_list(self, contents: List[str], data: SemanticData, document_ids: List[int64], parent_ids: List[int64]) -> bool:
-        start_time = time.time()  # Record the start time
+        # start_time = time.time()  # Record the start time
         success = False
         entities = []
         try:
@@ -234,12 +234,12 @@ class Milvus_DB:
             self.logger.error(f"❌ {e}")
             success = False
         finally:
-            end_time = time.time()  # Record the end time
-            elapsed_time = end_time - start_time
-            total_entities = 0
-            if entities:
-                total_entities = len(entities)
-            self.logger.info(f"⏰ stored  {total_entities} entities in vector db (including embedding generation) in: {elapsed_time:.2f} seconds")
+            # end_time = time.time()  # Record the end time
+            # elapsed_time = end_time - start_time
+            # total_entities = 0
+            # if entities:
+            #     total_entities = len(entities)
+            # self.logger.info(f"⏰ stored  {total_entities} entities in vector db (including embedding generation) in: {elapsed_time:.2f} seconds")
             return success
 
 
@@ -256,7 +256,7 @@ class Milvus_DB:
             self.logger.debug("GetEmbedding gRPC call received correctly")
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
-            self.logger.info(f"⏰ total elapsed time to create embedding: {elapsed_time:.2f} seconds")
+            self.logger.debug(f"⏰🤖total elapsed time to create embedding: {elapsed_time:.2f} seconds")
 
             return list(embed_response.vector)
 

@@ -271,7 +271,7 @@ services:
   
   cockroach:
     container_name: cockroach
-    image: cockroachdb/cockroach:latest-v23.2
+    image: cockroachdb/cockroach:v24.1.1
     ports:
       - "26257:26257"
       - "28080:8080"

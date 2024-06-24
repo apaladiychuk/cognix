@@ -19,6 +19,7 @@ type Document struct {
 	Analyzed        bool                `json:"analyzed" pg:",use_zero"`
 	CreationDate    time.Time           `json:"creation_date,omitempty"`
 	LastUpdate      pg.NullTime         `json:"last_update,omitempty" pg:",use_zero"`
+	OriginalURL     string              `json:"original_url,omitempty" pg:",use_zero"`
 	IsExists        bool                `json:"-" pg:"-"`
 }
 

@@ -136,8 +136,8 @@ class BaseSemantic:
             else:
                 chunks = [(item.content, item.url)]
 
-            if chunks is not None:
-                logging.info(f"saving in milvus {len(chunks)} chunk(s)")
+            # if chunks is not None:
+            #     logging.info(f"saving in milvus {len(chunks)} chunk(s)")
 
             for chunk, url in chunks:
                 # notifying the readiness probe that the service is alive
@@ -185,7 +185,7 @@ class BaseSemantic:
 
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
-        self.logger.info(f"⏰ total milvus ops {elapsed_time}" )
+        self.logger.info(f"⏰🤖 total milvus ops {elapsed_time}" )
 
         start_time = time.time()  # Record the start time
 
@@ -199,7 +199,7 @@ class BaseSemantic:
 
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
-        self.logger.info(f"⏰ total cockroach ops {elapsed_time}" )
+        self.logger.info(f"⏰🛢 total cockroach ops {elapsed_time}" )
 
         if self.logger.level == logging.DEBUG:
             collected_items = len(collected_data)

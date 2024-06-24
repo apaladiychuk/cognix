@@ -54,16 +54,15 @@ async def semantic_event(msg: Msg):
     connector_id = 0
     entities_analyzed = 0
     try:
-        logger.info("🔥 starting semantic analysis.. new version..")
+        logger.info("🔥🔥🔥🔥🔥🔥 starting semantic analysis..")
         # Deserialize the message
         semantic_data = SemanticData()
         semantic_data.ParseFromString(msg.data)
         logger.info(f"message: \n {semantic_data}")
         if semantic_data.model_name == "":
-            logger.error(f"❌ no model nameeeeeeee")
+            logger.error(f"❌ no model name has been passed!")
             semantic_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
             semantic_data.model_dimension = 768
-            logger.warning(f"😱 Addning model name and dimension manually remove this code ASAP")
 
         # verify document id is valid otherwise we cannot process the message
         if semantic_data.document_id <= 0:
@@ -128,7 +127,7 @@ async def semantic_event(msg: Msg):
     finally:
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
-        logger.info(f"⏰⏰ total elapsed time: {elapsed_time:.2f} seconds")
+        logger.info(f"⏰⏰ total semantic analysis time: {elapsed_time:.2f} seconds")
 
 
 # TODO: IMPORTANT WHEN IT DOES NOT CONNECT TO COCKROACH IS PROCESSING!!!!!

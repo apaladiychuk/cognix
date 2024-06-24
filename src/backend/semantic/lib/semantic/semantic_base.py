@@ -6,7 +6,7 @@ import uuid
 
 import pymupdf4llm
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from minio import Minio, S3Error
+from minio import Minio
 
 from lib.db.db_document import Document, DocumentCRUD
 from lib.db.milvus_db import Milvus_DB
@@ -108,6 +108,16 @@ class BaseSemantic:
         parent_doc.last_update = datetime.datetime.utcnow()
         document_crud.update_document_object(parent_doc)
 
+        # Collect child documents to insert later
+        child_documents = []
+
+        # Collect milvus chunks to insert all at once
+        milvus_chunks = {
+            'contents': [],
+            'document_ids': [],
+            'parent_ids': []
+        }
+
         # all children can be added randomly
         # storing the new chunks in milvus
         logging.info(f"storing in milvus {len(collected_data)} entities. One entity might be split in several chunks")
@@ -120,7 +130,7 @@ class BaseSemantic:
 
             # insert in milvus
             chunks = List[Tuple[str, str]]
-            if split_data == True:
+            if split_data:
                 logging.info(f"splitting the entity")
                 chunks = self.split_data(item.content, item.url)
             else:
@@ -148,17 +158,48 @@ class BaseSemantic:
                 child_doc = Document(parent_id=data.document_id, connector_id=data.connector_id, source_id=item.url,
                                      url=item.url, chunking_session=chunking_session, analyzed=True,
                                      creation_date=datetime.datetime.utcnow(), last_update=datetime.datetime.utcnow())
-                document_crud.insert_document_object(child_doc)
+
+                child_documents.append(child_doc)
 
                 # and finally the real job!!!
-                analyzed = milvus_db.store_chunk(content=chunk, data=data,document_id=child_doc.id, parent_id=child_doc.parent_id)
+                # analyzed = milvus_db.store_chunk(content=chunk, data=data,document_id=child_doc.id, parent_id=child_doc.parent_id)
+                #Collecting the chunks for batch insertion
+                milvus_chunks['contents'].append(chunk)
+                milvus_chunks['document_ids'].append(data.document_id)
+                milvus_chunks['parent_ids'].append(1234)
 
             collected_items += len(chunks)
+
+        # # Perform batch insertion into Milvus
+        start_time = time.time()  # Record the start time
+        if milvus_chunks['contents']:
+            success = milvus_db.store_chunk_list(
+                contents=milvus_chunks['contents'],
+                data=data,
+                document_ids=milvus_chunks['document_ids'],
+                parent_ids=milvus_chunks['parent_ids']
+            )
+
+            if not success:
+                self.logger.error(f"Failed to store chunks in Milvus")
+
+        end_time = time.time()  # Record the end time
+        elapsed_time = end_time - start_time
+        self.logger.info(f"⏰ total milvus ops {elapsed_time}" )
+
+        start_time = time.time()  # Record the start time
+
+        # Insert all collected child documents at once
+        document_crud.insert_documents_list(child_documents)
 
         # update the status of the parent doc
         parent_doc.analyzed = True
         parent_doc.last_update = datetime.datetime.utcnow()
         document_crud.update_document_object(parent_doc)
+
+        end_time = time.time()  # Record the end time
+        elapsed_time = end_time - start_time
+        self.logger.info(f"⏰ total cockroach ops {elapsed_time}" )
 
         if self.logger.level == logging.DEBUG:
             collected_items = len(collected_data)
@@ -251,6 +292,14 @@ class BaseSemantic:
         try:
             # downloads the file from minio and stores locally
             downloaded_file_path = self.download_from_minio(data.url)
+
+            # Log the file type and size
+            if os.path.exists(downloaded_file_path):
+                file_type = os.path.splitext(downloaded_file_path)[1]
+                file_size = os.path.getsize(downloaded_file_path)
+                self.logger.info(f"analyzing a: {file_type} file, size: {file_size / 1024:.2f} KB")
+            else:
+                self.logger.warning(f"File {downloaded_file_path} does not exist.")
 
             # converts the file to MD
             markdown_content = pymupdf4llm.to_markdown(downloaded_file_path)

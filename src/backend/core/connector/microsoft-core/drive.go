@@ -22,14 +22,15 @@ type (
 	}
 
 	MSDrive struct {
-		client        *resty.Client
-		param         *MSDriveParam
-		folderURL     string
-		baseURL       string
-		callback      FileCallback
-		fileSizeLimit int
-		sessionID     uuid.NullUUID
-		model         *model.Connector
+		client          *resty.Client
+		param           *MSDriveParam
+		folderURL       string
+		baseURL         string
+		callback        FileCallback
+		fileSizeLimit   int
+		sessionID       uuid.NullUUID
+		model           *model.Connector
+		unsupportedType map[string]bool
 	}
 	FileCallback func(response *Response)
 )
@@ -41,13 +42,14 @@ func NewMSDrive(param *MSDriveParam,
 	baseURL, folderURL string,
 	callback FileCallback) *MSDrive {
 	return &MSDrive{
-		param:     param,
-		model:     model,
-		sessionID: sessionID,
-		callback:  callback,
-		folderURL: folderURL,
-		baseURL:   baseURL,
-		client:    clinet,
+		param:           param,
+		model:           model,
+		sessionID:       sessionID,
+		callback:        callback,
+		folderURL:       folderURL,
+		baseURL:         baseURL,
+		client:          clinet,
+		unsupportedType: make(map[string]bool),
 	}
 }
 
@@ -99,6 +101,7 @@ func (c *MSDrive) getFile(item *DriveChildBody) error {
 		}
 		// use previous file name for update file in minio
 	}
+	doc.OriginalURL = item.WebUrl
 	doc.IsExists = true
 
 	// do not process file if hash is not changed and file already stored in vector database
@@ -140,6 +143,9 @@ func (c *MSDrive) recognizeFiletype(item *DriveChildBody) (string, proto.FileTyp
 	// recognize fileType by filename extension
 	fileNameParts := strings.Split(item.Name, ".")
 	if len(fileNameParts) > 1 {
+		if _, ok := model.SupportedMimeTypes[mimeTypeParts[0]]; !ok {
+			return "", proto.FileType_UNKNOWN
+		}
 		if mimeType, ok := model.SupportedExtensions[strings.ToUpper(fileNameParts[len(fileNameParts)-1])]; ok {
 			return mimeType, model.SupportedMimeTypes[mimeType]
 		}
@@ -148,6 +154,7 @@ func (c *MSDrive) recognizeFiletype(item *DriveChildBody) (string, proto.FileTyp
 	response, err := c.client.R().
 		SetDoNotParseResponse(true).
 		Get(item.MicrosoftGraphDownloadUrl)
+	defer response.RawBody().Close()
 	if err == nil && !response.IsError() {
 		if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
 			if fileType, ok := model.SupportedMimeTypes[mime.String()]; ok {
@@ -155,9 +162,13 @@ func (c *MSDrive) recognizeFiletype(item *DriveChildBody) (string, proto.FileTyp
 			}
 		}
 	}
-	response.RawBody().Close()
+	if len(fileNameParts) > 1 {
+		c.unsupportedType[fileNameParts[len(fileNameParts)-1]] = true
+	}
+
 	return "", proto.FileType_UNKNOWN
 }
+
 func (c *MSDrive) getFolder(ctx context.Context, folder string, id string) error {
 	body, err := c.request(ctx, fmt.Sprintf(c.folderURL, id))
 	if err != nil {

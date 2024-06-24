@@ -11,6 +11,7 @@ from nats.aio.msg import Msg
 from lib.db.db_connector import ConnectorCRUD, Status
 from lib.db.db_document import DocumentCRUD
 from lib.gen_types.semantic_data_pb2 import SemanticData
+from lib.helpers.device_checker import DeviceChecker
 from lib.semantic.semantic_factory import SemanticFactory
 from lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
 from readiness_probe import ReadinessProbe
@@ -54,6 +55,7 @@ async def semantic_event(msg: Msg):
     connector_id = 0
     entities_analyzed = 0
     try:
+        logger.info("\n\n")
         logger.info("🔥🔥🔥🔥🔥🔥 starting semantic analysis..")
         # Deserialize the message
         semantic_data = SemanticData()
@@ -103,7 +105,7 @@ async def semantic_event(msg: Msg):
                                                     total_docs_analyzed=entities_analyzed
                                                     # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
                                                     )
-                logger.info(a)
+                # logger.info(a)
             else:
                 logger.error(
                     f"❌ failed to process semantic data error: document_id {semantic_data.document_id} not valid")
@@ -128,7 +130,7 @@ async def semantic_event(msg: Msg):
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
         logger.info(f"⏰⏰ total semantic analysis time: {elapsed_time:.2f} seconds")
-
+        logger.info("\n\n")
 
 # TODO: IMPORTANT WHEN IT DOES NOT CONNECT TO COCKROACH IS PROCESSING!!!!!
 # Andri shall make a fix query on the db if status is processing and max ack wait is more than last update
@@ -149,6 +151,7 @@ async def main():
     while True:
         logger.info("🛠️ service starting..")
         try:
+            DeviceChecker.check_device()
             # subscribing to jet stream
             subscriber = JetStreamEventSubscriber(
                 nats_url=nats_url,

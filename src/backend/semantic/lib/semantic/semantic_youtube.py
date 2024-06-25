@@ -8,6 +8,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from lib.db.db_document import DocumentCRUD
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_base import BaseSemantic
+from lib.semantic.text_splitter import TextSplitter
 from lib.spider.chunked_item import ChunkedItem
 
 
@@ -34,7 +35,7 @@ class YTSemantic(BaseSemantic):
                 return parsed_url.path.split('/')[2]
         return None
 
-    def get_youtube_transcript(self, video_url: str) -> str | None: #Optional[List[Dict[str, str]]]:
+    def get_youtube_transcript(self, video_url: str) -> str | None:  #Optional[List[Dict[str, str]]]:
         """
         Fetches the transcript of a YouTube video.
 
@@ -59,35 +60,38 @@ class YTSemantic(BaseSemantic):
             self.logger.error(f"❌ {e}")
             return None
 
-    def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
+    async def analyze(self, data: SemanticData, full_process_start_time: float, ack_wait: int, cockroach_url: str) -> int:
+        collected_items = 0
         try:
             start_time = time.time()  # Record the start time
             self.logger.info(f"extracting transcript from: {data.url}")
 
             content = self.get_youtube_transcript(data.url)
 
-            collected_items = 0
             chunking_session = uuid.uuid4()
             document_crud = DocumentCRUD(cockroach_url)
+
+            if not content:
+                self.logger.warning(f"😱no content found in {data.url}")
 
             if content:
                 # TODO: VERY IMPORTANT
                 # We need content's summarization
 
-                collected_data = [ChunkedItem(url=data.url, content=content)]
+                collected_data = TextSplitter.create_chunked_items(content=content, url=data.url,
+                                                                   document_id=data.document_id, parent_id=0)
 
-                collected_items = self.store_collected_data(data=data, document_crud=document_crud,
-                                                            collected_data=collected_data,
-                                                            chunking_session=chunking_session,
-                                                            ack_wait=ack_wait,
-                                                            full_process_start_time=full_process_start_time,
-                                                            split_data=True)
-                self.logger.debug(f"transcript \n {content}")
+                collected_items = len(collected_data)
+                self.store_collected_data(data=data, document_crud=document_crud,
+                                          collected_data=collected_data,
+                                          chunking_session=chunking_session,
+                                          ack_wait=ack_wait,
+                                          full_process_start_time=full_process_start_time)
+                # self.logger.debug(f"transcript \n {content}")
             else:
-                self.store_collected_data_none(data=data, document_crud=document_crud, chunking_session=chunking_session)
-
-            self.log_end(collected_items, start_time)
-            return collected_items
-            # (if transcript: 1 else: 0)
+                self.store_collected_data_none(data=data, document_crud=document_crud,
+                                               chunking_session=chunking_session)
         except Exception as e:
             self.logger.error(f"❌ Failed to process semantic data: {e}")
+        finally:
+            return collected_items

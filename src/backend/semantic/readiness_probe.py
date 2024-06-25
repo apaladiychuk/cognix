@@ -47,7 +47,7 @@ class ReadinessProbe:
                     self.send_response(200)
                     self.end_headers()
                     self.wfile.write(b"OK")
-                    self.logger.info("/healthz response 200")
+                    self.logger.debug("/healthz response 200")
                 else:
                     self.send_response(503)
                     self.end_headers()
@@ -58,7 +58,7 @@ class ReadinessProbe:
                 self.send_response(404)
                 self.end_headers()
                 self.wfile.write(b"Not Found")
-                self.logger.info('ReadinessProbeHandler GET /')
+                self.logger.debug('ReadinessProbeHandler GET /')
 
     def start_server(self):
         try:

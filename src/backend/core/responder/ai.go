@@ -57,10 +57,12 @@ func (r *aiResponder) Send(ctx context.Context,
 
 	for _, doc := range docs {
 		messageParts = append(messageParts, doc.Content)
-		message.DocumentPairs = append(message.DocumentPairs, &model.ChatMessageDocumentPair{
-			ChatMessageID: message.ID,
-			DocumentID:    doc.ID,
-		})
+		if doc.ID.IntPart() != 0 {
+			message.DocumentPairs = append(message.DocumentPairs, &model.ChatMessageDocumentPair{
+				ChatMessageID: message.ID,
+				DocumentID:    doc.ID,
+			})
+		}
 	}
 	message.Citations = docs
 	message.Message = ""

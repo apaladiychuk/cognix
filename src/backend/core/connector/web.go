@@ -41,6 +41,7 @@ func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 				URL:             c.param.URL,
 				Signature:       "",
 				ChunkingSession: sessionID,
+				OriginalURL:     c.param.URL,
 			}
 			c.model.Docs = append(c.model.Docs, doc)
 		}

@@ -35,7 +35,7 @@ func NewEmbedServiceClient(cc grpc.ClientConnInterface) EmbedServiceClient {
 
 func (c *embedServiceClient) GetEmbeding(ctx context.Context, in *EmbedRequest, opts ...grpc.CallOption) (*EmbedResponse, error) {
 	out := new(EmbedResponse)
-	err := c.cc.Invoke(ctx, "/com.embedd.EmbedService/GetEmbeding", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/com.cognix.EmbedService/GetEmbeding", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func _EmbedService_GetEmbeding_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/com.embedd.EmbedService/GetEmbeding",
+		FullMethod: "/com.cognix.EmbedService/GetEmbeding",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(EmbedServiceServer).GetEmbeding(ctx, req.(*EmbedRequest))
@@ -92,7 +92,7 @@ func _EmbedService_GetEmbeding_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var EmbedService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "com.embedd.EmbedService",
+	ServiceName: "com.cognix.EmbedService",
 	HandlerType: (*EmbedServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

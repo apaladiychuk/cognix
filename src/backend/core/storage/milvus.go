@@ -9,6 +9,7 @@ import (
 	milvus "github.com/milvus-io/milvus-sdk-go/v2/client"
 	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
 )
@@ -130,6 +131,7 @@ func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
 		Username: "root",
 		Password: "sq5/6<$Y4aD`2;Gba'E#",
 	})
+	zap.S().Debugf("milvus connect successfully")
 	if err != nil {
 		return nil, err
 	}

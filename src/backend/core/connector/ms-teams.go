@@ -473,11 +473,13 @@ func (c *MSTeams) loadChatMessages(ctx context.Context, chatID string) (*MSTeams
 
 	for _, msg := range response.Value {
 		// do not scan message if it was scanned before or if it system message
-		if msg.MessageType != messageTypeMessage || msg.CreatedDateTime.UTC().Before(state.LastCreatedDateTime) {
+		if msg.MessageType != messageTypeMessage ||
+			msg.CreatedDateTime.UTC().Before(state.LastCreatedDateTime.UTC()) ||
+			state.LastCreatedDateTime.UTC().Equal(msg.CreatedDateTime.UTC()) {
 			continue
 		}
 		// renew newest message time
-		if lastTime.Before(msg.CreatedDateTime) {
+		if lastTime.UTC().Before(msg.CreatedDateTime.UTC()) {
 			lastTime = msg.CreatedDateTime
 		}
 		if message := c.buildMDMessage(msg); message != "" {

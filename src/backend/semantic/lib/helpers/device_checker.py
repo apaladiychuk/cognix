@@ -24,7 +24,7 @@ class DeviceChecker:
 
     @staticmethod
     def check_device():
-        DeviceChecker.logger.info(f"PyTorch version: {torch.__version__}")
+        DeviceChecker.logger.info(f"🤖🤖🤖🤖🤖🤖 PyTorch version: {torch.__version__}")
 
         # Check PyTorch has access to CUDA (NVIDIA's GPU architecture)
         cuda_available = torch.cuda.is_available()
@@ -41,7 +41,7 @@ class DeviceChecker:
         else:
             device = "cpu"
 
-        DeviceChecker.logger.info(f"🤖🤖🤖🤖🤖🤖Using device: {device}")
+        DeviceChecker.logger.info(f"🤖🤖🤖🤖🤖🤖 Using device: {device}")
 
         # Display additional information based on the device
         # if device == "cuda":

@@ -183,7 +183,8 @@ class Milvus_DB:
     #         self.logger.info(f"⏰ store_chunk_list total elapsed time: {elapsed_time:.2f} seconds")
     #         return success
 
-    def store_chunk_list(self, contents: List[str], data: SemanticData, document_ids: List[int64], parent_ids: List[int64]) -> bool:
+    def store_chunk_list(self, contents: List[str], data: SemanticData, document_ids: List[int64],
+                         parent_ids: List[int64]) -> bool:
         # start_time = time.time()  # Record the start time
         success = False
         entities = []
@@ -215,7 +216,6 @@ class Milvus_DB:
             collection.create_index(field_name="vector", index_params=index_params)
             collection.load()
 
-
             for content, document_id, parent_id in zip(contents, document_ids, parent_ids):
                 embedding = self.embedd(content, data.model_name)
                 json_content = {"content": content}
@@ -241,7 +241,6 @@ class Milvus_DB:
             #     total_entities = len(entities)
             # self.logger.info(f"⏰ stored  {total_entities} entities in vector db (including embedding generation) in: {elapsed_time:.2f} seconds")
             return success
-
 
     def embedd(self, content_to_embedd: str, model: str) -> List[float]:
         start_time = time.time()  # Record the start time

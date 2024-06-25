@@ -91,7 +91,7 @@ func (c *MSDrive) getFile(item *DriveChildBody) error {
 			ChunkingSession: c.sessionID,
 		}
 		// build unique filename for store in minio
-		fileName = c.model.BuildFileName(uuid.New().String() + "-" + item.Name)
+		fileName = utils.StripFileName(c.model.BuildFileName(uuid.New().String() + "-" + item.Name))
 		c.model.DocsMap[item.Id] = doc
 	} else {
 		// when file was stored in minio URL should be minio:bucket:filename
@@ -143,7 +143,7 @@ func (c *MSDrive) recognizeFiletype(item *DriveChildBody) (string, proto.FileTyp
 	// recognize fileType by filename extension
 	fileNameParts := strings.Split(item.Name, ".")
 	if len(fileNameParts) > 1 {
-		if _, ok := model.SupportedMimeTypes[mimeTypeParts[0]]; !ok {
+		if _, ok := c.unsupportedType[fileNameParts[len(fileNameParts)-1]]; ok {
 			return "", proto.FileType_UNKNOWN
 		}
 		if mimeType, ok := model.SupportedExtensions[strings.ToUpper(fileNameParts[len(fileNameParts)-1])]; ok {

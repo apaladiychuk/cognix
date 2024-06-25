@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
@@ -28,7 +27,6 @@ type Executor struct {
 	connectorRepo  repository.ConnectorRepository
 	docRepo        repository.DocumentRepository
 	msgClient      messaging.Client
-	chunking       ai.Chunking
 	minioClient    storage.MinIOClient
 	milvusClient   storage.MilvusClient
 	oauthClient    *resty.Client
@@ -249,7 +247,6 @@ func NewExecutor(
 	connectorRepo repository.ConnectorRepository,
 	docRepo repository.DocumentRepository,
 	streamClient messaging.Client,
-	chunking ai.Chunking,
 	minioClient storage.MinIOClient,
 	milvusClient storage.MilvusClient,
 ) *Executor {
@@ -258,7 +255,6 @@ func NewExecutor(
 		connectorRepo: connectorRepo,
 		docRepo:       docRepo,
 		msgClient:     streamClient,
-		chunking:      chunking,
 		minioClient:   minioClient,
 		milvusClient:  milvusClient,
 		oauthClient: resty.New().

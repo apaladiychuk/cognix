@@ -74,7 +74,10 @@ func (r *embedding) FindDocuments(ctx context.Context,
 				Content:   doc.Content,
 			}
 			if dbDoc, err := r.docRepo.FindByID(ctx, doc.DocumentID); err == nil {
-				resDocument.Link = dbDoc.URL
+				resDocument.Link = dbDoc.OriginalURL
+				if resDocument.Link == "" {
+					resDocument.Link = dbDoc.URL
+				}
 				resDocument.DocumentID = dbDoc.SourceID
 				if !dbDoc.LastUpdate.IsZero() {
 					resDocument.UpdatedDate = dbDoc.LastUpdate.Time

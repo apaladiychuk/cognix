@@ -1,74 +1,85 @@
 import time
-from typing import List
+from typing import List, Optional
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from urllib.parse import urljoin, urlparse
 import logging
-from lib.spider.chunked_item import ChunkedItem
 from readiness_probe import ReadinessProbe
 
 
 class BS4Spider:
-    def __init__(self, base_url):
-        self.visited = set()
-        self.collected_data: List[ChunkedItem] = [] 
-        self.base_domain = urlparse(base_url).netloc
+    def __init__(self, base_url: str) -> None:
+        self.visited: set[str] = set()
+        self.collected_data: List[str] = []  # Change type to List[str]
+        self.base_domain: str = urlparse(base_url).netloc
         self.logger = logging.getLogger(__name__)
 
-    def process_page(self, url: str, recursive: bool) -> list[ChunkedItem] | None:
-        start_time = time.time()
+    def process_page(self, url: str) -> str:  # Change return type to str
+        start_time: float = time.time()
 
-        # notifying the readiness probe that the service is alive
+        # Notifying the readiness probe that the service is alive
         ReadinessProbe().update_last_seen()
-
-        # Check if the URL has been visited
-        if url in self.visited:
-            return None
-
-        # TODO verify if the URL contains any of the supported file type
-        # if yes we shall download and analize with the proper semantic
-        # eg. if it's a pdf, download and call PDFChunker...
-
-        # Add the URL to the visited set
-        self.visited.add(url)
 
         # Fetch and parse the URL
         soup = self.fetch_and_parse(url)
         if not soup:
-            return None
+            return ""
 
         # Extract data from the page
         page_content = self.extract_data(soup)
-        if page_content:
-            self.collected_data.append(ChunkedItem(url=url, content=page_content))
 
-        # self.logger.warning("😱 Recursion temporarily disable for debugging purposes. Re-enable it once done")
-        # Extract all links from the page
-        if recursive:
-            links = [a['href'] for a in soup.find_all('a', href=True)]
-            for link in links:
-                # Convert relative links to absolute links
-                absolute_link = urljoin(url, link)
-                parsed_link = urlparse(absolute_link)
-                # Check if the link is an HTTP/HTTPS link, not visited yet, and does not contain a fragment
-                if parsed_link.scheme in ['http', 'https'] and absolute_link not in self.visited and not parsed_link.fragment:
-                    # Ensure the link is within the same domain
-                    if parsed_link.netloc == self.base_domain:
-                        self.process_page(absolute_link, recursive)
-
-        end_time = time.time()  # Record the end time
-        elapsed_time = end_time - start_time
+        end_time: float = time.time()  # Record the end time
+        elapsed_time: float = end_time - start_time
         self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
-        # Return the collected data only after all recursive calls are complete
-        return self.collected_data
+        return page_content  # Return as a single string
 
-    def fetch_and_parse(self, url):
+    def extract_links(self, start_url: str) -> List[str]:
+        start_time: float = time.time()
+        links_to_visit: List[str] = [start_url]
+        all_links: List[str] = []
+
+        while links_to_visit:
+            url = links_to_visit.pop()
+            if url in self.visited:
+                continue
+
+            # Notifying the readiness probe that the service is alive
+            ReadinessProbe().update_last_seen()
+
+            # Fetch and parse the URL
+            soup: Optional[BeautifulSoup] = self.fetch_and_parse(url)
+            if not soup:
+                continue
+
+            self.visited.add(url)
+            all_links.append(url)
+
+            # Extract all links from the page
+            links: List[str] = [a['href'] for a in soup.find_all('a', href=True)]
+            for link in links:
+                # Convert relative links to absolute links
+                absolute_link: str = urljoin(url, link)
+                parsed_link = urlparse(absolute_link)
+                # Check if the link is an HTTP/HTTPS link, not visited yet, and does not contain a fragment
+                if parsed_link.scheme in ['http',
+                                          'https'] and absolute_link not in self.visited and not parsed_link.fragment:
+                    # Ensure the link is within the same domain
+                    if parsed_link.netloc == self.base_domain:
+                        links_to_visit.append(absolute_link)
+
+        end_time: float = time.time()  # Record the end time
+        elapsed_time: float = end_time - start_time
+        self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
+
+        return all_links
+
+    def fetch_and_parse(self, url: str) -> Optional[BeautifulSoup]:
         try:
             self.logger.info(f"Processing URL: {url}")
             response = requests.get(url)
             if response.status_code == 200:
-                soup = BeautifulSoup(response.text, 'html.parser')
+                soup: BeautifulSoup = BeautifulSoup(response.text, 'html.parser')
                 return soup
             else:
                 self.logger.error(f"❌ failed to retrieve URL: {url}, Status Code: {response.status_code}")
@@ -76,17 +87,16 @@ class BS4Spider:
         except Exception as e:
             self.logger.error(f"❌ error fetching URL: {url}, Error: {e}")
             return None
-    
-    def extract_data(self, soup: BeautifulSoup):
-        elements = soup.find_all(['p', 'article', 'div'])
-        paragraphs = []
+
+    def extract_data(self, soup: BeautifulSoup) -> Optional[str]:
+        elements: List[Tag] = soup.find_all(['p', 'article', 'div'])
+        paragraphs: List[str] = []
 
         for element in elements:
-            text = element.get_text(strip=True)
+            text: str = element.get_text(strip=True)
 
             if text and text not in paragraphs and len(text) > 10:
                 paragraphs.append(text)
 
-        formatted_text = '\n\n '.join(paragraphs)
+        formatted_text: str = '\n\n '.join(paragraphs)
         return formatted_text
-    

@@ -55,12 +55,11 @@ async def semantic_event(msg: Msg):
     connector_id = 0
     entities_analyzed = 0
     try:
-        logger.info("\n\n")
         logger.info("🔥🔥🔥🔥🔥🔥 starting semantic analysis..")
         # Deserialize the message
         semantic_data = SemanticData()
         semantic_data.ParseFromString(msg.data)
-        logger.info(f"message: \n {semantic_data}")
+        # logger.info(f"message: \n {semantic_data}")
         if semantic_data.model_name == "":
             logger.error(f"❌ no model name has been passed!")
             semantic_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
@@ -82,9 +81,14 @@ async def semantic_event(msg: Msg):
                 connector_crud = ConnectorCRUD(cockroach_url)
                 connector = connector_crud.select_connector(document.connector_id)
                 last_successful_index_date = connector.last_successful_analyzed
-                connector_crud.update_connector(document.connector_id,
-                                                status=Status.PROCESSING,
-                                                last_update=datetime.datetime.utcnow())
+
+                # TODO: IMPORTANT semantic cannot update the status of the connector when it receives
+                #                 # multiple messages for the same connector eg, onedrive, teams, web recursive
+                # because orchestrator or connector they send multiple messages for
+                # a single connector row
+                # connector_crud.update_connector(document.connector_id,
+                #                                 status=Status.PROCESSING,
+                #                                 last_update=datetime.datetime.utcnow())
 
                 # performing semantic analysis on the source
                 semantic = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
@@ -98,14 +102,17 @@ async def semantic_event(msg: Msg):
                     logger.error(f"❌ entities_analyzed is none!!!!!")
                     entities_analyzed = 0
                 # updating again the connector
-                a = connector_crud.update_connector(connector_id,
-                                                    status=Status.COMPLETED_SUCCESSFULLY,
-                                                    last_successful_analyzed=datetime.datetime.utcnow(),
-                                                    last_update=datetime.datetime.utcnow(),
-                                                    total_docs_analyzed=entities_analyzed
-                                                    # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
-                                                    )
-                # logger.info(a)
+                # TODO: IMPORTANT semantic cannot update the status of the connector when it receives
+                #                   # multiple messages for the same connector eg, onedrive, teams, web recursive
+                # because orchestrator or connector they send multiple messages for
+                # a single connector row
+                # connector_crud.update_connector(connector_id,
+                #                                 status=Status.COMPLETED_SUCCESSFULLY,
+                #                                 last_successful_analyzed=datetime.datetime.utcnow(),
+                #                                 last_update=datetime.datetime.utcnow(),
+                #                                 total_docs_analyzed=entities_analyzed
+                #                                 # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
+                #                                 )
             else:
                 logger.error(
                     f"❌ failed to process semantic data error: document_id {semantic_data.document_id} not valid")
@@ -117,27 +124,20 @@ async def semantic_event(msg: Msg):
         logger.error(f"❌ failed to process semantic data error: {error_message}")
         if msg:  # Ensure msg is not None before awaiting
             await msg.nak()
-        try:
-            if connector_id != 0:
-                connector_crud = ConnectorCRUD(cockroach_url)
-                connector_crud.update_connector(connector_id,
-                                                status=Status.COMPLETED_WITH_ERRORS,
-                                                last_update=datetime.datetime.utcnow())
-        except Exception as e:
-            error_message = str(e) if e else "Unknown error occurred"
-            logger.error(f"❌ failed to process semantic data error: {error_message}")
+        # try:
+        #     if connector_id != 0:
+        #         connector_crud = ConnectorCRUD(cockroach_url)
+        #         connector_crud.update_connector(connector_id,
+        #                                         status=Status.COMPLETED_WITH_ERRORS,
+        #                                         last_update=datetime.datetime.utcnow())
+        # except Exception as e:
+        #     error_message = str(e) if e else "Unknown error occurred"
+        #     logger.error(f"❌ failed to process semantic data error: {error_message}")
     finally:
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
         logger.info(f"⏰⏰ total semantic analysis time: {elapsed_time:.2f} seconds")
-        logger.info("\n\n")
 
-# TODO: IMPORTANT WHEN IT DOES NOT CONNECT TO COCKROACH IS PROCESSING!!!!!
-# Andri shall make a fix query on the db if status is processing and max ack wait is more than last update
-# then it means the process hanged but if max retries (from nats) has not reached it's limit
-# then nats will post again the message
-# orchestrator shall update to UNABLE_TO_PROCESS, if nats will post again the message this service will
-# care to set the correct status
 
 async def main():
     # Start the readiness probe server in a separate thread

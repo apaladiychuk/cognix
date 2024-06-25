@@ -1,14 +1,11 @@
 import os
 import logging
 from dotenv import load_dotenv
-from sqlalchemy import Column, BigInteger, String, ForeignKey, TIMESTAMP, Boolean, func, Text, Integer
+from sqlalchemy import Column, BigInteger, TIMESTAMP, Boolean, func, Text, Integer
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
 from sqlalchemy.dialects.postgresql import UUID
 from lib.db.dc_connection_manager import ConnectionManager
 from contextlib import contextmanager
-import datetime
-import uuid
 from typing import List
 from sqlalchemy.exc import OperationalError
 import time
@@ -25,8 +22,8 @@ logging.basicConfig(level=log_level, format=log_format)
 
 logger = logging.getLogger(__name__)
 
-
 Base = declarative_base()
+
 
 class Document(Base):
     __tablename__ = 'documents'
@@ -47,6 +44,8 @@ class Document(Base):
                 f"source_id={self.source_id}, url={self.url}, signature={self.signature}, "
                 f"chunking_session={self.chunking_session}, analyzed={self.analyzed}, "
                 f"creation_date={self.creation_date}, last_update={self.last_update})>")
+
+
 def with_retry(func):
     def wrapper(*args, **kwargs):
         retries = 3
@@ -59,7 +58,9 @@ def with_retry(func):
                     time.sleep(2 ** i)  # Exponential backoff
                 else:
                     raise e
+
     return wrapper
+
 
 class DocumentCRUD:
     def __init__(self, connection_string: str):
@@ -98,16 +99,33 @@ class DocumentCRUD:
             #     session.refresh(doc)  # Refresh each document to get the IDs from the database
             # return [doc.id for doc in new_documents]
 
+    # @with_retry
+    # def insert_documents_batch(self, documents: List[Document]) -> List[Document]:
+    #     with self.session_scope() as session:
+    #         session.add_all(documents)
+    #         session.commit()
+    #         for document in documents:
+    #             session.refresh(document)  # Refresh each document to get the IDs from the database
+    #         return documents
+
     @with_retry
-    def insert_documents_batch(self, documents: List[Document]) -> List[Document]:
+    def insert_documents_batch(self, documents: List[Document]) -> List[dict]:
         with self.session_scope() as session:
             session.add_all(documents)
             session.commit()
+            document_data = []
             for document in documents:
                 session.refresh(document)  # Refresh each document to get the IDs from the database
-            return documents
-
-
+                document_data.append({
+                    'id': document.id,
+                    'url': document.url,
+                    'connector_id': document.connector_id,
+                    'chunking_session': document.chunking_session,
+                    'analyzed': document.analyzed,
+                    'creation_date': document.creation_date,
+                    'last_update': document.last_update
+                })
+            return document_data
 
     @with_retry
     def select_document(self, document_id: int) -> Document | None:

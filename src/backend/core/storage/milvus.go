@@ -57,6 +57,9 @@ type (
 )
 
 func (c *milvusClient) Delete(ctx context.Context, collection string, documentIDs ...int64) error {
+	if c.client == nil {
+		return fmt.Errorf("milvus is not initialized")
+	}
 	var docsID []string
 	for _, id := range documentIDs {
 		docsID = append(docsID, strconv.FormatInt(id, 10))
@@ -92,6 +95,9 @@ func (v MilvusConfig) Validate() error {
 }
 
 func (c *milvusClient) Load(ctx context.Context, collection string, vector []float32) ([]*MilvusPayload, error) {
+	if c.client == nil {
+		return nil, fmt.Errorf("milvus is not initialized")
+	}
 	vs := []entity.Vector{entity.FloatVector(vector)}
 	sp, _ := entity.NewIndexFlatSearchParam()
 	result, err := c.client.Search(ctx, collection, []string{}, "", responseColumns, vs, ColumnNameVector, c.MetricType, 10, sp)
@@ -147,6 +153,7 @@ func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
 	zap.S().Debugf("________________________milvus client created")
 	if err != nil {
 		zap.S().Errorf("connect to milvus error", zap.Error(err))
+
 	}
 	return &milvusClient{
 		client:        client,
@@ -159,7 +166,9 @@ func (c *milvusClient) Save(ctx context.Context, collection string, payloads ...
 	var ids, documentIDs, chunks []int64
 	var contents [][]byte
 	var vectors [][]float32
-
+	if c.client == nil {
+		return fmt.Errorf("milvus is not initialized")
+	}
 	for _, payload := range payloads {
 		ids = append(ids, payload.ID)
 		documentIDs = append(documentIDs, payload.DocumentID)

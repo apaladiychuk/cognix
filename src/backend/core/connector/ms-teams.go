@@ -295,12 +295,12 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 	lastTime := state.LastCreatedDateTime
 
 	for _, repl := range repliesResp.Value {
-		if state.LastCreatedDateTime.After(repl.CreatedDateTime) ||
-			state.LastCreatedDateTime.Equal(repl.CreatedDateTime) {
+		if state.LastCreatedDateTime.UTC().After(repl.CreatedDateTime.UTC()) ||
+			state.LastCreatedDateTime.UTC().Equal(repl.CreatedDateTime.UTC()) {
 			// ignore messages that were analyzed before
 			continue
 		}
-		if repl.CreatedDateTime.After(lastTime) {
+		if repl.CreatedDateTime.UTC().After(lastTime.UTC()) {
 			// store timestamp of last message
 			lastTime = repl.CreatedDateTime
 		}
@@ -474,10 +474,11 @@ func (c *MSTeams) loadChatMessages(ctx context.Context, chatID string) (*MSTeams
 	for _, msg := range response.Value {
 		// do not scan message if it was scanned before or if it system message
 		if msg.MessageType != messageTypeMessage ||
-			msg.CreatedDateTime.UTC().Before(state.LastCreatedDateTime.UTC()) ||
+			state.LastCreatedDateTime.UTC().After(msg.CreatedDateTime.UTC()) ||
 			state.LastCreatedDateTime.UTC().Equal(msg.CreatedDateTime.UTC()) {
 			continue
 		}
+
 		// renew newest message time
 		if lastTime.UTC().Before(msg.CreatedDateTime.UTC()) {
 			lastTime = msg.CreatedDateTime
@@ -485,11 +486,11 @@ func (c *MSTeams) loadChatMessages(ctx context.Context, chatID string) (*MSTeams
 		if message := c.buildMDMessage(msg); message != "" {
 			messages = append(messages, message)
 		}
-		for _, attachment := range msg.Attachments {
-			if err := c.loadAttachment(ctx, attachment); err != nil {
-				zap.S().Errorf("error loading attachment: %v", err)
-			}
-		}
+		//for _, attachment := range msg.Attachments {
+		//	if err := c.loadAttachment(ctx, attachment); err != nil {
+		//		zap.S().Errorf("error loading attachment: %v", err)
+		//	}
+		//}
 	}
 	state.LastCreatedDateTime = lastTime
 
@@ -547,9 +548,9 @@ func (c *MSTeams) recognizeFiletype(item *microsoftcore.Attachment) (string, pro
 	// recognize fileType by filename extension
 	fileNameParts := strings.Split(item.Name, ".")
 	if len(fileNameParts) > 1 {
-		if mimeType, ok := model.SupportedExtensions[strings.ToUpper(fileNameParts[len(fileNameParts)-1])]; ok {
-			return mimeType, model.SupportedMimeTypes[mimeType]
-		}
+		//if mimeType, ok := model.SupportedExtensions[strings.ToUpper(fileNameParts[len(fileNameParts)-1])]; ok {
+		//	//return mimeType, model.SupportedMimeTypes[mimeType]
+		//}
 	}
 	// recognize filetype by content
 	response, err := c.client.R().

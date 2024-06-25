@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
@@ -20,7 +19,6 @@ var Module = fx.Options(
 	messaging.NatsModule,
 	storage.MinioModule,
 	storage.MilvusModule,
-	ai.ChunkingModule,
 	fx.Provide(
 		func() (*Config, error) {
 			cfg := Config{}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/connector"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/model"
@@ -11,7 +10,6 @@ import (
 	"cognix.ch/api/v2/core/storage"
 	"cognix.ch/api/v2/core/utils"
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-resty/resty/v2"
@@ -29,7 +27,6 @@ type Executor struct {
 	connectorRepo  repository.ConnectorRepository
 	docRepo        repository.DocumentRepository
 	msgClient      messaging.Client
-	chunking       ai.Chunking
 	minioClient    storage.MinIOClient
 	milvusClient   storage.MilvusClient
 	oauthClient    *resty.Client
@@ -111,26 +108,48 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 		}
 
 		// send message to chunking service
-		zap.S().Infof("send message to semantic %s", connectorModel.Name)
-		semanticData := proto.SemanticData{
-			Url:            result.URL,
-			DocumentId:     doc.ID.IntPart(),
-			ConnectorId:    connectorModel.ID.IntPart(),
-			FileType:       result.FileType,
-			CollectionName: connectorModel.CollectionName(),
-			ModelName:      connectorModel.User.EmbeddingModel.ModelID,
-			ModelDimension: int32(connectorModel.User.EmbeddingModel.ModelDim),
-		}
-		buf, _ := json.Marshal(semanticData)
-		zap.S().Debugf("semantic data : %s ", string(buf))
 
-		if loopErr = e.msgClient.Publish(ctx,
-			e.msgClient.StreamConfig().SemanticStreamName,
-			e.msgClient.StreamConfig().SemanticStreamSubject,
-			&semanticData); loopErr != nil {
-			err = loopErr
-			zap.S().Errorf("Failed to update document: %v", loopErr)
-			continue
+		if _, ok := model.WhisperFileTypes[result.FileType]; ok {
+			// send message to whisper
+			whisperDate := proto.WhisperData{
+				Url:            result.URL,
+				DocumentId:     doc.ID.IntPart(),
+				ConnectorId:    connectorModel.ID.IntPart(),
+				FileType:       result.FileType,
+				CollectionName: connectorModel.CollectionName(),
+				ModelName:      connectorModel.User.EmbeddingModel.ModelID,
+				ModelDimension: int32(connectorModel.User.EmbeddingModel.ModelDim),
+			}
+			zap.S().Infof("send message to whisper %s - %s", connectorModel.Name, result.URL)
+			if loopErr = e.msgClient.Publish(ctx,
+				e.msgClient.StreamConfig().WhisperStreamName,
+				e.msgClient.StreamConfig().WhisperStreamSubject,
+				&whisperDate); loopErr != nil {
+				err = loopErr
+				zap.S().Errorf("Failed to publish whisper : %v", loopErr)
+				continue
+			}
+
+		} else {
+			// send message to semantic
+			semanticData := proto.SemanticData{
+				Url:            result.URL,
+				DocumentId:     doc.ID.IntPart(),
+				ConnectorId:    connectorModel.ID.IntPart(),
+				FileType:       result.FileType,
+				CollectionName: connectorModel.CollectionName(),
+				ModelName:      connectorModel.User.EmbeddingModel.ModelID,
+				ModelDimension: int32(connectorModel.User.EmbeddingModel.ModelDim),
+			}
+			zap.S().Infof("send message to semantic %s - %s", connectorModel.Name, result.URL)
+			if loopErr = e.msgClient.Publish(ctx,
+				e.msgClient.StreamConfig().SemanticStreamName,
+				e.msgClient.StreamConfig().SemanticStreamSubject,
+				&semanticData); loopErr != nil {
+				err = loopErr
+				zap.S().Errorf("Failed to publish semantic: %v", loopErr)
+				continue
+			}
 		}
 	}
 	if errr := e.deleteUnusedFiles(ctx, connectorModel); err != nil {
@@ -199,6 +218,7 @@ func (e *Executor) saveContent(ctx context.Context, response *connector.Response
 	if err != nil {
 		return err
 	}
+	zap.S().Debugf("save fileName %s response name %s ", fileName, response.Name)
 	response.URL = fmt.Sprintf("minio:%s:%s", response.Content.Bucket, fileName)
 	return nil
 }
@@ -222,42 +242,11 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 	return doc
 }
 
-// refreshToken  refresh OAuth token and store credential in database
-//func (e *Executor) refreshToken(ctx context.Context, cm *model.Connector) error {
-//	provider, ok := model.ConnectorAuthProvider[cm.Type]
-//	if !ok {
-//		return nil
-//	}
-//	token, ok := cm.ConnectorSpecificConfig["token"]
-//	if !ok {
-//		return fmt.Errorf("wrong token")
-//	}
-//
-//	response, err := e.oauthClient.R().SetContext(ctx).
-//		SetBody(token).Post(fmt.Sprintf("/api/oauth/%s/refresh_token", provider))
-//	if err = utils.WrapRestyError(response, err); err != nil {
-//		return err
-//	}
-//	var payload struct {
-//		Data oauth2.Token `json:"data"`
-//	}
-//
-//	if err = json.Unmarshal(response.Body(), &payload); err != nil {
-//		return fmt.Errorf("failed to unmarshl token: %v : %v", err, response.Error())
-//	}
-//	cm.ConnectorSpecificConfig["token"] = payload.Data
-//	if err = e.connectorRepo.Update(ctx, cm); err != nil {
-//		return err
-//	}
-//	return nil
-//}
-
 func NewExecutor(
 	cfg *Config,
 	connectorRepo repository.ConnectorRepository,
 	docRepo repository.DocumentRepository,
 	streamClient messaging.Client,
-	chunking ai.Chunking,
 	minioClient storage.MinIOClient,
 	milvusClient storage.MilvusClient,
 ) *Executor {
@@ -266,7 +255,6 @@ func NewExecutor(
 		connectorRepo: connectorRepo,
 		docRepo:       docRepo,
 		msgClient:     streamClient,
-		chunking:      chunking,
 		minioClient:   minioClient,
 		milvusClient:  milvusClient,
 		oauthClient: resty.New().

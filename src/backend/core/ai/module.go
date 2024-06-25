@@ -9,28 +9,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var ChunkingModule = fx.Options(
-	fx.Provide(func() (*ChunkingConfig, error) {
-		cfg := ChunkingConfig{}
-		if err := utils.ReadConfig(&cfg); err != nil {
-			return nil, err
-		}
-		if err := cfg.Validate(); err != nil {
-			return nil, err
-		}
-		return &cfg, nil
-	},
-		newChunking,
-	),
-)
-
-func newChunking(cfg *ChunkingConfig) Chunking {
-	if cfg.Strategy == StrategyLLM {
-		return NewLLMChunking()
-	}
-	return NewStaticChunking(cfg)
-}
-
 var EmbeddingModule = fx.Options(
 	fx.Provide(func() (*EmbeddingConfig, error) {
 		cfg := EmbeddingConfig{}

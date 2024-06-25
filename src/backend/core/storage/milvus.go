@@ -9,8 +9,10 @@ import (
 	milvus "github.com/milvus-io/milvus-sdk-go/v2/client"
 	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -55,6 +57,9 @@ type (
 )
 
 func (c *milvusClient) Delete(ctx context.Context, collection string, documentIDs ...int64) error {
+	if c.client == nil {
+		return fmt.Errorf("milvus is not initialized")
+	}
 	var docsID []string
 	for _, id := range documentIDs {
 		docsID = append(docsID, strconv.FormatInt(id, 10))
@@ -90,6 +95,9 @@ func (v MilvusConfig) Validate() error {
 }
 
 func (c *milvusClient) Load(ctx context.Context, collection string, vector []float32) ([]*MilvusPayload, error) {
+	if c.client == nil {
+		return nil, fmt.Errorf("milvus is not initialized")
+	}
 	vs := []entity.Vector{entity.FloatVector(vector)}
 	sp, _ := entity.NewIndexFlatSearchParam()
 	result, err := c.client.Search(ctx, collection, []string{}, "", responseColumns, vs, ColumnNameVector, c.MetricType, 10, sp)
@@ -125,13 +133,27 @@ var MilvusModule = fx.Options(
 )
 
 func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
-	client, err := milvus.NewClient(context.Background(), milvus.Config{
+	zap.S().Infof("_________________________  cfg %s ", cfg.Address)
+
+	ctx := context.Background()
+
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+
+	defer cancel()
+
+	client, err := milvus.NewClient(ctx, milvus.Config{
 		Address:  cfg.Address,
 		Username: "root",
 		Password: "sq5/6<$Y4aD`2;Gba'E#",
+		RetryRateLimit: &milvus.RetryRateLimitOption{
+			MaxRetry:   2,
+			MaxBackoff: 2 * time.Second,
+		},
 	})
+	zap.S().Debugf("________________________milvus client created")
 	if err != nil {
-		return nil, err
+		zap.S().Errorf("connect to milvus error", zap.Error(err))
+
 	}
 	return &milvusClient{
 		client:        client,
@@ -144,7 +166,9 @@ func (c *milvusClient) Save(ctx context.Context, collection string, payloads ...
 	var ids, documentIDs, chunks []int64
 	var contents [][]byte
 	var vectors [][]float32
-
+	if c.client == nil {
+		return fmt.Errorf("milvus is not initialized")
+	}
 	for _, payload := range payloads {
 		ids = append(ids, payload.ID)
 		documentIDs = append(documentIDs, payload.DocumentID)

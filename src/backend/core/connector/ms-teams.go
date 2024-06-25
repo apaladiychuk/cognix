@@ -9,13 +9,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"jaytaylor.com/html2text"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -122,7 +122,16 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 }
 
 func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Response {
-	c.resultCh = make(chan *Response, 10)
+	c.resultCh = make(chan *Response)
+	var fileSizeLimit int
+	if size, ok := param[model.ParamFileLimit]; ok {
+		fileSizeLimit, _ = strconv.Atoi(size)
+	}
+	if fileSizeLimit == 0 {
+		fileSizeLimit = 1
+	}
+	c.fileSizeLimit = fileSizeLimit * model.GB
+
 	for _, doc := range c.model.Docs {
 		if doc.Signature == "" {
 			// do not delete document with chat history.
@@ -221,7 +230,7 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 		}
 
 		if c.param.Files != nil {
-			if err = c.loadFiles(ctx, param, teamID, channelID); err != nil {
+			if err = c.loadFiles(ctx, teamID, channelID); err != nil {
 				return err
 			}
 		}
@@ -236,7 +245,7 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 }
 
 // loadFiles scrap channel files
-func (c *MSTeams) loadFiles(ctx context.Context, param map[string]string, teamID, channelID string) error {
+func (c *MSTeams) loadFiles(ctx context.Context, teamID, channelID string) error {
 	var folderInfo microsoftcore.TeamFilesFolder
 	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsFilesFolder, teamID, channelID), &folderInfo); err != nil {
 		return err
@@ -249,7 +258,7 @@ func (c *MSTeams) loadFiles(ctx context.Context, param map[string]string, teamID
 		baseUrl, folderURL,
 		c.getFile,
 	)
-	return msDrive.Execute(ctx, param)
+	return msDrive.Execute(ctx, c.fileSizeLimit)
 
 }
 
@@ -486,11 +495,11 @@ func (c *MSTeams) loadChatMessages(ctx context.Context, chatID string) (*MSTeams
 		if message := c.buildMDMessage(msg); message != "" {
 			messages = append(messages, message)
 		}
-		//for _, attachment := range msg.Attachments {
-		//	if err := c.loadAttachment(ctx, attachment); err != nil {
-		//		zap.S().Errorf("error loading attachment: %v", err)
-		//	}
-		//}
+		for _, attachment := range msg.Attachments {
+			if err := c.loadAttachment(ctx, attachment); err != nil {
+				zap.S().Errorf("error loading attachment: %v", err)
+			}
+		}
 	}
 	state.LastCreatedDateTime = lastTime
 
@@ -502,69 +511,20 @@ func (c *MSTeams) loadChatMessages(ctx context.Context, chatID string) (*MSTeams
 
 func (c *MSTeams) loadAttachment(ctx context.Context, attachment *microsoftcore.Attachment) error {
 
-	attachmentID := fmt.Sprintf("attachment:%s", attachment.Id)
+	msDrive := microsoftcore.NewMSDrive(c.param.Files,
+		c.model,
+		c.sessionID, c.client,
+		"", "",
+		c.getFile,
+	)
 	if attachment.ContentType != attachmentContentTypReference {
 		// do not scrap replies
 		return nil
 	}
-	if _, ok := c.model.DocsMap[attachmentID]; ok {
-		// do not scrap if file already loaded
-		return nil
-	}
-
-	doc := &model.Document{
-		SourceID:        attachmentID,
-		ConnectorID:     c.model.ID,
-		URL:             attachment.ContentUrl,
-		Signature:       "",
-		ChunkingSession: c.sessionID,
-		CreationDate:    time.Now().UTC(),
-		LastUpdate:      pg.NullTime{time.Now().UTC()},
-		OriginalURL:     attachment.ContentUrl,
-		IsExists:        true,
-	}
-	c.model.DocsMap[attachmentID] = doc
-
-	resp := &Response{
-		URL:        doc.URL,
-		Name:       utils.StripFileName(attachment.Name),
-		SourceID:   attachmentID,
-		DocumentID: doc.ID.IntPart(),
-		Signature:  "",
-		Content: &Content{
-			Bucket: model.BucketName(c.model.User.EmbeddingModel.TenantID),
-			URL:    attachment.ContentUrl,
-		},
-	}
-	resp.MimeType, resp.FileType = c.recognizeFiletype(attachment)
-	if resp.FileType != proto.FileType_UNKNOWN {
-		c.resultCh <- resp
+	if err := msDrive.DownloadItem(ctx, attachment.Id, c.fileSizeLimit); err != nil {
+		zap.S().Errorf("download file %s", err.Error())
 	}
 	return nil
-}
-
-func (c *MSTeams) recognizeFiletype(item *microsoftcore.Attachment) (string, proto.FileType) {
-
-	// recognize fileType by filename extension
-	fileNameParts := strings.Split(item.Name, ".")
-	if len(fileNameParts) > 1 {
-		//if mimeType, ok := model.SupportedExtensions[strings.ToUpper(fileNameParts[len(fileNameParts)-1])]; ok {
-		//	//return mimeType, model.SupportedMimeTypes[mimeType]
-		//}
-	}
-	// recognize filetype by content
-	response, err := c.client.R().
-		SetDoNotParseResponse(true).
-		Get(item.ContentUrl)
-	defer response.RawBody().Close()
-	if err == nil && !response.IsError() {
-		if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
-			if fileType, ok := model.SupportedMimeTypes[mime.String()]; ok {
-				return mime.String(), fileType
-			}
-		}
-	}
-	return "", proto.FileType_UNKNOWN
 }
 
 // NewMSTeams creates new instance of MsTeams connector

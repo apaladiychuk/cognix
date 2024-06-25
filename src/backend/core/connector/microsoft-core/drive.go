@@ -11,8 +11,11 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"strconv"
 	"strings"
+)
+
+const (
+	DownloadItem = "https://graph.microsoft.com/v1.0/me/drive/items/%s"
 )
 
 type (
@@ -53,16 +56,8 @@ func NewMSDrive(param *MSDriveParam,
 	}
 }
 
-func (c *MSDrive) Execute(ctx context.Context, param map[string]string) error {
-	var fileSizeLimit int
-	if size, ok := param[model.ParamFileLimit]; ok {
-		fileSizeLimit, _ = strconv.Atoi(size)
-	}
-	if fileSizeLimit == 0 {
-		fileSizeLimit = 1
-	}
-	c.fileSizeLimit = fileSizeLimit * model.GB
-
+func (c *MSDrive) Execute(ctx context.Context, fileSizeLimit int) error {
+	c.fileSizeLimit = fileSizeLimit
 	body, err := c.request(ctx, c.baseURL)
 	if err != nil {
 		return err
@@ -73,6 +68,16 @@ func (c *MSDrive) Execute(ctx context.Context, param map[string]string) error {
 		}
 	}
 	return nil
+}
+
+func (c *MSDrive) DownloadItem(ctx context.Context, itemID string, fileSizeLimit int) error {
+	var item DriveChildBody
+	c.fileSizeLimit = fileSizeLimit
+
+	if err := c.requestAndParse(ctx, fmt.Sprintf(DownloadItem, itemID), &item); err != nil {
+		return err
+	}
+	return c.getFile(&item)
 }
 func (c *MSDrive) getFile(item *DriveChildBody) error {
 	// do not process files that size greater than limit
@@ -243,6 +248,14 @@ func (c *MSDrive) isFilesAnalysing(current string) bool {
 	}
 	// only one folder
 	return current == c.param.Folder
+}
+
+func (c *MSDrive) requestAndParse(ctx context.Context, url string, result interface{}) error {
+	response, err := c.client.R().SetContext(ctx).Get(url)
+	if err = utils.WrapRestyError(response, err); err != nil {
+		return err
+	}
+	return json.Unmarshal(response.Body(), result)
 }
 
 func (c *MSDrive) request(ctx context.Context, url string) (*DriveResponse, error) {

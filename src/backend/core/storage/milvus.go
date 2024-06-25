@@ -33,6 +33,8 @@ var responseColumns = []string{ColumnNameID, ColumnNameDocumentID, ColumnNameCon
 type (
 	MilvusConfig struct {
 		Address       string `env:"MILVUS_URL,required"`
+		Username      string `env:"MILVUS_USERNAME,required"`
+		Password      string `env:"MILVUS_PASSWORD,required"`
 		MetricType    string `env:"MILVUS_METRIC_TYPE" envDefault:"COSINE"`
 		IndexStrategy string `env:"MILVUS_INDEX_STRATEGY" envDefault:"DISKANN"`
 	}
@@ -133,18 +135,14 @@ var MilvusModule = fx.Options(
 )
 
 func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
-	zap.S().Infof("_________________________  cfg %s ", cfg.Address)
-
 	ctx := context.Background()
-
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-
 	defer cancel()
 
 	client, err := milvus.NewClient(ctx, milvus.Config{
 		Address:  cfg.Address,
-		Username: "root",
-		Password: "sq5/6<$Y4aD`2;Gba'E#",
+		Username: cfg.Username,
+		Password: cfg.Password,
 		RetryRateLimit: &milvus.RetryRateLimitOption{
 			MaxRetry:   2,
 			MaxBackoff: 2 * time.Second,

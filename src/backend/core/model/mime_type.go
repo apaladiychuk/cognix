@@ -34,6 +34,13 @@ var SupportedMimeTypes = map[string]proto.FileType{
 }
 
 var SupportedExtensions = map[string]string{
+	"PDF":  "application/pdf",
+	"XLSX": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	"XLS":  "application/vnd.ms-excel",
+	"DOCX": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	"DOC":  "application/msword",
+	"PPT":  "application/vnd.ms-powerpoint",
+	"PPTX": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 	"MD":   "text/markdown",
 	"HWPX": "application/hwp+zip",
 	"MOBI": "application/x-mobipocket-ebook",

@@ -136,7 +136,8 @@ CREATE TABLE documents (
     chunking_session uuid, -- Allows nulls
     analyzed bool NOT NULL DEFAULT FALSE,  -- default false, true when semantic created the embeddings in the vector db
     creation_date timestamp WITHOUT TIME ZONE NOT NULL, --datetime utc IMPORTANT now() will not get the utc date!!!!
-    last_update timestamp WITHOUT TIME ZONE
+    last_update timestamp WITHOUT TIME ZONE,
+    original_url text
 );
 
 create table chat_message_document_pairs

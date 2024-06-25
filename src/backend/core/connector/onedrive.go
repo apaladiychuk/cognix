@@ -110,7 +110,7 @@ func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *R
 	)
 	go func() {
 		defer close(c.resultCh)
-		if err := msDrive.Execute(ctx, param); err != nil {
+		if err := msDrive.Execute(ctx, c.fileSizeLimit); err != nil {
 			zap.S().Errorf(err.Error())
 		}
 	}()

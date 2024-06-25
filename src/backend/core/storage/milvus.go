@@ -9,8 +9,10 @@ import (
 	milvus "github.com/milvus-io/milvus-sdk-go/v2/client"
 	"github.com/milvus-io/milvus-sdk-go/v2/entity"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -125,13 +127,26 @@ var MilvusModule = fx.Options(
 )
 
 func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
-	client, err := milvus.NewClient(context.Background(), milvus.Config{
+	zap.S().Infof("_________________________  cfg %s ", cfg.Address)
+
+	ctx := context.Background()
+
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+
+	defer cancel()
+
+	client, err := milvus.NewClient(ctx, milvus.Config{
 		Address:  cfg.Address,
 		Username: "root",
 		Password: "sq5/6<$Y4aD`2;Gba'E#",
+		RetryRateLimit: &milvus.RetryRateLimitOption{
+			MaxRetry:   2,
+			MaxBackoff: 2 * time.Second,
+		},
 	})
+	zap.S().Debugf("________________________milvus client created")
 	if err != nil {
-		return nil, err
+		zap.S().Errorf("connect to milvus error", zap.Error(err))
 	}
 	return &milvusClient{
 		client:        client,

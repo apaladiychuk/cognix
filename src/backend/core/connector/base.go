@@ -109,9 +109,6 @@ func (b *Base) Config(connector *model.Connector) {
 
 // refreshToken  refresh OAuth token and store credential in database
 func (b *Base) refreshToken(token *oauth2.Token) (*oauth2.Token, error) {
-	if token.Expiry.UTC().After(time.Now().UTC()) {
-		return nil, nil
-	}
 	provider, ok := model.ConnectorAuthProvider[b.model.Type]
 	if !ok {
 		return nil, nil

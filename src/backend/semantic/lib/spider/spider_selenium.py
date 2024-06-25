@@ -71,7 +71,7 @@ class SeleniumSpider:
 
         page_content = self.extract_data(soup)
         if page_content:
-            self.collected_data.append(ChunkedItem(url=url, content=page_content))
+            self.collected_data.append(ChunkedItem(content=page_content, url=url))
 
         links = [a['href'] for a in soup.find_all('a', href=True)]
         for link in links:

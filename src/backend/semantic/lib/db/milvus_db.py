@@ -11,6 +11,7 @@ from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataTy
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.gen_types.embed_service_pb2 import EmbedRequest
 from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
+from lib.spider.chunked_item import ChunkedItem
 
 # Load environment variables from .env file
 load_dotenv()
@@ -117,134 +118,65 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             self.logger.debug(f"⏰🤖 milvus query total elapsed time: {elapsed_time:.2f} seconds")
 
-    def store_chunk(self, content: str, data: SemanticData, document_id: int64, parent_id: int64) -> bool:
-        # start_time = time.time()  # Record the start time
-        success = False
-        self.ensure_connection()
-        try:
-            fields = [
-                FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
-                FieldSchema(name="document_id", dtype=DataType.INT64),
-                FieldSchema(name="parent_id", dtype=DataType.INT64),
-                FieldSchema(name="content", dtype=DataType.JSON),
-                FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=data.model_dimension),
-            ]
+    def store_chunk_list(self, chunk_list: List[ChunkedItem], collection_name: str, model_name: str, model_dimension: int):
 
-            schema = CollectionSchema(fields=fields, enable_dynamic_field=True)
-            collection = Collection(name=data.collection_name, schema=schema)
-
-            index_params = {
-                "index_type": f"{milvus_index_type}",
-                "metric_type": f"{milvus_metric_type}",
-            }
-
-            collection.create_index(field_name="vector", index_params=index_params)
-            collection.load()
-
-            embedding = self.embedd(content, data.model_name)
-
-            collection.insert([
-                {
-                    "document_id": document_id,
-                    "parent_id": parent_id,
-                    "content": {"content": content},
-                    "vector": embedding
-                }
-            ])
-
-            collection.flush()
-            success = True
-            self.logger.debug(f"element successfully inserted in collection {data.collection_name}")
-        except Exception as e:
-            self.logger.error(f"❌ {e}")
-            success = False
-        finally:
-            # end_time = time.time()  # Record the end time
-            # elapsed_time = end_time - start_time
-            # self.logger.info(
-            #     f"⏰ store into vector db, including embedding generation, total elapsed time: {elapsed_time:.2f} seconds")
-            return success
-
-    # def store_chunk_list(self, contents: List[str], data: SemanticData, document_ids: List[int64],
-    #                      parent_ids: List[int64]) -> bool:
-    #     start_time = time.time()  # Record the start time
-    #     success = True  # Assume success unless a failure occurs
-    #     try:
-    #         for content, document_id, parent_id in zip(contents, document_ids, parent_ids):
-    #             if not self.store_chunk(content, data, document_id, parent_id):
-    #                 success = False
-    #                 self.logger.error(f"Failed to store chunk for document_id {document_id} and parent_id {parent_id}")
-    #     except Exception as e:
-    #         self.logger.error(f"❌ {e}")
-    #         success = False
-    #     finally:
-    #         end_time = time.time()  # Record the end time
-    #         elapsed_time = end_time - start_time
-    #         self.logger.info(f"⏰ store_chunk_list total elapsed time: {elapsed_time:.2f} seconds")
-    #         return success
-
-    def store_chunk_list(self, contents: List[str], data: SemanticData, document_ids: List[int64],
-                         parent_ids: List[int64]) -> bool:
-        # start_time = time.time()  # Record the start time
-        success = False
         entities = []
-        try:
-            connections.connect(
-                alias=milvus_alias,
-                host=milvus_host,
-                port=milvus_port,
-                user=milvus_user,
-                password=milvus_pass
-            )
 
-            fields = [
-                FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
-                FieldSchema(name="document_id", dtype=DataType.INT64),
-                FieldSchema(name="parent_id", dtype=DataType.INT64),
-                FieldSchema(name="content", dtype=DataType.JSON),
-                FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=data.model_dimension),
-            ]
+        connections.connect(
+            alias=milvus_alias,
+            host=milvus_host,
+            port=milvus_port,
+            user=milvus_user,
+            password=milvus_pass
+        )
 
-            schema = CollectionSchema(fields=fields, enable_dynamic_field=True)
-            collection = Collection(name=data.collection_name, schema=schema)
+        fields = [
+            FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
+            FieldSchema(name="document_id", dtype=DataType.INT64),
+            FieldSchema(name="parent_id", dtype=DataType.INT64),
+            FieldSchema(name="content", dtype=DataType.JSON),
+            FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim= model_dimension),
+        ]
 
-            index_params = {
-                "index_type": milvus_index_type,
-                "metric_type": milvus_metric_type,
-            }
+        schema = CollectionSchema(fields=fields, enable_dynamic_field=True)
+        collection = Collection(name=collection_name, schema=schema)
 
-            collection.create_index(field_name="vector", index_params=index_params)
-            collection.load()
+        index_params = {
+            "index_type": milvus_index_type,
+            "metric_type": milvus_metric_type,
+        }
 
-            for content, document_id, parent_id in zip(contents, document_ids, parent_ids):
-                embedding = self.embedd(content, data.model_name)
-                json_content = {"content": content}
-                entities.append({
-                    "document_id": document_id,
-                    "parent_id": parent_id,
-                    "content": json_content,
-                    "vector": embedding
-                })
+        collection.create_index(field_name="vector", index_params=index_params)
+        collection.load()
 
-            collection.insert(entities)
-            collection.flush()
-            success = True
-            self.logger.debug(f"Elements successfully inserted in collection {data.collection_name}")
-        except Exception as e:
-            self.logger.error(f"❌ {e}")
-            success = False
-        finally:
-            # end_time = time.time()  # Record the end time
-            # elapsed_time = end_time - start_time
-            # total_entities = 0
-            # if entities:
-            #     total_entities = len(entities)
-            # self.logger.info(f"⏰ stored  {total_entities} entities in vector db (including embedding generation) in: {elapsed_time:.2f} seconds")
-            return success
+        for item in chunk_list:
+            # Check if the content exceeds milvus limit
+            if len(item.content) > 65535:
+                truncated_content = item.content[:65535]
+            else:
+                truncated_content = item.content
+            embedding = self.embedd(truncated_content, model_name)
+            json_content = {"content": truncated_content}
+            entities.append({
+                "document_id": item.document_id,
+                "parent_id": item.parent_id,
+                "content": json_content,
+                "vector": embedding
+            })
+
+        collection.insert(entities)
+        collection.flush()
+        success = True
+        self.logger.debug(f"Elements successfully inserted in collection")
 
     def embedd(self, content_to_embedd: str, model: str) -> List[float]:
         start_time = time.time()  # Record the start time
-        with grpc.insecure_channel(f"{embedder_grpc_host}:{embedder_grpc_port}") as channel:
+        with grpc.insecure_channel(f"{embedder_grpc_host}:{embedder_grpc_port}",
+                                   options=[
+                                       ('grpc.max_send_message_length', 100 * 1024 * 1024),  # 100 MB
+                                       ('grpc.max_receive_message_length', 100 * 1024 * 1024)  # 100 MB
+                                   ]
+                                   ) as channel:
             stub = EmbedServiceStub(channel)
 
             self.logger.debug("Calling gRPC Service GetEmbed - Unary")

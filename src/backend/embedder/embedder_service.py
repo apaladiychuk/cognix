@@ -51,7 +51,12 @@ class EmbedServicer(EmbedServiceServicer):
 
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor())
+    server = grpc.server(futures.ThreadPoolExecutor(),
+                         options=[
+                             ('grpc.max_send_message_length', 100 * 1024 * 1024),  # 100 MB
+                             ('grpc.max_receive_message_length', 100 * 1024 * 1024)  # 100 MB
+                         ]
+                         )
 
     # Pass the readiness_probe to EmbedServicer
     # embed_servicer = EmbedServicer(readiness_probe)

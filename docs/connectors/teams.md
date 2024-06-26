@@ -1,6 +1,5 @@
 #### Microsoft Teams Teams 
-This is the description for the Microsoft Teams Team connector
-The once for the chat will come soon
+This is the description for the Microsoft Teams Team and private and group chats connector
 
 ## Setup 
 From CogniX UI navigate to connectors and create a new connector
@@ -14,6 +13,7 @@ At step 2:
 ```json
 {
   "team": "",
+  "analyze_chats": true, 
   "channels": [],
   "files": {
     "folder": "",
@@ -28,8 +28,9 @@ At step 2:
 }
 ```
 
-- team : name of team for analyzing
+- team : name of team for analyzing. teams channel will not be analyzed if empty string. 
 - channels : name of channels for analyzing ( all channels will be analyzed if array is empty )
+- analyze_chats : true for analyze all private and group chats.
 - token : OAuth token for access to ```ms teams```
 - files : 
   - folder : optional, folder name for scanning

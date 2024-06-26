@@ -53,6 +53,7 @@ func (r *embedding) FindDocuments(ctx context.Context,
 		Model:   r.embeddingModel,
 	})
 	if err != nil {
+		zap.S().Errorf("embeding service %s ", err.Error())
 		ch <- &Response{
 			IsValid: false,
 			Type:    ResponseError,

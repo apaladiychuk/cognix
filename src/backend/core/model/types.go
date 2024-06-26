@@ -11,6 +11,7 @@ import (
 const (
 	GB             = 1024 * 1024 * 1024
 	ParamFileLimit = "file_limit"
+	ParamSessionID = "session_id"
 )
 
 type JSONMap map[string]interface{}

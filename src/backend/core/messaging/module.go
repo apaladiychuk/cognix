@@ -44,6 +44,7 @@ type (
 		Publish(ctx context.Context, streamName, topic string, body proto2.Message) error
 		Listen(ctx context.Context, streamName, topic string, handler MessageHandler) error
 		StreamConfig() *StreamConfig
+		IsOnline() bool
 		Close()
 	}
 )

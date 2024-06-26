@@ -53,6 +53,9 @@ var SupportedExtensions = map[string]string{
 	"WEBM": "video/webm",
 	"MOV":  "video/mov",
 	"M4A":  "video/m4a",
+	"TXT":  "text/plain",
+	"XPS":  "application/vnd.ms-xpsdocument",
+	"EPUB": "application/epub+zip",
 }
 
 var WhisperFileTypes = map[proto.FileType]bool{

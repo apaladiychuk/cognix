@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -154,22 +153,23 @@ func (c *MSDrive) recognizeFiletype(item *DriveChildBody) (string, proto.FileTyp
 		if mimeType, ok := model.SupportedExtensions[strings.ToUpper(fileNameParts[len(fileNameParts)-1])]; ok {
 			return mimeType, model.SupportedMimeTypes[mimeType]
 		}
-	}
-	// recognize filetype by content
-	response, err := c.client.R().
-		SetDoNotParseResponse(true).
-		Get(item.MicrosoftGraphDownloadUrl)
-	defer response.RawBody().Close()
-	if err == nil && !response.IsError() {
-		if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
-			if fileType, ok := model.SupportedMimeTypes[mime.String()]; ok {
-				return mime.String(), fileType
-			}
-		}
-	}
-	if len(fileNameParts) > 1 {
 		c.unsupportedType[fileNameParts[len(fileNameParts)-1]] = true
 	}
+	// recognize filetype by content
+	//response, err := c.client.R().
+	//	SetDoNotParseResponse(true).
+	//	Get(item.MicrosoftGraphDownloadUrl)
+	//defer response.RawBody().Close()
+	//if err == nil && !response.IsError() {
+	//	if mime, err := mimetype.DetectReader(response.RawBody()); err == nil {
+	//		if fileType, ok := model.SupportedMimeTypes[mime.String()]; ok {
+	//			return mime.String(), fileType
+	//		}
+	//	}
+	//}
+	//if len(fileNameParts) > 1 {
+	//	c.unsupportedType[fileNameParts[len(fileNameParts)-1]] = true
+	//}
 
 	return "", proto.FileType_UNKNOWN
 }

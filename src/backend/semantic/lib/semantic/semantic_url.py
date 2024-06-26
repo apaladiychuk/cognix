@@ -1,7 +1,8 @@
 from typing import List
 from lib.db.jetstream_publisher import JetStreamPublisher
 from lib.db.db_document import DocumentCRUD, Document
-from lib.gen_types.semantic_data_pb2 import SemanticData, FileType
+from lib.gen_types.semantic_data_pb2 import SemanticData
+from lib.gen_types.file_type_pb2 import FileType
 from lib.semantic.semantic_base import BaseSemantic
 from lib.semantic.text_splitter import TextSplitter
 from lib.spider.spider_bs4 import BS4Spider

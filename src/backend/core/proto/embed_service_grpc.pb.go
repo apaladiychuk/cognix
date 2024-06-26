@@ -35,7 +35,7 @@ func NewEmbedServiceClient(cc grpc.ClientConnInterface) EmbedServiceClient {
 
 func (c *embedServiceClient) GetEmbeding(ctx context.Context, in *EmbedRequest, opts ...grpc.CallOption) (*EmbedResponse, error) {
 	out := new(EmbedResponse)
-	err := c.cc.Invoke(ctx, "/com.embedd.EmbedService/GetEmbeding", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/com.cognix.EmbedService/GetEmbeding", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}

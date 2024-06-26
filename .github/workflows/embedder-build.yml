@@ -49,7 +49,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./src/backend/embedder
-        file: ./src/backend/embedder/Dockerfile
+        file: ./src/backend/embedder/Dockerfile_cpu
         platforms: linux/amd64
         push: true
         tags: |

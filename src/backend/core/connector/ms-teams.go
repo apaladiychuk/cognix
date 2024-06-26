@@ -105,7 +105,7 @@ func (c *MSTeams) Validate() error {
 	return nil
 }
 
-func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
+func (c *MSTeams) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
 	params := make(map[string]string)
 
 	teamID, err := c.getTeamID(ctx)
@@ -114,7 +114,7 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 		return err
 	}
 	params[msTeamsParamTeamID] = teamID
-
+	params[model.ParamSessionID] = sessionID.String()
 	return task.RunConnector(ctx, &proto.ConnectorRequest{
 		Id:     c.model.ID.IntPart(),
 		Params: params,
@@ -157,15 +157,18 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 	if !ok {
 		return fmt.Errorf("team_id is not configured")
 	}
+	paramSessionID, _ := param[model.ParamSessionID]
+	if uuidSessionID, err := uuid.Parse(paramSessionID); err != nil {
+		c.sessionID = uuid.NullUUID{uuid.New(), true}
+	} else {
+		c.sessionID = uuid.NullUUID{uuidSessionID, true}
+	}
 
 	channelIDs, err := c.getChannel(ctx, teamID)
 	if err != nil {
 		return err
 	}
-	c.sessionID = uuid.NullUUID{
-		UUID:  uuid.New(),
-		Valid: true,
-	}
+
 	// loop by channels
 	for _, channelID := range channelIDs {
 		// prepare state for channel

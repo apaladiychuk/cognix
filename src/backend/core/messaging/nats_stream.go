@@ -13,11 +13,16 @@ import (
 
 type clientStream struct {
 	js        jetstream.JetStream
+	conn      *nats.Conn
 	cancel    context.CancelFunc
 	ctx       context.Context
 	wg        *sync.WaitGroup
 	streamCfg *StreamConfig
 	ackWait   time.Duration
+}
+
+func (c *clientStream) IsOnline() bool {
+	return c.conn.Status() == nats.CONNECTED
 }
 
 func (c *clientStream) StreamConfig() *StreamConfig {
@@ -103,17 +108,16 @@ func NewClientStream(cfg *Config) (Client, error) {
 		zap.S().Errorf("Error connecting to NATS: %s", err.Error())
 		return nil, err
 	}
-
 	js, err := jetstream.New(conn)
 	if err != nil {
 		zap.S().Errorf("Error connecting to NATS: %s", err.Error())
 		return nil, err
 	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	return &clientStream{
 		js:        js,
 		ctx:       ctx,
+		conn:      conn,
 		cancel:    cancel,
 		wg:        &sync.WaitGroup{},
 		streamCfg: cfg.Stream,

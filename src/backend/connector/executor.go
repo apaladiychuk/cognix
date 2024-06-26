@@ -218,7 +218,6 @@ func (e *Executor) saveContent(ctx context.Context, response *connector.Response
 	if err != nil {
 		return err
 	}
-	zap.S().Debugf("save fileName %s response name %s ", fileName, response.Name)
 	response.URL = fmt.Sprintf("minio:%s:%s", response.Content.Bucket, fileName)
 	return nil
 }

@@ -8,7 +8,7 @@
 import grpc
 import warnings
 
-import embed_service_pb2 as embed__service__pb2
+import lib.gen_types.embed_service_pb2 as embed__service__pb2
 
 GRPC_GENERATED_VERSION = '1.63.0'
 GRPC_VERSION = grpc.__version__

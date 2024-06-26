@@ -1,7 +1,8 @@
-pymilvus==2.4.0
+pymilvus==2.4.3
 nats-py==2.7.2
-protobuf==4.21.6
-grpcio-tools==1.60.0
+protobuf==5.27.0
+grpcio==1.63.0
+grpcio-tools==1.63.0
 python-dotenv==1.0.1
 webdriver-manager==4.0.1
 selenium==4.21.0

@@ -14,6 +14,7 @@ At step 2:
 ```json
 {
   "team": "",
+  "channels": [],
   "files": {
     "folder": "",
     "recursive": true
@@ -28,6 +29,7 @@ At step 2:
 ```
 
 - team : name of team for analyzing
+- channels : name of channels for analyzing ( all channels will be analyzed if array is empty )
 - token : OAuth token for access to ```ms teams```
 - files : 
   - folder : optional, folder name for scanning
@@ -47,7 +49,7 @@ If you are using CogniX from [rag.cognix.ch](https://rag.cognix.ch)
     https://rag.cognix.ch/api/oauth/microsoft/auth_url?redirect_url=https://rag.cognix.ch
 ```
 
-once you paste the link above in the browser you will get a json. copy link <br/>
+once you paste the link above in the browser you will get a string. copy link <br/>
 you will get something similar to the json below:<br/>
 
 ```json

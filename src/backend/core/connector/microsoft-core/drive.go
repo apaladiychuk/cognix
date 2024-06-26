@@ -129,7 +129,6 @@ func (c *MSDrive) getFile(item *DriveChildBody) error {
 	// try to recognize type of file by content
 
 	if payload.FileType == proto.FileType_UNKNOWN {
-		zap.S().Infof("unsupported file %s type %s -- %s", item.Name, item.File.MimeType, payload.MimeType)
 		return nil
 	}
 
@@ -139,11 +138,11 @@ func (c *MSDrive) getFile(item *DriveChildBody) error {
 
 func (c *MSDrive) recognizeFiletype(item *DriveChildBody) (string, proto.FileType) {
 
-	mimeTypeParts := strings.Split(item.File.MimeType, ";")
+	//mimeTypeParts := strings.Split(item.File.MimeType, ";")
 
-	if fileType, ok := model.SupportedMimeTypes[mimeTypeParts[0]]; ok {
-		return mimeTypeParts[0], fileType
-	}
+	//if fileType, ok := model.SupportedMimeTypes[mimeTypeParts[0]]; ok {
+	//	return mimeTypeParts[0], fileType
+	//}
 	// recognize fileType by filename extension
 	fileNameParts := strings.Split(item.Name, ".")
 	if len(fileNameParts) > 1 {
@@ -154,6 +153,7 @@ func (c *MSDrive) recognizeFiletype(item *DriveChildBody) (string, proto.FileTyp
 			return mimeType, model.SupportedMimeTypes[mimeType]
 		}
 		c.unsupportedType[fileNameParts[len(fileNameParts)-1]] = true
+		zap.S().Infof("unsupported file %s type %s -- %s", item.Name, fileNameParts[len(fileNameParts)-1], item.File.MimeType)
 	}
 	// recognize filetype by content
 	//response, err := c.client.R().

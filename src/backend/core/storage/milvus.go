@@ -52,15 +52,15 @@ type (
 		Delete(ctx context.Context, collection string, documentID ...int64) error
 	}
 	milvusClient struct {
-		client        milvus.Client
-		MetricType    entity.MetricType
-		IndexStrategy string
+		client     milvus.Client
+		cfg        *MilvusConfig
+		MetricType entity.MetricType
 	}
 )
 
 func (c *milvusClient) Delete(ctx context.Context, collection string, documentIDs ...int64) error {
-	if c.client == nil {
-		return fmt.Errorf("milvus is not initialized")
+	if err := c.checkConnection(); err != nil {
+		return err
 	}
 	var docsID []string
 	for _, id := range documentIDs {
@@ -97,8 +97,8 @@ func (v MilvusConfig) Validate() error {
 }
 
 func (c *milvusClient) Load(ctx context.Context, collection string, vector []float32) ([]*MilvusPayload, error) {
-	if c.client == nil {
-		return nil, fmt.Errorf("milvus is not initialized")
+	if err := c.checkConnection(); err != nil {
+		return nil, err
 	}
 	vs := []entity.Vector{entity.FloatVector(vector)}
 	sp, _ := entity.NewIndexFlatSearchParam()
@@ -135,27 +135,14 @@ var MilvusModule = fx.Options(
 )
 
 func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
-
-	client, err := milvus.NewClient(ctx, milvus.Config{
-		Address:  cfg.Address,
-		Username: cfg.Username,
-		Password: cfg.Password,
-		RetryRateLimit: &milvus.RetryRateLimitOption{
-			MaxRetry:   2,
-			MaxBackoff: 2 * time.Second,
-		},
-	})
+	client, err := connect(cfg)
 	if err != nil {
-		zap.S().Errorf("connect to milvus error", zap.Error(err))
-
+		zap.S().Errorf("connect to milvus error %s ", err.Error())
 	}
 	return &milvusClient{
-		client:        client,
-		MetricType:    entity.MetricType(cfg.MetricType),
-		IndexStrategy: cfg.IndexStrategy,
+		client:     client,
+		cfg:        cfg,
+		MetricType: entity.MetricType(cfg.MetricType),
 	}, nil
 }
 
@@ -163,8 +150,8 @@ func (c *milvusClient) Save(ctx context.Context, collection string, payloads ...
 	var ids, documentIDs, chunks []int64
 	var contents [][]byte
 	var vectors [][]float32
-	if c.client == nil {
-		return fmt.Errorf("milvus is not initialized")
+	if err := c.checkConnection(); err != nil {
+		return err
 	}
 	for _, payload := range payloads {
 		ids = append(ids, payload.ID)
@@ -185,14 +172,15 @@ func (c *milvusClient) Save(ctx context.Context, collection string, payloads ...
 }
 
 func (c *milvusClient) indexStrategy() (entity.Index, error) {
-	switch c.IndexStrategy {
+	switch c.cfg.IndexStrategy {
 	case IndexStrategyAUTOINDEX:
 		return entity.NewIndexAUTOINDEX(c.MetricType)
 	case IndexStrategyDISKANN:
 		return entity.NewIndexDISKANN(c.MetricType)
 	}
-	return nil, fmt.Errorf("index strategy %s not supported yet", c.IndexStrategy)
+	return nil, fmt.Errorf("index strategy %s not supported yet", c.cfg.IndexStrategy)
 }
+
 func (c *milvusClient) CreateSchema(ctx context.Context, name string) error {
 
 	collExists, err := c.client.HasCollection(ctx, name)
@@ -205,25 +193,22 @@ func (c *milvusClient) CreateSchema(ctx context.Context, name string) error {
 		}
 		collExists = false
 	}
+	schema := entity.NewSchema().WithName(name).
+		WithField(entity.NewField().WithName(ColumnNameID).WithDataType(entity.FieldTypeInt64).WithIsPrimaryKey(true)).
+		WithField(entity.NewField().WithName(ColumnNameDocumentID).WithDataType(entity.FieldTypeInt64)).
+		WithField(entity.NewField().WithName(ColumnNameContent).WithDataType(entity.FieldTypeJSON)).
+		WithField(entity.NewField().WithName(ColumnNameVector).WithDataType(entity.FieldTypeFloatVector).WithDim(1536))
+	if err = c.client.CreateCollection(ctx, schema, 2, milvus.WithAutoID(true)); err != nil {
+		return err
+	}
 
-	if !collExists {
-		schema := entity.NewSchema().WithName(name).
-			WithField(entity.NewField().WithName(ColumnNameID).WithDataType(entity.FieldTypeInt64).WithIsPrimaryKey(true)).
-			WithField(entity.NewField().WithName(ColumnNameDocumentID).WithDataType(entity.FieldTypeInt64)).
-			WithField(entity.NewField().WithName(ColumnNameContent).WithDataType(entity.FieldTypeJSON)).
-			WithField(entity.NewField().WithName(ColumnNameVector).WithDataType(entity.FieldTypeFloatVector).WithDim(1536))
-		if err = c.client.CreateCollection(ctx, schema, 2, milvus.WithAutoID(true)); err != nil {
+	if c.cfg.IndexStrategy != IndexStrategyNoIndex {
+		indexStrategy, err := c.indexStrategy()
+		if err != nil {
 			return err
 		}
-
-		if c.IndexStrategy != IndexStrategyNoIndex {
-			indexStrategy, err := c.indexStrategy()
-			if err != nil {
-				return err
-			}
-			if err = c.client.CreateIndex(ctx, name, ColumnNameVector, indexStrategy, true); err != nil {
-				return err
-			}
+		if err = c.client.CreateIndex(ctx, name, ColumnNameVector, indexStrategy, true); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -257,4 +242,43 @@ func (p *MilvusPayload) FromResult(i int, res milvus.SearchResult) error {
 		}
 	}
 	return nil
+}
+
+// checkConnection check is milvus connection is ready
+func (c *milvusClient) checkConnection() error {
+	// creates connection if not exists
+	if c.client == nil {
+		client, err := connect(c.cfg)
+		if err != nil {
+			zap.S().Error(err.Error())
+			return fmt.Errorf("milvus is not initialized")
+		}
+		c.client = client
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	// check connection status
+	state, err := c.client.CheckHealth(ctx)
+	if err != nil {
+		return fmt.Errorf("client.CheckHealth error %s", err.Error())
+	}
+	if !state.IsHealthy {
+		return fmt.Errorf("milvus is not ready  %s", strings.Join(state.Reasons, " "))
+	}
+
+	return nil
+}
+
+func connect(cfg *MilvusConfig) (milvus.Client, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	return milvus.NewClient(ctx, milvus.Config{
+		Address:  cfg.Address,
+		Username: cfg.Username,
+		Password: cfg.Password,
+		RetryRateLimit: &milvus.RetryRateLimitOption{
+			MaxRetry:   2,
+			MaxBackoff: 2 * time.Second,
+		},
+	})
 }

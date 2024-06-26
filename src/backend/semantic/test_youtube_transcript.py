@@ -4,7 +4,8 @@ import logging
 import os
 import time
 
-from lib.gen_types.semantic_data_pb2 import SemanticData, FileType
+from lib.gen_types.semantic_data_pb2 import SemanticData
+from lib.gen_types.file_type_pb2 import FileType
 from lib.semantic.semantic_factory import SemanticFactory
 
 

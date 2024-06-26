@@ -13,11 +13,16 @@ import (
 
 type clientStream struct {
 	js        jetstream.JetStream
+	conn      *nats.Conn
 	cancel    context.CancelFunc
 	ctx       context.Context
 	wg        *sync.WaitGroup
 	streamCfg *StreamConfig
 	ackWait   time.Duration
+}
+
+func (c *clientStream) IsOnline() bool {
+	return c.conn.Status() == nats.CONNECTED
 }
 
 func (c *clientStream) StreamConfig() *StreamConfig {
@@ -35,8 +40,7 @@ func (c *clientStream) Publish(ctx context.Context, streamName, topic string, bo
 	_, err := c.js.CreateOrUpdateStream(context.Background(), jetstream.StreamConfig{
 		Name:      streamName,
 		Retention: jetstream.WorkQueuePolicy,
-		//AllowDirect: true,
-		Subjects: []string{topic},
+		Subjects:  []string{topic},
 	})
 	if err != nil {
 		zap.S().Errorf("Error creating stream: %s", err.Error())
@@ -48,8 +52,6 @@ func (c *clientStream) Publish(ctx context.Context, streamName, topic string, bo
 		return err
 	}
 	_, err = c.js.Publish(ctx, topic, message)
-	//,
-	//		nats.AckWait(time.Minute*2)
 	if err != nil {
 		return err
 	}
@@ -61,8 +63,7 @@ func (c *clientStream) Listen(ctx context.Context, streamName, topic string, han
 	stream, err := c.js.CreateOrUpdateStream(context.Background(), jetstream.StreamConfig{
 		Name:      streamName,
 		Retention: jetstream.WorkQueuePolicy,
-		//AllowDirect: true,
-		Subjects: []string{topic},
+		Subjects:  []string{topic},
 	})
 	if err != nil {
 		zap.S().Errorf("Error creating stream: %s", err.Error())
@@ -107,17 +108,16 @@ func NewClientStream(cfg *Config) (Client, error) {
 		zap.S().Errorf("Error connecting to NATS: %s", err.Error())
 		return nil, err
 	}
-
 	js, err := jetstream.New(conn)
 	if err != nil {
 		zap.S().Errorf("Error connecting to NATS: %s", err.Error())
 		return nil, err
 	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	return &clientStream{
 		js:        js,
 		ctx:       ctx,
+		conn:      conn,
 		cancel:    cancel,
 		wg:        &sync.WaitGroup{},
 		streamCfg: cfg.Stream,

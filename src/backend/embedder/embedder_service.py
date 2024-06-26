@@ -4,7 +4,7 @@ import os
 from lib.gen_types.embed_service_pb2_grpc import EmbedServiceServicer, add_EmbedServiceServicer_to_server
 from lib.gen_types.embed_service_pb2 import EmbedResponse
 from sentence_encoder import SentenceEncoder
-
+from lib.helpers.device_checker import DeviceChecker
 import grpc
 from concurrent import futures
 import logging
@@ -51,7 +51,12 @@ class EmbedServicer(EmbedServiceServicer):
 
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor())
+    server = grpc.server(futures.ThreadPoolExecutor(),
+                         options=[
+                             ('grpc.max_send_message_length', 100 * 1024 * 1024),  # 100 MB
+                             ('grpc.max_receive_message_length', 100 * 1024 * 1024)  # 100 MB
+                         ]
+                         )
 
     # Pass the readiness_probe to EmbedServicer
     # embed_servicer = EmbedServicer(readiness_probe)
@@ -62,6 +67,7 @@ def serve():
     server.add_insecure_port(f"0.0.0.0:{grpc_port}")
     server.start()
     logger.info(f"👂 embedder listening on port {grpc_port}")
+    DeviceChecker.check_device()
     server.wait_for_termination()
 
 

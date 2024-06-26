@@ -2,7 +2,8 @@ import asyncio
 from nats.aio.client import Client as NATS
 
 from lib.db.jetstream_publisher import JetStreamPublisher
-from lib.gen_types.semantic_data_pb2 import SemanticData, FileType
+from lib.gen_types.semantic_data_pb2 import SemanticData
+from lib.gen_types.file_type_pb2 import FileType
 from nats.errors import TimeoutError, NoRespondersError
 from nats.js.api import StreamConfig, RetentionPolicy
 from nats.js.errors import BadRequestError

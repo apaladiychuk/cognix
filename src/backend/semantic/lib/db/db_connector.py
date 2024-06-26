@@ -1,7 +1,12 @@
-from sqlalchemy import create_engine, Column, BigInteger, UUID, TIMESTAMP, JSON, Enum, func, String
+from sqlalchemy import Column, BigInteger, UUID, TIMESTAMP, JSON, Enum, func, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import OperationalError
+from contextlib import contextmanager
 import enum
+import time
+from lib.db.dc_connection_manager import ConnectionManager
+from typing import List
 
 Base = declarative_base()
 
@@ -14,6 +19,7 @@ class Status(enum.Enum):
     COMPLETED_WITH_ERRORS = "COMPLETED_WITH_ERRORS"
     DISABLED = "DISABLED"
     UNABLE_TO_PROCESS = "UNABLE_TO_PROCESS"
+
 
 class Connector(Base):
     __tablename__ = 'connectors'
@@ -41,39 +47,87 @@ class Connector(Base):
                 f"deleted_date={self.deleted_date})>")
 
 
+def with_retry(func):
+    def wrapper(*args, **kwargs):
+        retries = 3
+        for i in range(retries):
+            try:
+                return func(*args, **kwargs)
+            except OperationalError as e:
+                if i < retries - 1:
+                    time.sleep(2 ** i)  # Exponential backoff
+                else:
+                    raise e
+
+    return wrapper
+
+
 class ConnectorCRUD:
-    def __init__(self, connection_string):
-        self.engine = create_engine(connection_string)
-        Session = sessionmaker(bind=self.engine)
-        self.session = Session()
-        # IMPORTANT: Cockroach by default uses isolation level SERIALIZABLE
-        # Set the isolation level to READ COMMITTED
-        # self.session.connection().execution_options(isolation_level="READ COMMITTED")
-        Base.metadata.create_all(self.engine)
+    def __init__(self, connection_string: str):
+        self.connection_manager = ConnectionManager(connection_string)
 
+    @contextmanager
+    def session_scope(self):
+        with self.connection_manager.get_session() as session:
+            yield session
 
+    @with_retry
     def insert_connector(self, **kwargs) -> int:
-        new_connector = Connector(**kwargs)
-        self.session.add(new_connector)
-        self.session.commit()
-        return new_connector.id
+        with self.session_scope() as session:
+            new_connector = Connector(**kwargs)
+            session.add(new_connector)
+            session.commit()
+            return new_connector.id
 
+    @with_retry
+    def insert_connector_object(self, connector: Connector) -> int:
+        with self.session_scope() as session:
+            session.add(connector)
+            session.commit()
+            return connector.id
+
+    @with_retry
+    def insert_connectors_batch(self, connectors: List[Connector]) -> List[Connector]:
+        with self.session_scope() as session:
+            session.add_all(connectors)
+            session.commit()
+            for connector in connectors:
+                session.refresh(connector)  # Refresh each connector to get the IDs from the database
+            return connectors
+
+    @with_retry
     def select_connector(self, connector_id: int) -> Connector | None:
         if connector_id <= 0:
             raise ValueError("ID value must be positive")
-        return self.session.query(Connector).filter_by(id=connector_id).first()
+        with self.session_scope() as session:
+            connector = session.query(Connector).filter_by(id=connector_id).first()
+            if connector:
+                session.expunge(connector)  # Detach the instance from the session
+            return connector
 
+    @with_retry
     def update_connector(self, connector_id: int, **kwargs) -> int:
         if connector_id <= 0:
             raise ValueError("ID value must be positive")
-        updated_connectors = self.session.query(Connector).filter_by(id=connector_id).update(kwargs)
-        self.session.commit()
-        return updated_connectors
+        with self.session_scope() as session:
+            updated_connectors = session.query(Connector).filter_by(id=connector_id).update(kwargs)
+            session.commit()
+            return updated_connectors
 
-
-    def delete_connector(self, connector_id: int) -> int:
+    @with_retry
+    def delete_by_connector_id(self, connector_id: int) -> int:
         if connector_id <= 0:
             raise ValueError("ID value must be positive")
-        deleted_connectors = self.session.query(Connector).filter_by(id=connector_id).delete()
-        self.session.commit()
-        return deleted_connectors
+        with self.session_scope() as session:
+            deleted_connectors = session.query(Connector).filter_by(id=connector_id).delete()
+            session.commit()
+            return deleted_connectors
+
+    @with_retry
+    def delete_by_tenant_id(self, tenant_id: UUID) -> int:
+        if not tenant_id:
+            raise ValueError("Tenant ID must be provided")
+        with self.session_scope() as session:
+            deleted_connectors = session.query(Connector).filter_by(tenant_id=tenant_id).delete()
+            session.commit()
+            return deleted_connectors

@@ -1,7 +1,7 @@
 package connector
 
 import (
-	microsoft_core "cognix.ch/api/v2/core/connector/microsoft-core"
+	microsoftcore "cognix.ch/api/v2/core/connector/microsoft-core"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
@@ -14,6 +14,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
+	"jaytaylor.com/html2text"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,80 +30,18 @@ const (
 	msTeamsFilesFolder   = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/filesFolder"
 	msTeamsFolderContent = "https://graph.microsoft.com/v1.0/groups/%s/drive/items/%s/children"
 
-	msTeamsChats           = "https://graph.microsoft.com/v1.0/chats"
+	msTeamsChats           = "https://graph.microsoft.com/v1.0/chats?$top=50"
 	msTeamsChatMessagesURL = "https://graph.microsoft.com/v1.0/chats/%s/messages"
 
 	msTeamsParamTeamID = "team_id"
+
+	messageTemplate = `#%s
+##%s
+`
+
+	messageTypeMessage            = "message"
+	attachmentContentTypReference = "reference"
 )
-
-type (
-	Team struct {
-		Id          string `json:"id"`
-		DisplayName string `json:"displayName"`
-		Description string `json:"description"`
-	}
-
-	TeamResponse struct {
-		Value []*Team `json:"value"`
-	}
-	ChannelResponse struct {
-		Value []*ChannelBody `json:"value"`
-	}
-	ChannelBody struct {
-		Id              string    `json:"id"`
-		CreatedDateTime time.Time `json:"createdDateTime"`
-		DisplayName     string    `json:"displayName"`
-		Description     string    `json:"description"`
-	}
-	TeamUser struct {
-		OdataType        string `json:"@odata.type"`
-		Id               string `json:"id"`
-		DisplayName      string `json:"displayName"`
-		UserIdentityType string `json:"userIdentityType"`
-		TenantId         string `json:"tenantId"`
-	}
-	TeamFrom struct {
-		User *TeamUser `json:"user"`
-	}
-
-	TeamBody struct {
-		ContentType string `json:"contentType"`
-		Content     string `json:"content"`
-	}
-)
-
-type TeamFilesFolder struct {
-	Id string `json:"id"`
-}
-
-type MessageBody struct {
-	Id                   string        `json:"id"`
-	Etag                 string        `json:"etag"`
-	MessageType          string        `json:"messageType"`
-	ReplyToId            string        `json:"replyToId"`
-	Subject              string        `json:"subject"`
-	CreatedDateTime      time.Time     `json:"createdDateTime"`
-	LastModifiedDateTime time.Time     `json:"lastModifiedDateTime"`
-	DeletedDateTime      pg.NullTime   `json:"deletedDateTime"`
-	From                 *TeamFrom     `json:"from"`
-	Body                 *TeamBody     `json:"body"`
-	Attachments          []*Attachment `json:"attachments"`
-}
-type MessageResponse struct {
-	OdataContext   string         `json:"@odata.context"`
-	OdataNextLink  string         `json:"@odata.nextLink"`
-	OdataDeltaLink string         `json:"@odata.deltaLink"`
-	Value          []*MessageBody `json:"value"`
-}
-type Attachment struct {
-	Id           string      `json:"id"`
-	ContentType  string      `json:"contentType"`
-	ContentUrl   string      `json:"contentUrl"`
-	Content      interface{} `json:"content"`
-	Name         string      `json:"name"`
-	ThumbnailUrl interface{} `json:"thumbnailUrl"`
-	TeamsAppId   interface{} `json:"teamsAppId"`
-}
 
 /*
 https://graph.microsoft.com/v1.0/groups/94100e5f-a30f-433d-965e-bde4e817f62a/team/channels/19:65a0a68789ea4abe97c8eec4d6f43786@thread.tacv2
@@ -135,14 +75,16 @@ type (
 		sessionID     uuid.NullUUID
 	}
 	MSTeamParameters struct {
-		Team     string                       `json:"team"`
-		Channels model.StringSlice            `json:"channels"`
-		Token    *oauth2.Token                `json:"token"`
-		Files    *microsoft_core.MSDriveParam `json:"files"`
+		Team         string                      `json:"team"`
+		Channels     model.StringSlice           `json:"channels"`
+		AnalyzeChats bool                        `json:"analyze_chats"`
+		Token        *oauth2.Token               `json:"token"`
+		Files        *microsoftcore.MSDriveParam `json:"files"`
 	}
 	// MSTeamState store ms team state after each execute
 	MSTeamState struct {
 		Channels map[string]*MSTeamChannelState `json:"channels"`
+		Chats    map[string]*MSTeamMessageState `json:"chats"`
 	}
 
 	MSTeamChannelState struct {
@@ -164,16 +106,18 @@ func (c *MSTeams) Validate() error {
 	return nil
 }
 
-func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
+func (c *MSTeams) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
 	params := make(map[string]string)
 
-	teamID, err := c.getTeamID(ctx)
-	if err != nil {
-		zap.S().Errorf("Prepare task get teamID : %s ", err.Error())
-		return err
+	if c.param.Team != "" {
+		teamID, err := c.getTeamID(ctx)
+		if err != nil {
+			zap.S().Errorf("Prepare task get teamID : %s ", err.Error())
+			return err
+		}
+		params[msTeamsParamTeamID] = teamID
 	}
-	params[msTeamsParamTeamID] = teamID
-
+	params[model.ParamSessionID] = sessionID.String()
 	return task.RunConnector(ctx, &proto.ConnectorRequest{
 		Id:     c.model.ID.IntPart(),
 		Params: params,
@@ -181,7 +125,22 @@ func (c *MSTeams) PrepareTask(ctx context.Context, task Task) error {
 }
 
 func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Response {
-	c.resultCh = make(chan *Response, 10)
+	c.resultCh = make(chan *Response)
+	var fileSizeLimit int
+	if size, ok := param[model.ParamFileLimit]; ok {
+		fileSizeLimit, _ = strconv.Atoi(size)
+	}
+	if fileSizeLimit == 0 {
+		fileSizeLimit = 1
+	}
+	c.fileSizeLimit = fileSizeLimit * model.GB
+	paramSessionID, _ := param[model.ParamSessionID]
+	if uuidSessionID, err := uuid.Parse(paramSessionID); err != nil {
+		c.sessionID = uuid.NullUUID{uuid.New(), true}
+	} else {
+		c.sessionID = uuid.NullUUID{uuidSessionID, true}
+	}
+
 	for _, doc := range c.model.Docs {
 		if doc.Signature == "" {
 			// do not delete document with chat history.
@@ -199,19 +158,31 @@ func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Re
 }
 func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 
-	teamID, ok := param[msTeamsParamTeamID]
-	if !ok {
-		return fmt.Errorf("team_id is not configured")
+	if c.param.AnalyzeChats {
+		if err := c.loadChats(ctx, ""); err != nil {
+			return fmt.Errorf("load chats : %s", err.Error())
+		}
 	}
 
+	if teamID, ok := param[msTeamsParamTeamID]; ok {
+		if err := c.loadChannels(ctx, teamID); err != nil {
+			return fmt.Errorf("load channels : %s", err.Error())
+		}
+	}
+	// save current state
+	zap.S().Infof("save connector state.")
+	if err := c.model.State.FromStruct(c.state); err == nil {
+		return c.connectorRepo.Update(ctx, c.model)
+	}
+	return nil
+}
+
+func (c *MSTeams) loadChannels(ctx context.Context, teamID string) error {
 	channelIDs, err := c.getChannel(ctx, teamID)
 	if err != nil {
 		return err
 	}
-	c.sessionID = uuid.NullUUID{
-		UUID:  uuid.New(),
-		Valid: true,
-	}
+
 	// loop by channels
 	for _, channelID := range channelIDs {
 		// prepare state for channel
@@ -249,6 +220,7 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 				Analyzed:        false,
 				CreationDate:    time.Now().UTC(),
 				LastUpdate:      pg.NullTime{time.Now().UTC()},
+				OriginalURL:     topic.WebUrl,
 				IsExists:        true,
 			}
 			c.model.DocsMap[sourceID] = doc
@@ -259,7 +231,7 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 			c.resultCh <- &Response{
 				URL:        doc.URL,
 				Name:       fileName,
-				SourceID:   doc.SourceID,
+				SourceID:   sourceID,
 				DocumentID: doc.ID.IntPart(),
 				MimeType:   "plain/text",
 				FileType:   proto.FileType_MD,
@@ -272,46 +244,38 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 				},
 				UpToData: false,
 			}
-
-			if c.param.Files != nil {
-				if err = c.loadFiles(ctx, param, teamID, channelID); err != nil {
-					return err
-				}
-			}
-
 		}
 
-	}
-
-	// save current state
-	zap.S().Infof("save connector state.")
-	if err = c.model.State.FromStruct(c.state); err == nil {
-		return c.connectorRepo.Update(ctx, c.model)
+		if c.param.Files != nil {
+			if err = c.loadFiles(ctx, teamID, channelID); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
 
 // loadFiles scrap channel files
-func (c *MSTeams) loadFiles(ctx context.Context, param map[string]string, teamID, channelID string) error {
-	var folderInfo TeamFilesFolder
+func (c *MSTeams) loadFiles(ctx context.Context, teamID, channelID string) error {
+	var folderInfo microsoftcore.TeamFilesFolder
 	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsFilesFolder, teamID, channelID), &folderInfo); err != nil {
 		return err
 	}
 	baseUrl := fmt.Sprintf(msTeamsFolderContent, teamID, folderInfo.Id)
 	folderURL := fmt.Sprintf(msTeamsFolderContent, teamID, `%s`)
-	msDrive := microsoft_core.NewMSDrive(c.param.Files,
+	msDrive := microsoftcore.NewMSDrive(c.param.Files,
 		c.model,
 		c.sessionID, c.client,
 		baseUrl, folderURL,
 		c.getFile,
 	)
-	return msDrive.Execute(ctx, param)
+	return msDrive.Execute(ctx, c.fileSizeLimit)
 
 }
 
 // getChannel get channels from team
 func (c *MSTeams) getChannel(ctx context.Context, teamID string) ([]string, error) {
-	var channelResp ChannelResponse
+	var channelResp microsoftcore.ChannelResponse
 	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsChannelsURL, teamID), &channelResp); err != nil {
 		return nil, err
 	}
@@ -328,8 +292,8 @@ func (c *MSTeams) getChannel(ctx context.Context, teamID string) ([]string, erro
 	return channels, nil
 }
 
-func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg *MessageBody) (*MSTeamsResult, error) {
-	var repliesResp MessageResponse
+func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg *microsoftcore.MessageBody) (*MSTeamsResult, error) {
+	var repliesResp microsoftcore.MessageResponse
 	err := c.requestAndParse(ctx, fmt.Sprintf(msTeamRepliesURL, teamID, channelID, msg.Id), &repliesResp)
 	if err != nil {
 		return nil, err
@@ -341,34 +305,28 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 	if !ok {
 		state = &MSTeamMessageState{}
 		c.state.Channels[channelID].Topics[msg.Id] = state
-		userName := msg.Subject
-		if msg.From != nil && msg.From.User != nil {
-			userName = msg.From.User.DisplayName
+
+		if message := c.buildMDMessage(msg); message != "" {
+			messages = append(messages, message)
 		}
-		message := msg.Subject
-		if msg.Body != nil {
-			message = msg.Body.Content
-		}
-		messages = append(messages, fmt.Sprintf("%s\n```html\n%s\n```\n", userName, message))
 	} else {
 		result.PrevLoadTime = state.LastCreatedDateTime.Format("2006-01-02-15-04-05")
 	}
 	lastTime := state.LastCreatedDateTime
 
 	for _, repl := range repliesResp.Value {
-		if state.LastCreatedDateTime.After(repl.CreatedDateTime) ||
-			state.LastCreatedDateTime.Equal(repl.CreatedDateTime) {
+		if state.LastCreatedDateTime.UTC().After(repl.CreatedDateTime.UTC()) ||
+			state.LastCreatedDateTime.UTC().Equal(repl.CreatedDateTime.UTC()) {
 			// ignore messages that were analyzed before
 			continue
 		}
-		if repl.CreatedDateTime.After(lastTime) {
+		if repl.CreatedDateTime.UTC().After(lastTime.UTC()) {
 			// store timestamp of last message
 			lastTime = repl.CreatedDateTime
 		}
-
-		message := fmt.Sprintf("%s\n```html\n%s\n```\n", repl.From.User.DisplayName, repl.Body.Content)
-
-		messages = append(messages, message)
+		if message := c.buildMDMessage(repl); message != "" {
+			messages = append(messages, message)
+		}
 
 	}
 	result.Messages = []byte(strings.Join(messages, "\n"))
@@ -376,8 +334,8 @@ func (c *MSTeams) getReplies(ctx context.Context, teamID, channelID string, msg 
 	return &result, nil
 }
 
-func (c *MSTeams) getTopicsByChannel(ctx context.Context, teamID, channelID string) ([]*MessageBody, error) {
-	var messagesResp MessageResponse
+func (c *MSTeams) getTopicsByChannel(ctx context.Context, teamID, channelID string) ([]*microsoftcore.MessageBody, error) {
+	var messagesResp microsoftcore.MessageResponse
 	// Get url from state. Load changes from previous scan.
 	state := c.state.Channels[channelID]
 
@@ -403,7 +361,7 @@ func (c *MSTeams) getTopicsByChannel(ctx context.Context, teamID, channelID stri
 
 // getTeamID get team id for current user
 func (c *MSTeams) getTeamID(ctx context.Context) (string, error) {
-	var team TeamResponse
+	var team microsoftcore.TeamResponse
 
 	if err := c.requestAndParse(ctx, msTeamsInfoURL, &team); err != nil {
 		return "", err
@@ -429,7 +387,7 @@ func (c *MSTeams) requestAndParse(ctx context.Context, url string, result interf
 }
 
 // getFile callback for receive files
-func (c *MSTeams) getFile(payload *microsoft_core.Response) {
+func (c *MSTeams) getFile(payload *microsoftcore.Response) {
 	response := &Response{
 		URL:        payload.URL,
 		Name:       payload.Name,
@@ -444,6 +402,149 @@ func (c *MSTeams) getFile(payload *microsoft_core.Response) {
 		},
 	}
 	c.resultCh <- response
+}
+
+func (c *MSTeams) buildMDMessage(msg *microsoftcore.MessageBody) string {
+	userName := msg.Subject
+	if msg.From != nil && msg.From.User != nil {
+		userName = msg.From.User.DisplayName
+	}
+	message := msg.Subject
+	if msg.Body != nil {
+		message = msg.Body.Content
+		if msg.Body.ContentType == "html" {
+			if m, err := html2text.FromString(message, html2text.Options{
+				PrettyTables: true,
+			}); err != nil {
+				zap.S().Errorf("error building html message: %v", err)
+			} else {
+				message = m
+			}
+		}
+	}
+	if userName == "" && message == "" {
+		return ""
+	}
+	return fmt.Sprintf(messageTemplate, userName, message)
+}
+
+func (c *MSTeams) loadChats(ctx context.Context, nextLink string) error {
+	var response microsoftcore.MSTeamsChatResponse
+	url := nextLink
+	if url == "" {
+		url = msTeamsChats
+	}
+	if err := c.requestAndParse(ctx, url, &response); err != nil {
+		return err
+	}
+
+	for _, chat := range response.Value {
+		sourceID := fmt.Sprintf("chat:%s", chat.Id)
+		result, err := c.loadChatMessages(ctx, chat.Id)
+		if err != nil {
+			return err
+		}
+		if len(result.Messages) == 0 {
+			continue
+		}
+		doc := &model.Document{
+			SourceID:        sourceID,
+			ConnectorID:     c.model.ID,
+			URL:             "",
+			ChunkingSession: c.sessionID,
+			Analyzed:        false,
+			CreationDate:    time.Now().UTC(),
+			LastUpdate:      pg.NullTime{time.Now().UTC()},
+			OriginalURL:     chat.WebUrl,
+			IsExists:        true,
+		}
+		c.model.DocsMap[sourceID] = doc
+
+		fileName := utils.StripFileName(fmt.Sprintf("%s_%s.md", uuid.New().String(), chat.Id))
+		c.resultCh <- &Response{
+			URL:        doc.URL,
+			Name:       fileName,
+			SourceID:   sourceID,
+			DocumentID: doc.ID.IntPart(),
+			MimeType:   "plain/text",
+			FileType:   proto.FileType_MD,
+			Signature:  "",
+			Content: &Content{
+				Bucket:        model.BucketName(c.model.User.EmbeddingModel.TenantID),
+				URL:           "",
+				AppendContent: true,
+				Body:          result.Messages,
+			},
+			UpToData: false,
+		}
+	}
+	if response.NexLink != "" {
+		zap.S().Debugf("load next chats...")
+		return c.loadChats(ctx, response.NexLink)
+	}
+	return nil
+}
+func (c *MSTeams) loadChatMessages(ctx context.Context, chatID string) (*MSTeamsResult, error) {
+	var response microsoftcore.MessageResponse
+	if err := c.requestAndParse(ctx, fmt.Sprintf(msTeamsChatMessagesURL, chatID), &response); err != nil {
+		return nil, err
+	}
+	state, ok := c.state.Chats[chatID]
+	if !ok {
+		state = &MSTeamMessageState{
+			LastCreatedDateTime: time.Time{},
+		}
+		c.state.Chats[chatID] = state
+	}
+	lastTime := state.LastCreatedDateTime
+
+	var messages []string
+
+	for _, msg := range response.Value {
+		// do not scan message if it was scanned before or if it system message
+		if msg.MessageType != messageTypeMessage ||
+			state.LastCreatedDateTime.UTC().After(msg.CreatedDateTime.UTC()) ||
+			state.LastCreatedDateTime.UTC().Equal(msg.CreatedDateTime.UTC()) {
+			continue
+		}
+
+		// renew newest message time
+		if lastTime.UTC().Before(msg.CreatedDateTime.UTC()) {
+			lastTime = msg.CreatedDateTime
+		}
+		if message := c.buildMDMessage(msg); message != "" {
+			messages = append(messages, message)
+		}
+		for _, attachment := range msg.Attachments {
+			if err := c.loadAttachment(ctx, attachment); err != nil {
+				zap.S().Errorf("error loading attachment: %v", err)
+			}
+		}
+	}
+	state.LastCreatedDateTime = lastTime
+
+	return &MSTeamsResult{
+		PrevLoadTime: state.LastCreatedDateTime.Format("2006-01-02-15-04-05"),
+		Messages:     []byte(strings.Join(messages, "\n")),
+	}, nil
+}
+
+func (c *MSTeams) loadAttachment(ctx context.Context, attachment *microsoftcore.Attachment) error {
+
+	msDrive := microsoftcore.NewMSDrive(c.param.Files,
+		c.model,
+		c.sessionID, c.client,
+		"", "",
+		c.getFile,
+	)
+	if attachment.ContentType != attachmentContentTypReference {
+		// do not scrap replies
+		return nil
+	}
+	if err := msDrive.DownloadItem(ctx, attachment.Id, c.fileSizeLimit); err != nil {
+		zap.S().Errorf("download file %s", err.Error())
+	}
+	return nil
 }
 
 // NewMSTeams creates new instance of MsTeams connector
@@ -479,7 +580,9 @@ func NewMSTeams(connector *model.Connector,
 	if conn.state.Channels == nil {
 		conn.state.Channels = make(map[string]*MSTeamChannelState)
 	}
-
+	if conn.state.Chats == nil {
+		conn.state.Chats = make(map[string]*MSTeamMessageState)
+	}
 	conn.client = resty.New().
 		SetTimeout(time.Minute).
 		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",

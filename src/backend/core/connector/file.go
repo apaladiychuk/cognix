@@ -26,7 +26,7 @@ func (c *File) Validate() error {
 	return nil
 }
 
-func (c *File) PrepareTask(ctx context.Context, task Task) error {
+func (c *File) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
 
 	link := fmt.Sprintf("minio:tenant-%s:%s", c.model.User.EmbeddingModel.TenantID.String(), c.param.FileName)
 	if len(c.model.Docs) == 0 {
@@ -42,10 +42,7 @@ func (c *File) PrepareTask(ctx context.Context, task Task) error {
 	if c.model.Status == model.ConnectorStatusError || c.model.Status == model.ConnectorStatusSuccess {
 		return nil
 	}
-	c.model.Docs[0].ChunkingSession = uuid.NullUUID{
-		UUID:  uuid.New(),
-		Valid: true,
-	}
+	c.model.Docs[0].ChunkingSession = uuid.NullUUID{sessionID, true}
 	return task.RunSemantic(ctx, &proto.SemanticData{
 		Url:            link,
 		DocumentId:     c.model.Docs[0].ID.IntPart(),

@@ -25,13 +25,9 @@ func (c *Web) Validate() error {
 	return nil
 }
 
-func (c *Web) PrepareTask(ctx context.Context, task Task) error {
+func (c *Web) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
 
 	// if this connector new we need to run connectorTask for prepare document table
-	sessionID := uuid.NullUUID{
-		UUID:  uuid.New(),
-		Valid: true,
-	}
 	if len(c.model.Docs) == 0 {
 		doc, ok := c.model.DocsMap[c.param.URL]
 		if !ok {
@@ -40,7 +36,8 @@ func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 				ConnectorID:     c.Base.model.ID,
 				URL:             c.param.URL,
 				Signature:       "",
-				ChunkingSession: sessionID,
+				ChunkingSession: uuid.NullUUID{sessionID, true},
+				OriginalURL:     c.param.URL,
 			}
 			c.model.Docs = append(c.model.Docs, doc)
 		}
@@ -49,7 +46,7 @@ func (c *Web) PrepareTask(ctx context.Context, task Task) error {
 	for _, doc := range c.model.Docs {
 		if !doc.ParentID.Valid {
 			rootDoc = doc
-			rootDoc.ChunkingSession = sessionID
+			rootDoc.ChunkingSession = uuid.NullUUID{sessionID, true}
 			break
 		}
 	}

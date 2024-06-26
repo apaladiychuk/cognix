@@ -24,17 +24,23 @@ class GenericSemantic(BaseSemantic):
         try:
             # downloads the file from minio and stores locally
             downloaded_file_path = self.download_from_minio(data.url)
-
+            file_type = ""
             # Log the file type and size
             if os.path.exists(downloaded_file_path):
                 file_type = os.path.splitext(downloaded_file_path)[1]
                 file_size = os.path.getsize(downloaded_file_path)
                 self.logger.info(f"analyzing a: {file_type} file, size: {file_size / 1024:.2f} KB")
             else:
-                self.logger.warning(f"File {downloaded_file_path} does not exist.")
+                raise FileNotFoundError(f"File {downloaded_file_path} does not exist.")
 
-            # converts the file to MD
-            markdown_content = pymupdf4llm.to_markdown(downloaded_file_path)
+            # Check if the file is a Markdown file
+            if file_type == '.md':
+                with open(downloaded_file_path, 'r') as file:
+                    markdown_content = file.read()
+            else:
+                # Converts the file to Markdown using pymupdf
+                markdown_content = pymupdf4llm.to_markdown(downloaded_file_path)
+
 
             # # detracts markdown sections with headers ready to be stored in chunks
             # # on the vector and relational db

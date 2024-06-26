@@ -74,20 +74,18 @@ type Folder struct {
 	ChildCount int `json:"childCount"`
 }
 
-func (c *OneDrive) PrepareTask(ctx context.Context, task Task) error {
+func (c *OneDrive) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
 	//	for one drive always send message to connector
 	return task.RunConnector(ctx, &proto.ConnectorRequest{
-		Id:     c.model.ID.IntPart(),
-		Params: make(map[string]string),
+		Id: c.model.ID.IntPart(),
+		Params: map[string]string{
+			model.ParamSessionID: sessionID.String(),
+		},
 	})
 }
 
 func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *Response {
 	var fileSizeLimit int
-	c.sessionID = uuid.NullUUID{
-		UUID:  uuid.New(),
-		Valid: true,
-	}
 	if size, ok := param[model.ParamFileLimit]; ok {
 		fileSizeLimit, _ = strconv.Atoi(size)
 	}
@@ -95,6 +93,13 @@ func (c *OneDrive) Execute(ctx context.Context, param map[string]string) chan *R
 		fileSizeLimit = 1
 	}
 	c.fileSizeLimit = fileSizeLimit * model.GB
+
+	paramSessionID, _ := param[model.ParamSessionID]
+	if uuidSessionID, err := uuid.Parse(paramSessionID); err != nil {
+		c.sessionID = uuid.NullUUID{uuid.New(), true}
+	} else {
+		c.sessionID = uuid.NullUUID{uuidSessionID, true}
+	}
 
 	if len(c.model.DocsMap) == 0 {
 		c.model.DocsMap = make(map[string]*model.Document)

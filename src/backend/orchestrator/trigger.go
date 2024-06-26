@@ -6,6 +6,7 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
+	"github.com/google/uuid"
 
 	"context"
 	"encoding/json"
@@ -66,8 +67,8 @@ func (t *trigger) Do(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-
-		if err = connWF.PrepareTask(ctx, t); err != nil {
+		sessionID := uuid.New().String()
+		if err = connWF.PrepareTask(ctx, sessionID, t); err != nil {
 			span.RecordError(err)
 			zap.S().Errorf("failed to prepare task for connector %s[%d]: %v", t.connectorModel.Name, t.connectorModel.ID.IntPart(), err)
 			if errr := t.updateStatus(ctx, model.ConnectorStatusUnableProcess); errr != nil {

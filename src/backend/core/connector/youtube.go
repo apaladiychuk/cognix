@@ -21,11 +21,7 @@ func (c *Youtube) Validate() error {
 	return nil
 }
 
-func (c *Youtube) PrepareTask(ctx context.Context, task Task) error {
-	sessionID := uuid.NullUUID{
-		UUID:  uuid.New(),
-		Valid: true,
-	}
+func (c *Youtube) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
 	if len(c.model.Docs) == 0 {
 		doc, ok := c.model.DocsMap[c.param.URL]
 		if !ok {
@@ -34,7 +30,7 @@ func (c *Youtube) PrepareTask(ctx context.Context, task Task) error {
 				ConnectorID:     c.Base.model.ID,
 				URL:             c.param.URL,
 				Signature:       "",
-				ChunkingSession: sessionID,
+				ChunkingSession: uuid.NullUUID{sessionID, true},
 				OriginalURL:     c.param.URL,
 			}
 			c.model.Docs = append(c.model.Docs, doc)

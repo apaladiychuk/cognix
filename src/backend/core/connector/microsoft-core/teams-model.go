@@ -76,8 +76,10 @@ type Attachment struct {
 }
 
 type MSTeamsChatResponse struct {
-	Value []*MSTeamsChatValues `json:"value"`
+	Value   []*MSTeamsChatValues `json:"value"`
+	NexLink string               `json:"@odata.nextLink"`
 }
+
 type MSTeamsChatValues struct {
 	Id                  string      `json:"id"`
 	Topic               string      `json:"topic"`

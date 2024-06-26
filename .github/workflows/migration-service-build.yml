@@ -34,7 +34,7 @@ jobs:
       uses: docker/setup-buildx-action@v1
 
     - name: Login to Azure
-      uses: azure/login@v1
+      uses: azure/login@v3
       with:
         registry: ${{ env.ACRNAME }}.azurecr.io
         username: ${{ secrets.ACR_USERNAME }}

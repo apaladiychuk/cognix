@@ -75,10 +75,11 @@ type (
 		sessionID     uuid.NullUUID
 	}
 	MSTeamParameters struct {
-		Team     string                      `json:"team"`
-		Channels model.StringSlice           `json:"channels"`
-		Token    *oauth2.Token               `json:"token"`
-		Files    *microsoftcore.MSDriveParam `json:"files"`
+		Team         string                      `json:"team"`
+		Channels     model.StringSlice           `json:"channels"`
+		AnalyzeChats bool                        `json:"analyze_chats"`
+		Token        *oauth2.Token               `json:"token"`
+		Files        *microsoftcore.MSDriveParam `json:"files"`
 	}
 	// MSTeamState store ms team state after each execute
 	MSTeamState struct {
@@ -108,12 +109,14 @@ func (c *MSTeams) Validate() error {
 func (c *MSTeams) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
 	params := make(map[string]string)
 
-	teamID, err := c.getTeamID(ctx)
-	if err != nil {
-		zap.S().Errorf("Prepare task get teamID : %s ", err.Error())
-		return err
+	if c.param.Team != "" {
+		teamID, err := c.getTeamID(ctx)
+		if err != nil {
+			zap.S().Errorf("Prepare task get teamID : %s ", err.Error())
+			return err
+		}
+		params[msTeamsParamTeamID] = teamID
 	}
-	params[msTeamsParamTeamID] = teamID
 	params[model.ParamSessionID] = sessionID.String()
 	return task.RunConnector(ctx, &proto.ConnectorRequest{
 		Id:     c.model.ID.IntPart(),
@@ -131,6 +134,12 @@ func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Re
 		fileSizeLimit = 1
 	}
 	c.fileSizeLimit = fileSizeLimit * model.GB
+	paramSessionID, _ := param[model.ParamSessionID]
+	if uuidSessionID, err := uuid.Parse(paramSessionID); err != nil {
+		c.sessionID = uuid.NullUUID{uuid.New(), true}
+	} else {
+		c.sessionID = uuid.NullUUID{uuidSessionID, true}
+	}
 
 	for _, doc := range c.model.Docs {
 		if doc.Signature == "" {
@@ -149,21 +158,26 @@ func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Re
 }
 func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 
-	if err := c.loadChats(ctx); err != nil {
-		return fmt.Errorf("load chats : %s", err.Error())
+	if c.param.AnalyzeChats {
+		if err := c.loadChats(ctx); err != nil {
+			return fmt.Errorf("load chats : %s", err.Error())
+		}
 	}
 
-	teamID, ok := param[msTeamsParamTeamID]
-	if !ok {
-		return fmt.Errorf("team_id is not configured")
+	if teamID, ok := param[msTeamsParamTeamID]; ok {
+		if err := c.loadChannels(ctx, teamID); err != nil {
+			return fmt.Errorf("load channels : %s", err.Error())
+		}
 	}
-	paramSessionID, _ := param[model.ParamSessionID]
-	if uuidSessionID, err := uuid.Parse(paramSessionID); err != nil {
-		c.sessionID = uuid.NullUUID{uuid.New(), true}
-	} else {
-		c.sessionID = uuid.NullUUID{uuidSessionID, true}
+	// save current state
+	zap.S().Infof("save connector state.")
+	if err := c.model.State.FromStruct(c.state); err == nil {
+		return c.connectorRepo.Update(ctx, c.model)
 	}
+	return nil
+}
 
+func (c *MSTeams) loadChannels(ctx context.Context, teamID string) error {
 	channelIDs, err := c.getChannel(ctx, teamID)
 	if err != nil {
 		return err
@@ -237,12 +251,6 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 				return err
 			}
 		}
-	}
-
-	// save current state
-	zap.S().Infof("save connector state.")
-	if err = c.model.State.FromStruct(c.state); err == nil {
-		return c.connectorRepo.Update(ctx, c.model)
 	}
 	return nil
 }

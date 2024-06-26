@@ -41,18 +41,6 @@ python3 -m grpc_tools.protoc -I .  --python_out=. --pyi_out=. --grpc_python_out=
 
 
 
-You can solve the problem by set up "protoc" options.
-
-Go into settings > Extensions > vscode-proto3 configuration and then click Edit in settings.json. (you can just edit .vscode/settings.json too.)
-
-"protoc": {
-"path": "/usr/local/bin/protoc",
-"options": [
-"--proto_path=${workspaceRoot}/common/proto",
-]
-}
-
-python3 -m chunker.chunker_service
 
 
 pod configuration

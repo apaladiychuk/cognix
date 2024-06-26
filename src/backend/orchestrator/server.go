@@ -44,13 +44,17 @@ func (s *Server) run(ctx context.Context) error {
 	zap.S().Infof("Schedule reload task")
 	go s.schedule()
 	zap.S().Infof("Start listener ...")
-	go s.listen(context.Background())
+	go s.loadFromDatabase()
 	return nil
 }
 
 // loadFromDatabase load connectors from database and run if needed
 func (s *Server) loadFromDatabase() error {
 	ctx := context.Background()
+	if !s.messenger.IsOnline() {
+		zap.S().Infof("Messenger is offline.")
+		return nil
+	}
 	zap.S().Infof("Loading connectors from db")
 	connectors, err := s.connectorRepo.GetActive(ctx)
 	if err != nil {
@@ -77,15 +81,4 @@ func (s *Server) schedule() error {
 	s.scheduler.Start()
 	return nil
 
-}
-
-// listen nats channel with updated connectors
-func (s *Server) listen(ctx context.Context) {
-
-	if err := s.loadFromDatabase(); err != nil {
-		return
-	}
-	//if err := s.messenger.Listen(ctx, model.TopicUpdateConnector, model.SubscriptionOrchestrator, s.handleTriggerRequest); err != nil {
-	//	zap.S().Errorf("failed to listen: %v", err)
-	//}
 }

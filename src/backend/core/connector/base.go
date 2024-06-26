@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-resty/resty/v2"
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"time"
 )
@@ -23,7 +24,7 @@ type Task interface {
 
 type Connector interface {
 	Execute(ctx context.Context, param map[string]string) chan *Response
-	PrepareTask(ctx context.Context, task Task) error
+	PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error
 	Validate() error
 }
 
@@ -68,7 +69,7 @@ func (n *nopConnector) Validate() error {
 	return nil
 }
 
-func (n *nopConnector) PrepareTask(ctx context.Context, task Task) error {
+func (n *nopConnector) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
 	return nil
 }
 

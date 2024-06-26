@@ -67,7 +67,7 @@ func (t *trigger) Do(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		sessionID := uuid.New().String()
+		sessionID := uuid.New()
 		if err = connWF.PrepareTask(ctx, sessionID, t); err != nil {
 			span.RecordError(err)
 			zap.S().Errorf("failed to prepare task for connector %s[%d]: %v", t.connectorModel.Name, t.connectorModel.ID.IntPart(), err)

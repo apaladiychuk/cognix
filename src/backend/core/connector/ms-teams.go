@@ -159,7 +159,7 @@ func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Re
 func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 
 	if c.param.AnalyzeChats {
-		if err := c.loadChats(ctx); err != nil {
+		if err := c.loadChats(ctx, ""); err != nil {
 			return fmt.Errorf("load chats : %s", err.Error())
 		}
 	}
@@ -428,11 +428,16 @@ func (c *MSTeams) buildMDMessage(msg *microsoftcore.MessageBody) string {
 	return fmt.Sprintf(messageTemplate, userName, message)
 }
 
-func (c *MSTeams) loadChats(ctx context.Context) error {
+func (c *MSTeams) loadChats(ctx context.Context, nextLink string) error {
 	var response microsoftcore.MSTeamsChatResponse
-	if err := c.requestAndParse(ctx, msTeamsChats, &response); err != nil {
+	url := nextLink
+	if url == "" {
+		url = msTeamsChats
+	}
+	if err := c.requestAndParse(ctx, url, &response); err != nil {
 		return err
 	}
+
 	for _, chat := range response.Value {
 		sourceID := fmt.Sprintf("chat:%s", chat.Id)
 		result, err := c.loadChatMessages(ctx, chat.Id)
@@ -472,6 +477,10 @@ func (c *MSTeams) loadChats(ctx context.Context) error {
 			},
 			UpToData: false,
 		}
+	}
+	if response.NexLink != "" {
+		zap.S().Debugf("load next chats...")
+		return c.loadChats(ctx, response.NexLink)
 	}
 	return nil
 }

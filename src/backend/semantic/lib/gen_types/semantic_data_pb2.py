@@ -12,7 +12,7 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-import file_type_pb2 as file__type__pb2
+import lib.gen_types.file_type_pb2 as file__type__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13semantic_data.proto\x12\ncom.cognix\x1a\x0f\x66ile_type.proto\"\xfa\x01\n\x0cSemanticData\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x15\n\rurl_recursive\x18\x02 \x01(\x08\x12\x10\n\x08site_map\x18\x03 \x01(\t\x12\x1a\n\x12search_for_sitemap\x18\x04 \x01(\x08\x12\x13\n\x0b\x64ocument_id\x18\x05 \x01(\x03\x12\x14\n\x0c\x63onnector_id\x18\x06 \x01(\x03\x12\'\n\tfile_type\x18\x07 \x01(\x0e\x32\x14.com.cognix.FileType\x12\x17\n\x0f\x63ollection_name\x18\x08 \x01(\t\x12\x12\n\nmodel_name\x18\t \x01(\t\x12\x17\n\x0fmodel_dimension\x18\n \x01(\x05\x42\x1aZ\x18\x62\x61\x63kend/core/proto;protob\x06proto3')

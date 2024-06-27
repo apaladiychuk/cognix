@@ -442,7 +442,8 @@ func (c *MSTeams) loadChats(ctx context.Context, nextLink string) error {
 		sourceID := fmt.Sprintf("chat:%s", chat.Id)
 		result, err := c.loadChatMessages(ctx, chat.Id)
 		if err != nil {
-			return err
+			zap.S().Errorf("error loading chat messages: %s", err.Error())
+			continue
 		}
 		if len(result.Messages) == 0 {
 			continue

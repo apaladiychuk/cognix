@@ -160,13 +160,15 @@ func (c *MSTeams) execute(ctx context.Context, param map[string]string) error {
 
 	if c.param.AnalyzeChats {
 		if err := c.loadChats(ctx, ""); err != nil {
-			return fmt.Errorf("load chats : %s", err.Error())
+			zap.S().Errorf("error loading chats : %s ", err.Error())
+			//return fmt.Errorf("load chats : %s", err.Error())
 		}
 	}
 
 	if teamID, ok := param[msTeamsParamTeamID]; ok {
 		if err := c.loadChannels(ctx, teamID); err != nil {
-			return fmt.Errorf("load channels : %s", err.Error())
+			zap.S().Errorf("error loading channels : %s ", err.Error())
+			//return fmt.Errorf("load channels : %s", err.Error())
 		}
 	}
 	// save current state
@@ -435,7 +437,7 @@ func (c *MSTeams) loadChats(ctx context.Context, nextLink string) error {
 		url = msTeamsChats
 	}
 	if err := c.requestAndParse(ctx, url, &response); err != nil {
-		return err
+		return nil
 	}
 
 	for _, chat := range response.Value {

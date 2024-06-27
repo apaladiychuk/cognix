@@ -235,6 +235,11 @@ func (p *MilvusPayload) FromResult(i int, res milvus.SearchResult) error {
 				if err = json.Unmarshal([]byte(contentS), &content); err == nil {
 					p.Content = content[ColumnNameContent]
 				}
+			} else {
+				content := make(map[string]string)
+				if err = json.Unmarshal([]byte(row), &content); err == nil {
+					p.Content = content[ColumnNameContent]
+				}
 			}
 		}
 		if err != nil {

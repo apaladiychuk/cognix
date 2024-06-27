@@ -30,8 +30,8 @@ const (
 	msTeamsFilesFolder   = "https://graph.microsoft.com/v1.0/teams/%s/channels/%s/filesFolder"
 	msTeamsFolderContent = "https://graph.microsoft.com/v1.0/groups/%s/drive/items/%s/children"
 
-	msTeamsChats           = "https://graph.microsoft.com/v1.0/chats?$top=2"
-	msTeamsChatMessagesURL = "https://graph.microsoft.com/v1.0/chats/%s/messages?$top=2"
+	msTeamsChats           = "https://graph.microsoft.com/v1.0/chats?$top=50"
+	msTeamsChatMessagesURL = "https://graph.microsoft.com/v1.0/chats/%s/messages?$top=50"
 
 	msTeamsParamTeamID = "team_id"
 

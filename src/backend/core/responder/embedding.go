@@ -62,6 +62,7 @@ func (r *embedding) FindDocuments(ctx context.Context,
 		return nil, err
 	}
 	var result []*model.DocumentResponse
+	mapResult := make(map[string]*model.DocumentResponse)
 	for _, collectionName := range collectionNames {
 		docs, err := r.milvusClinet.Load(ctx, collectionName, response.GetVector())
 		if err != nil {
@@ -86,6 +87,11 @@ func (r *embedding) FindDocuments(ctx context.Context,
 					resDocument.UpdatedDate = dbDoc.CreationDate
 				}
 			}
+			zap.S().Infof("find document %d", doc.DocumentID)
+			if _, ok := mapResult[resDocument.DocumentID]; ok {
+				continue
+			}
+			mapResult[resDocument.DocumentID] = resDocument
 			result = append(result, resDocument)
 			ch <- &Response{
 				IsValid:  true,

@@ -87,7 +87,6 @@ func (r *embedding) FindDocuments(ctx context.Context,
 					resDocument.UpdatedDate = dbDoc.CreationDate
 				}
 			}
-			zap.S().Infof("find document %d", doc.DocumentID)
 			if _, ok := mapResult[resDocument.DocumentID]; ok {
 				continue
 			}

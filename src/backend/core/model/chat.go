@@ -75,7 +75,7 @@ func (c *ChatMessage) AfterSelect(ctx context.Context) error {
 		doc := &DocumentResponse{
 			ID:         dp.DocumentID,
 			MessageID:  dp.ChatMessageID,
-			Link:       dp.Document.URL,
+			Link:       dp.Document.OriginalURL,
 			DocumentID: dp.Document.SourceID,
 		}
 		if !dp.Document.LastUpdate.IsZero() {

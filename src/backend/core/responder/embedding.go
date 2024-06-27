@@ -87,7 +87,6 @@ func (r *embedding) FindDocuments(ctx context.Context,
 					resDocument.UpdatedDate = dbDoc.CreationDate
 				}
 			}
-			zap.S().Infof("find document %d", doc.DocumentID)
 			if _, ok := mapResult[resDocument.DocumentID]; ok {
 				continue
 			}
@@ -103,6 +102,7 @@ func (r *embedding) FindDocuments(ctx context.Context,
 	return result, nil
 }
 
+// NewEmbeddingResponder creates new instance os embedder responder
 func NewEmbeddingResponder(embeddProto proto.EmbedServiceClient,
 	milvusClinet storage.MilvusClient,
 	docRepo repository.DocumentRepository,

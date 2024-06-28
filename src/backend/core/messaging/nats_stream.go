@@ -11,6 +11,9 @@ import (
 	"time"
 )
 
+// clientStream is a struct that represents a client stream.
+// It provides methods to interact with the stream, such as publishing messages,
+// listening for messages, and managing the stream configuration and status.
 type clientStream struct {
 	js        jetstream.JetStream
 	conn      *nats.Conn
@@ -21,21 +24,32 @@ type clientStream struct {
 	ackWait   time.Duration
 }
 
+// IsOnline checks if the client is currently online by checking the connection status.
 func (c *clientStream) IsOnline() bool {
 	return c.conn.Status() == nats.CONNECTED
 }
 
+// StreamConfig returns the StreamConfig object associated with the clientStream
 func (c *clientStream) StreamConfig() *StreamConfig {
 
 	return c.streamCfg
 }
 
+// Close completes the current operation and waits for all goroutines to finish.
+// It increments the wait group by 1, cancels the context, and waits for all goroutines to finish.
+// Any goroutine that is waiting for the wait group to become zero will unblock after this operation completes.
 func (c *clientStream) Close() {
 	c.wg.Add(1)
 	c.cancel()
 	c.wg.Wait()
 }
 
+// Publish sends a message to the specified stream and topic.
+// It first creates or updates the stream using the provided stream name,
+// with a retention policy of WorkQueuePolicy and the specified topic.
+// Then it marshals the provided body into a protobuf message,
+// and publishes it to the NATS JetStream using the specified context and topic.
+// Returns any error encountered during the process.
 func (c *clientStream) Publish(ctx context.Context, streamName, topic string, body proto2.Message) error {
 	_, err := c.js.CreateOrUpdateStream(context.Background(), jetstream.StreamConfig{
 		Name:      streamName,
@@ -97,6 +111,29 @@ func (c *clientStream) Listen(ctx context.Context, streamName, topic string, han
 	return nil
 }
 
+// NewClientStream creates a new client stream by connecting to NATS using the provided configuration.
+// It returns a Client interface and an error. If the connection to NATS fails, it returns nil for the client
+// and the corresponding error. If the connection is successful, it creates a JetStream object and initializes
+// a clientStream object with the JetStream and other necessary attributes.
+// The clientStream object implements the Client interface and is returned along with a nil error.
+//
+// Example usage:
+//
+//	cfg := &Config{
+//	    Nats: &natsConfig{
+//	        URL:                 "localhost:4222",
+//	        ConnectorStreamName: "test-1",
+//	    },
+//	    Stream: &StreamConfig{},
+//	}
+//
+// client, err := NewClientStream(cfg)
+//
+//	if err != nil {
+//	    // Handle error
+//	}
+//
+// defer client.Close()
 func NewClientStream(cfg *Config) (Client, error) {
 	conn, err := nats.Connect(
 		cfg.Nats.URL,

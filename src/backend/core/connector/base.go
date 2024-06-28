@@ -14,26 +14,47 @@ import (
 	"time"
 )
 
-const ()
-
+// Task is an interface that represents a task to be executed. It defines three methods:
 type Task interface {
 	RunConnector(ctx context.Context, data *proto.ConnectorRequest) error
 	RunSemantic(ctx context.Context, data *proto.SemanticData) error
 	UpToDate(ctx context.Context) error
 }
 
+// Connector is an interface that represents a connector.
 type Connector interface {
 	Execute(ctx context.Context, param map[string]string) chan *Response
 	PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error
 	Validate() error
 }
 
+// Base is a struct that represents the base properties and methods needed for various connectors.
+//
+// The struct contains the following fields:
+// - model: a pointer to a Connector struct that represents a table connector.
+// - connectorRepo: an interface for interacting with the connector repository.
+// - resultCh: a channel for receiving response data.
+// - oauthClient: a client for OAuth authentication.
 type Base struct {
 	model         *model.Connector
 	connectorRepo repository.ConnectorRepository
 	resultCh      chan *Response
 	oauthClient   *resty.Client
 }
+
+// Response represents a response object containing various properties related to a URL.
+//
+// The struct contains the following fields:
+// - URL: a string representing the URL.
+// - SiteMap: a string representing the site map.
+// - SearchForSitemap: a boolean indicating whether to search for a sitemap.
+// - Name: a string representing the name.
+// - SourceID: a string representing the source ID.
+// - DocumentID: an int64 representing the document ID.
+// - MimeType: a string representing the mime type.
+// - FileType: a proto.FileType representing the file type.
+// - Signature: a string representing the signature.
+// - Content: a pointer to a Content struct representing the content
 type Response struct {
 	URL              string
 	SiteMap          string
@@ -41,12 +62,11 @@ type Response struct {
 	Name             string
 	SourceID         string
 	DocumentID       int64
-	//Content          []byte
-	MimeType  string
-	FileType  proto.FileType
-	Signature string
-	Content   *Content
-	UpToData  bool
+	MimeType         string
+	FileType         proto.FileType
+	Signature        string
+	Content          *Content
+	UpToData         bool
 }
 
 // Content  defines action for stop content in minio database
@@ -55,10 +75,6 @@ type Content struct {
 	URL           string // URL for download
 	Body          []byte // Body raw content  for store
 	AppendContent bool   // if true content will be added to existing file on minio
-}
-
-type Builder struct {
-	connectorRepo repository.ConnectorRepository
 }
 
 type nopConnector struct {

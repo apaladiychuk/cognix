@@ -12,14 +12,26 @@ import (
 	"strconv"
 )
 
+// EmbeddingModelHandler handles HTTP requests related to embedding models.
 type EmbeddingModelHandler struct {
 	embeddingModelBL bll.EmbeddingModelBL
 }
 
+// NewEmbeddingModelHandler creates a new instance of EmbeddingModelHandler.
+// It takes an instance of EmbeddingModelBL as a parameter and returns EmbeddingModelHandler.
+//
+// Parameters:
+// - embeddingModelBL: an instance of EmbeddingModelBL used to handle embedding models.
+//
+// Returns:
+// - *EmbeddingModelHandler: a new instance of EmbeddingModelHandler.
 func NewEmbeddingModelHandler(embeddingModelBL bll.EmbeddingModelBL) *EmbeddingModelHandler {
 	return &EmbeddingModelHandler{embeddingModelBL: embeddingModelBL}
 }
 
+// Mount mounts the routes related to embedding models on the given router.
+// @param router: The Gin router to mount the routes on.
+// @param authMiddleware: The authentication middleware to apply to the routes.
 func (h *EmbeddingModelHandler) Mount(router *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := router.Group("/api/manage/embedding_models").Use(authMiddleware)
 	handler.GET("/", server.HandlerErrorFuncAuth(h.GetAll))

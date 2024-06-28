@@ -12,15 +12,27 @@ import (
 	"strconv"
 )
 
+// ConnectorHandler represents a handler for managing connectors.
 type ConnectorHandler struct {
 	connectorBL bll.ConnectorBL
 }
 
+// NewCollectorHandler creates a new instance of ConnectorHandler.
+//
+// Parameters:
+// - connectorBL: a ConnectorBL instance that handles connector-related business logic.
+//
+// Returns:
+// - *ConnectorHandler: a pointer to the newly created ConnectorHandler instance.
 func NewCollectorHandler(connectorBL bll.ConnectorBL) *ConnectorHandler {
 	return &ConnectorHandler{
 		connectorBL: connectorBL,
 	}
 }
+
+// Mount mounts the ConnectorHandler routes to the specified gin.Engine
+// @param route the gin.Engine to mount the routes to
+// @param authMiddleware the authentication middleware to use
 func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := route.Group("/api/manage/connector")
 	handler.Use(authMiddleware)

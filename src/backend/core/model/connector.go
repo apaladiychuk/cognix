@@ -22,6 +22,7 @@ const (
 	ConnectorStatusUnableProcess    = "UNABLE_TO_PROCESS"
 )
 
+// Connector is a struct that represents a table connector.
 type Connector struct {
 	tableName               struct{}             `pg:"connectors"`
 	ID                      decimal.Decimal      `json:"id,omitempty"`
@@ -43,15 +44,33 @@ type Connector struct {
 	User                    *User                `json:"-" pg:"rel:has-one,fk:user_id"`
 }
 
+// CollectionName returns the name of the collection based on the provided userID and tenantID.
+// If the tenantID is valid, it formats the collection name as "tenant_{tenantID}" without "-" characters.
+// Otherwise, it formats the collection name as "user_{userID}" without "-" characters.
+// This function uses the constants CollectionTenant and CollectionUser for formatting.
 func (c *Connector) CollectionName() string {
 	return CollectionName(c.UserID, c.TenantID)
 }
+
+// BuildFileName returns a formatted filename based on the Connector's UserID and TenantID.
+// If the TenantID is valid, the filename will be formatted as "user-{UserID}/{filename}",
+// otherwise it will be the same as the input filename.
 func (c *Connector) BuildFileName(filename string) string {
 	if c.TenantID.Valid {
 		return fmt.Sprintf("user-%s/%s", c.UserID.String(), filename)
 	}
 	return filename
 }
+
+// CollectionName returns the name of the collection based on the provided userID and tenantID.
+// If the tenantID is valid, it formats the collection name as "tenant_{tenantID}" without "-" characters.
+// Otherwise, it formats the collection name as "user_{userID}" without "-" characters.
+// This function uses the constants CollectionTenant and CollectionUser for formatting.
+// Example usage:
+//
+//	func (c *Connector) CollectionName() string {
+//	  return CollectionName(c.UserID, c.TenantID)
+//	}
 func CollectionName(userID uuid.UUID, tenantID uuid.NullUUID) string {
 	if tenantID.Valid {
 		return strings.ReplaceAll(fmt.Sprintf(CollectionTenant, tenantID.UUID.String()), "-", "")

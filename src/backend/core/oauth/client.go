@@ -37,6 +37,8 @@ type (
 		Token        *oauth2.Token `json:"token,omitempty"`
 	}
 
+	// Proxy represents an interface for implementing an OAuth proxy.
+	//
 	Proxy interface {
 		GetAuthURL(ctx context.Context, redirectUrl, state string) (string, error)
 		ExchangeCode(ctx context.Context, code string) (*IdentityResponse, error)
@@ -44,6 +46,11 @@ type (
 	}
 )
 
+// NewProvider creates a new OAuth provider based on the given name and configuration.
+// Currently, only the "microsoft" provider is supported. If the name does not match any
+// supported provider, an error is returned. If the provider is supported, it creates
+// an instance of the provider with the specified configuration and returns it.
+// The returned provider implements the Proxy interface.
 func NewProvider(name string, cfg *Config) (Proxy, error) {
 	switch name {
 	case ProviderMicrosoft:

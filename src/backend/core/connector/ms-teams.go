@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
@@ -102,8 +103,25 @@ type (
 	}
 )
 
+func (p MSTeamParameters) Validate() error {
+	return validation.ValidateStruct(&p,
+		validation.Field(&p.Token, validation.By(func(value interface{}) error {
+			if p.Token == nil {
+				return fmt.Errorf("missing token")
+			}
+			if p.Token.AccessToken == "" || p.Token.RefreshToken == "" ||
+				p.Token.TokenType == "" {
+				return fmt.Errorf("wrong token")
+			}
+			return nil
+		})),
+	)
+}
 func (c *MSTeams) Validate() error {
-	return nil
+	if c.param == nil {
+		return fmt.Errorf("file parameter is required")
+	}
+	return c.param.Validate()
 }
 
 func (c *MSTeams) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
@@ -577,6 +595,9 @@ func NewMSTeams(connector *model.Connector,
 	conn.Base.Config(connector)
 
 	if err := connector.ConnectorSpecificConfig.ToStruct(conn.param); err != nil {
+		return nil, err
+	}
+	if err := conn.Validate(); err != nil {
 		return nil, err
 	}
 

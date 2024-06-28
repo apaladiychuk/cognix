@@ -17,12 +17,21 @@ type TenantHandler struct {
 	tenantBL bll.TenantBL
 }
 
+// NewTenantHandler create new TenantHandler instance
+// without duplicating the declaration code
+// @param TenantBL tenant business logic interface
+// @return *TenantHandler the new TenantHandler instance
 func NewTenantHandler(TenantBL bll.TenantBL) *TenantHandler {
 	return &TenantHandler{
 		tenantBL: TenantBL,
 	}
 }
 
+// Mount mounts the TenantHandler routes onto the provided gin.Engine.
+// The routes are prefixed with "/api/tenant" and use the provided TenantMiddleware
+//
+// @param route - The gin.Engine to mount the routes onto
+// @param TenantMiddleware - The gin.HandlerFunc to use as middleware
 func (h *TenantHandler) Mount(route *gin.Engine, TenantMiddleware gin.HandlerFunc) {
 	handler := route.Group("/api/tenant")
 	handler.Use(TenantMiddleware)

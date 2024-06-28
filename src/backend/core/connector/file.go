@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/proto"
 	"context"
 	"fmt"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"time"
@@ -22,8 +23,17 @@ type (
 	}
 )
 
+func (p FileParameters) Validate() error {
+	return validation.ValidateStruct(&p,
+		validation.Field(&p.FileName, validation.Required),
+		validation.Field(&p.MIMEType, validation.Required),
+	)
+}
 func (c *File) Validate() error {
-	return nil
+	if c.param == nil {
+		return fmt.Errorf("file parameter is required")
+	}
+	return c.param.Validate()
 }
 
 func (c *File) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
@@ -97,6 +107,8 @@ func NewFile(connector *model.Connector) (Connector, error) {
 	if err := connector.ConnectorSpecificConfig.ToStruct(fileConn.param); err != nil {
 		return nil, err
 	}
-
+	if err := fileConn.Validate(); err != nil {
+		return nil, err
+	}
 	return &fileConn, nil
 }

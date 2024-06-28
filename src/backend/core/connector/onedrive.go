@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	_ "github.com/AzureAD/microsoft-authentication-library-for-go/apps/confidential"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"golang.org/x/oauth2"
@@ -44,7 +45,10 @@ type (
 )
 
 func (c *OneDrive) Validate() error {
-	return nil
+	if c.param == nil {
+		return fmt.Errorf("file parameter is required")
+	}
+	return c.param.Validate()
 }
 
 type GetDriveResponse struct {
@@ -72,6 +76,21 @@ type MsFile struct {
 
 type Folder struct {
 	ChildCount int `json:"childCount"`
+}
+
+func (p OneDriveParameters) Validate() error {
+	return validation.ValidateStruct(&p,
+		validation.Field(&p.Token, validation.By(func(value interface{}) error {
+			if p.Token == nil {
+				return fmt.Errorf("missing token")
+			}
+			if p.Token.AccessToken == "" || p.Token.RefreshToken == "" ||
+				p.Token.TokenType == "" {
+				return fmt.Errorf("wrong token")
+			}
+			return nil
+		})),
+	)
 }
 
 func (c *OneDrive) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
@@ -158,6 +177,10 @@ func NewOneDrive(connector *model.Connector,
 	if err := connector.ConnectorSpecificConfig.ToStruct(conn.param); err != nil {
 		return nil, err
 	}
+	if err := conn.Validate(); err != nil {
+		return nil, err
+	}
+
 	newToken, err := conn.refreshToken(conn.param.Token)
 	if err != nil {
 		return nil, err

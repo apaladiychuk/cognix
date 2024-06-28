@@ -12,14 +12,33 @@ import (
 	"strconv"
 )
 
+// PersonaHandler handles operations related to personas.
 type PersonaHandler struct {
 	personaBL bll.PersonaBL
 	aiBuilder *ai.Builder
 }
 
+// NewPersonaHandler returns a new instance of PersonaHandler.
+// The PersonaHandler handles operations related to personas.
+//
+// Parameters:
+// - personaBL: an instance of PersonaBL, the business logic layer for personas.
+// - aiBuilder: an instance of ai.Builder, used for AI-related operations.
+//
+// Returns:
+//
+//	An instance of PersonaHandler.
+//
+// Example:
+//
+//	personaHandler := NewPersonaHandler(personaBL, aiBuilder)
 func NewPersonaHandler(personaBL bll.PersonaBL, aiBuilder *ai.Builder) *PersonaHandler {
 	return &PersonaHandler{personaBL: personaBL, aiBuilder: aiBuilder}
 }
+
+// Mount mounts PersonaHandler routes to the given route with the provided authMiddleware.
+// The routes include route group "/api/manage/personas" with the following endpoints:
+// - GET /api/manage/person
 func (h *PersonaHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := route.Group("/api/manage/personas")
 	handler.Use(authMiddleware)

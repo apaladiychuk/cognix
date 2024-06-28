@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// EmbeddingModel is a struct that represents an embedding model.
 type EmbeddingModel struct {
 	tableName struct{} `pg:"embedding_models"`
 

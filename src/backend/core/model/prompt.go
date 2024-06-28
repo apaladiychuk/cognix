@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// Prompt represents a model of the prompts table.
 type Prompt struct {
 	tableName    struct{}        `pg:"prompts"`
 	ID           decimal.Decimal `json:"id,omitempty"`

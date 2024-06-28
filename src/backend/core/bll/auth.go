@@ -11,19 +11,29 @@ import (
 )
 
 type (
+
+	// AuthBL represents the business logic for user authentication and sign-up.
 	AuthBL interface {
 		Login(ctx context.Context, userName string) (*model.User, error)
 		SignUp(ctx context.Context, identity *oauth.IdentityResponse) (*model.User, error)
-		//Invite(ctx context.Context, identity *security.Identity, param *parameters.InviteParam) (string, error)
-		//JoinToTenant(ctx context.Context, state *parameters.OAuthParam, response *oauth.IdentityResponse) (*model.User, error)
 		QuickLogin(ctx context.Context, identity *oauth.IdentityResponse) (*model.User, error)
 	}
+
+	// authBL represents the business logic for user authentication and sign-up.
 	authBL struct {
 		userRepo repository.UserRepository
 		cfg      *Config
 	}
 )
 
+// NewAuthBL creates a new instance of AuthBL.
+//
+// Parameters:
+// - userRepo: an implementation of the UserRepository interface.
+// - cfg: a pointer to the Config struct.
+//
+// Returns:
+// - AuthBL: a new instance of AuthBL.
 func NewAuthBL(userRepo repository.UserRepository,
 
 	cfg *Config) AuthBL {
@@ -33,6 +43,15 @@ func NewAuthBL(userRepo repository.UserRepository,
 	}
 }
 
+// Login performs the authentication process for a user.
+//
+// Parameters:
+// - ctx: the context for the operation.
+// - userName: the username of the user to authenticate.
+//
+// Returns:
+// - *model.User: the authenticated user.
+// - error: an error if any occurred during the authentication process.
 func (a *authBL) Login(ctx context.Context, userName string) (*model.User, error) {
 	user, err := a.userRepo.GetByUserName(ctx, userName)
 	if err != nil {
@@ -41,6 +60,15 @@ func (a *authBL) Login(ctx context.Context, userName string) (*model.User, error
 	return user, nil
 }
 
+// SignUp creates a new user and registers them in the system.
+//
+// Parameters:
+// - ctx: the context for the operation.
+// - identity: the identity information of the user obtained from the OAuth provider.
+//
+// Returns:
+// - *model.User: the newly created and registered user.
+// - error: an error if any occurred during the sign-up process.
 func (a *authBL) SignUp(ctx context.Context, identity *oauth.IdentityResponse) (*model.User, error) {
 	exists, err := a.userRepo.IsUserExists(ctx, identity.Email)
 	if err != nil {
@@ -82,52 +110,15 @@ func (a *authBL) SignUp(ctx context.Context, identity *oauth.IdentityResponse) (
 	return &user, nil
 }
 
-//func (a *authBL) Invite(ctx context.Context, identity *security.Identity, param *parameters.InviteParam) (string, error) {
+// QuickLogin performs a quick login process for a user using their identity information from an OAuth provider.
 //
-//	exists, err := a.userRepo.IsUserExists(ctx, param.Email)
-//	if err != nil {
-//		return "", err
-//	}
-//	if exists {
-//		return "", utils.ErrorBadRequest.New("user already registered.")
-//	}
-//	//buf, err := json.Marshal(parameters.OAuthParam{Action: oauth.InviteState,
-//	//	Role:     param.Role,
-//	//	Email:    param.Email,
-//	//	TenantID: identity.User.TenantID.String(),
-//	//})
-//	//if err != nil {
-//	//	return "", utils.Internal.Wrap(err, "can not marshal payload")
-//	//}
-//	key := uuid.New()
-//	//if err = a.storage.Save(key.String(), buf); err != nil {
-//	//	return "", err
-//	//}
-//	state := base64.URLEncoding.EncodeToString([]byte(key.String()))
+// Parameters:
+// - ctx: the context for the operation.
+// - identity: the identity information of the user obtained from the OAuth provider.
 //
-//	return fmt.Sprintf("%s/auth/google/invite?state=%s", a.redirectURL, state), nil
-//
-//}
-//
-//func (a *authBL) JoinToTenant(ctx context.Context, state *parameters.OAuthParam, response *oauth.IdentityResponse) (*model.User, error) {
-//	//if state.Email != response.Email {
-//	//	return nil, utils.ErrorPermission.New("email is not equals to invite")
-//	//}
-//	user := model.User{
-//		ID:         uuid.New(),
-//		TenantID:   uuid.MustParse(state.TenantID),
-//		UserName:   state.Email,
-//		FirstName:  response.GivenName,
-//		LastName:   response.FamilyName,
-//		ExternalID: response.ID,
-//		Roles:      model.StringSlice{state.Role},
-//	}
-//	if err := a.userRepo.Create(ctx, &user); err != nil {
-//		return nil, err
-//	}
-//	return &user, nil
-//}
-
+// Returns:
+// - *model.User: the authenticated user.
+// - error: an error if any occurred during the quick login process.
 func (a *authBL) QuickLogin(ctx context.Context, identity *oauth.IdentityResponse) (*model.User, error) {
 	exists, err := a.userRepo.IsUserExists(ctx, identity.Email)
 	if err != nil {

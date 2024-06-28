@@ -12,6 +12,7 @@ type Defaults struct {
 	EmbeddingModel *EmbeddingModel
 }
 
+// User represents a user in the system.
 type User struct {
 	ID             uuid.UUID       `json:"id,omitempty"`
 	TenantID       uuid.UUID       `json:"tenant_id,omitempty"`
@@ -25,6 +26,15 @@ type User struct {
 	Defaults       *Defaults       `json:"-" pg:"-"`
 }
 
+// HasRoles checks if the user has any of the specified roles.
+// It returns true if the user has at least one of the specified roles,
+// otherwise it returns false.
+//
+// Parameters:
+// - role: variadic parameter that represents the roles to check.
+//
+// Returns:
+// - bool: true if the user has at least one of the specified roles, false otherwise.
 func (u *User) HasRoles(role ...string) bool {
 	for _, r := range role {
 		for _, ur := range u.Roles {

@@ -12,14 +12,23 @@ import (
 	"sync"
 )
 
+// DocumentHandler is a type that handles document-related operations in the system.
 type DocumentHandler struct {
 	documentBL bll.DocumentBL
 }
 
+// NewDocumentHandler creates a new instance of DocumentHandler by injecting a DocumentBL implementation.
+//
+// Parameters:
+// - documentBL: An instance of DocumentBL that handles document-related operations.
+//
+// Returns:
+// - *DocumentHandler: A pointer to the newly created DocumentHandler instance.
 func NewDocumentHandler(documentBL bll.DocumentBL) *DocumentHandler {
 	return &DocumentHandler{documentBL: documentBL}
 }
 
+// Mount sets up the document-related routes by adding them to the specified gin.Engine instance.
 func (h *DocumentHandler) Mount(router *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := router.Group("/api/manage/documents").Use(authMiddleware)
 	handler.GET("/", server.HandlerErrorFuncAuth(h.GetAll))

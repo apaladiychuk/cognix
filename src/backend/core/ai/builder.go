@@ -5,15 +5,50 @@ import (
 	"sync"
 )
 
+// Builder is a type that manages the creation and caching of OpenAIClient instances.
+// Type Declaration:
+//
+//	type Builder struct {
+//			clients map[int64]OpenAIClient
+//			mx      sync.Mutex
+//	}
+//
+// Usage Example:
+// NewBuilder returns a new instance of Builder.
+// go doc Builder
+//
+// Returns:
+//
+//	An instance of Builder.
+//
+// Example:
+//
+//	builder := NewBuilder()
 type Builder struct {
 	clients map[int64]OpenAIClient
 	mx      sync.Mutex
 }
 
+// NewBuilder returns a new instance of Builder.
+//
+// Returns:
+//
+//	An instance of Builder.
 func NewBuilder() *Builder {
 	return &Builder{clients: make(map[int64]OpenAIClient)}
 }
 
+// New returns a new instance of OpenAIClient. If the client for the given LLM ID already exists in the Builder's cache,
+// that client is returned; otherwise, a new client is created using the NewOpenAIClient function. The client is then
+// added to the Builder's cache and returned.
+//
+// Parameters:
+//
+//	llm - The LLM model used to create the OpenAIClient.
+//
+// Returns:
+//
+//	An instance of OpenAIClient.
 func (b *Builder) New(llm *model.LLM) OpenAIClient {
 	b.mx.Lock()
 	defer b.mx.Unlock()
@@ -24,6 +59,8 @@ func (b *Builder) New(llm *model.LLM) OpenAIClient {
 	b.clients[llm.ID.IntPart()] = client
 	return client
 }
+
+// Invalidate removes the OpenAIClient instance for the given LLM ID from the Builder's cache.
 func (b *Builder) Invalidate(llm *model.LLM) {
 	b.mx.Lock()
 	delete(b.clients, llm.ID.IntPart())

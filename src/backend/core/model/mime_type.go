@@ -6,6 +6,8 @@ const (
 	MIMEURL = "url"
 )
 
+// SupportedMimeTypes is a map that associates MIME types with proto.FileType values.
+// It is used to determine the file type based on the MIME type.
 var SupportedMimeTypes = map[string]proto.FileType{
 	MIMEURL: proto.FileType_URL,
 	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": proto.FileType_XLSX,
@@ -33,6 +35,8 @@ var SupportedMimeTypes = map[string]proto.FileType{
 	"video/m4a":                                                                 proto.FileType_M4A,
 }
 
+// SupportedExtensions is a map that associates file extensions with their corresponding MIME types.
+// It is used to determine the MIME type based on the file extension.
 var SupportedExtensions = map[string]string{
 	"PDF":  "application/pdf",
 	"XLSX": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

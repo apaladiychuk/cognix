@@ -4,6 +4,9 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"context"
+	"fmt"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/google/uuid"
 )
 
@@ -17,8 +20,17 @@ type (
 	}
 )
 
+func (p YoutubeParameters) Validate() error {
+	return validation.ValidateStruct(&p,
+		validation.Field(&p.URL, validation.Required,
+			is.URL),
+	)
+}
 func (c *Youtube) Validate() error {
-	return nil
+	if c.param == nil {
+		return fmt.Errorf("file parameter is required")
+	}
+	return c.param.Validate()
 }
 
 func (c *Youtube) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
@@ -64,6 +76,8 @@ func NewYoutube(connector *model.Connector) (Connector, error) {
 	if err := connector.ConnectorSpecificConfig.ToStruct(youtube.param); err != nil {
 		return nil, err
 	}
-
+	if err := youtube.Validate(); err != nil {
+		return nil, err
+	}
 	return &youtube, nil
 }

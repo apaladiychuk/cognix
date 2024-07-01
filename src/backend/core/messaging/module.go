@@ -7,7 +7,6 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"time"
 )
 
 const (
@@ -39,20 +38,17 @@ type (
 		MaxDeliver             int    `env:"NATS_CLIENT_CONNECTOR_MAX_DELIVER,required"`
 	}
 
+	// MessageHandler represents a function type
 	MessageHandler func(ctx context.Context, msg jetstream.Msg) error
-	Client         interface {
+
+	// Client is an interface that defines the methods for interacting with a messaging client.
+	Client interface {
 		Publish(ctx context.Context, streamName, topic string, body proto2.Message) error
 		Listen(ctx context.Context, streamName, topic string, handler MessageHandler) error
 		StreamConfig() *StreamConfig
 		IsOnline() bool
 		Close()
 	}
-)
-
-const (
-	reconnectAttempts = 120
-	reconnectWaitTime = 5 * time.Second
-	streamMaxPending  = 256
 )
 
 var NatsModule = fx.Options(

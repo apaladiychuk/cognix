@@ -23,6 +23,11 @@ type AuthHandler struct {
 	//storage     storage.Storage
 }
 
+// NewAuthHandler initializes a new instance of AuthHandler
+// @param oauthClient: OAuth proxy implementation
+// @param jwtService: JWT service implementation
+// @param authBL: Authentication business logic
+// @return: AuthHandler instance
 func NewAuthHandler(oauthClient oauth.Proxy,
 	jwtService security.JWTService,
 	authBL bll.AuthBL,
@@ -36,6 +41,7 @@ func NewAuthHandler(oauthClient oauth.Proxy,
 	}
 }
 
+// Mount sets up authentication routes by adding them to the specified `gin.Engine` instance.
 func (h *AuthHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := route.Group("/api/auth")
 	handler.GET("/google/login", server.HandlerErrorFunc(h.SignIn))

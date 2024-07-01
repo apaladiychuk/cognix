@@ -10,19 +10,29 @@ import (
 	"time"
 )
 
+// ContextParamUser is a constant representing the key used to store user identity
+// information in the request context.
 const ContextParamUser = "CONTEXT_USER"
 
+// AuthMiddleware is a middleware that performs authentication for incoming requests.
 type AuthMiddleware struct {
 	jwtService security.JWTService
 	userRepo   repository.UserRepository
 }
 
+// NewAuthMiddleware creates a new AuthMiddleware with the given JWTService and UserRepository.
+// Parameters:
+// - jwtService: service for JWT operations
+// - userRepo: repository for user operations
+// Returns:
+// - *AuthMiddleware: the new AuthMiddleware instance
 func NewAuthMiddleware(jwtService security.JWTService,
 	userRepo repository.UserRepository) *AuthMiddleware {
 	return &AuthMiddleware{jwtService: jwtService,
 		userRepo: userRepo}
 }
 
+// RequireAuth requires authentication for the given request.
 func (m *AuthMiddleware) RequireAuth(c *gin.Context) {
 
 	//Get the  bearer Token
@@ -64,6 +74,16 @@ func (m *AuthMiddleware) RequireAuth(c *gin.Context) {
 	c.Next()
 }
 
+// GetContextIdentity retrieves the identity of a user from the Gin context.
+// It returns the identity if it exists, otherwise it returns an error.
+// In case of a broken session, it returns an error with the message "broken session".
+//
+// Parameters:
+// - c: a pointer to the Gin context
+//
+// Returns:
+// - *security.Identity: the identity of the user
+// - error: an error if the identity does not exist or the session is broken
 func GetContextIdentity(c *gin.Context) (*security.Identity, error) {
 	claims, ok := c.Request.Context().Value(ContextParamUser).(*security.Identity)
 	if !ok {

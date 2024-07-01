@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Persona represents a model of the personas table.
 type Persona struct {
 	tableName       struct{}        `pg:"personas"`
 	ID              decimal.Decimal `json:"id,omitempty"`

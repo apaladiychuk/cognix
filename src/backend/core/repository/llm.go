@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// LLMRepository interface defines the methods for accessing data from the llms table.
 type (
 	LLMRepository interface {
 		GetAll(ctx context.Context) ([]*model.LLM, error)
@@ -18,6 +19,7 @@ type (
 	}
 )
 
+// GetByUserID retrieves an LLM record from the database based on the user ID.
 func (r *llmRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*model.LLM, error) {
 	var llm model.LLM
 	if err := r.db.WithContext(ctx).Model(&llm).
@@ -29,10 +31,18 @@ func (r *llmRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*mod
 	return &llm, nil
 }
 
+// NewLLMRepository creates a new instance of the LLMRepository interface using the provided *pg.DB.
 func NewLLMRepository(db *pg.DB) LLMRepository {
 	return &llmRepository{db: db}
 }
 
+// GetAll returns all LLM records stored in the llms table.
+// If there is an error retrieving the records, a NotFound error is returned.
+// The NotFound error is wrapped with additional details.
+// The method returns a slice of LLM records and an error.
+// The slice may be empty if no records are found.
+// The method uses the provided context to perform the database operation.
+// If the provided context is canceled or times out, the method returns an error.
 func (r *llmRepository) GetAll(ctx context.Context) ([]*model.LLM, error) {
 	llms := make([]*model.LLM, 0)
 	if err := r.db.WithContext(ctx).Model(&llms).Select(); err != nil {

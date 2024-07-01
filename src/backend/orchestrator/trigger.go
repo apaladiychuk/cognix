@@ -19,10 +19,14 @@ import (
 	"time"
 )
 
+// ConnectorSchedulerSpan represents a constant value used as a parameter for tracing spans.
 const (
 	ConnectorSchedulerSpan = "connector-scheduler"
 )
 
+// trigger represents a type that performs various actions based on the Connector model.
+// It requires a messaging client, ConnectorRepository, DocumentRepository, Connector model,
+// file size limit, and OAuth URL to function properly.
 type (
 	trigger struct {
 		messenger      messaging.Client
@@ -35,6 +39,10 @@ type (
 	}
 )
 
+// Do triggers the execution of a connector.
+// It checks if the connector is new or needs to be updated based on the last update and refresh frequency.
+// If needed, it prepares the task for the connector and publishes it to the appropriate stream.
+// It returns an error if any operation fails.
 func (t *trigger) Do(ctx context.Context) error {
 	// if connector is new or
 	// todo we need figure out how to use multiple  orchestrators instances
@@ -80,7 +88,7 @@ func (t *trigger) Do(ctx context.Context) error {
 	return nil
 }
 
-// RunSemantic send message to semantic service
+// RunSemantic runs the semantic process for the trigger.
 func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) error {
 
 	if t.connectorModel.Type == model.SourceTypeWEB ||
@@ -110,7 +118,13 @@ func (t *trigger) RunSemantic(ctx context.Context, data *proto.SemanticData) err
 		t.messenger.StreamConfig().SemanticStreamSubject, data)
 }
 
-// RunConnector send message to connector service
+// RunConnector sends a message to the connector and publishes it to the connector stream.
+//
+// It updates the Connector's Params with the file limit and sets the Connector's status to "PENDING".
+// Then, it logs an info message with the name of the connector.
+// Finally, it uses the messaging client to publish the ConnectorRequest to the ConnectorStream.
+//
+// If there is an error updating the status or publishing the message, it returns the error.
 func (t *trigger) RunConnector(ctx context.Context, data *proto.ConnectorRequest) error {
 	data.Params[model.ParamFileLimit] = fmt.Sprintf("%d", t.fileSizeLimit)
 	if err := t.updateStatus(ctx, model.ConnectorStatusPending); err != nil {
@@ -121,11 +135,15 @@ func (t *trigger) RunConnector(ctx context.Context, data *proto.ConnectorRequest
 		t.messenger.StreamConfig().ConnectorStreamSubject, data)
 }
 
+// UpToDate checks if the trigger is up to date and returns an error if it is not.
+// This method may be implemented in the future. Currently, it always returns nil.
 func (t *trigger) UpToDate(ctx context.Context) error {
 	// may be to be implemented in future
 	return nil
 }
 
+// NewTrigger creates a new instance of the trigger struct and initializes its fields with the provided parameters.
+// It returns a pointer to the newly created trigger.
 func NewTrigger(messenger messaging.Client,
 	connectorRepo repository.ConnectorRepository,
 	docRepo repository.DocumentRepository,
@@ -143,7 +161,9 @@ func NewTrigger(messenger messaging.Client,
 	}
 }
 
-// update status of connector in database
+// updateStatus updates the status of the trigger's connector model and saves the last update time.
+// It calls the Update method of the connector repository to persist the changes in the database.
+// It returns an error if there was a problem updating the status in the database.
 func (t *trigger) updateStatus(ctx context.Context, status string) error {
 	t.connectorModel.Status = status
 	t.connectorModel.LastUpdate = pg.NullTime{time.Now().UTC()}

@@ -6,19 +6,35 @@ import (
 )
 
 type (
+
+	// Response is a struct that represents the response from the OpenAI chat API.
 	Response struct {
 		Message string
 	}
+
+	// OpenAIClient is an interface for making requests to the OpenAI chat API.
+	// The Request method takes a context and a message as input and returns a Response or an error.
 	OpenAIClient interface {
 		Request(ctx context.Context, message string) (*Response, error)
 	}
 
+	// openAIClient is a struct that represents the client for making requests to the OpenAI chat API.
+	// It consists of a client of type *openai.Client and a modelID of type string.
 	openAIClient struct {
 		client  *openai.Client
 		modelID string
 	}
 )
 
+// Request is a method of the openAIClient struct that makes a request to the OpenAI chat API.
+// It takes a context.Context parameter and a string message parameter.
+// It returns a *Response and an error.
+//
+// The method first creates a ChatCompletionMessage using the user's message.
+// Then it calls the client's CreateChatCompletion method to make the API request.
+// If there is an error, it returns nil and the error.
+// If the API request is successful, it creates a Response with the content of the first message choice
+// and returns it along with nil for the error.
 func (o *openAIClient) Request(ctx context.Context, message string) (*Response, error) {
 
 	userMessage := openai.ChatCompletionMessage{
@@ -39,6 +55,11 @@ func (o *openAIClient) Request(ctx context.Context, message string) (*Response, 
 	return response, nil
 }
 
+// NewOpenAIClient is a function that creates a new instance of the OpenAIClient.
+// It takes the modelID and apiKey as input parameters and returns an instance of OpenAIClient.
+// The function creates a new openaIClient struct with the provided modelID and apiKey.
+// It then initializes the client field with the openai.NewClient function using the apiKey.
+// Finally, it sets the modelID field with the provided modelID and returns the created struct as an OpenAIClient.
 func NewOpenAIClient(modelID, apiKey string) OpenAIClient {
 
 	return &openAIClient{

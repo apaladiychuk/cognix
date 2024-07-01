@@ -6,13 +6,16 @@ import (
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
 	"context"
-	"fmt"
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
-	"sync"
-	"time"
 )
 
+// embedding represents a struct that contains instances of various interfaces and types used for document embedding.
+// Fields:
+// - embedding: an instance of EmbedServiceClient interface for getting embeddings.
+// - milvusClinet: an instance of MilvusClient interface for interacting with the Milvus storage.
+// - docRepo: an instance of DocumentRepository interface for document persistence.
+// - embeddingModel: a string representing the embedding model being used.
 type embedding struct {
 	embedding      proto.EmbedServiceClient
 	milvusClinet   storage.MilvusClient
@@ -20,30 +23,38 @@ type embedding struct {
 	embeddingModel string
 }
 
-func (r *embedding) Send(ctx context.Context,
-	ch chan *Response, wg *sync.WaitGroup,
-	user *model.User,
-	parentMessage *model.ChatMessage,
-	persona *model.Persona) {
-
-	for i := 0; i < 4; i++ {
-		ch <- &Response{
-			IsValid: true,
-			Type:    ResponseDocument,
-			Message: nil,
-			Document: &model.DocumentResponse{
-				ID:          decimal.NewFromInt(int64(i)),
-				DocumentID:  "11",
-				Link:        fmt.Sprintf("link for document %d", i),
-				Content:     fmt.Sprintf("content of document %d", i),
-				UpdatedDate: time.Now().UTC().Add(-48 * time.Hour),
-				MessageID:   parentMessage.ID,
-			},
-		}
-	}
-	wg.Done()
-}
-
+// FindDocuments is a method that searches for documents in multiple collections based on a chat message.
+//
+// Parameters:
+//   - ctx: The context.Context object for the request.
+//   - ch: The channel to send the response messages to.
+//   - message: The chat message containing the content to search.
+//   - collectionNames: The names of the collections to search for documents.
+//
+// Returns:
+//   - []*model.DocumentResponse: The list of document responses found.
+//   - error: An error if any occurred during the search.
+//
+// Behavior:
+//   - The method calls the GetEmbeding method of the embdding service to get the embedding of the message content.
+//   - For each collection specified, the method loads documents using the Load method of the MilvusClient.
+//   - For each loaded document, it creates a DocumentResponse object and populates its fields based on the database data.
+//   - The DocumentResponse objects are stored in a map to avoid duplicates, and the valid ones are also added to the result list.
+//   - For each valid DocumentResponse, a Response object of type ResponseDocument is sent to the channel.
+//
+// Errors:
+//   - If an error occurs while calling the GetEmbeding method or loading a document, an error is returned and a Response
+//     object of type ResponseError is sent to the channel.
+//
+// Notes:
+//   - The MessageID field of the DocumentResponse objects is set to the ID of the input chat message.
+//   - The Link field of the DocumentResponse objects is set to the OriginalURL field of the corresponding document from
+//     the database. If OriginalURL is empty, the Link field is set to the URL field.
+//   - The DocumentID field of the DocumentResponse objects is set to the SourceID field of the corresponding document from
+//     the database.
+//   - The UpdatedDate field of the DocumentResponse objects is set to LastUpdate field of the corresponding document from
+//     the database, if it is not zero. Otherwise, it is set to the CreationDate field.
+//   - The DocumentResponse objects are sent to the channel as Response objects with type ResponseDocument.
 func (r *embedding) FindDocuments(ctx context.Context,
 	ch chan *Response,
 	message *model.ChatMessage,
@@ -102,7 +113,16 @@ func (r *embedding) FindDocuments(ctx context.Context,
 	return result, nil
 }
 
-// NewEmbeddingResponder creates new instance os embedder responder
+// NewEmbeddingResponder creates a new instance of embedding struct
+//
+// Parameters:
+//   - embeddProto : EmbedServiceClient for embedding service API
+//   - milvusClient: MilvusClient for interacting with the Milvus storage
+//   - docRepo     : DocumentRepository for interacting with the document data
+//   - embeddingModel   : The embedding model string
+//
+// Returns:
+//   - *embedding  : A pointer to the embedding struct
 func NewEmbeddingResponder(embeddProto proto.EmbedServiceClient,
 	milvusClinet storage.MilvusClient,
 	docRepo repository.DocumentRepository,

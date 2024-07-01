@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// LLM represents a model of the llms table.
 type LLM struct {
 	tableName    struct{}        `pg:"llms"`
 	ID           decimal.Decimal `json:"id,omitempty"`
@@ -22,6 +23,7 @@ type LLM struct {
 	DeletedDate pg.NullTime `json:"deleted_date,omitempty" pg:",use_zero"`
 }
 
+// MaskApiKey masks the API key by replacing all but the first and last four characters with asterisks.
 func (l *LLM) MaskApiKey() string {
 	if len(l.ApiKey) < 10 {
 		return "***"

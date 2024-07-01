@@ -15,6 +15,7 @@ import (
 	"time"
 )
 
+// Package-level constants for column names and vector dimension.
 const (
 	ColumnNameID         = "id"
 	ColumnNameDocumentID = "document_id"
@@ -28,8 +29,10 @@ const (
 	IndexStrategyNoIndex   = "NOINDEX"
 )
 
+// responseColumns is a variable of type []string that contains three column names: "id", "document_id", and "content".
 var responseColumns = []string{ColumnNameID, ColumnNameDocumentID, ColumnNameContent}
 
+// MilvusConfig represents the configuration for connecting to the Milvus service.
 type (
 	MilvusConfig struct {
 		Address       string `env:"MILVUS_URL,required"`
@@ -58,6 +61,21 @@ type (
 	}
 )
 
+// Delete deletes documents from a collection based on their document IDs.
+// It first checks the connection to Milvus. If the connection is not ready,
+// an error is returned. Then, it converts the document IDs to strings and
+// queries the collection to get the IDs of the documents to be deleted.
+// If the query is successful, it converts the IDs to strings and deletes the
+// documents using the `Delete` method of the Milvus client. If there are no
+// documents to be deleted, the method returns nil.
+//
+// Parameters:
+//   - ctx: The context.Context used for the operation.
+//   - collection: The name of the collection to delete documents from.
+//   - documentIDs: The ID(s) of the documents to be deleted.
+//
+// Returns:
+//   - error: An error if the operation fails; otherwise, nil.
 func (c *milvusClient) Delete(ctx context.Context, collection string, documentIDs ...int64) error {
 	if err := c.checkConnection(); err != nil {
 		return err
@@ -119,6 +137,14 @@ func (c *milvusClient) Load(ctx context.Context, collection string, vector []flo
 	return payload, nil
 }
 
+// MilvusModule is a variable of type fx.Option. It provides dependencies for Milvus configuration
+// and client initialization.
+//
+// The provided dependencies include:
+// - A function that reads the MilvusConfig from environment variables and validates it.
+// - A function that creates a new Milvus client based on the provided config.
+//
+// This module can be used to configure and initialize a MilvusClient.
 var MilvusModule = fx.Options(
 	fx.Provide(func() (*MilvusConfig, error) {
 		cfg := MilvusConfig{}
@@ -134,6 +160,7 @@ var MilvusModule = fx.Options(
 	),
 )
 
+// NewMilvusClient creates a new instance of MilvusClient
 func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
 	client, err := connect(cfg)
 	if err != nil {
@@ -146,6 +173,7 @@ func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
 	}, nil
 }
 
+// checks if the connection to Milvus is ready
 func (c *milvusClient) Save(ctx context.Context, collection string, payloads ...*MilvusPayload) error {
 	var ids, documentIDs, chunks []int64
 	var contents [][]byte
@@ -171,6 +199,10 @@ func (c *milvusClient) Save(ctx context.Context, collection string, payloads ...
 	return nil
 }
 
+// indexStrategy returns the appropriate index strategy based on the configuration
+// If the index strategy is AUTOINDEX, it returns a new instance of entity.IndexAUTOINDEX
+// If the index strategy is DISKANN, it returns a new instance of entity.IndexDISKANN
+// If the index strategy is not supported, it returns an error with a corresponding message
 func (c *milvusClient) indexStrategy() (entity.Index, error) {
 	switch c.cfg.IndexStrategy {
 	case IndexStrategyAUTOINDEX:
@@ -181,6 +213,7 @@ func (c *milvusClient) indexStrategy() (entity.Index, error) {
 	return nil, fmt.Errorf("index strategy %s not supported yet", c.cfg.IndexStrategy)
 }
 
+// CreateSchema creates a new schema in Milvus.
 func (c *milvusClient) CreateSchema(ctx context.Context, name string) error {
 
 	collExists, err := c.client.HasCollection(ctx, name)
@@ -214,6 +247,15 @@ func (c *milvusClient) CreateSchema(ctx context.Context, name string) error {
 	return nil
 }
 
+// FromResult translates the SearchResult to MilvusPayload.
+// It iterates through each field in the SearchResult and assigns the corresponding
+// value to the fields in MilvusPayload.
+// If the field is ColumnNameID, it assigns the value to the ID field in MilvusPayload.
+// If the field is ColumnNameDocumentID, it assigns the value to the DocumentID field in MilvusPayload.
+// If the field is ColumnNameContent, it attempts to unmarshal the value into a string map.
+// If successful, it assigns the value of the "content" key to the Content field in MilvusPayload.
+// Otherwise, it assigns the value directly to the Content field in MilvusPayload.
+// If any error occurs during the process, it returns the error.
 func (p *MilvusPayload) FromResult(i int, res milvus.SearchResult) error {
 	var err error
 
@@ -249,7 +291,7 @@ func (p *MilvusPayload) FromResult(i int, res milvus.SearchResult) error {
 	return nil
 }
 
-// checkConnection check is milvus connection is ready
+// checkConnection checks if the Milvus connection is ready
 func (c *milvusClient) checkConnection() error {
 	// creates connection if not exists
 	if c.client == nil {
@@ -274,6 +316,26 @@ func (c *milvusClient) checkConnection() error {
 	return nil
 }
 
+// connect creates a connection to the Milvus server with the provided configuration.
+// It returns a Milvus client and an error if the connection fails.
+// The connection is established using the provided MilvusConfig, which contains the server address, username, password, and retry rate limit.
+// The function uses a context with a timeout of 2 seconds.
+//
+// Example usage:
+//
+//	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+//	defer cancel()
+//	client, err := connect(&MilvusConfig{
+//		Address:        "localhost:19530",
+//		Username:       "admin",
+//		Password:       "password123",
+//		RetryRateLimit: &RetryRateLimitOption{MaxRetry: 2, MaxBackoff: 2 * time.Second},
+//	})
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//
+// Note: The connect function is used internally by the NewMilvusClient function to establish a connection to the Milvus server.
 func connect(cfg *MilvusConfig) (milvus.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()

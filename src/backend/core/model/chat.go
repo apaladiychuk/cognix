@@ -15,6 +15,8 @@ const (
 )
 
 type (
+	// ChatSession is a type that represents
+	// the model of the chat_sessions table.
 	ChatSession struct {
 		tableName    struct{}        `pg:"chat_sessions"`
 		ID           decimal.Decimal `json:"id,omitempty"`
@@ -27,7 +29,8 @@ type (
 		Messages     []*ChatMessage  `json:"messages,omitempty" pg:"rel:has-many"`
 		Persona      *Persona        `json:"persona,omitempty" pg:"rel:has-one"`
 	}
-
+	// ChatMessage is a type that represents
+	// the model of the chat_sessions table.
 	ChatMessage struct {
 		tableName          struct{}                   `pg:"chat_messages"`
 		ID                 decimal.Decimal            `json:"id,omitempty"`
@@ -45,7 +48,8 @@ type (
 		ParentMessage      *ChatMessage               `json:"-" pg:"-"`
 		DocumentPairs      []*ChatMessageDocumentPair `json:"-" pg:"rel:has-many,fk:chat_message_id,join_fk:chat_message_id"`
 	}
-
+	// ChatMessageFeedback is a type that represents
+	// the model of the chat_sessions table.
 	ChatMessageFeedback struct {
 		tableName     struct{}        `pg:"chat_message_feedbacks"`
 		ID            decimal.Decimal `json:"id,omitempty"`
@@ -67,6 +71,8 @@ type (
 
 var _ pg.AfterSelectHook = (*ChatMessage)(nil)
 
+// AfterSelect is a method that is called after selecting a chat message from the database.
+// It populates the Citations field of the chat message with the corresponding DocumentResponses.
 func (c *ChatMessage) AfterSelect(ctx context.Context) error {
 	for _, dp := range c.DocumentPairs {
 		if dp.Document == nil {

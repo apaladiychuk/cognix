@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// TenantRepository is an interface that defines methods for retrieving users related to a tenant.
 type (
 	TenantRepository interface {
 		GetUsers(ctx context.Context, tenantID uuid.UUID) ([]*model.User, error)
@@ -17,6 +18,15 @@ type (
 	}
 )
 
+// GetUsers retrieves users for a specific tenant.
+//
+// Parameters:
+// - ctx: the context.Context object.
+// - tenantID: the UUID of the tenant.
+//
+// Returns:
+// - []*model.User: a slice of User objects.
+// - error: an error, if any.
 func (r *tenantRepository) GetUsers(ctx context.Context, tenantID uuid.UUID) ([]*model.User, error) {
 	users := make([]*model.User, 0)
 	if err := r.db.Model(&users).Where("tenant_id = ?", tenantID).Select(); err != nil {
@@ -25,6 +35,7 @@ func (r *tenantRepository) GetUsers(ctx context.Context, tenantID uuid.UUID) ([]
 	return users, nil
 }
 
+// NewTenantRepository creates a new instance of the TenantRepository interface, using the provided *pg.DB.
 func NewTenantRepository(db *pg.DB) TenantRepository {
 	return &tenantRepository{db: db}
 }

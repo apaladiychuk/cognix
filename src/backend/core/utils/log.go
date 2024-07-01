@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// InitLogger initializes the logger with the given debug flag.
 func InitLogger(debug bool) {
 
 	pe := zap.NewProductionEncoderConfig()

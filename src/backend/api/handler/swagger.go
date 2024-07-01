@@ -14,13 +14,16 @@ import (
 	"github.com/swaggo/swag"
 )
 
+// SwaggerHandler represents the handler for Swagger related operations.
 type SwaggerHandler struct {
 }
 
+// NewSwaggerHandler returns a new instance of SwaggerHandler.
 func NewSwaggerHandler() *SwaggerHandler {
 	return &SwaggerHandler{}
 }
 
+// Mount sets up Swagger routes and health check route.
 func (h *SwaggerHandler) Mount(router *gin.Engine) {
 	url := ginSwagger.URL("docs/doc.json")
 	///url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
@@ -44,6 +47,7 @@ func (h *SwaggerHandler) GetDoc(c *gin.Context) error {
 	return server.JsonResult(c, http.StatusOK, result)
 }
 
+// Health returns a string response with status code 200 indicating that the server is functioning properly.
 func (h *SwaggerHandler) Health(c *gin.Context) {
 	c.String(http.StatusOK, "ok")
 }

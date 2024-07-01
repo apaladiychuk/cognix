@@ -11,9 +11,7 @@ func TestOneDrive_Folder(t *testing.T) {
 
 	c := OneDrive{
 		param: &OneDriveParameters{
-			Folder:    "",
-			Recursive: false,
-			Token:     oauth2.Token{},
+			Token: &oauth2.Token{},
 		},
 	}
 	// root without recursive

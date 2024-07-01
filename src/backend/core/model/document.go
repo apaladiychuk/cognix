@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// Document is a struct that represents a document in a database table named "documents".
 type Document struct {
 	tableName       struct{}            `pg:"documents"`
 	ID              decimal.Decimal     `json:"id,omitempty"`
@@ -23,6 +24,7 @@ type Document struct {
 	IsExists        bool                `json:"-" pg:"-"`
 }
 
+// DocumentResponse is a struct that represents a response containing document information.
 type DocumentResponse struct {
 	ID          decimal.Decimal `json:"id,omitempty"`
 	MessageID   decimal.Decimal `json:"message_id,omitempty"`

@@ -22,6 +22,7 @@ import (
 	"time"
 )
 
+// Executor represents a type that executes tasks related to connectors.
 type Executor struct {
 	cfg            *Config
 	connectorRepo  repository.ConnectorRepository
@@ -33,7 +34,9 @@ type Executor struct {
 	downloadClient *resty.Client
 }
 
-// run this method listen messages from nats
+// run is a method that listens to a specific stream and topic using the messaging.Client provided
+// and performs a specific task, which is passed as a MessageHandler function.
+// It returns an error if there is any issue with listening to the stream and topic.
 func (e *Executor) run(streamName, topic string, task messaging.MessageHandler) {
 	if err := e.msgClient.Listen(context.Background(), streamName, topic, task); err != nil {
 		zap.S().Errorf("failed to listen[%s]: %v", topic, err)
@@ -41,7 +44,12 @@ func (e *Executor) run(streamName, topic string, task messaging.MessageHandler) 
 	return
 }
 
-// runConnector run connector from nats message
+// runConnector is a method that handles the execution of a connector task based on a connector request message.
+// It unmarshals the message data to obtain the trigger information, retrieves the connector model from the repository,
+// creates a new instance of a connector, executes the connector task, handles the results by saving content and updating
+// documents, and publishes messages to either the Whisper or Semantic stream based on the file type.
+// After processing all the results, it deletes unused files associated with the connector and updates the connector status.
+// Finally, it updates the connector in the repository and returns any error that occurred during the process.
 func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	startTime := time.Now()
 	//ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.MapCarrier(msg.Header()))
@@ -174,6 +182,15 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	return nil
 }
 
+// deleteUnusedFiles is a method that deletes unused files associated with a connector.
+// It iterates through the documents in the connector's DocsMap, checks if the document
+// is not marked as exists and has a non-zero ID. If the document's URL starts with "minio:",
+// it uses the e.minioClient to delete the corresponding object from the MinIO storage.
+// It also collects the non-zero document IDs and stores them in the "ids" slice.
+// After iterating through all the documents, if the "ids" slice is not empty,
+// it uses the e.milvusClient to delete the documents from the Milvus storage and
+// the e.docRepo to delete the documents from the repository.
+// If there are any errors during the process, it returns the error. Otherwise, it returns nil.
 func (e *Executor) deleteUnusedFiles(ctx context.Context, connector *model.Connector) error {
 	var ids []int64
 	for _, doc := range connector.DocsMap {
@@ -196,6 +213,15 @@ func (e *Executor) deleteUnusedFiles(ctx context.Context, connector *model.Conne
 	}
 	return nil
 }
+
+// saveContent is a method that saves the content of a response to a storage system. If the
+// response contains a URL, it will download the file and save it. Otherwise, it will create a
+// reader from the raw content and save it. The method uses the `minioClient` to upload the file
+// to the specified bucket using the provided name, MIME type, and reader. Upon successful upload,
+// it sets the URL of the response to the corresponding MinIO URL and returns nil. If any error
+// occurs during the process, it returns the error.
+//
+// The method expects a context and a pointer to a `connector.Response` as input parameters.
 func (e *Executor) saveContent(ctx context.Context, response *connector.Response) error {
 
 	var reader io.Reader
@@ -222,6 +248,15 @@ func (e *Executor) saveContent(ctx context.Context, response *connector.Response
 	return nil
 }
 
+// handleResult is a method that handles the result of a connector task.
+// It takes a pointer to a Connector model and a pointer to a Response model as input.
+// It checks if the specified SourceID exists in the Connector's DocsMap.
+// If the SourceID does not exist, it creates a new Document model with the necessary fields
+// and adds it to the Connector's DocsMap. The Document's URL is set to the Response's URL,
+// the CreationDate is set to the current UTC time, and other fields are populated from the Response.
+// If the SourceID already exists, it updates the existing Document's URL to the Response's URL
+// and updates the LastUpdate field to the current UTC time.
+// The method returns the updated or newly created Document.
 func (e *Executor) handleResult(connectorModel *model.Connector, result *connector.Response) *model.Document {
 	doc, ok := connectorModel.DocsMap[result.SourceID]
 	if !ok {
@@ -241,6 +276,11 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 	return doc
 }
 
+// NewExecutor is a constructor function that creates a new instance of the Executor struct.
+// It takes in various dependencies including a *Config for configuration, a ConnectorRepository for accessing connectors,
+// a DocumentRepository for accessing documents, a messaging.Client for handling messaging,
+// a storage.MinIOClient for working with MinIO storage, and a storage.MilvusClient for working with Milvus storage.
+// It returns a pointer to the newly created Executor instance.
 func NewExecutor(
 	cfg *Config,
 	connectorRepo repository.ConnectorRepository,

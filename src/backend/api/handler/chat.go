@@ -12,15 +12,26 @@ import (
 	"strconv"
 )
 
+// ChatHandler is a handler for chat related operations.
 type ChatHandler struct {
 	chatBL bll.ChatBL
 }
 
+// NewChatHandler creates a new instance of ChatHandler with the provided ChatBL
+// @param chatBL The implementation of ChatBL interface
+// @return *ChatHandler The newly created ChatHandler instance
 func NewChatHandler(chatBL bll.ChatBL) *ChatHandler {
 	return &ChatHandler{chatBL: chatBL}
 
 }
 
+// Mount mounts the chat routes and handlers to the provided router with the authentication middleware.
+// @Summary mounts the chat routes and handlers
+// @Description mounts the chat routes and handlers
+// @Tags Chat
+// @Param route body *gin.Engine true "router instance"
+// @Param authMiddleware body gin.HandlerFunc true "authentication middleware"
+// @Router /api/chats [post]
 func (h *ChatHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := route.Group("/api/chats")
 	handler.Use(authMiddleware)

@@ -17,4 +17,5 @@ which may involve reading/writing data, integrating with third-party services,
 or any kind of specific operations required by the project.
 
 
-
+#### core 
+[core package](core/core.md) 

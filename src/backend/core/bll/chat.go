@@ -35,7 +35,7 @@ type ChatBL interface {
 //     database operations.
 //   - aiBuilder:        An instance of the Builder type used for managing the creation and caching of OpenAIClient instances.
 //   - embedding:        A client API for the EmbedService service.
-//   - milvusClinet:     An instance of the MilvusClient interface used for interacting with the Milvus storage.
+//   - milvusClinet:     An instance of the VectorDBClient interface used for interacting with the Milvus storage.
 type chatBL struct {
 	cfg                *Config
 	chatRepo           repository.ChatRepository
@@ -44,7 +44,7 @@ type chatBL struct {
 	embeddingModelRepo repository.EmbeddingModelRepository
 	aiBuilder          *ai.Builder
 	embedding          proto.EmbedServiceClient
-	milvusClinet       storage.MilvusClient
+	milvusClinet       storage.VectorDBClient
 }
 
 // FeedbackMessage updates the feedback of a chat message for a given user.
@@ -191,7 +191,7 @@ func (b *chatBL) CreateSession(ctx context.Context, user *model.User, param *par
 //   - embeddingModelRepo: The embedding model repository for accessing embedding model-related data.
 //   - aiBuilder: The builder for managing OpenAIClient instances.
 //   - embedding: The EmbedServiceClient for embedding operations.
-//   - milvusClinet: The MilvusClient for Milvus operations.
+//   - milvusClinet: The VectorDBClient for Milvus operations.
 //
 // Returns:
 //   - ChatBL: The created instance of ChatBL.
@@ -203,7 +203,7 @@ func NewChatBL(
 	embeddingModelRepo repository.EmbeddingModelRepository,
 	aiBuilder *ai.Builder,
 	embedding proto.EmbedServiceClient,
-	milvusClinet storage.MilvusClient,
+	milvusClinet storage.VectorDBClient,
 ) ChatBL {
 	return &chatBL{
 		cfg:                cfg,

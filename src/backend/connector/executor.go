@@ -28,8 +28,8 @@ type Executor struct {
 	connectorRepo  repository.ConnectorRepository
 	docRepo        repository.DocumentRepository
 	msgClient      messaging.Client
-	minioClient    storage.MinIOClient
-	milvusClient   storage.MilvusClient
+	minioClient    storage.FileStorageClient
+	milvusClient   storage.VectorDBClient
 	oauthClient    *resty.Client
 	downloadClient *resty.Client
 }
@@ -279,15 +279,15 @@ func (e *Executor) handleResult(connectorModel *model.Connector, result *connect
 // NewExecutor is a constructor function that creates a new instance of the Executor struct.
 // It takes in various dependencies including a *Config for configuration, a ConnectorRepository for accessing connectors,
 // a DocumentRepository for accessing documents, a messaging.Client for handling messaging,
-// a storage.MinIOClient for working with MinIO storage, and a storage.MilvusClient for working with Milvus storage.
+// a storage.FileStorageClient for working with MinIO storage, and a storage.VectorDBClient for working with Milvus storage.
 // It returns a pointer to the newly created Executor instance.
 func NewExecutor(
 	cfg *Config,
 	connectorRepo repository.ConnectorRepository,
 	docRepo repository.DocumentRepository,
 	streamClient messaging.Client,
-	minioClient storage.MinIOClient,
-	milvusClient storage.MilvusClient,
+	minioClient storage.FileStorageClient,
+	milvusClient storage.VectorDBClient,
 ) *Executor {
 	return &Executor{
 		cfg:           cfg,

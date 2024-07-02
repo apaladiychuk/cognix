@@ -123,7 +123,7 @@ func (r *aiResponder) Send(ctx context.Context,
 //   - aiClient: The AI client for making requests to the OpenAI chat API.
 //   - charRepo: The chat repository for interacting with the chat data.
 //   - embeddProto: The EmbedService client for embedding service API.
-//   - milvusClinet: The MilvusClient for interacting with the Milvus storage.
+//   - milvusClinet: The VectorDBClient for interacting with the Milvus storage.
 //   - docRepo: The document repository for interacting with the document data.
 //   - embeddingModel: The embedding model string.
 //
@@ -133,7 +133,7 @@ func NewAIResponder(
 	aiClient ai.OpenAIClient,
 	charRepo repository.ChatRepository,
 	embeddProto proto.EmbedServiceClient,
-	milvusClinet storage.MilvusClient,
+	milvusClinet storage.VectorDBClient,
 	docRepo repository.DocumentRepository,
 	embeddingModel string,
 ) ChatResponder {

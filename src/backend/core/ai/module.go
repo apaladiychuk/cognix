@@ -3,10 +3,12 @@ package ai
 import (
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/utils"
+	"context"
 	"fmt"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"time"
 )
 
 var EmbeddingModule = fx.Options(
@@ -21,9 +23,11 @@ var EmbeddingModule = fx.Options(
 )
 
 func newEmbeddingGRPCClient(cfg *EmbeddingConfig) (proto.EmbedServiceClient, error) {
-	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", cfg.EmbedderHost, cfg.EmbedderPort), dialOptions...)
+	dialOptions := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials())}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%d", cfg.EmbedderHost, cfg.EmbedderPort), dialOptions...)
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import lib.gen_types.transformer_service_pb2 as transformer__service__pb2
+from lib2.gen_types_2.transformer_service_pb2 import SemanticResponse, SemanticRequest
 
 GRPC_GENERATED_VERSION = '1.63.0'
 GRPC_VERSION = grpc.__version__
@@ -41,8 +41,8 @@ class TransformerServiceStub(object):
         """
         self.SemanticSplit = channel.unary_unary(
                 '/com.cognix.TransformerService/SemanticSplit',
-                request_serializer=transformer__service__pb2.SemanticRequest.SerializeToString,
-                response_deserializer=transformer__service__pb2.SemanticResponse.FromString,
+                request_serializer=SemanticRequest.SerializeToString,
+                response_deserializer=SemanticResponse.FromString,
                 _registered_method=True)
 
 
@@ -60,8 +60,8 @@ def add_TransformerServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SemanticSplit': grpc.unary_unary_rpc_method_handler(
                     servicer.SemanticSplit,
-                    request_deserializer=transformer__service__pb2.SemanticRequest.FromString,
-                    response_serializer=transformer__service__pb2.SemanticResponse.SerializeToString,
+                    request_deserializer=SemanticRequest.FromString,
+                    response_serializer=SemanticResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -88,8 +88,8 @@ class TransformerService(object):
             request,
             target,
             '/com.cognix.TransformerService/SemanticSplit',
-            transformer__service__pb2.SemanticRequest.SerializeToString,
-            transformer__service__pb2.SemanticResponse.FromString,
+            SemanticRequest.SerializeToString,
+            SemanticResponse.FromString,
             options,
             channel_credentials,
             insecure,

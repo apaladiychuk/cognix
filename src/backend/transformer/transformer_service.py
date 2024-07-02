@@ -7,25 +7,26 @@ from typing import List
 import grpc
 from dotenv import load_dotenv
 
-from lib.gen_types.transformer_service_pb2 import SemanticResponse, SimilarityType
-from lib.gen_types.transformer_service_pb2_grpc import TransformerServiceServicer
-from lib.gen_types.transformer_service_pb2_grpc import add_TransformerServiceServicer_to_server
-from lib.helpers.device_checker import DeviceChecker
+from lib2.gen_types_2.transformer_service_pb2_grpc import TransformerServiceServicer
+from lib2.gen_types_2.transformer_service_pb2 import SemanticResponse, SimilarityType
+from lib2.gen_types_2.transformer_service_pb2_grpc import add_TransformerServiceServicer_to_server
+from lib2.helpers_2.device_checker import DeviceChecker
 from semantic_splitter import SemanticSplitter
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Get log level from env 
-log_level_str = os.getenv('TRANSFORMER_LOG_LEVEL', 'ERROR').upper()
+# Get log level from env
+log_level_str = os.getenv('TRANSFORMER_LOG_LEVEL', 'INFO').upper()
 log_level = getattr(logging, log_level_str, logging.INFO)
 
-# Get log format from env 
-log_format = os.getenv('TRANSFORMER_LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# Get log format from env
+log_format = os.getenv('TRANSFORMER_LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
 
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
+logger.setLevel(log_level)  # Ensure the logger's level is explicitly set
 
 grpc_port = os.getenv('TRANSFORMER_GRPC_PORT', '50051')
 cache_limit: int = int(os.getenv('MODEL_CACHE_LIMIT', 1))
@@ -67,12 +68,7 @@ def serve():
                          ]
                          )
 
-    # Pass the readiness_probe to EmbedServicer
-    # embed_servicer = EmbedServicer(readiness_probe)
-    # add_EmbedServiceServicer_to_server(embed_servicer, server)
-
     add_TransformerServiceServicer_to_server(TransformerServicer(), server)
-
     server.add_insecure_port(f"0.0.0.0:{grpc_port}")
     server.start()
     logger.info(f"👂 transformer listening on port {grpc_port}")

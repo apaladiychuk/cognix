@@ -1,4 +1,3 @@
-// gRPC Service
 syntax = "proto3";
 
 package com.cognix;

@@ -96,7 +96,7 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 		if result.Content != nil {
 			if err = e.saveContent(ctx, result); err != nil {
 				loopErr = err
-				zap.S().Errorf("failed to save content: %v", err)
+				//zap.S().Errorf("failed to save content: %v", err)
 			}
 
 		}

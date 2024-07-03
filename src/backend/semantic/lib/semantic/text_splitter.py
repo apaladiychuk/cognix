@@ -73,6 +73,12 @@ class TextSplitter:
 
             # logging.info(f"original content:\n {content} \n")
             # logging.info(f"semantic chunks:\n {content}")
+            # Split the string by the delimiter ':' and then by the delimiter '_'
+            parts = url.split(':')
+            guid_and_filename = parts[2].split('_', 1)
+
+            # The real filename is the second part after the last split
+            real_filename = guid_and_filename[1]
             if semantic_response.chunks:
                 logging.info(f"created {len(semantic_response.chunks)} semantic chunks for {url}")
             else:

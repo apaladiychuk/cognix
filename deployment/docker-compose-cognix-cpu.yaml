@@ -47,6 +47,22 @@ services:
     networks:
       - cognix-network
 
+  transformer:
+    container_name: transformer
+    image: gen-mind/cognix-transformer:latest
+    build:
+      context: ../src/backend/transformer
+      dockerfile: Dockerfile_cpu
+    ports:
+      - "50052:50052"
+    volumes:
+      - ${DATA_PATH}/models:/models
+    env_file:
+      - ${CONFIG_PATH}/transformer-srv.env
+    restart: always
+    networks:
+      - cognix-network
+
   semantic:
     # container_name: semantic
     image: gen-mind/cognix-semantic:latest
@@ -60,6 +76,7 @@ services:
       - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
       - ${CONFIG_PATH}/embedder_cli.env
+      - ${CONFIG_PATH}/transformer-cli.env
       - ${CONFIG_PATH}/cockroach_cli.env
       - ${CONFIG_PATH}/minio_cli.env
     restart: always

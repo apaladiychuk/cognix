@@ -3,42 +3,43 @@ package responder
 import (
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/model"
-	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
 	"context"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
+	"go.uber.org/zap"
 	"strings"
 	"sync"
 	"time"
 )
 
-// aiResponder represents a type that handles AI responses in a chat application.
-//
-// Fields:
-// - aiClient: an implementation of the OpenAIClient interface for making requests to the OpenAI chat API.
-// - charRepo: an implementation of the ChatRepository interface for interacting with the chat repository.
-// - embedding: an instance of the embedding type for handling document embeddings.
+// aiResponder is a type that represents a chat responder using AI capabilities.
+// It contains the necessary dependencies for making requests to the OpenAI chat API,
+// interacting with the chat repository, performing document searches, and managing vectors in a VectorDB.
+// The embedding model is used for document search and retrieval.
 type aiResponder struct {
-	aiClient  ai.OpenAIClient
-	charRepo  repository.ChatRepository
-	embedding *embedding
+	aiClient       ai.OpenAIClient
+	charRepo       repository.ChatRepository
+	searcher       ai.Searcher
+	vectorDBClinet storage.VectorDBClient
+	docRepo        repository.DocumentRepository
+	embeddingModel string
 }
 
-// Send sends a chat message to the AI Responder.
-// It creates a new ChatMessage with the provided parameters, sets its attributes,
-// and sends it to the AI Responder using the charRepo.SendMessage method.
+// Send sends a chat message from the AI responder to the chat repository and AI client.
+// It creates a response payload based on the success or failure of the operation.
 //
 // Parameters:
-// - ctx: the context.Context object for the request.
-// - ch: the channel to send the response to.
-// - wg: the sync.WaitGroup to wait for the response.
-// - user: the model.User object representing the user.
-// - noLLM: a boolean value indicating whether to skip LLM processing.
-// - parentMessage: the parent ChatMessage of the new message.
-// - persona: the model.Persona object representing the persona.
+// - ctx: the context in which the method is being executed.
+// - ch: the channel used to communicate the response payload.
+// - wg: the wait group used to synchronize the completion of the method.
+// - user: the user associated with the chat message.
+// - noLLM: a flag indicating whether the LLM (Language Learning Model) is enabled or not.
+// - parentMessage: the parent chat message.
+// - persona: the persona associated with the chat message.
 //
-// Returns: none.
+// Returns: none
 func (r *aiResponder) Send(ctx context.Context,
 	ch chan *Response,
 	wg *sync.WaitGroup,
@@ -61,7 +62,7 @@ func (r *aiResponder) Send(ctx context.Context,
 		return
 	}
 
-	docs, err := r.embedding.FindDocuments(ctx, ch, &message, model.CollectionName(user.ID, uuid.NullUUID{Valid: true, UUID: user.TenantID}),
+	docs, err := r.FindDocuments(ctx, ch, user, &message, model.CollectionName(user.ID, uuid.NullUUID{Valid: true, UUID: user.TenantID}),
 		model.CollectionName(user.ID, uuid.NullUUID{Valid: false}))
 	if err != nil {
 
@@ -117,28 +118,100 @@ func (r *aiResponder) Send(ctx context.Context,
 	ch <- payload
 }
 
-// NewAIResponder creates a new instance of AIResponder.
+// FindDocuments searches for documents using the given user, message, and collection names.
+// It retrieves relevant document information and sends a response to the provided channel.
+// If an error occurs during the search or document retrieval, it sends an error response
+// and returns the error. Otherwise, it returns a list of document responses.
 //
 // Parameters:
-//   - aiClient: The AI client for making requests to the OpenAI chat API.
-//   - charRepo: The chat repository for interacting with the chat data.
-//   - embeddProto: The EmbedService client for embedding service API.
-//   - milvusClinet: The MilvusClient for interacting with the Milvus storage.
-//   - docRepo: The document repository for interacting with the document data.
-//   - embeddingModel: The embedding model string.
+// - ctx: the context.Context for the method execution.
+// - ch: the channel to send the response to.
+// - user: the user performing the search.
+// - message: the chat message containing the search query.
+// - collectionNames: the names of the collections to search in.
 //
 // Returns:
-//   - ChatResponder: The ChatResponder object for sending chat responses.
+// - []*model.DocumentResponse: a list of document responses.
+// - error: if an error occurs during the search or document retrieval.
+func (r *aiResponder) FindDocuments(ctx context.Context,
+	ch chan *Response,
+	user *model.User,
+	message *model.ChatMessage,
+	collectionNames ...string) ([]*model.DocumentResponse, error) {
+
+	searchResult, err := r.searcher.FindDocuments(ctx, user.ID, user.TenantID, r.embeddingModel, message.ParentMessage.Message, collectionNames...)
+	if err != nil {
+		zap.S().Errorf("embeding service %s ", err.Error())
+		ch <- &Response{
+			IsValid: false,
+			Type:    ResponseError,
+			Err:     err,
+		}
+		return nil, err
+	}
+	var result []*model.DocumentResponse
+	mapResult := make(map[string]*model.DocumentResponse)
+	for _, sr := range searchResult {
+		resDocument := &model.DocumentResponse{
+			ID:        decimal.NewFromInt(sr.DocumentID),
+			MessageID: message.ID,
+			Content:   sr.Content,
+		}
+		dbDoc, err := r.docRepo.FindByID(ctx, sr.DocumentID)
+		if err != nil {
+			continue
+		}
+
+		resDocument.Link = dbDoc.OriginalURL
+		if resDocument.Link == "" {
+			resDocument.Link = dbDoc.URL
+		}
+		resDocument.DocumentID = dbDoc.SourceID
+		if !dbDoc.LastUpdate.IsZero() {
+			resDocument.UpdatedDate = dbDoc.LastUpdate.Time
+		} else {
+			resDocument.UpdatedDate = dbDoc.CreationDate
+		}
+
+		if _, ok := mapResult[resDocument.DocumentID]; ok {
+			continue
+		}
+		mapResult[resDocument.DocumentID] = resDocument
+		result = append(result, resDocument)
+		ch <- &Response{
+			IsValid:  true,
+			Type:     ResponseDocument,
+			Document: resDocument,
+		}
+
+	}
+	return result, nil
+}
+
+// NewAIResponder creates a new AIResponder object with the given dependencies.
+// It takes an OpenAIClient, ChatRepository, Searcher, VectorDBClient, DocumentRepository,
+// and an embeddingModel as parameters and returns a ChatResponder object.
+// The ChatResponder object is implemented by the aiResponder struct.
+// The aiResponder struct has the following fields: aiClient, charRepo, searcher,
+// vectorDBClinet, docRepo, and embeddingModel.
+// The implementation of the Send method in aiResponder is responsible for sending chat responses.
+// The Send method takes a context, a response channel, a wait group, a user, a boolean flag,
+// a parent message, and a persona as parameters.
+// The NewAIResponder function initializes an aiResponder object with the provided dependencies
+// and returns it as a ChatResponder object.
 func NewAIResponder(
 	aiClient ai.OpenAIClient,
 	charRepo repository.ChatRepository,
-	embeddProto proto.EmbedServiceClient,
-	milvusClinet storage.MilvusClient,
+	searcher ai.Searcher,
+	vectorDBClinet storage.VectorDBClient,
 	docRepo repository.DocumentRepository,
 	embeddingModel string,
 ) ChatResponder {
 	return &aiResponder{aiClient: aiClient,
-		charRepo:  charRepo,
-		embedding: NewEmbeddingResponder(embeddProto, milvusClinet, docRepo, embeddingModel),
+		charRepo:       charRepo,
+		searcher:       searcher,
+		vectorDBClinet: vectorDBClinet,
+		docRepo:        docRepo,
+		embeddingModel: embeddingModel,
 	}
 }

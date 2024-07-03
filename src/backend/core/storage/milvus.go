@@ -48,7 +48,7 @@ type (
 		Content    string    `json:"content"`
 		Vector     []float32 `json:"vector"`
 	}
-	MilvusClient interface {
+	VectorDBClient interface {
 		CreateSchema(ctx context.Context, name string) error
 		Save(ctx context.Context, collection string, payloads ...*MilvusPayload) error
 		Load(ctx context.Context, collection string, vector []float32) ([]*MilvusPayload, error)
@@ -144,7 +144,7 @@ func (c *milvusClient) Load(ctx context.Context, collection string, vector []flo
 // - A function that reads the MilvusConfig from environment variables and validates it.
 // - A function that creates a new Milvus client based on the provided config.
 //
-// This module can be used to configure and initialize a MilvusClient.
+// This module can be used to configure and initialize a VectorDBClient.
 var MilvusModule = fx.Options(
 	fx.Provide(func() (*MilvusConfig, error) {
 		cfg := MilvusConfig{}
@@ -160,8 +160,8 @@ var MilvusModule = fx.Options(
 	),
 )
 
-// NewMilvusClient creates a new instance of MilvusClient
-func NewMilvusClient(cfg *MilvusConfig) (MilvusClient, error) {
+// NewMilvusClient creates a new instance of VectorDBClient
+func NewMilvusClient(cfg *MilvusConfig) (VectorDBClient, error) {
 	client, err := connect(cfg)
 	if err != nil {
 		zap.S().Errorf("connect to milvus error %s ", err.Error())

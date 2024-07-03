@@ -1,31 +1,37 @@
 package ai
 
 import (
-	"cognix.ch/api/v2/core/proto"
+	"cognix.ch/api/v2/core/storage"
 	"cognix.ch/api/v2/core/utils"
-	"fmt"
 	"go.uber.org/fx"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 var EmbeddingModule = fx.Options(
-	fx.Provide(func() (*EmbeddingConfig, error) {
-		cfg := EmbeddingConfig{}
+	fx.Provide(func() (*SearcherConfig, error) {
+		cfg := SearcherConfig{
+			InternalSearcher: &EmbeddingConfig{},
+			GRPCSearcher:     &VectorSearchConfig{},
+		}
 		if err := utils.ReadConfig(&cfg); err != nil {
 			return nil, err
 		}
 		return &cfg, nil
 	},
-		newEmbeddingGRPCClient),
+		newInternal,
+		newGrpcEmbedder,
+		newSearcher),
 )
 
-func newEmbeddingGRPCClient(cfg *EmbeddingConfig) (proto.EmbedServiceClient, error) {
-	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+func newInternal(cfg *SearcherConfig) *EmbeddingBuilder {
+	return NewEmbeddingBuilder(cfg.InternalSearcher)
+}
+func newGrpcEmbedder(cfg *SearcherConfig) *GRPCEmbeddingBuilder {
+	return NewGRPCEmbeddingBuilder(cfg.GRPCSearcher)
+}
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", cfg.EmbedderHost, cfg.EmbedderPort), dialOptions...)
-	if err != nil {
-		return nil, err
-	}
-	return proto.NewEmbedServiceClient(conn), nil
+func newSearcher(cfg *SearcherConfig,
+	internalBuilder *EmbeddingBuilder,
+	vectorDBClinet storage.VectorDBClient,
+	grpcBuilder *GRPCEmbeddingBuilder) (Searcher, error) {
+	return NewSearcher(cfg.ApiVectorSearch, internalBuilder, vectorDBClinet, grpcBuilder)
 }

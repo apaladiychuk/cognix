@@ -8,13 +8,12 @@ import datetime
 from dotenv import load_dotenv
 from nats.aio.msg import Msg
 
-from lib.db.db_connector import ConnectorCRUD, Status
-from lib.db.db_document import DocumentCRUD
-from lib.gen_types.semantic_data_pb2 import SemanticData
-from lib.semantic.semantic_factory import SemanticFactory
-from lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
-from readiness_probe import ReadinessProbe
-
+from cognix_lib.db.db_connector import ConnectorCRUD, Status
+from cognix_lib.db.db_document import DocumentCRUD
+from cognix_lib.gen_types.semantic_data_pb2 import SemanticData
+from cognix_lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
+from cognix_lib.helpers.readiness_probe import ReadinessProbe
+from lib.helpers.device_checker import DeviceChecker
 #endregion
 
 #region .env and logs
@@ -49,7 +48,7 @@ cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
 #endregion
 
 # Define the event handler function
-async def whisper_event(msg: Msg):
+async def voice_event(msg: Msg):
     start_time = time.time()  # Record the start time
     connector_id = 0
     entities_analyzed = 0
@@ -86,9 +85,9 @@ async def whisper_event(msg: Msg):
                                                 last_update=datetime.datetime.utcnow())
 
                 # performing semantic analysis on the source
-                semantic = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
-                entities_analyzed = await semantic.analyze(data=semantic_data, full_process_start_time=start_time,
-                                                           ack_wait=semantic_ack_wait, cockroach_url=cockroach_url)
+                # semantic = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
+                # entities_analyzed = await semantic.analyze(data=semantic_data, full_process_start_time=start_time,
+                #                                            ack_wait=semantic_ack_wait, cockroach_url=cockroach_url)
 
                 # if entities_analyzed == 0 this means no data was stored in the vector db
                 # we shall find a way to tell the user, most likely put the message in the dead letter
@@ -149,6 +148,7 @@ async def main():
     # semantic will wait till nats will be up again
     while True:
         logger.info("🛠️ service starting..")
+        DeviceChecker.check_device()
         try:
             # subscribing to jet stream
             subscriber = JetStreamEventSubscriber(
@@ -163,7 +163,7 @@ async def main():
                 proto_message_type=SemanticData
             )
 
-            subscriber.set_event_handler(whisper_event)
+            subscriber.set_event_handler(voice_event)
             await subscriber.connect_and_subscribe()
 
             # todo add an event to JetStreamEventSubscriber to signal that connection has been established

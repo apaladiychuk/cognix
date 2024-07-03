@@ -4,7 +4,6 @@ import (
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
-	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/responder"
 	"cognix.ch/api/v2/core/storage"
@@ -43,7 +42,7 @@ type chatBL struct {
 	personaRepo        repository.PersonaRepository
 	embeddingModelRepo repository.EmbeddingModelRepository
 	aiBuilder          *ai.Builder
-	embedding          proto.EmbedServiceClient
+	searcher           ai.Searcher
 	milvusClinet       storage.VectorDBClient
 }
 
@@ -112,7 +111,7 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 	aiClient := b.aiBuilder.New(chatSession.Persona.LLM)
 	resp := responder.NewManager(
 		responder.NewAIResponder(aiClient, b.chatRepo,
-			b.embedding, b.milvusClinet, b.docRepo, em.ModelID),
+			b.searcher, b.milvusClinet, b.docRepo, em.ModelID),
 	)
 
 	go resp.Send(ctx, user, noLLM, &message, chatSession.Persona)
@@ -202,7 +201,7 @@ func NewChatBL(
 	docRepo repository.DocumentRepository,
 	embeddingModelRepo repository.EmbeddingModelRepository,
 	aiBuilder *ai.Builder,
-	embedding proto.EmbedServiceClient,
+	searcher ai.Searcher,
 	milvusClinet storage.VectorDBClient,
 ) ChatBL {
 	return &chatBL{
@@ -212,7 +211,7 @@ func NewChatBL(
 		docRepo:            docRepo,
 		embeddingModelRepo: embeddingModelRepo,
 		aiBuilder:          aiBuilder,
-		embedding:          embedding,
+		searcher:           searcher,
 		milvusClinet:       milvusClinet,
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
-	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/responder"
 	"cognix.ch/api/v2/core/storage"
@@ -35,7 +34,7 @@ type ChatBL interface {
 //     database operations.
 //   - aiBuilder:        An instance of the Builder type used for managing the creation and caching of OpenAIClient instances.
 //   - embedding:        A client API for the EmbedService service.
-//   - milvusClinet:     An instance of the MilvusClient interface used for interacting with the Milvus storage.
+//   - milvusClinet:     An instance of the VectorDBClient interface used for interacting with the Milvus storage.
 type chatBL struct {
 	cfg                *Config
 	chatRepo           repository.ChatRepository
@@ -43,8 +42,8 @@ type chatBL struct {
 	personaRepo        repository.PersonaRepository
 	embeddingModelRepo repository.EmbeddingModelRepository
 	aiBuilder          *ai.Builder
-	embedding          proto.EmbedServiceClient
-	milvusClinet       storage.MilvusClient
+	searcher           ai.Searcher
+	milvusClinet       storage.VectorDBClient
 }
 
 // FeedbackMessage updates the feedback of a chat message for a given user.
@@ -112,7 +111,7 @@ func (b *chatBL) SendMessage(ctx *gin.Context, user *model.User, param *paramete
 	aiClient := b.aiBuilder.New(chatSession.Persona.LLM)
 	resp := responder.NewManager(
 		responder.NewAIResponder(aiClient, b.chatRepo,
-			b.embedding, b.milvusClinet, b.docRepo, em.ModelID),
+			b.searcher, b.milvusClinet, b.docRepo, em.ModelID),
 	)
 
 	go resp.Send(ctx, user, noLLM, &message, chatSession.Persona)
@@ -191,7 +190,7 @@ func (b *chatBL) CreateSession(ctx context.Context, user *model.User, param *par
 //   - embeddingModelRepo: The embedding model repository for accessing embedding model-related data.
 //   - aiBuilder: The builder for managing OpenAIClient instances.
 //   - embedding: The EmbedServiceClient for embedding operations.
-//   - milvusClinet: The MilvusClient for Milvus operations.
+//   - milvusClinet: The VectorDBClient for Milvus operations.
 //
 // Returns:
 //   - ChatBL: The created instance of ChatBL.
@@ -202,8 +201,8 @@ func NewChatBL(
 	docRepo repository.DocumentRepository,
 	embeddingModelRepo repository.EmbeddingModelRepository,
 	aiBuilder *ai.Builder,
-	embedding proto.EmbedServiceClient,
-	milvusClinet storage.MilvusClient,
+	searcher ai.Searcher,
+	milvusClinet storage.VectorDBClient,
 ) ChatBL {
 	return &chatBL{
 		cfg:                cfg,
@@ -212,7 +211,7 @@ func NewChatBL(
 		docRepo:            docRepo,
 		embeddingModelRepo: embeddingModelRepo,
 		aiBuilder:          aiBuilder,
-		embedding:          embedding,
+		searcher:           searcher,
 		milvusClinet:       milvusClinet,
 	}
 }

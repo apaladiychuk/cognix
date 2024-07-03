@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package com.cognix;
+option go_package = "backend/core/proto;proto";
+
+message SearchRequest {
+  string content = 1;
+  string model = 2;
+}
+
+message SearchResponse {
+  repeated int64 vector = 1;
+}
+
+service SearchService {
+  rpc VectorSearch (SearchRequest) returns (SearchResponse) {}
+}

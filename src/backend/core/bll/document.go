@@ -48,7 +48,7 @@ type (
 	// }
 	documentBL struct {
 		documentRepo  repository.DocumentRepository
-		minioClient   storage.MinIOClient
+		minioClient   storage.FileStorageClient
 		connectorRepo repository.ConnectorRepository
 	}
 )
@@ -103,7 +103,7 @@ func (b *documentBL) UploadDocument(ctx context.Context, user *model.User, fileN
 // documentBL := NewDocumentBL(documentRepo, connectorRepo, minioClient)
 func NewDocumentBL(documentRepo repository.DocumentRepository,
 	connectorRepo repository.ConnectorRepository,
-	minioClient storage.MinIOClient) DocumentBL {
+	minioClient storage.FileStorageClient) DocumentBL {
 	return &documentBL{documentRepo: documentRepo,
 		connectorRepo: connectorRepo,
 		minioClient:   minioClient,

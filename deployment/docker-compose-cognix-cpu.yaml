@@ -114,6 +114,7 @@ services:
       - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
       - ${CONFIG_PATH}/embedder_cli.env
+      - ${CONFIG_PATH}/searcher_cli.env
       - ${CONFIG_PATH}/.env
     depends_on:
       - cockroach

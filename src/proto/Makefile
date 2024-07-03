@@ -1,7 +1,7 @@
 
 gen-proto-go:
 
-	protoc -I=. -I=vendor -I=${GOPATH}/src file_type.proto whisper_data.proto embed_service.proto connector_messages.proto semantic_data.proto --go_out=.. --go-grpc_out=..
+	protoc -I=. -I=vendor -I=${GOPATH}/src file_type.proto whisper_data.proto vector_search.proto embed_service.proto connector_messages.proto semantic_data.proto --go_out=.. --go-grpc_out=..
 
 
 #PROTOC_GEN_GRPC_PYTHON=$(shell which grpc_tools.protoc)

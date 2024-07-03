@@ -19,7 +19,7 @@ type (
 		BucketName      string `env:"MINIO_BUCKET_NAME"`
 		Region          string `env:"MINIO_REGION"`
 	}
-	MinIOClient interface {
+	FileStorageClient interface {
 		Upload(ctx context.Context, bucket, filename, contentType string, reader io.Reader) (string, string, error)
 		GetObject(ctx context.Context, bucket, filename string, writer io.Writer) error
 		DeleteObject(ctx context.Context, bucket, filename string) error
@@ -112,9 +112,9 @@ func (c *minIOClient) GetObject(ctx context.Context, bucket, filename string, wr
 	return nil
 }
 
-// NewMinIOClient creates a new instance of MinIOClient using the provided MinioConfig.
-// It returns the created MinIOClient and an error if any occurred.
-func NewMinIOClient(cfg *MinioConfig) (MinIOClient, error) {
+// NewMinIOClient creates a new instance of FileStorageClient using the provided MinioConfig.
+// It returns the created FileStorageClient and an error if any occurred.
+func NewMinIOClient(cfg *MinioConfig) (FileStorageClient, error) {
 
 	minioClient, err := minio.New(cfg.Endpoint, &minio.Options{
 		Creds: credentials.NewStaticV4(cfg.AccessKey,

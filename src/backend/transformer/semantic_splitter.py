@@ -8,13 +8,7 @@ import numpy as np
 
 class SemanticSplitter:
     def __init__(self, model_cache_limit: int = 1, local_model_path: str = 'models', logger: logging.Logger = None):
-        self.logger = logger or logging.getLogger(self.__class__.__name__)
-        self.logger.setLevel(logging.INFO)
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-
+        self.logger = logging.getLogger(self.__class__.__name__)
         self._cache_limit = model_cache_limit
         self._local_model_dir = os.path.abspath(local_model_path)
 
@@ -58,34 +52,36 @@ class SemanticSplitter:
             self._model_cache[model_name] = model
             return model
 
-    def semantic_split_cosine(self, text: List[str], model_name: str, threshold: float) -> List[str]:
+    def semantic_split_cosine(self, text: str, model_name: str, threshold: float) -> List[str]:
         model: SentenceTransformer = self._get_model(model_name)
-        embeddings: np.ndarray = model.encode(text)
+        sentences: List[str] = text.split(". ")  # Assuming sentences are separated by ". "
+        embeddings: np.ndarray = model.encode(sentences)
         splits: List[str] = []
         start: int = 0
 
-        for i in range(1, len(text)):
+        for i in range(1, len(sentences)):
             similarity: float = util.cos_sim(embeddings[i - 1], embeddings[i])[0][0].item()
             if similarity < threshold:
-                splits.append(" ".join(text[start:i]))
+                splits.append(". ".join(sentences[start:i]) + ".")
                 start = i
 
-        splits.append(" ".join(text[start:len(text)]))
+        splits.append(". ".join(sentences[start:len(sentences)]) + ".")
         return splits
 
-    def semantic_split_direct(self, text: List[str], model_name: str, threshold: float) -> List[str]:
+    def semantic_split_direct(self, text: str, model_name: str, threshold: float) -> List[str]:
         model: SentenceTransformer = self._get_model(model_name)
-        embeddings: np.ndarray = model.encode(text)
+        sentences: List[str] = text.split(". ")  # Assuming sentences are separated by ". "
+        embeddings: np.ndarray = model.encode(sentences)
         splits: List[str] = []
         start: int = 0
 
-        for i in range(1, len(text)):
+        for i in range(1, len(sentences)):
             diff: float = np.linalg.norm(embeddings[i - 1] - embeddings[i])
             if diff > threshold:
-                splits.append(" ".join(text[start:i]))
+                splits.append(". ".join(sentences[start:i]) + ".")
                 start = i
 
-        splits.append(" ".join(text[start:len(text)]))
+        splits.append(". ".join(sentences[start:len(sentences)]) + ".")
         return splits
 
 import os
@@ -108,13 +104,8 @@ logger.info(f"Logging configured with level {log_level_str} and format {log_form
 model_path = os.getenv('TRANSFORMER_LOCAL_MODEL_PATH', '../../../data/models')
 # Example usage:
 if __name__ == "__main__":
-    text: List[str] = [
-        "This is the first sentence.",
-        "This is the second sentence.",
-        "This is a completely different topic.",
-        "Another different topic sentence.",
-        "Back to something similar to the first."
-    ]
+    text: str =  "This is the second sentence. This is a completely different topic.Another different topic sentence. Back to something similar to the first."
+
     model_name: str = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
     cosine_threshold: float = 0.7
     direct_threshold: float = 1.0

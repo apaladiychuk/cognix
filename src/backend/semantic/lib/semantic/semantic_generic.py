@@ -29,7 +29,7 @@ class GenericSemantic(BaseSemantic):
             if os.path.exists(downloaded_file_path):
                 file_type = os.path.splitext(downloaded_file_path)[1]
                 file_size = os.path.getsize(downloaded_file_path)
-                self.logger.info(f"analyzing a: {file_type} file, size: {file_size / 1024:.2f} KB")
+                self.logger.info(f"analyzing a {file_type} file, size: {file_size / 1024:.2f} KB")
             else:
                 raise FileNotFoundError(f"File {downloaded_file_path} does not exist.")
 

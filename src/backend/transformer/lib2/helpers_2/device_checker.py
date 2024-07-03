@@ -9,11 +9,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get log level from env
-log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
+log_level_str = os.getenv('TRANSFORMER_LOG_LEVEL', 'INFO').upper()
 log_level = getattr(logging, log_level_str, logging.INFO)
 
 # Get log format from env
-log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_format = os.getenv('TRANSFORMER_LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)

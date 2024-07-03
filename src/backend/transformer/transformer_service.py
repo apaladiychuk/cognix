@@ -8,7 +8,7 @@ import grpc
 from dotenv import load_dotenv
 
 from lib2.gen_types_2.transformer_service_pb2_grpc import TransformerServiceServicer
-from lib2.gen_types_2.transformer_service_pb2 import SemanticResponse, SimilarityType
+from lib2.gen_types_2.transformer_service_pb2 import SemanticResponse, SemanticRequest, SimilarityType
 from lib2.gen_types_2.transformer_service_pb2_grpc import add_TransformerServiceServicer_to_server
 from lib2.helpers_2.device_checker import DeviceChecker
 from semantic_splitter import SemanticSplitter
@@ -29,15 +29,16 @@ logger = logging.getLogger(__name__)
 logger.setLevel(log_level)  # Ensure the logger's level is explicitly set
 
 grpc_port = os.getenv('TRANSFORMER_GRPC_PORT', '50051')
-cache_limit: int = int(os.getenv('MODEL_CACHE_LIMIT', 1))
-local_model_path: str = os.getenv('LOCAL_MODEL_PATH', 'models')
+cache_limit: int = int(os.getenv('TRANSFORMER_MODEL_CACHE_LIMIT', 1))
+local_model_path: str = os.getenv('TRANSFORMER_LOCAL_MODEL_PATH', 'models')
 
 
 class TransformerServicer(TransformerServiceServicer):
-    def SemanticSplit(self, request, context):
+    def SemanticSplit(self, request: SemanticRequest, context):
         start_time = time.time()  # Record the start time
         try:
-            logger.info(f"incoming embedd request: {request}")
+            logger.debug(f"incoming semantic split request: {request}")
+            logger.debug(f"incoming semantic split request - content len: {len(request.content)}, similarity type: {request.similarity_type}, threshold: {request.threshold} model:{request.model}" )
             semantic_response = SemanticResponse()
             splitter = SemanticSplitter(model_cache_limit=cache_limit, local_model_path=local_model_path,
                                         logger=logger)
@@ -47,9 +48,9 @@ class TransformerServicer(TransformerServiceServicer):
             else:
                 splits: List[str] = splitter.semantic_split_direct(request.content, request.model, request.threshold)
 
-            semantic_response.chunks = splits
+            semantic_response.chunks.extend(splits)
 
-            logger.info("transformer request successfully processed")
+            logger.info(f"transformer request successfully processed, created {len(splits)} chunks")
             return semantic_response
         except Exception as e:
             logger.exception(e)

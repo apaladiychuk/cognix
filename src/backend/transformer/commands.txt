@@ -19,8 +19,8 @@ docker system prune
 
 
 from cognix-services
-sudo docker-compose -f deployment/docker-compose-services-ai.yaml down
-sudo docker-compose -f deployment/docker-compose-services-ai.yaml up
+sudo docker-compose -f deployment/docker-compose-cognix-cpu.yaml down
+sudo docker-compose -f deployment/docker-compose-cognix-cpu.yaml up
 
 
 es, it is possible to create symbolic links (symlinks) in your file system, and Visual Studio Code (VS Code) will treat them as regular files. This allows you to reference files located in different directories without moving the actual files.

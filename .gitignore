@@ -8,6 +8,8 @@
 *.so
 *.dylib
 .env
+*.mp4
+*.wav
 
 # Test binary, built with `go test -c`
 *.test
@@ -45,5 +47,5 @@ src/backend/semantic/testdocs/
 vendor/
 
 
-# personal access token for one drive
-docs/connectors/personal
+
+

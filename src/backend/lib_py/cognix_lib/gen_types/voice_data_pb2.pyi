@@ -5,7 +5,7 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class WhisperData(_message.Message):
+class VoiceData(_message.Message):
     __slots__ = ("url", "document_id", "connector_id", "file_type", "collection_name", "model_name", "model_dimension")
     URL_FIELD_NUMBER: _ClassVar[int]
     DOCUMENT_ID_FIELD_NUMBER: _ClassVar[int]

@@ -36,8 +36,10 @@ func (i *SearcherGRPC) FindDocuments(ctx context.Context, userID, tenantID uuid.
 		return nil, err
 	}
 	response, err := embedding.VectorSearch(ctx, &proto.SearchRequest{
-		Content: message,
-		Model:   embeddingModel,
+		Content:         message,
+		UserId:          userID.String(),
+		TenantId:        tenantID.String(),
+		CollectionNames: collectionNames,
 	})
 	if err != nil {
 		zap.S().Errorf("embeding service %s ", err.Error())
@@ -45,9 +47,10 @@ func (i *SearcherGRPC) FindDocuments(ctx context.Context, userID, tenantID uuid.
 	}
 	var result []*SearcherResponse
 
-	for _, docID := range response.GetVector() {
+	for _, doc := range response.GetDocuments() {
 		resDocument := &SearcherResponse{
-			DocumentID: docID,
+			DocumentID: doc.GetDocumentId(),
+			Content:    doc.GetContent(),
 		}
 		result = append(result, resDocument)
 	}

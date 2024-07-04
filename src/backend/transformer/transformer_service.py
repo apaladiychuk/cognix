@@ -13,6 +13,7 @@ from lib2.gen_types_2.transformer_service_pb2_grpc import add_TransformerService
 from lib2.helpers_2.device_checker import DeviceChecker
 from semantic_splitter import SemanticSplitter
 
+
 # Load environment variables from .env file
 load_dotenv()
 

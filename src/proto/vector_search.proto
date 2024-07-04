@@ -5,11 +5,18 @@ option go_package = "backend/core/proto;proto";
 
 message SearchRequest {
   string content = 1;
-  string model = 2;
+  string user_id = 2;
+  string tenant_id = 3;
+  repeated string collection_names = 4;
 }
 
 message SearchResponse {
-  repeated int64 vector = 1;
+  repeated SearchDocument documents = 1;
+}
+
+message SearchDocument {
+  int64 document_id = 1; // document id in cockroach database
+  string content = 2;
 }
 
 service SearchService {

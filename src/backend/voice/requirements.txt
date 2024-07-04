@@ -1,0 +1,17 @@
+nats-py==2.7.2
+python-dotenv==1.0.1
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+mistune==3.0.2
+minio==7.2.7
+openai-whisper==20231117
+transformers==4.42.3
+
+# conda install chardet
+
+torch==2.0.1
+torchaudio==2.0.2
+torchvision==0.15.2
+
+
+

@@ -55,6 +55,8 @@ minio_secret_key = os.getenv('MINIO_SECRET_ACCESS_KEY', "minioadmin")
 minio_use_ssl = os.getenv('MINIO_USE_SSL', 'false').lower() == 'true'
 temp_path = os.getenv('VOICE_LOCAL_TEMP_PATH', "../temp")
 model_path = os.getenv('VOICE_LOCAL_MODEL_PATH', '../../../data/models')
+
+
 #endregion
 
 # Define the event handler function
@@ -107,8 +109,10 @@ async def voice_event(msg: Msg):
                 #                         minio_secret_key: str, minio_use_ssl: bool) -> str:
 
                 downloaded_file_path = MinIO_Helper.download(url=semantic_data.url, temp_path=temp_path,
-                                                                      minio_endpoint=minio_endpoint, minio_access_key=minio_access_key,
-                                                                      minio_secret_key=minio_secret_key, minio_use_ssl=minio_use_ssl)
+                                                             minio_endpoint=minio_endpoint,
+                                                             minio_access_key=minio_access_key,
+                                                             minio_secret_key=minio_secret_key,
+                                                             minio_use_ssl=minio_use_ssl)
                 file_type = ""
                 # Log the file type and size
                 if os.path.exists(downloaded_file_path):
@@ -152,12 +156,12 @@ async def voice_event(msg: Msg):
 
                 # updating again the connector
                 connector_crud.update_connector(connector_id,
-                                                    status=Status.COMPLETED_SUCCESSFULLY,
-                                                    last_successful_analyzed=datetime.datetime.utcnow(),
-                                                    last_update=datetime.datetime.utcnow(),
-                                                    total_docs_analyzed=entities_analyzed
-                                                    # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
-                                                    )
+                                                status=Status.COMPLETED_SUCCESSFULLY,
+                                                last_successful_analyzed=datetime.datetime.utcnow(),
+                                                last_update=datetime.datetime.utcnow(),
+                                                total_docs_analyzed=entities_analyzed
+                                                # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
+                                                )
             else:
                 logger.error(
                     f"❌ failed to process semantic data error: document_id {semantic_data.document_id} not valid")

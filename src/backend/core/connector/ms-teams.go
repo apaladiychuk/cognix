@@ -755,7 +755,7 @@ func NewMSTeams(connector *model.Connector,
 	}
 	conn.client = resty.New().
 		SetTimeout(time.Minute).
-		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
+		SetHeader(utils.AuthorizationHeader, fmt.Sprintf("%s %s",
 			conn.param.Token.TokenType,
 			conn.param.Token.AccessToken))
 	return &conn, nil

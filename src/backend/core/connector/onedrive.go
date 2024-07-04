@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
+	"cognix.ch/api/v2/core/utils"
 	"context"
 	"fmt"
 	_ "github.com/AzureAD/microsoft-authentication-library-for-go/apps/confidential"
@@ -207,7 +208,7 @@ func NewOneDrive(connector *model.Connector,
 
 	conn.client = resty.New().
 		SetTimeout(time.Minute).
-		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
+		SetHeader(utils.AuthorizationHeader, fmt.Sprintf("%s %s",
 			conn.param.Token.TokenType,
 			conn.param.Token.AccessToken))
 	return &conn, nil

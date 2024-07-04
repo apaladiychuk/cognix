@@ -9,8 +9,11 @@ mistune==3.0.2
 minio==7.2.7
 openai-whisper==20231117
 transformers==4.42.3
+chardet==5.2.0
 
 # conda install chardet
+# export PYTHONPATH=$PYTHONPATH:/Users/gp/Developer/cognix/src/backend/lib_py
+# python3 -c "import sys; print('\n'.join(sys.path))"
 
 torch==2.0.1
 torchaudio==2.0.2

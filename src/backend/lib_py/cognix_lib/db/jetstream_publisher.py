@@ -19,24 +19,16 @@ semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'sema
 semantic_ack_wait = int(os.getenv('NATS_CLIENT_SEMANTIC_ACK_WAIT', '3600'))  # seconds
 semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
-# get log level from env
-log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
-log_level = getattr(logging, log_level_str, logging.INFO)
-# get log format from env
-log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# Configure logging
-logging.basicConfig(level=log_level, format=log_format)
-logger = logging.getLogger(__name__)
 
 
 class JetStreamPublisher:
     def __init__(self, subject, stream_name):
-        self.logger = None
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.subject = subject
         self.stream_name = stream_name
         self.nc = NATS()
         self.js = None
-        logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")
+        self.logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")
 
     async def connect(self):
         # Connect to NATS

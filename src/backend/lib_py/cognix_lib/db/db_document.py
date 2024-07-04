@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from sqlalchemy import Column, BigInteger, TIMESTAMP, Boolean, func, Text, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
-from lib.db.dc_connection_manager import ConnectionManager
+from cognix_lib.db.dc_connection_manager import ConnectionManager
 from contextlib import contextmanager
 from typing import List
 from sqlalchemy.exc import OperationalError

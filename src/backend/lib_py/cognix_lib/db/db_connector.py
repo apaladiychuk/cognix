@@ -5,7 +5,7 @@ from sqlalchemy.exc import OperationalError
 from contextlib import contextmanager
 import enum
 import time
-from lib.db.dc_connection_manager import ConnectionManager
+from cognix_lib.db.dc_connection_manager import ConnectionManager
 from typing import List
 
 Base = declarative_base()

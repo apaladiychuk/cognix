@@ -12,7 +12,7 @@ import time
 
 load_dotenv()
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 

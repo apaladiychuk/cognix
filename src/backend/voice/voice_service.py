@@ -13,7 +13,12 @@ from cognix_lib.db.db_document import DocumentCRUD
 from cognix_lib.gen_types.semantic_data_pb2 import SemanticData
 from cognix_lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
 from cognix_lib.helpers.readiness_probe import ReadinessProbe
-from lib.helpers.device_checker import DeviceChecker
+from cognix_lib.helpers.device_checker import DeviceChecker
+from cognix_lib.helpers.minio_helper import MinIO_Helper
+from cognix_lib.db.jetstream_publisher import JetStreamPublisher
+from cognix_lib.gen_types.file_type_pb2 import FileType
+from voice_to_text import VoiceToText
+
 #endregion
 
 #region .env and logs
@@ -44,7 +49,12 @@ semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
                           'postgres://root:123@cockroach:26257/defaultdb?sslmode=disable')
 
-
+minio_endpoint = os.getenv('MINIO_ENDPOINT', "minio:9000")
+minio_access_key = os.getenv('MINIO_ACCESS_KEY', "minioadmin")
+minio_secret_key = os.getenv('MINIO_SECRET_ACCESS_KEY', "minioadmin")
+minio_use_ssl = os.getenv('MINIO_USE_SSL', 'false').lower() == 'true'
+temp_path = os.getenv('VOICE_LOCAL_TEMP_PATH', "../temp")
+model_path = os.getenv('VOICE_LOCAL_MODEL_PATH', '../../../data/models')
 #endregion
 
 # Define the event handler function
@@ -62,7 +72,7 @@ async def voice_event(msg: Msg):
             logger.error(f"❌ no model nameeeeeeee")
             semantic_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
             semantic_data.model_dimension = 768
-            logger.warning(f"😱 Addning model name and dimension manually remove this code ASAP")
+            logger.warning(f"😱 Adding model name and dimension manually remove this code ASAP")
 
         # verify document id is valid otherwise we cannot process the message
         if semantic_data.document_id <= 0:
@@ -92,18 +102,62 @@ async def voice_event(msg: Msg):
                 # if entities_analyzed == 0 this means no data was stored in the vector db
                 # we shall find a way to tell the user, most likely put the message in the dead letter
 
-                if entities_analyzed is None:
-                    logger.error(f"❌ entities_analyzed is none!!!!!")
-                    entities_analyzed = 0
+                # downloads the file from minio and stores locally
+                # def download_from_minio(url: str, temp_path: str, minio_endpoint: str, minio_access_key: str,
+                #                         minio_secret_key: str, minio_use_ssl: bool) -> str:
+
+                downloaded_file_path = MinIO_Helper.download(url=semantic_data.url, temp_path=temp_path,
+                                                                      minio_endpoint=minio_endpoint, minio_access_key=minio_access_key,
+                                                                      minio_secret_key=minio_secret_key, minio_use_ssl=minio_use_ssl)
+                file_type = ""
+                # Log the file type and size
+                if os.path.exists(downloaded_file_path):
+                    file_type = os.path.splitext(downloaded_file_path)[1]
+                    file_size = os.path.getsize(downloaded_file_path)
+                    logger.info(f"analyzing a {file_type} file, size: {file_size / 1024:.2f} KB")
+                else:
+                    raise FileNotFoundError(f"File {downloaded_file_path} does not exist.")
+
+                model_name = "openai/whisper-large-v3"
+                vtt = VoiceToText(model_cache_limit=2, local_model_path=model_path, logger=logger)
+                transcription = vtt.extract_text(downloaded_file_path, model_name)
+
+                # Save the transcription to a Markdown file and storing in MinIO
+                # todo: we shall extract bucket name from semantic_data.url minio:<bucket-name>:<file-name>
+                # passing empty atm and it will be auto generated
+                minio_url = MinIO_Helper.upload_string_to_md(content=transcription,
+                                                             bucket_name="",
+                                                             object_name="transcript.md",
+                                                             minio_endpoint=minio_endpoint,
+                                                             minio_access_key=minio_access_key,
+                                                             minio_secret_key=minio_secret_key,
+                                                             minio_use_ssl=minio_use_ssl)
+
+                # sending message to semantic
+                publisher = JetStreamPublisher(subject=semantic_stream_subject,
+                                               stream_name=semantic_stream_name)
+                await publisher.connect()
+                semantic_data_to_send = SemanticData(
+                    url=minio_url,
+                    document_id=semantic_data.document_id,
+                    url_recursive=False,
+                    connector_id=semantic_data.connector_id,
+                    file_type=FileType.URL,
+                    collection_name=semantic_data.collection_name,
+                    model_name=semantic_data.model_name,
+                    model_dimension=semantic_data.model_dimension)
+                await publisher.publish(semantic_data)
+                logger.info("✉️ sending message to jetstream semantic analysis")
+                await publisher.close()
+
                 # updating again the connector
-                a = connector_crud.update_connector(connector_id,
+                connector_crud.update_connector(connector_id,
                                                     status=Status.COMPLETED_SUCCESSFULLY,
                                                     last_successful_analyzed=datetime.datetime.utcnow(),
                                                     last_update=datetime.datetime.utcnow(),
                                                     total_docs_analyzed=entities_analyzed
                                                     # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
                                                     )
-                logger.info(a)
             else:
                 logger.error(
                     f"❌ failed to process semantic data error: document_id {semantic_data.document_id} not valid")

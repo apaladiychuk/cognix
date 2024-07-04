@@ -58,7 +58,7 @@ type (
 // It takes in the context, redirectUrl, and state as parameters.
 // It sets the RedirectURL for the MicrosoftConfig and returns
 func (m *Microsoft) GetAuthURL(ctx context.Context, redirectUrl, state string) (string, error) {
-	m.cfg.RedirectUL = fmt.Sprintf("%s/api/oauth/microsoft/callback", redirectUrl)
+	m.cfg.RedirectUL = fmt.Sprintf("%s", redirectUrl)
 	return fmt.Sprintf(microsoftLoginURL, m.cfg.ClientID, microsoftScope+" "+teamsScope, m.cfg.RedirectUL), nil
 }
 

@@ -72,7 +72,7 @@ func (h *AuthHandler) SignIn(c *gin.Context) error {
 		return utils.Internal.Wrap(err, "can not marshal payload")
 	}
 	state := base64.URLEncoding.EncodeToString(buf)
-	url, err := h.oauthClient.GetAuthURL(c.Request.Context(), param.RedirectURL, state)
+	url, err := h.oauthClient.GetAuthURL(c.Request.Context(), param.RedirectURL+"/google/callback", state)
 	if err != nil {
 		return err
 	}

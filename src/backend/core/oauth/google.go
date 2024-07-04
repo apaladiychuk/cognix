@@ -69,9 +69,10 @@ func NewGoogleProvider(cfg *GoogleConfig, redirectURL string) Proxy {
 // The ApprovalForce value is passed as the second argument to the AuthCodeURL method.
 // The generated URL is returned along with any potential error that may occur.
 func (g *googleProvider) GetAuthURL(ctx context.Context, redirectURL, state string) (string, error) {
-	g.config.RedirectURL = fmt.Sprintf("%s/google/callback", redirectURL)
+	g.config.RedirectURL = fmt.Sprintf("%s", redirectURL)
 
 	return g.config.AuthCodeURL(state,
+		oauth2.AccessTypeOffline,
 		oauth2.ApprovalForce), nil
 }
 
@@ -97,7 +98,7 @@ func (g *googleProvider) ExchangeCode(ctx context.Context, code string) (*Identi
 	}
 	data.AccessToken = token.AccessToken
 	data.RefreshToken = token.RefreshToken
-
+	data.Token = token
 	return &data, nil
 }
 

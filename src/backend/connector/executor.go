@@ -47,7 +47,7 @@ func (e *Executor) run(streamName, topic string, task messaging.MessageHandler) 
 // runConnector is a method that handles the execution of a connector task based on a connector request message.
 // It unmarshals the message data to obtain the trigger information, retrieves the connector model from the repository,
 // creates a new instance of a connector, executes the connector task, handles the results by saving content and updating
-// documents, and publishes messages to either the Whisper or Semantic stream based on the file type.
+// documents, and publishes messages to either the Voice or Semantic stream based on the file type.
 // After processing all the results, it deletes unused files associated with the connector and updates the connector status.
 // Finally, it updates the connector in the repository and returns any error that occurred during the process.
 func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
@@ -117,9 +117,9 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 
 		// send message to chunking service
 
-		if _, ok := model.WhisperFileTypes[result.FileType]; ok {
-			// send message to whisper
-			whisperDate := proto.WhisperData{
+		if _, ok := model.VoiceFileTypes[result.FileType]; ok {
+			// send message to Voice
+			voiceDate := proto.VoiceData{
 				Url:            result.URL,
 				DocumentId:     doc.ID.IntPart(),
 				ConnectorId:    connectorModel.ID.IntPart(),
@@ -128,13 +128,13 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 				ModelName:      connectorModel.User.EmbeddingModel.ModelID,
 				ModelDimension: int32(connectorModel.User.EmbeddingModel.ModelDim),
 			}
-			zap.S().Infof("send message to whisper %s - %s", connectorModel.Name, result.URL)
+			zap.S().Infof("send message to voice service %s - %s", connectorModel.Name, result.URL)
 			if loopErr = e.msgClient.Publish(ctx,
-				e.msgClient.StreamConfig().WhisperStreamName,
-				e.msgClient.StreamConfig().WhisperStreamSubject,
-				&whisperDate); loopErr != nil {
+				e.msgClient.StreamConfig().VoiceStreamName,
+				e.msgClient.StreamConfig().VoiceStreamSubject,
+				&voiceDate); loopErr != nil {
 				err = loopErr
-				zap.S().Errorf("Failed to publish whisper : %v", loopErr)
+				zap.S().Errorf("Failed to publish voice service: %v", loopErr)
 				continue
 			}
 

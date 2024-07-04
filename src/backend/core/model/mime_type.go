@@ -62,7 +62,7 @@ var SupportedExtensions = map[string]string{
 	"EPUB": "application/epub+zip",
 }
 
-var WhisperFileTypes = map[proto.FileType]bool{
+var VoiceFileTypes = map[proto.FileType]bool{
 	proto.FileType_MP3:  true,
 	proto.FileType_MP4:  true,
 	proto.FileType_MPEG: true,

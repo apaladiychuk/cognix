@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
+	"golang.org/x/oauth2"
+	"net/http"
 )
 
 // WrapRestyError wraps a Resty response error into a standard Go error.
@@ -23,4 +25,20 @@ func WrapRestyError(resp *resty.Response, err error) error {
 		return fmt.Errorf(errMsg)
 	}
 	return nil
+}
+
+const AuthorizationHeader = "Authorization"
+
+type Transport struct {
+	token *oauth2.Token
+	http.Transport
+}
+
+func NewTransport(token *oauth2.Token) http.RoundTripper {
+	return &Transport{token: token}
+}
+
+func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Add(AuthorizationHeader, fmt.Sprintf("%s %s", t.token.TokenType, t.token.AccessToken))
+	return t.Transport.RoundTrip(req)
 }

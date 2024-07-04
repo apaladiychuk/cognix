@@ -18,6 +18,15 @@ const (
 	oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 )
 
+var googleAuthScopes = []string{
+	"https://www.googleapis.com/auth/userinfo.email",
+	"https://www.googleapis.com/auth/userinfo.profile",
+}
+var googleDriveScopes []string = []string{"https://www.googleapis.com/auth/drive.readonly",
+	"https://www.googleapis.com/auth/drive.metadata.readonly",
+	"https://www.googleapis.com/auth/drive.activity.readonly",
+}
+
 // GoogleConfig represents the configuration for Google OAuth service.
 type GoogleConfig struct {
 	GoogleClientID string `env:"GOOGLE_CLIENT_ID"`
@@ -46,8 +55,7 @@ func NewGoogleProvider(cfg *GoogleConfig, redirectURL string) Proxy {
 			ClientSecret: cfg.GoogleSecret,
 			Endpoint:     google.Endpoint,
 			RedirectURL:  fmt.Sprintf("%s/google/callback", redirectURL),
-			Scopes: []string{"https://www.googleapis.com/auth/userinfo.email",
-				"https://www.googleapis.com/auth/userinfo.profile"},
+			Scopes:       append(googleAuthScopes, googleDriveScopes...),
 		},
 	}
 }

@@ -8,10 +8,10 @@ from dotenv import load_dotenv
 from numpy import int64
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
 
-from lib.gen_types.semantic_data_pb2 import SemanticData
-from lib.gen_types.embed_service_pb2 import EmbedRequest
-from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
-from lib.spider.chunked_item import ChunkedItem
+from cognix_lib.gen_types.semantic_data_pb2 import SemanticData
+from cognix_lib.gen_types.embed_service_pb2 import EmbedRequest
+from cognix_lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
+from cognix_lib.spider.chunked_item import ChunkedItem
 
 # Load environment variables from .env file
 load_dotenv()

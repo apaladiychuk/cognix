@@ -6,16 +6,16 @@ from transformers import pipeline, WhisperProcessor, WhisperForConditionalGenera
 import torch
 
 class VoiceToText:
-    def __init__(self, model_cache_limit: int = 1, local_model_path: str = 'models', logger: logging.Logger = None):
+    def __init__(self, model_cache_limit: int = 1, local_model_path: str = 'models'):
         self.logger = logging.getLogger(self.__class__.__name__)
         self._cache_limit = model_cache_limit
         self._local_model_dir = os.path.abspath(local_model_path)
 
         if self._cache_limit <= 0:
-            raise ValueError("TRANSFORMER_MODEL_CACHE_LIMIT must be an integer greater than 0")
+            raise ValueError("VOICE_MODEL_CACHE_LIMIT must be an integer greater than 0")
 
         if not os.path.isdir(self._local_model_dir):
-            raise ValueError(f"TRANSFORMER_LOCAL_MODEL_PATH '{self._local_model_dir}' is not a valid directory")
+            raise ValueError(f"VOICE_MODEL_CACHE_LIMIT '{self._local_model_dir}' is not a valid directory")
 
         self._lock: threading.Lock = threading.Lock()
         self._model_cache: Dict[str, Tuple[WhisperProcessor, WhisperForConditionalGeneration]] = {}
@@ -25,14 +25,15 @@ class VoiceToText:
         if not os.path.exists(model_path) or not os.listdir(model_path):
             self.logger.info(f"{model_name} model not found locally, downloading from Hugging Face...")
             try:
-                model = pipeline("automatic-speech-recognition", model=model_name, device=torch.device("mps"))
+                # model = pipeline("automatic-speech-recognition", model=model_name, device=torch.device("mps"))
+                model = pipeline("automatic-speech-recognition", model=model_name)
                 self.logger.info(f"{model_name} model loaded from Hugging Face")
             except Exception as e:
                 self.logger.info(f"❌ {model_name} failed to load the model due to: {e}")
         else:
             self.logger.info(f"loading {model_name} from local directory...")
-            model = pipeline("automatic-speech-recognition", model=model_path, device=torch.device("mps"))
-
+            # model = pipeline("automatic-speech-recognition", model=model_path, device=torch.device("mps"))
+            model = pipeline("automatic-speech-recognition", model=model_name)
         return model
 
     def extract_text(self, audio_path: str, model_name: str) -> str:
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     load_dotenv()
 
     # Set environment variable to enable MPS fallback to CPU for unsupported operations
-    os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+    # os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 
 
@@ -64,12 +65,12 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     logger.info(f"Logging configured with level {log_level_str} and format {log_format}")
 
-    if torch.backends.mps.is_available():
-        print("MPS backend is available.")
-        x = torch.randn(1, device="mps")
-        print(x)
-    else:
-        print("MPS backend is not available.")
+    # if torch.backends.mps.is_available():
+    #     print("MPS backend is available.")
+    #     x = torch.randn(1, device="mps")
+    #     print(x)
+    # else:
+    #     print("MPS backend is not available.")
 
     # Loading from env
     model_path = os.getenv('VOICE_LOCAL_MODEL_PATH', '../../../data/models')
@@ -77,7 +78,7 @@ if __name__ == "__main__":
 
     # Example usage
     model_name = "openai/whisper-large-v3"
-    vtt = VoiceToText(model_cache_limit=2, local_model_path=model_path, logger=logger)
+    vtt = VoiceToText(model_cache_limit=1, local_model_path=model_path, logger=logger)
     transcription = vtt.extract_text(audio_file, model_name)
 
     # Save the transcription to a Markdown file

@@ -48,15 +48,14 @@ services:
       - cognix-network
 
   voice:
-    # container_name: semantic
     image: gen-mind/cognix-voice:latest
     build:
-      context: ../src/backend/voice
-      dockerfile: Dockerfile
+      context: ../src/backend
+      dockerfile: voice/Dockerfile
     volumes:
       - ${DATA_PATH}/temp:/temp
     env_file:
-      - ${CONFIG_PATH}/voice_srv.env
+      - ${CONFIG_PATH}/voice-srv.env
       - ${CONFIG_PATH}/nats_cli.env
       - ${CONFIG_PATH}/cockroach_cli.env
       - ${CONFIG_PATH}/minio_cli.env

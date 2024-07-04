@@ -6,7 +6,7 @@ from nats.aio.msg import Msg
 from nats.js.api import ConsumerConfig, StreamConfig, AckPolicy, DeliverPolicy, RetentionPolicy
 from nats.js.errors import BadRequestError
 
-from readiness_probe import ReadinessProbe
+from cognix_lib.helpers.readiness_probe import ReadinessProbe
 
 
 class JetStreamEventSubscriber:

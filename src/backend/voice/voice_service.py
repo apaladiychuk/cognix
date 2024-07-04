@@ -26,10 +26,10 @@ from voice_to_text import VoiceToText
 load_dotenv()
 
 # get log level from env
-log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
+log_level_str = os.getenv('VOICE_LOG_LEVEL', 'ERROR').upper()
 log_level = getattr(logging, log_level_str, logging.INFO)
 # get log format from env
-log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
+log_format = os.getenv('VOICE_LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
 
@@ -41,9 +41,9 @@ nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
 nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
 nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
 nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
-semantic_stream_name = os.getenv('NATS_CLIENT_WHISPER_STREAM_NAME', 'whisper')
-semantic_stream_subject = os.getenv('NATS_CLIENT_WHISPER_STREAM_SUBJECT', 'whisper_activity')
-semantic_ack_wait = int(os.getenv('NATS_CLIENT_WHISPER_ACK_WAIT', '3600'))  # seconds
+semantic_stream_name = os.getenv('NATS_CLIENT_VOICE_STREAM_NAME', 'whisper')
+semantic_stream_subject = os.getenv('NATS_CLIENT_VOICE_STREAM_SUBJECT', 'whisper_activity')
+semantic_ack_wait = int(os.getenv('NATS_CLIENT_VOICE_ACK_WAIT', '3600'))  # seconds
 semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
 
 cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',

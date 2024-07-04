@@ -5,8 +5,8 @@ import os
 from dotenv import load_dotenv
 
 # Define the logging configuration
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# logger = logging.getLogger(__name__)
 
 load_dotenv()
 readiness_time_out = int(os.getenv('READINESS_TIME_OUT', 500))

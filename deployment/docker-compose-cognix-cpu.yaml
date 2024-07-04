@@ -54,6 +54,7 @@ services:
       dockerfile: voice/Dockerfile
     volumes:
       - ${DATA_PATH}/temp:/temp
+      - ${DATA_PATH}/models:/models
     env_file:
       - ${CONFIG_PATH}/voice-srv.env
       - ${CONFIG_PATH}/nats_cli.env

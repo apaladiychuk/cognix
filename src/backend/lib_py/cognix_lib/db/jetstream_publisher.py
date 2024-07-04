@@ -1,41 +1,30 @@
-import asyncio
 from nats.aio.client import Client as NATS
 from nats.errors import TimeoutError, NoRespondersError
 from nats.js.api import StreamConfig, RetentionPolicy
 from nats.js.errors import BadRequestError
 import logging
-import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
-
-nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
-nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
-nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
-nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
-semantic_stream_name = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_NAME', 'semantic')
-semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'semantic_activity')
-semantic_ack_wait = int(os.getenv('NATS_CLIENT_SEMANTIC_ACK_WAIT', '3600'))  # seconds
-semantic_max_deliver = int(os.getenv('NATS_CLIENT_SEMANTIC_MAX_DELIVER', '3'))
-
 
 
 class JetStreamPublisher:
-    def __init__(self, subject, stream_name):
+    def __init__(self, subject: str, stream_name: str, nats_url: str,
+                 nats_reconnect_time_wait: int,
+                 nats_connect_timeout: int, nats_max_reconnect_attempts:int):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.subject = subject
         self.stream_name = stream_name
+        self.nats_url = nats_url
+        self.nats_reconnect_time_wait = nats_reconnect_time_wait
+        self.nats_connect_timeout = nats_connect_timeout
+        self.nats_max_reconnect_attempts = nats_max_reconnect_attempts
         self.nc = NATS()
         self.js = None
-        self.logger.info(f"{semantic_stream_name} - {semantic_stream_subject}")
 
     async def connect(self):
         # Connect to NATS
-        await self.nc.connect(servers=[nats_url],
-                              connect_timeout=nats_connect_timeout,
-                              reconnect_time_wait=nats_reconnect_time_wait,
-                              max_reconnect_attempts=nats_max_reconnect_attempts)
+        await self.nc.connect(servers=[self.nats_url],
+                              connect_timeout=self.nats_connect_timeout,
+                              reconnect_time_wait=self.nats_reconnect_time_wait,
+                              max_reconnect_attempts=self.nats_max_reconnect_attempts)
         # Create JetStream context
         self.js = self.nc.jetstream()
 
@@ -65,13 +54,13 @@ class JetStreamPublisher:
     async def publish(self, message):
         try:
             await self.js.publish(self.subject, message.SerializeToString())
-            logger.info("Message published successfully!")
+            self.logger.info("✉️ Message published successfully!")
         except NoRespondersError:
-            logger.error("❌ No responders available for request")
+            self.logger.error("❌ No responders available for request")
         except TimeoutError:
-            logger.error("❌ Request to JetStream timed out")
+            self.logger.error("❌ Request to JetStream timed out")
         except Exception as e:
-            logger.error(f"❌ Failed to publish message: {e}")
+            self.logger.error(f"❌ Failed to publish message: {e}")
 
     async def close(self):
         await self.nc.close()

@@ -27,14 +27,13 @@ At step 2:
 json properties: </br>
 **folder** </br>
 string, optional if not set CogniX will analyze the whole drive<br/>
-example: older/chapter1
-<br?><br>
+example: older/chapter1</br>
 **recursive**  <br/>
 bool, (default false), you can omit. It indicates if CogniX shall analyze all the subfolder of the given path or not <br>
 **token**  <br/>
-The OAuth token you generate from OneDrive for CogniX to have access to the resource. Below a detailed description on how to get it
+The OAuth token you generate from Google Drive for CogniX to have access to the resource. Below a detailed description on how to get it
 
-Since the UI is still under construction you'll need to do some manual steps to get the OneDrive token.
+Since the UI is still under construction you'll need to do some manual steps to get the Google Drive token.
 This process will be automated with the UI evolution
 
 paste in your browser the following link if you are running CogniX on your private Docker deployment
@@ -44,14 +43,14 @@ paste in your browser the following link if you are running CogniX on your priva
 
 If you are using CogniX from [rag.cognix.ch](https://rag.cognix.ch)
 ```js
-    https://rag.cognix.ch/api/oauth/google/auth_url?redirect_url=http://rag.cognix.ch
+    https://rag.cognix.ch/api/oauth/google/auth_url?redirect_url=https://rag.cognix.ch
 ```
 
-once you paste the link above in the browser you will get a json. copy link <br/>
-you will get something similar to the json below:<br/>
+once you paste the link above in the browser you will get a string. copy link <br/>
+you will get something similar to the string below:<br/>
 
 ```json
-https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=679206032910-mjf3u87at2ha0b4ji0pjan4r6237vbb7.apps.googleusercontent.com&prompt=consent&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.activity.readonly
+https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=679...bb7.apps.googleusercontent.com&prompt=consent&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.activity.readonly
 ```
 
 paste the link as described above in a new browser window <br/>.

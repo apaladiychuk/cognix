@@ -24,6 +24,7 @@ func GetDriver(token *oauth2.Token) {
 	if err != nil {
 		log.Fatalf("Unable to retrieve driveactivity Client %v", err)
 	}
+	//docSrv, err := docs.NewService(ctx, option.WithHTTPClient(&http.Client{Transport: utils.NewTransport(token)}))
 
 	//Fields("nextPageToken, files(id, name)").
 	r, err := srv.Drives.List().Do()
@@ -34,7 +35,7 @@ func GetDriver(token *oauth2.Token) {
 	for _, dr := range r.Items {
 		fmt.Printf(" id %s name %s\n", dr.Id, dr.Name)
 	}
-	fr, err := srv.Files.List().Q("mimeType = 'application/vnd.google-apps.folder'").Do()
+	fr, err := srv.Files.List().Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve list of activities. %v", err)
 	}
@@ -53,11 +54,11 @@ func GetDriver(token *oauth2.Token) {
 		}
 		for _, d := range nfr.Items {
 			fmt.Printf("\t---\t\t%s- %s \n", d.Id, d.Title)
-			resp, err := srv.Files.Get(d.Id).Download()
-			if err != nil {
-				log.Fatalf("Unable to retrieve list of activities. %v", err)
-			}
-			resp.
+			//resp, err := srv.Files.Get(d.Id).Download()
+			//if err != nil {
+			//	log.Fatalf("Unable to retrieve list of activities. %v", err)
+			//}
+
 		}
 		fmt.Printf("\t %s- %s \n", f.Id, f.Title)
 	}

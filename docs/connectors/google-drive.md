@@ -1,0 +1,102 @@
+# Google Drive
+
+## Setup
+From CogniX UI navigate to connectors and create a new connector
+Choose `Google Drive`
+At step 2:
+- Choose a name, it's just a description
+- Fill the "Connector Specific Configration" with the json below filled with the corect data
+- Refresh frequency in seconds is the delta of time that CogniX will use to start a new scan on your connected data source
+- Connector credential, fill with a random number, it's not used
+
+```json
+{
+  "folder": "",
+  "recursive": false,
+  "token": {
+    "access_token": "",
+    "expiry": "",
+    "refresh_token": "",
+    "token_type": ""
+  }
+}
+
+
+```
+
+json properties: </br>
+**folder** </br>
+string, optional if not set CogniX will analyze the whole drive<br/>
+example: older/chapter1
+<br?><br>
+**recursive**  <br/>
+bool, (default false), you can omit. It indicates if CogniX shall analyze all the subfolder of the given path or not <br>
+**token**  <br/>
+The OAuth token you generate from OneDrive for CogniX to have access to the resource. Below a detailed description on how to get it
+
+Since the UI is still under construction you'll need to do some manual steps to get the OneDrive token.
+This process will be automated with the UI evolution
+
+paste in your browser the following link if you are running CogniX on your private Docker deployment
+```js
+    http://localhost:8080/api/oauth/google/auth_url?redirect_url=http://localhost:8080
+```
+
+If you are using CogniX from [rag.cognix.ch](https://rag.cognix.ch)
+```js
+    https://rag.cognix.ch/api/oauth/google/auth_url?redirect_url=http://rag.cognix.ch
+```
+
+once you paste the link above in the browser you will get a json. copy link <br/>
+you will get something similar to the json below:<br/>
+
+```json
+https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=679206032910-mjf3u87at2ha0b4ji0pjan4r6237vbb7.apps.googleusercontent.com&prompt=consent&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.activity.readonly
+```
+
+paste the link as described above in a new browser window <br/>.
+Sign in using you google account and grant permission to CogniX<br/>
+There's a checkbox you need to mark "Consent on behalf of your company"<br/>
+Click Accept <br/>
+
+You will be prompted with another json similar to the one described above<br/>
+Copy the token from the response<br/>
+The property named "access_token", "expiry": refresh_token": "", "token_type" and paste in the json provided above <br/>
+It might be a bit complex because access token and refresh token are very long string
+Make sure to copy them properly
+The token that you will receive will look like the sample below
+
+```json
+{
+  "status": 200,
+  "data": {
+    "id": "",
+    "email": "",
+    "name": "",
+    "given_name": "",
+    "family_name": "",
+    "access_token": "",
+    "refresh_token":"",
+    "token": {
+      "access_token": "",
+      "token_type": "",
+      "refresh_token": "",
+      "expiry": ""
+    }
+  }
+}
+```
+
+Now you have a json filled with all the values CogniX needs.<br/>
+Paste it into the connector specific configuration <br/>
+
+**Refresh frequency** is in second it tells CogniX every each seconds it need to rescan the source.
+Make it at least 86400 (one day in seconds) <br/>
+**connector credentials**
+not used add a number
+
+## Google Configuration
+
+Cognix App should be configured before using google drive api.
+Use [manual](../google/google-drive.md)
+

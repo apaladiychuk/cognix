@@ -97,5 +97,5 @@ not used add a number
 ## Google Configuration
 
 Cognix App should be configured before using google drive api.
-Use [manual](../google/google-drive.md)
+Use [manual](../google/google-drive.md) for configure your google application.
 

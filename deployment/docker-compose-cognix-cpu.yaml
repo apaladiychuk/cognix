@@ -90,6 +90,24 @@ services:
     networks:
       - cognix-network
 
+  search:
+    container_name: search
+    image: gen-mind/cognix-search:latest
+    build:
+      context: ../src/backend
+      dockerfile: search/Dockerfile
+    ports:
+      - "50053:50053"
+    env_file:
+      - ${CONFIG_PATH}/search-srv.env
+      - ${CONFIG_PATH}/embedder_srv.env
+      - ${CONFIG_PATH}/milvus_cli.env
+    restart: always
+    depends_on:
+      - milvus
+    networks:
+      - cognix-network
+
   semantic:
     # container_name: semantic
     image: gen-mind/cognix-semantic:latest

@@ -29,7 +29,7 @@ logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 logger.setLevel(log_level)  # Ensure the logger's level is explicitly set
 
-grpc_port = os.getenv('TRANSFORMER_GRPC_PORT', '50051')
+grpc_port = os.getenv('TRANSFORMER_GRPC_PORT', '50052')
 cache_limit: int = int(os.getenv('TRANSFORMER_MODEL_CACHE_LIMIT', 1))
 local_model_path: str = os.getenv('TRANSFORMER_LOCAL_MODEL_PATH', 'models')
 

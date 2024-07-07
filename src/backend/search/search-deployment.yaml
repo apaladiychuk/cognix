@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transformer
+  name: search
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: transformer
+      app: search
   template:
     metadata:
       labels:
-        app: transformer
+        app: search
     spec:
       containers:
-      - name: embedder
-        image: cognixacr.azurecr.io/cognix/transformer:main
+      - name: search
+        image: cognixacr.azurecr.io/cognix/search:main
         envFrom:
         - configMapRef:
-            name: transformer-srv
+            name: search-srv
         ports:
-        - containerPort: 50051
+        - containerPort: 50053
         volumeMounts:
         - mountPath: /models
           name: models
@@ -34,10 +34,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: transformer
+  name: search
 spec:
   selector:
-    app: transformer
+    app: search
   ports:
     - protocol: TCP
       port: 50051

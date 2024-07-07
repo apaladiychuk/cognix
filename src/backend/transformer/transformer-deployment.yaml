@@ -13,13 +13,13 @@ spec:
         app: transformer
     spec:
       containers:
-      - name: embedder
+      - name: transformer
         image: cognixacr.azurecr.io/cognix/transformer:main
         envFrom:
         - configMapRef:
             name: transformer-srv
         ports:
-        - containerPort: 50051
+        - containerPort: 50052
         volumeMounts:
         - mountPath: /models
           name: models
@@ -40,8 +40,8 @@ spec:
     app: transformer
   ports:
     - protocol: TCP
-      port: 50051
-      targetPort: 50051
+      port: 50052
+      targetPort: 50052
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

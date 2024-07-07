@@ -6,13 +6,12 @@ WORKDIR /app
 ADD ./ ./
 
 # Copy the requirements.txt first to leverage Docker cache
-COPY voice/requirements.txt /app/
+COPY search/requirements.txt /app/
 
 # Install dependencies and clean up
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
-    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -20,11 +19,11 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && rm -rf /root/.cache
 
 # Copy the rest of the application code
-COPY voice /app/voice
+COPY search /app/search
 COPY lib_py/cognix_lib /app/cognix_lib
 
 # Set the PYTHONPATH environment variable
 ENV PYTHONPATH="/app"
 
 # Command to run your application
-CMD ["python", "voice/voice_service.py"]
+CMD ["python", "search/search_service.py"]

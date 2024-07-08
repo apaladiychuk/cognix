@@ -1,9 +1,10 @@
 package utils
 
-import "strings"
+import (
+	"regexp"
+)
 
 // StripFileName removes special characters from the filename and replaces "-" with "_".
 func StripFileName(filename string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(
-		strings.ReplaceAll(filename, ":", ""), "-", "_"), "/", "")
+	return regexp.MustCompile(`[^a-zA-Z0-9.]+`).ReplaceAllString(filename, "")
 }

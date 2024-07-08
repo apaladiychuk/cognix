@@ -239,9 +239,10 @@ func (e *Executor) saveContent(ctx context.Context, response *connector.Response
 		if response.Content.Reader != nil {
 			reader = response.Content.Reader
 			defer response.Content.Reader.Close()
+		} else {
+			// create reader from raw content
+			reader = bytes.NewReader(response.Content.Body)
 		}
-		// create reader from raw content
-		reader = bytes.NewReader(response.Content.Body)
 	}
 
 	fileName, _, err := e.minioClient.Upload(ctx, response.Content.Bucket, response.Name, response.MimeType, reader)

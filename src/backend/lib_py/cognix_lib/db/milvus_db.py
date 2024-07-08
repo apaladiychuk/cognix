@@ -1,7 +1,7 @@
 import logging
 import os
 import time
-from typing import List
+from typing import List, Dict
 
 import grpc
 from dotenv import load_dotenv
@@ -31,8 +31,12 @@ embedder_grpc_port = os.getenv("EMBEDDER_GRPC_PORT", "50051")
 
 
 class Milvus_DB:
-    def __init__(self):
-        self.logger = logging.getLogger(self.__class__.__name__)
+    def __init__(self, logger: logging.Logger):
+        # with  logging.getLogger(__name__) it was not possible properly set the log level
+        # so we ended up passing the logger instance directly
+        # self.logger = logging.getLogger(__name__)
+        self.logger = logger # logging.getLogger(__name__)
+        self.logger.debug(f"{self.__class__.__name__} logger initialized with level: {self.logger.level}")
         self._connect()
 
     def _connect(self):
@@ -84,7 +88,7 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             # self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
-    def query(self, data: SearchRequest) -> Collection:
+    def query(self, data: SearchRequest) -> List[List[Dict]]:
         start_time = time.time()  # Record the start time
         self.ensure_connection()
         try:
@@ -106,11 +110,17 @@ class Milvus_DB:
                 self.logger.debug("enumerating vector database results")
                 for i, hits in enumerate(result):
                     for hit in hits:
-                        self.logger.debug(
-                            f"Nearest Neighbor Number {i}: {hit.entity.get('sentence')} ---- {hit.distance}\n")
-                        answer += hit.entity.get('sentence')
+                        sentence = hit.entity.get('sentence')
+                        if sentence is not None:
+                            self.logger.debug(
+                                f"Nearest Neighbor Number {i}: {sentence} ---- {hit.distance}\n")
+                            answer += sentence
+                    # for hit in hits:
+                    #     self.logger.debug(
+                    #         f"Nearest Neighbor Number {i}: {hit.entity.get('sentence')} ---- {hit.distance}\n")
+                    #     answer += hit.entity.get('sentence')
                 self.logger.debug("end enumeration")
-            return collection
+            return result
         except Exception as e:
             self.logger.error(f"❌ {e}")
         finally:

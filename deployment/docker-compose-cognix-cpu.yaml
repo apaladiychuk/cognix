@@ -100,7 +100,7 @@ services:
       - "50053:50053"
     env_file:
       - ${CONFIG_PATH}/search-srv.env
-      - ${CONFIG_PATH}/embedder_srv.env
+      - ${CONFIG_PATH}/embedder_cli.env
       - ${CONFIG_PATH}/milvus_cli.env
     restart: always
     depends_on:
@@ -176,7 +176,7 @@ services:
       - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
       - ${CONFIG_PATH}/embedder_cli.env
-      - ${CONFIG_PATH}/searcher_cli.env
+      - ${CONFIG_PATH}/search-cli.env
       - ${CONFIG_PATH}/.env
     depends_on:
       - cockroach

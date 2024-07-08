@@ -166,7 +166,7 @@ services:
       context: ${BACKEND_PATH}
       args:
         service: api
-      dockerfile: Dockerfile
+      dockerfile: api/Dockerfile
     ports:
       - "8080:8080"
     env_file:
@@ -194,7 +194,7 @@ services:
       context: ${BACKEND_PATH}
       args:
         service: orchestrator
-      dockerfile: Dockerfile
+      dockerfile: orchestrator/Dockerfile
     env_file:
       - ${CONFIG_PATH}/orchestrator_srv.env
       - ${CONFIG_PATH}/cockroach_cli.env
@@ -216,7 +216,7 @@ services:
       context: ${BACKEND_PATH}
       args:
         service: connector
-      dockerfile: Dockerfile
+      dockerfile: connector/Dockerfile
     env_file:
       - ${CONFIG_PATH}/cockroach_cli.env
       - ${CONFIG_PATH}/nats_cli.env

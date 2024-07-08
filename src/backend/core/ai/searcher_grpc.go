@@ -40,6 +40,7 @@ func (i *SearcherGRPC) FindDocuments(ctx context.Context, userID, tenantID uuid.
 		UserId:          userID.String(),
 		TenantId:        tenantID.String(),
 		CollectionNames: collectionNames,
+		ModelName: embeddingModel,
 	})
 	if err != nil {
 		zap.S().Errorf("embeding service %s ", err.Error())

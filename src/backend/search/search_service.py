@@ -19,7 +19,7 @@ load_dotenv()
 
 # Get log level from env
 log_level_str = os.getenv('SEARCH_LOG_LEVEL', 'INFO').upper()
-log_level = getattr(logging, log_level_str, logging.INFO)
+log_level = getattr(logging, log_level_str, logging.DEBUG)
 
 # Get log format from env
 log_format = os.getenv('SEARCH_LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
@@ -34,8 +34,8 @@ cache_limit: int = int(os.getenv('SEARCH_MODEL_CACHE_LIMIT', 1))
 local_model_path: str = os.getenv('SEARCH_LOCAL_MODEL_PATH', 'models')
 
 
-class SerchServicer(SearchServiceServicer):
-    def SemanticSplit(self, request: SearchRequest):
+class SearchServicer(SearchServiceServicer):
+    def VectorSearch(self, request: SearchRequest, context) -> SearchResponse:
         start_time = time.time()  # Record the start time
         try:
             logger.debug(f"incoming search request: {request}")
@@ -61,7 +61,7 @@ class SerchServicer(SearchServiceServicer):
             # semantic_response.chunks.extend(splits)
 
             logger.info(f"search request successfully processed")
-            # return semantic_response
+            return search_response
         except Exception as e:
             logger.exception(e)
             raise grpc.RpcError(f"❌ failed to process request: {str(e)}")
@@ -79,7 +79,7 @@ def serve():
                          ]
                          )
 
-    add_SearchServiceServicer_to_server(SearchServiceServicer(), server)
+    add_SearchServiceServicer_to_server(SearchServicer(), server)
     server.add_insecure_port(f"0.0.0.0:{grpc_port}")
     server.start()
     logger.info(f"👂 search listening on port {grpc_port}")

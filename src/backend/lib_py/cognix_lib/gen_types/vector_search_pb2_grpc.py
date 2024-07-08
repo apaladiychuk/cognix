@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import vector_search_pb2 as vector__search__pb2
+import cognix_lib.gen_types.vector_search_pb2 as vector__search__pb2
 
 GRPC_GENERATED_VERSION = '1.63.0'
 GRPC_VERSION = grpc.__version__

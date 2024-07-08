@@ -113,6 +113,8 @@ func New(connectorModel *model.Connector,
 		return NewYoutube(connectorModel)
 	case model.SourceTypeMsTeams:
 		return NewMSTeams(connectorModel, connectorRepo, oauthURL)
+	case model.SourceTypeGoogleDrive:
+		return NewGoogleDrive(connectorModel, connectorRepo, oauthURL)
 	default:
 		return &nopConnector{}, nil
 	}

@@ -94,13 +94,8 @@ type (
 	}
 )
 
-// ValidateStruct validates the fields of the MSTeamParameters struct.
-// The validation rules are:
-//   - p.Token must not be nil
-//   - p.Token.AccessToken, p.Token.RefreshToken, and p.Token.TokenType must not be empty
-//
-// If any of the validation rules fail, an appropriate error message is returned.
-// Otherwise, nil is returned.
+// Validate checks if the MSTeamParameters struct is valid.
+// It returns an error if the token is missing or has incorrect values.
 func (p MSTeamParameters) Validate() error {
 	return validation.ValidateStruct(&p,
 		validation.Field(&p.Token, validation.By(func(value interface{}) error {

@@ -236,6 +236,10 @@ func (e *Executor) saveContent(ctx context.Context, response *connector.Response
 		}
 		reader = fileResponse.RawBody()
 	} else {
+		if response.Content.Reader != nil {
+			reader = response.Content.Reader
+			defer response.Content.Reader.Close()
+		}
 		// create reader from raw content
 		reader = bytes.NewReader(response.Content.Body)
 	}

@@ -157,7 +157,7 @@ func (c *MSTeams) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Tas
 // and parameters. If an error occurs during the execution, an error message will be logged, and the result channel
 // will be closed. The function finally returns the result channel for the caller to receive the response objects.
 func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Response {
-	c.resultCh = make(chan *Response)
+
 	var fileSizeLimit int
 	if size, ok := param[model.ParamFileLimit]; ok {
 		fileSizeLimit, _ = strconv.Atoi(size)

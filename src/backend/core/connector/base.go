@@ -11,6 +11,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"golang.org/x/oauth2"
+	"io"
 	"time"
 )
 
@@ -74,7 +75,8 @@ type Content struct {
 	Bucket        string
 	URL           string // URL for download
 	Body          []byte // Body raw content  for store
-	AppendContent bool   // if true content will be added to existing file on minio
+	Reader        io.ReadCloser
+	AppendContent bool // if true content will be added to existing file on minio
 }
 
 type nopConnector struct {

@@ -11,8 +11,8 @@ import (
 )
 
 type VectorSearchConfig struct {
-	VectorSearchHost string `env:"VECTOR_SEARCHER_GRPC_HOST,required"`
-	VectorSearchPort int    `env:"VECTOR_SEARCHER_GRPC_PORT,required"`
+	VectorSearchHost string `env:"SEARCH_GRPC_HOST,required"`
+	VectorSearchPort int    `env:"SEARCH_GRPC_PORT,required"`
 }
 
 // GRPCEmbeddingBuilder is a struct that represents a builder for gRPC embedding functionality.

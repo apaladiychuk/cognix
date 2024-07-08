@@ -41,7 +41,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: ./src/backend
-        file: ./src/backend/Dockerfile
+        file: ./src/backend/orchestrator/Dockerfile
         platforms: linux/amd64
         push: true
         tags: |

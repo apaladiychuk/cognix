@@ -6,16 +6,18 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class SearchRequest(_message.Message):
-    __slots__ = ("content", "user_id", "tenant_id", "collection_names")
+    __slots__ = ("content", "user_id", "tenant_id", "model_name", "collection_names")
     CONTENT_FIELD_NUMBER: _ClassVar[int]
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     TENANT_ID_FIELD_NUMBER: _ClassVar[int]
+    MODEL_NAME_FIELD_NUMBER: _ClassVar[int]
     COLLECTION_NAMES_FIELD_NUMBER: _ClassVar[int]
     content: str
     user_id: str
     tenant_id: str
+    model_name: str
     collection_names: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, content: _Optional[str] = ..., user_id: _Optional[str] = ..., tenant_id: _Optional[str] = ..., collection_names: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, content: _Optional[str] = ..., user_id: _Optional[str] = ..., tenant_id: _Optional[str] = ..., model_name: _Optional[str] = ..., collection_names: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class SearchResponse(_message.Message):
     __slots__ = ("documents",)

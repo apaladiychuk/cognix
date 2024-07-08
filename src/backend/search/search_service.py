@@ -38,8 +38,13 @@ class SerchServicer(SearchServiceServicer):
     def SemanticSplit(self, request: SearchRequest):
         start_time = time.time()  # Record the start time
         try:
-            logger.debug(f"incoming search split request: {request}")
-            logger.info(f"incoming search split request" )
+            logger.debug(f"incoming search request: {request}")
+            logger.info(f"incoming search request")
+
+            if request.model_name == "":
+                logger.error(f"❌ no model name has been passed!")
+                request.model_name = "paraphrase-multilingual-mpnet-base-v2"
+
             search_response = SearchResponse()
             milvus = Milvus_DB()
 

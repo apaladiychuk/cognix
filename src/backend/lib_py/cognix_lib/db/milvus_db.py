@@ -88,13 +88,10 @@ class Milvus_DB:
         start_time = time.time()  # Record the start time
         self.ensure_connection()
         try:
-            collection = Collection(name=data.collection_names)
+            collection = Collection(name=data.collection_names[0])
             collection.load()
 
-            self.logger.warning(f"😱milvus search, model hardcoded, pass from SearchRequest")
-            model = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
-
-            embedding = self.embedd(data.content, model)
+            embedding = self.embedd(data.content, data.model_name)
 
             result = collection.search(
                 data=[embedding],  # Embed search value

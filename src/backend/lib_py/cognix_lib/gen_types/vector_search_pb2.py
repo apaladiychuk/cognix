@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13vector_search.proto\x12\ncom.cognix\"^\n\rSearchRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\x11\n\ttenant_id\x18\x03 \x01(\t\x12\x18\n\x10\x63ollection_names\x18\x04 \x03(\t\"?\n\x0eSearchResponse\x12-\n\tdocuments\x18\x01 \x03(\x0b\x32\x1a.com.cognix.SearchDocument\"6\n\x0eSearchDocument\x12\x13\n\x0b\x64ocument_id\x18\x01 \x01(\x03\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t2X\n\rSearchService\x12G\n\x0cVectorSearch\x12\x19.com.cognix.SearchRequest\x1a\x1a.com.cognix.SearchResponse\"\x00\x42\x1aZ\x18\x62\x61\x63kend/core/proto;protob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13vector_search.proto\x12\ncom.cognix\"r\n\rSearchRequest\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\t\x12\x11\n\ttenant_id\x18\x03 \x01(\t\x12\x12\n\nmodel_name\x18\x04 \x01(\t\x12\x18\n\x10\x63ollection_names\x18\x05 \x03(\t\"?\n\x0eSearchResponse\x12-\n\tdocuments\x18\x01 \x03(\x0b\x32\x1a.com.cognix.SearchDocument\"6\n\x0eSearchDocument\x12\x13\n\x0b\x64ocument_id\x18\x01 \x01(\x03\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t2X\n\rSearchService\x12G\n\x0cVectorSearch\x12\x19.com.cognix.SearchRequest\x1a\x1a.com.cognix.SearchResponse\"\x00\x42\x1aZ\x18\x62\x61\x63kend/core/proto;protob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,11 +23,11 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z\030backend/core/proto;proto'
   _globals['_SEARCHREQUEST']._serialized_start=35
-  _globals['_SEARCHREQUEST']._serialized_end=129
-  _globals['_SEARCHRESPONSE']._serialized_start=131
-  _globals['_SEARCHRESPONSE']._serialized_end=194
-  _globals['_SEARCHDOCUMENT']._serialized_start=196
-  _globals['_SEARCHDOCUMENT']._serialized_end=250
-  _globals['_SEARCHSERVICE']._serialized_start=252
-  _globals['_SEARCHSERVICE']._serialized_end=340
+  _globals['_SEARCHREQUEST']._serialized_end=149
+  _globals['_SEARCHRESPONSE']._serialized_start=151
+  _globals['_SEARCHRESPONSE']._serialized_end=214
+  _globals['_SEARCHDOCUMENT']._serialized_start=216
+  _globals['_SEARCHDOCUMENT']._serialized_end=270
+  _globals['_SEARCHSERVICE']._serialized_start=272
+  _globals['_SEARCHSERVICE']._serialized_end=360
 # @@protoc_insertion_point(module_scope)

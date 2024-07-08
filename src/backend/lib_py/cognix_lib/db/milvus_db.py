@@ -8,10 +8,10 @@ from dotenv import load_dotenv
 from numpy import int64
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
 
-from lib.gen_types.semantic_data_pb2 import SemanticData
-from lib.gen_types.embed_service_pb2 import EmbedRequest
-from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
-from lib.spider.chunked_item import ChunkedItem
+from cognix_lib.gen_types.vector_search_pb2 import SearchRequest
+from cognix_lib.gen_types.embed_service_pb2 import EmbedRequest
+from cognix_lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
+from cognix_lib.spider.chunked_item import ChunkedItem
 
 # Load environment variables from .env file
 load_dotenv()
@@ -84,14 +84,17 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             # self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
-    def query(self, query: str, data: SemanticData) -> Collection:
+    def query(self, data: SearchRequest) -> Collection:
         start_time = time.time()  # Record the start time
         self.ensure_connection()
         try:
-            collection = Collection(name=data.collection_name)
+            collection = Collection(name=data.collection_names)
             collection.load()
 
-            embedding = self.embedd(query, data.model_name)
+            self.logger.warning(f"😱milvus search, model hardcoded, pass from SearchRequest")
+            model = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+
+            embedding = self.embedd(data.content, model)
 
             result = collection.search(
                 data=[embedding],  # Embed search value

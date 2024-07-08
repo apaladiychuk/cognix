@@ -47,6 +47,33 @@ services:
     networks:
       - cognix-network
 
+  voice:
+    image: gen-mind/cognix-voice:latest
+    build:
+      context: ../src/backend
+      dockerfile: voice/Dockerfile
+    volumes:
+      - ${DATA_PATH}/temp:/temp
+      - ${DATA_PATH}/models:/models
+    env_file:
+      - ${CONFIG_PATH}/voice-srv.env
+      - ${CONFIG_PATH}/nats_cli.env
+      - ${CONFIG_PATH}/cockroach_cli.env
+      - ${CONFIG_PATH}/minio_cli.env
+    restart: always
+    healthcheck:
+      test: "curl --silent --fail http://localhost:8080/healthz > /dev/null || exit 1"
+      interval: 60s
+      start_period: 10s
+      timeout: 3s
+      retries: 3
+    depends_on:
+      - nats
+      - cockroach
+      - minio
+    networks:
+      - cognix-network
+
   transformer:
     container_name: transformer
     image: gen-mind/cognix-transformer:latest
@@ -60,6 +87,24 @@ services:
     env_file:
       - ${CONFIG_PATH}/transformer-srv.env
     restart: always
+    networks:
+      - cognix-network
+
+  search:
+    container_name: search
+    image: gen-mind/cognix-search:latest
+    build:
+      context: ../src/backend
+      dockerfile: search/Dockerfile
+    ports:
+      - "50053:50053"
+    env_file:
+      - ${CONFIG_PATH}/search-srv.env
+      - ${CONFIG_PATH}/embedder_srv.env
+      - ${CONFIG_PATH}/milvus_cli.env
+    restart: always
+    depends_on:
+      - milvus
     networks:
       - cognix-network
 

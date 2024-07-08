@@ -155,6 +155,7 @@ class BaseSemantic:
             error_message = str(e) if e else "Unknown error occurred"
             self.logger.error(f"❌ {error_message}")
 
+    # TODO: there's a static class in cognix-li.helpers
     def download_from_minio(self, url: str) -> str:
         """
         Download a file from MinIO using the provided URL and save it to the specified local temporary path.

@@ -67,7 +67,7 @@ async def semantic_event(msg: Msg):
 
         # verify document id is valid otherwise we cannot process the message
         if semantic_data.document_id <= 0:
-            logger.error(f"❌ failed to process semantic data error: document_id must value must be positive")
+            logger.error(f"❌ failed to process semantic data error: document_id - value must be positive")
         else:
             # see if doc exists
             document_crud = DocumentCRUD(cockroach_url)

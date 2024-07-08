@@ -4,21 +4,13 @@ from dotenv import load_dotenv
 from sqlalchemy import Column, BigInteger, TIMESTAMP, Boolean, func, Text, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import UUID
-from lib.db.dc_connection_manager import ConnectionManager
+from cognix_lib.db.dc_connection_manager import ConnectionManager
 from contextlib import contextmanager
 from typing import List
 from sqlalchemy.exc import OperationalError
 import time
 
 load_dotenv()
-
-# get log level from env
-log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
-log_level = getattr(logging, log_level_str, logging.INFO)
-# get log format from env
-log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
-# Configure logging
-logging.basicConfig(level=log_level, format=log_format)
 
 logger = logging.getLogger(__name__)
 

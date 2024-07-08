@@ -2,7 +2,7 @@ import logging
 import os
 import time
 from concurrent import futures
-from typing import List
+from typing import List, Dict
 
 import grpc
 from dotenv import load_dotenv
@@ -12,6 +12,7 @@ from cognix_lib.gen_types.vector_search_pb2 import SearchResponse, SearchRequest
 from cognix_lib.gen_types.vector_search_pb2_grpc import add_SearchServiceServicer_to_server
 from cognix_lib.helpers.device_checker import DeviceChecker
 from cognix_lib.db.milvus_db import Milvus_DB
+from pymilvus import Collection
 
 
 # Load environment variables from .env file
@@ -25,9 +26,14 @@ log_level = getattr(logging, log_level_str, logging.DEBUG)
 log_format = os.getenv('SEARCH_LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
 
 # Configure logging
+# logging.basicConfig(level=log_level, format=log_format)
+# logger = logging.getLogger()
+# logger.setLevel(log_level)
+# Configure logging
 logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
-logger.setLevel(log_level)  # Ensure the logger's level is explicitly set
+logger.setLevel(log_level)
+
 
 grpc_port = os.getenv('SEARCH_GRPC_PORT', '50053')
 cache_limit: int = int(os.getenv('SEARCH_MODEL_CACHE_LIMIT', 1))
@@ -46,19 +52,27 @@ class SearchServicer(SearchServiceServicer):
                 request.model_name = "paraphrase-multilingual-mpnet-base-v2"
 
             search_response = SearchResponse()
-            milvus = Milvus_DB()
+            milvus = Milvus_DB(logger)
 
-            milvus.query(data=request)
-
-            # splitter = SemanticSplitter(model_cache_limit=cache_limit, local_model_path=local_model_path,
-            #                             logger=logger)
-            # splits: List[str] = []
-            # if request.similarity_type == SimilarityType.COSINE:
-            #     splits: List[str] = splitter.semantic_split_cosine(request.content, request.model, request.threshold)
-            # else:
-            #     splits: List[str] = splitter.semantic_split_direct(request.content, request.model, request.threshold)
-            #
-            # semantic_response.chunks.extend(splits)
+            result: List[List[Dict]] = milvus.query(data=request)
+            if result is not None:
+                # Enumerate the result and populate search_response
+                for hits in result:
+                    for hit in hits:
+                        content = hit.get("content")
+                        document_id = hit.get("id")  # Ensure this is the correct key for document ID
+                        if content and document_id:
+                            # Ensure types are correct
+                            try:
+                                document_id = int(document_id)
+                                content = str(content)
+                                search_doc = SearchDocument(
+                                    document_id=document_id,
+                                    content=content
+                                )
+                                search_response.documents.append(search_doc)
+                            except ValueError as ve:
+                                logger.error(f"Type conversion error: {ve}")
 
             logger.info(f"search request successfully processed")
             return search_response
@@ -84,6 +98,7 @@ def serve():
     server.start()
     logger.info(f"👂 search listening on port {grpc_port}")
     DeviceChecker.check_device()
+    logger.debug(f"{__name__} logger initialized with level: {logger.level} {log_level}")
     server.wait_for_termination()
 
 

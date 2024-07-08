@@ -1,4 +1,4 @@
-#region imports
+# region imports
 import asyncio
 import logging
 import os
@@ -16,9 +16,9 @@ from lib.semantic.semantic_factory import SemanticFactory
 from lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
 from readiness_probe import ReadinessProbe
 
-#endregion
+# endregion
 
-#region .env and logs
+# region .env and logs
 # Load environment variables from .env file
 load_dotenv()
 
@@ -33,7 +33,7 @@ logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 logger.info(f"Logging configured with level {log_level_str} and format {log_format}")
 
-# loading from env env
+# loading from env
 nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
 nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
 nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
@@ -47,92 +47,58 @@ cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
                           'postgres://root:123@cockroach:26257/defaultdb?sslmode=disable')
 
 
-#endregion
+# endregion
 
-# Define the event handler function
+def process_semantic_data_sync(semantic_data, cockroach_url):
+    document_crud = DocumentCRUD(cockroach_url)
+    document = document_crud.select_document(semantic_data.document_id)
+    if document:
+        connector_id = document.connector_id
+        semantic = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
+        return semantic, semantic_data, connector_id
+    else:
+        logger.error(f"❌ failed to process semantic data error: document_id {semantic_data.document_id} not valid")
+        return None
+
+
+async def process_semantic_data_async(semantic, semantic_data, start_time, semantic_ack_wait, cockroach_url):
+    return await semantic.analyze(data=semantic_data, full_process_start_time=start_time, ack_wait=semantic_ack_wait,
+                                  cockroach_url=cockroach_url)
+
+
 async def semantic_event(msg: Msg):
     start_time = time.time()  # Record the start time
-    connector_id = 0
-    entities_analyzed = 0
     try:
         logger.info("🔥🔥🔥🔥🔥🔥 starting semantic analysis..")
-        # Deserialize the message
         semantic_data = SemanticData()
         semantic_data.ParseFromString(msg.data)
-        # logger.info(f"message: \n {semantic_data}")
+
         if semantic_data.model_name == "":
             logger.error(f"❌ no model name has been passed!")
             semantic_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
             semantic_data.model_dimension = 768
 
-        # verify document id is valid otherwise we cannot process the message
         if semantic_data.document_id <= 0:
             logger.error(f"❌ failed to process semantic data error: document_id - value must be positive")
         else:
-            # see if doc exists
-            document_crud = DocumentCRUD(cockroach_url)
-            document = document_crud.select_document(semantic_data.document_id)
+            result = await asyncio.to_thread(process_semantic_data_sync, semantic_data, cockroach_url)
 
-            if document:
-                # needed for th finally block
-                connector_id = document.connector_id
+            if result:
+                semantic, semantic_data, connector_id = result
+                entities_analyzed = await process_semantic_data_async(semantic, semantic_data, start_time,
+                                                                      semantic_ack_wait, cockroach_url)
 
-                # update connector's status
-                connector_crud = ConnectorCRUD(cockroach_url)
-                connector = connector_crud.select_connector(document.connector_id)
-                last_successful_index_date = connector.last_successful_analyzed
-
-                # TODO: IMPORTANT semantic cannot update the status of the connector when it receives
-                #                 # multiple messages for the same connector eg, onedrive, teams, web recursive
-                # because orchestrator or connector they send multiple messages for
-                # a single connector row
-                # connector_crud.update_connector(document.connector_id,
-                #                                 status=Status.PROCESSING,
-                #                                 last_update=datetime.datetime.utcnow())
-
-                # performing semantic analysis on the source
-                semantic = SemanticFactory.create_semantic_analyzer(semantic_data.file_type)
-                entities_analyzed = await semantic.analyze(data=semantic_data, full_process_start_time=start_time,
-                                                           ack_wait=semantic_ack_wait, cockroach_url=cockroach_url)
-
-                # if entities_analyzed == 0 this means no data was stored in the vector db
-                # we shall find a way to tell the user, most likely put the message in the dead letter
-
-                if entities_analyzed is None:
-                    logger.error(f"❌ entities_analyzed is none!!!!!")
-                    entities_analyzed = 0
-                # updating again the connector
-                # TODO: IMPORTANT semantic cannot update the status of the connector when it receives
-                #                   # multiple messages for the same connector eg, onedrive, teams, web recursive
-                # because orchestrator or connector they send multiple messages for
-                # a single connector row
-                # connector_crud.update_connector(connector_id,
-                #                                 status=Status.COMPLETED_SUCCESSFULLY,
-                #                                 last_successful_analyzed=datetime.datetime.utcnow(),
-                #                                 last_update=datetime.datetime.utcnow(),
-                #                                 total_docs_analyzed=entities_analyzed
-                #                                 # TODO: we are storing the total entities in total docs. one doc will probably generate more than one chunk
-                #                                 )
-            else:
-                logger.error(
-                    f"❌ failed to process semantic data error: document_id {semantic_data.document_id} not valid")
-        # Acknowledge the message when done
-        await msg.ack_sync()
-        logger.info(f"👍 message acknowledged successfully, total entities stored {entities_analyzed}")
+                if entities_analyzed is not None:
+                    await msg.ack_sync()
+                    logger.info(f"👍 message acknowledged successfully, total entities stored {entities_analyzed}")
+                else:
+                    await msg.nak()
+                    logger.error(f"❌ failed to process semantic data for document_id {semantic_data.document_id}")
     except Exception as e:
         error_message = str(e) if e else "Unknown error occurred"
         logger.error(f"❌ failed to process semantic data error: {error_message}")
-        if msg:  # Ensure msg is not None before awaiting
+        if msg:
             await msg.nak()
-        # try:
-        #     if connector_id != 0:
-        #         connector_crud = ConnectorCRUD(cockroach_url)
-        #         connector_crud.update_connector(connector_id,
-        #                                         status=Status.COMPLETED_WITH_ERRORS,
-        #                                         last_update=datetime.datetime.utcnow())
-        # except Exception as e:
-        #     error_message = str(e) if e else "Unknown error occurred"
-        #     logger.error(f"❌ failed to process semantic data error: {error_message}")
     finally:
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
@@ -140,19 +106,14 @@ async def semantic_event(msg: Msg):
 
 
 async def main():
-    # Start the readiness probe server in a separate thread
     readiness_probe = ReadinessProbe()
     readiness_probe_thread = threading.Thread(target=readiness_probe.start_server, daemon=True)
     readiness_probe_thread.start()
 
-    # circuit breaker for chunking
-    # if for reason nats won't be available
-    # semantic will wait till nats will be up again
     while True:
         logger.info("🛠️ service starting..")
         try:
             DeviceChecker.check_device()
-            # subscribing to jet stream
             subscriber = JetStreamEventSubscriber(
                 nats_url=nats_url,
                 stream_name=semantic_stream_name,
@@ -168,7 +129,6 @@ async def main():
             subscriber.set_event_handler(semantic_event)
             await subscriber.connect_and_subscribe()
 
-            # todo add an event to JetStreamEventSubscriber to signal that connection has been established
             logger.info("🚀 service started successfully")
 
             while True:

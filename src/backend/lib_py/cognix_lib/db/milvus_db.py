@@ -128,8 +128,8 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             self.logger.debug(f"⏰🤖 milvus query total elapsed time: {elapsed_time:.2f} seconds")
 
-    def store_chunk_list(self, chunk_list: List[ChunkedItem], collection_name: str, model_name: str, model_dimension: int):
-
+    def store_chunk_list(self, chunk_list: List[ChunkedItem], collection_name: str, model_name: str,
+                         model_dimension: int):
         entities = []
 
         connections.connect(
@@ -144,8 +144,8 @@ class Milvus_DB:
             FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
             FieldSchema(name="document_id", dtype=DataType.INT64),
             FieldSchema(name="parent_id", dtype=DataType.INT64),
-            FieldSchema(name="content", dtype=DataType.JSON),
-            FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim= model_dimension),
+            FieldSchema(name="content", dtype=DataType.VARCHAR, max_length=65535),
+            FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=model_dimension),
         ]
 
         schema = CollectionSchema(fields=fields, enable_dynamic_field=True)
@@ -160,13 +160,24 @@ class Milvus_DB:
         collection.load()
 
         for item in chunk_list:
+            content_length = len(item.content.encode('utf-8'))
+            self.logger.debug(f"Original content length: {content_length}")
+
             # Check if the content exceeds milvus limit
-            if len(item.content) > 65535:
-                truncated_content = item.content[:65535]
+            if content_length > 65535:
+                truncated_content = item.content.encode('utf-8')[:65535].decode('utf-8', 'ignore')
             else:
                 truncated_content = item.content
+
+            truncated_length = len(truncated_content.encode('utf-8'))
+            self.logger.debug(f"Truncated content length: {truncated_length}")
+
             embedding = self.embedd(truncated_content, model_name)
             json_content = {"content": truncated_content}
+
+            json_content_length = len(str(json_content).encode('utf-8'))
+            self.logger.debug(f"JSON content length: {json_content_length}")
+
             entities.append({
                 "document_id": item.document_id,
                 "parent_id": item.parent_id,

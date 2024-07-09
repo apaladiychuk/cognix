@@ -5,6 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import logging
 from typing import List, Tuple
 
+from lib.helpers.minio_helper_2 import MinIO_Helper
 from lib.spider.chunked_item import ChunkedItem
 
 from lib.gen_types.transformer_service_pb2 import SemanticRequest, SemanticResponse, SimilarityType
@@ -30,7 +31,7 @@ class TextSplitter:
         chunked_items = cls.chunk_semantic(content, document_id, chunked_items, parent_id, url)
 
         if chunked_items:
-            logging.info(f"created {len(chunked_items)} chunks for {url}")
+            logging.info(f"created {len(chunked_items)} chunks for {MinIO_Helper.get_real_file_name(url)}")
         else:
             logging.info(f"no chunk created for {url}")
         return chunked_items
@@ -73,16 +74,12 @@ class TextSplitter:
 
             # logging.info(f"original content:\n {content} \n")
             # logging.info(f"semantic chunks:\n {content}")
-            # Split the string by the delimiter ':' and then by the delimiter '_'
-            parts = url.split(':')
-            guid_and_filename = parts[2].split('_', 1)
 
-            # The real filename is the second part after the last split
-            real_filename = guid_and_filename[1]
+            real_filename = MinIO_Helper.get_real_file_name(url)
             if semantic_response.chunks:
-                logging.info(f"created {len(semantic_response.chunks)} semantic chunks for {url}")
+                logging.info(f"created {len(semantic_response.chunks)} semantic chunks for {real_filename}")
             else:
-                logging.info(f"no chunk created for {url}")
+                logging.info(f"no chunk created for {real_filename}")
             for chunk in semantic_response.chunks:
                 if chunk:
                     chunked_items.append(

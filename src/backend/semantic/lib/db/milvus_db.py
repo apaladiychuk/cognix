@@ -8,10 +8,12 @@ from dotenv import load_dotenv
 from numpy import int64
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
 
+
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.gen_types.embed_service_pb2 import EmbedRequest
 from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
 from lib.spider.chunked_item import ChunkedItem
+from readiness_probe import ReadinessProbe
 
 # Load environment variables from .env file
 load_dotenv()
@@ -118,8 +120,8 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             self.logger.debug(f"⏰🤖 milvus query total elapsed time: {elapsed_time:.2f} seconds")
 
-    def store_chunk_list(self, chunk_list: List[ChunkedItem], collection_name: str, model_name: str, model_dimension: int):
-
+    def store_chunk_list(self, chunk_list: List[ChunkedItem], collection_name: str, model_name: str,
+                         model_dimension: int):
         entities = []
 
         connections.connect(
@@ -134,8 +136,8 @@ class Milvus_DB:
             FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
             FieldSchema(name="document_id", dtype=DataType.INT64),
             FieldSchema(name="parent_id", dtype=DataType.INT64),
-            FieldSchema(name="content", dtype=DataType.JSON),
-            FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim= model_dimension),
+            FieldSchema(name="content", dtype=DataType.VARCHAR, max_length=65535),
+            FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=model_dimension),
         ]
 
         schema = CollectionSchema(fields=fields, enable_dynamic_field=True)
@@ -150,13 +152,24 @@ class Milvus_DB:
         collection.load()
 
         for item in chunk_list:
+            content_length = len(item.content.encode('utf-8'))
+            self.logger.debug(f"Original content length: {content_length}")
+
             # Check if the content exceeds milvus limit
-            if len(item.content) > 65535:
-                truncated_content = item.content[:65535]
+            if content_length > 65535:
+                truncated_content = item.content.encode('utf-8')[:65535].decode('utf-8', 'ignore')
             else:
                 truncated_content = item.content
+
+            truncated_length = len(truncated_content.encode('utf-8'))
+            self.logger.debug(f"Truncated content length: {truncated_length}")
+
             embedding = self.embedd(truncated_content, model_name)
             json_content = {"content": truncated_content}
+
+            json_content_length = len(str(json_content).encode('utf-8'))
+            self.logger.debug(f"JSON content length: {json_content_length}")
+
             entities.append({
                 "document_id": item.document_id,
                 "parent_id": item.parent_id,
@@ -170,6 +183,7 @@ class Milvus_DB:
         self.logger.debug(f"Elements successfully inserted in collection")
 
     def embedd(self, content_to_embedd: str, model: str) -> List[float]:
+        ReadinessProbe().update_last_seen()
         start_time = time.time()  # Record the start time
         with grpc.insecure_channel(f"{embedder_grpc_host}:{embedder_grpc_port}",
                                    options=[

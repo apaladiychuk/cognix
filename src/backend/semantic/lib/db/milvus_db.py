@@ -122,6 +122,7 @@ class Milvus_DB:
 
     def store_chunk_list(self, chunk_list: List[ChunkedItem], collection_name: str, model_name: str,
                          model_dimension: int):
+        self.logger.info(f"🗄️storing {len(chunk_list)} entities in the vector db")
         entities = []
 
         connections.connect(
@@ -136,7 +137,7 @@ class Milvus_DB:
             FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
             FieldSchema(name="document_id", dtype=DataType.INT64),
             FieldSchema(name="parent_id", dtype=DataType.INT64),
-            FieldSchema(name="content", dtype=DataType.VARCHAR, max_length=65535),
+            FieldSchema(name="content", dtype=DataType.JSON, max_length=65535),
             FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=model_dimension),
         ]
 
@@ -152,23 +153,36 @@ class Milvus_DB:
         collection.load()
 
         for item in chunk_list:
-            content_length = len(item.content.encode('utf-8'))
-            self.logger.debug(f"Original content length: {content_length}")
+            content_bytes = item.content.encode('utf-8')
+            content_length = len(content_bytes)
+            self.logger.debug(f"original content length: {content_length}")
 
-            # Check if the content exceeds milvus limit
+            # Truncate content if it exceeds the limit
             if content_length > 65535:
-                truncated_content = item.content.encode('utf-8')[:65535].decode('utf-8', 'ignore')
+                truncated_bytes = content_bytes[:65400]
+                truncated_content = truncated_bytes.decode('utf-8', 'ignore')
             else:
                 truncated_content = item.content
 
             truncated_length = len(truncated_content.encode('utf-8'))
-            self.logger.debug(f"Truncated content length: {truncated_length}")
+            self.logger.debug(f"truncated content length: {truncated_length}")
 
             embedding = self.embedd(truncated_content, model_name)
             json_content = {"content": truncated_content}
 
-            json_content_length = len(str(json_content).encode('utf-8'))
+            # Check JSON content length
+            json_content_bytes = str(json_content).encode('utf-8')
+            json_content_length = len(json_content_bytes)
             self.logger.debug(f"JSON content length: {json_content_length}")
+
+            # If JSON content length still exceeds the limit, truncate further
+            while json_content_length > 65535:
+                truncated_bytes = truncated_bytes[:-100]  # Remove last 100 bytes and re-check
+                truncated_content = truncated_bytes.decode('utf-8', 'ignore')
+                json_content = {"content": truncated_content}
+                json_content_bytes = str(json_content).encode('utf-8')
+                json_content_length = len(json_content_bytes)
+                self.logger.debug(f"adjusted JSON content length: {json_content_length}")
 
             entities.append({
                 "document_id": item.document_id,
@@ -179,8 +193,7 @@ class Milvus_DB:
 
         collection.insert(entities)
         collection.flush()
-        success = True
-        self.logger.debug(f"Elements successfully inserted in collection")
+        self.logger.info(f"🗄️successfully stored {len(chunk_list)} entities in the vector db")
 
     def embedd(self, content_to_embedd: str, model: str) -> List[float]:
         ReadinessProbe().update_last_seen()
@@ -193,12 +206,12 @@ class Milvus_DB:
                                    ) as channel:
             stub = EmbedServiceStub(channel)
 
-            self.logger.debug("Calling gRPC Service GetEmbed - Unary")
+            self.logger.debug("calling gRPC Service GetEmbed - Unary")
 
             embed_request = EmbedRequest(content=content_to_embedd, model=model)
             embed_response = stub.GetEmbeding(embed_request)
 
-            self.logger.debug("GetEmbedding gRPC call received correctly")
+            self.logger.debug("getEmbedding gRPC call received correctly")
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
             self.logger.debug(f"⏰🤖total elapsed time to create embedding: {elapsed_time:.2f} seconds")

@@ -11,6 +11,7 @@ from lib.db.milvus_db import Milvus_DB
 from lib.gen_types.semantic_data_pb2 import SemanticData
 from dotenv import load_dotenv
 
+from lib.helpers.minio_helper_2 import MinIO_Helper
 from lib.spider.chunked_item import ChunkedItem
 from lib.semantic.text_splitter import TextSplitter
 from readiness_probe import ReadinessProbe
@@ -83,7 +84,7 @@ class BaseSemantic:
         doc.last_update = datetime.datetime.utcnow()
         document_crud.update_document_object(doc)
 
-        logging.info(f"storing in milvus {len(collected_data)} entities for {data.url}")
+        logging.info(f"storing in milvus {len(collected_data)} entities for {MinIO_Helper.get_real_file_name(data.url)}")
 
         # notifying the readiness probe that the service is alive
         ReadinessProbe().update_last_seen()

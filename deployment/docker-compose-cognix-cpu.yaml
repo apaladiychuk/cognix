@@ -24,7 +24,7 @@
 # container versioning
 # er use the semantic versioning as described here https://semver.org/
 
-version: '3.8'
+
 networks:
   cognix-network:
     # external: true
@@ -117,7 +117,7 @@ services:
     volumes:
       - ${DATA_PATH}/temp:/temp
     env_file:
-      - ${CONFIG_PATH}/semantic_srv.env
+      - ${CONFIG_PATH}/semantic-srv.env
       - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
       - ${CONFIG_PATH}/embedder_cli.env
@@ -288,7 +288,7 @@ services:
 
   milvus:
     container_name: milvus-standalone
-    image: milvusdb/milvus:v2.3.0
+    image: milvusdb/milvus:v2.4.3
     command: ["milvus", "run", "standalone"]
     security_opt:
       - seccomp:unconfined

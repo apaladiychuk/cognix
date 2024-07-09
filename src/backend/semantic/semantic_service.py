@@ -1,10 +1,10 @@
-# region imports
 import asyncio
 import logging
 import os
 import threading
 import time
 import datetime
+import signal
 from dotenv import load_dotenv
 from nats.aio.msg import Msg
 
@@ -16,10 +16,6 @@ from lib.semantic.semantic_factory import SemanticFactory
 from lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
 from readiness_probe import ReadinessProbe
 
-# endregion
-
-# region .env and logs
-# Load environment variables from .env file
 load_dotenv()
 
 # get log level from env
@@ -33,7 +29,6 @@ logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 logger.info(f"Logging configured with level {log_level_str} and format {log_format}")
 
-# loading from env
 nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
 nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
 nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
@@ -47,7 +42,12 @@ cockroach_url = os.getenv('COCKROACH_CLIENT_DATABASE_URL',
                           'postgres://root:123@cockroach:26257/defaultdb?sslmode=disable')
 
 
-# endregion
+def handle_sigpipe(signum, frame):
+    logger.error("SIGPIPE received, handling broken pipe...")
+
+
+# signal.signal(signal.SIGPIPE, handle_sigpipe)
+
 
 def process_semantic_data_sync(semantic_data, cockroach_url):
     document_crud = DocumentCRUD(cockroach_url)
@@ -94,6 +94,9 @@ async def semantic_event(msg: Msg):
                 else:
                     await msg.nak()
                     logger.error(f"❌ failed to process semantic data for document_id {semantic_data.document_id}")
+    except BrokenPipeError:
+        logger.error("Broken pipe error encountered, trying to reconnect...")
+        await handle_reconnect()
     except Exception as e:
         error_message = str(e) if e else "Unknown error occurred"
         logger.error(f"❌ failed to process semantic data error: {error_message}")
@@ -104,6 +107,20 @@ async def semantic_event(msg: Msg):
         elapsed_time = end_time - start_time
         logger.info(f"⏰⏰ total semantic analysis time: {elapsed_time:.2f} seconds")
 
+
+async def handle_reconnect():
+    try:
+        await asyncio.sleep(5)  # wait before retrying
+        await main()
+    except Exception as e:
+        logger.error(f"Reconnect failed: {e}")
+
+async def main1():
+    logger.info(f"starting")
+    while True:
+        logger.info(f"hi")
+        logger.exception(f"hi")
+        await asyncio.sleep(1)
 
 async def main():
     readiness_probe = ReadinessProbe()
@@ -125,11 +142,11 @@ async def main():
                 max_deliver=semantic_max_deliver,
                 proto_message_type=SemanticData
             )
-
             subscriber.set_event_handler(semantic_event)
+
             await subscriber.connect_and_subscribe()
 
-            logger.info("🚀 service started successfully")
+            # logger.info("🚀 service started successfully")
 
             while True:
                 await asyncio.sleep(1)

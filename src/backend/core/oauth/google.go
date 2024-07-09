@@ -31,6 +31,7 @@ var googleDriveScopes []string = []string{"https://www.googleapis.com/auth/drive
 type GoogleConfig struct {
 	GoogleClientID string `env:"GOOGLE_CLIENT_ID"`
 	GoogleSecret   string `env:"GOOGLE_SECRET"`
+	RedirectURL    string `env:"OAUTH_REDIRECT_URL" envDefault:"https://rag.cognix.ch/api/oauth"`
 }
 
 // googleProvider represents a provider implementation for Google OAuth client.
@@ -111,5 +112,5 @@ func (g *googleProvider) ExchangeCode(ctx context.Context, code string) (*Identi
 // - *oauth2.Token: The refreshed OAuth2 token
 // - error: Any error that occurred during the token refreshing process
 func (g *googleProvider) RefreshToken(token *oauth2.Token) (*oauth2.Token, error) {
-	return token, nil
+	return g.config.TokenSource(context.Background(), token).Token()
 }

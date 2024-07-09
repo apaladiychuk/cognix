@@ -13,7 +13,8 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
-	drive "google.golang.org/api/drive/v2"
+	drive "google.golang.org/api/drive/v3"
+	"google.golang.org/api/googleapi"
 	"strconv"
 	"strings"
 	"time"
@@ -21,7 +22,6 @@ import (
 	"net/http"
 
 	"google.golang.org/api/option"
-	"log"
 )
 
 const (
@@ -49,10 +49,11 @@ type (
 	//
 	GoogleDrive struct {
 		Base
-		param         *GoogleDriveParameters
-		client        *drive.Service
-		fileSizeLimit int
-		sessionID     uuid.NullUUID
+		param               *GoogleDriveParameters
+		client              *drive.Service
+		fileSizeLimit       int
+		sessionID           uuid.NullUUID
+		unsupportedMimeType map[string]bool
 	}
 	//
 	GoogleDriveParameters struct {
@@ -146,11 +147,12 @@ func (c *GoogleDrive) getFolderItems(ctx context.Context, folderID string) ([]st
 	if folderID == "" {
 		q = googleDriveRootFolderQuery
 	} else {
-		q = fmt.Sprintf(" and '%s' in parents ", folderID)
+		q = fmt.Sprintf(" '%s' in parents ", folderID)
 	}
 	nextFolders := make([]string, 0)
-	if err := c.client.Files.List().Context(ctx).Q(q).Pages(ctx, func(l *drive.FileList) error {
-		for _, item := range l.Items {
+	var fields googleapi.Field = "nextPageToken, files(name,id, exportLinks, size, mimeType,webContentLink ,fileExtension,md5Checksum, version ) "
+	if err := c.client.Files.List().Context(ctx).Q(q).Fields(fields).Pages(ctx, func(l *drive.FileList) error {
+		for _, item := range l.Files {
 			if item.MimeType == googleDriveMIMEFolder {
 				if c.param.Recursive {
 					nextFolders = append(nextFolders, item.Id)
@@ -170,14 +172,14 @@ func (c *GoogleDrive) getFolderItems(ctx context.Context, folderID string) ([]st
 
 func (c *GoogleDrive) scanFile(ctx context.Context, item *drive.File) error {
 
-	if item.FileSize > int64(c.fileSizeLimit) {
+	if item.Size > int64(c.fileSizeLimit) {
 		return nil
 	}
 	mimeType, fileType := c.recognizeFiletype(item)
 	if fileType == proto.FileType_UNKNOWN {
 		return nil
 	}
-	url := item.DownloadUrl
+	url := item.WebContentLink
 	if len(item.ExportLinks) > 0 {
 		url = item.ExportLinks[mimeType]
 	}
@@ -205,7 +207,7 @@ func (c *GoogleDrive) scanFile(ctx context.Context, item *drive.File) error {
 	}
 	doc.Signature = checksum
 
-	filename := utils.StripFileName(uuid.New().String() + item.OriginalFilename)
+	filename := utils.StripFileName(uuid.New().String() + item.Name)
 	response := &Response{
 		URL:        url,
 		Name:       filename,
@@ -246,14 +248,15 @@ func (c *GoogleDrive) getFolder(ctx context.Context) (string, error) {
 			q += fmt.Sprintf(" and '%s' in parents ", parentID)
 		}
 
-		folder, err := c.client.Files.List().Context(ctx).Fields("files(id,name)").Q(q).Do()
+		folder, err := c.client.Files.List().Context(ctx).Q(q).Do()
 		if err != nil {
 			return "", err
 		}
-		if len(folder.Items) == 0 {
+
+		if len(folder.Files) == 0 {
 			return "", fmt.Errorf("folder %s not found", strings.Join(folderParts[:i], "/"))
 		}
-		parentID = folder.Items[0].Id
+		parentID = folder.Files[0].Id
 	}
 	if parentID == "" {
 		return "", fmt.Errorf("folder %s not found", c.param.Folder)
@@ -271,6 +274,9 @@ func (c *GoogleDrive) recognizeFiletype(item *drive.File) (string, proto.FileTyp
 			return mimeType, model.SupportedMimeTypes[mimeType]
 		}
 	}
+	if _, ok := c.unsupportedMimeType[item.MimeType]; ok {
+		return "", proto.FileType_UNKNOWN
+	}
 	// recognize file type for google application file
 	if mimeType, ok := googleDriveExportFileType[item.MimeType]; ok {
 		return mimeType, model.SupportedMimeTypes[mimeType]
@@ -279,6 +285,7 @@ func (c *GoogleDrive) recognizeFiletype(item *drive.File) (string, proto.FileTyp
 	if ft, ok := model.SupportedMimeTypes[item.MimeType]; ok {
 		return item.MimeType, ft
 	}
+	c.unsupportedMimeType[item.MimeType] = true
 	zap.S().Errorf("Unsupported file type: %s  %s", item.OriginalFilename, item.MimeType)
 	return "", proto.FileType_UNKNOWN
 }
@@ -293,7 +300,8 @@ func NewGoogleDrive(connector *model.Connector,
 				SetTimeout(time.Minute).
 				SetBaseURL(oauthURL),
 		},
-		param: &GoogleDriveParameters{},
+		param:               &GoogleDriveParameters{},
+		unsupportedMimeType: make(map[string]bool),
 	}
 
 	conn.Base.Config(connector)
@@ -303,7 +311,6 @@ func NewGoogleDrive(connector *model.Connector,
 	if err := conn.Validate(); err != nil {
 		return nil, err
 	}
-
 	newToken, err := conn.refreshToken(conn.param.Token)
 	if err != nil {
 		return nil, err
@@ -311,11 +318,10 @@ func NewGoogleDrive(connector *model.Connector,
 	if newToken != nil {
 		conn.param.Token = newToken
 	}
-
 	client, err := drive.NewService(context.Background(),
 		option.WithHTTPClient(&http.Client{Transport: utils.NewTransport(conn.param.Token)}))
 	if err != nil {
-		log.Fatalf("Unable to retrieve driveactivity Client %v", err)
+		return nil, err
 	}
 
 	conn.client = client

@@ -177,6 +177,7 @@ services:
       - ${CONFIG_PATH}/nats_cli.env
       - ${CONFIG_PATH}/embedder_cli.env
       - ${CONFIG_PATH}/search-cli.env
+      - ${CONFIG_PATH}/oauth_cli.env
       - ${CONFIG_PATH}/.env
     depends_on:
       - cockroach

@@ -57,7 +57,7 @@ func NewProvider(name string, cfg *Config, redirectURL string) (Proxy, error) {
 		return NewMicrosoft(cfg.Microsoft), nil
 	case ProviderGoogle:
 		if redirectURL == "" {
-			redirectURL = "http://localhost:8080/api/oauth"
+			redirectURL = cfg.Google.RedirectURL
 		}
 		return NewGoogleProvider(cfg.Google, redirectURL), nil
 	}

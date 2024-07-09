@@ -75,6 +75,7 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 	// create new instance of connector by connector model
 	connectorWF, err := connector.New(connectorModel, e.connectorRepo, e.cfg.OAuthURL)
 	if err != nil {
+		zap.S().Error(err)
 		return err
 	}
 	if trigger.Params == nil {
@@ -96,7 +97,6 @@ func (e *Executor) runConnector(ctx context.Context, msg jetstream.Msg) error {
 		if result.Content != nil {
 			if err = e.saveContent(ctx, result); err != nil {
 				loopErr = err
-				//zap.S().Errorf("failed to save content: %v", err)
 			}
 
 		}

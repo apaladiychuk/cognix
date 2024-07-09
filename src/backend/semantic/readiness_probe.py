@@ -32,7 +32,7 @@ class ReadinessProbe:
         return True
 
     def update_last_seen(self):
-        self.logger.debug("Readiness probe last seen being updated")
+        self.logger.debug("🌡️ Readiness probe last seen being updated")
         self.last_seen = datetime.utcnow()
 
     class ReadinessProbeHandler(BaseHTTPRequestHandler):
@@ -58,15 +58,15 @@ class ReadinessProbe:
                 self.send_response(404)
                 self.end_headers()
                 self.wfile.write(b"Not Found")
-                self.logger.debug('ReadinessProbeHandler GET /')
+                self.logger.debug('🌡️ ReadinessProbeHandler GET /')
 
     def start_server(self):
         try:
-            self.logger.info("Initializing readiness probe server")
+            self.logger.info("🌡️ Initializing readiness probe server")
             server_address = ('', 8080)
             httpd = HTTPServer(server_address,
                                lambda *args, **kwargs: self.ReadinessProbeHandler(*args, readiness_probe=self, **kwargs))
-            self.logger.info(f"Readiness probe server started on {server_address}8080")
+            self.logger.info(f"🌡️ Readiness probe server started on {server_address}8080")
             httpd.serve_forever()
         except Exception as e:
             self.logger.error(f"❌ Readiness probe failed to start: {e}")

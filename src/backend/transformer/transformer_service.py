@@ -38,8 +38,8 @@ class TransformerServicer(TransformerServiceServicer):
     def SemanticSplit(self, request: SemanticRequest, context):
         start_time = time.time()  # Record the start time
         try:
-            logger.debug(f"incoming semantic split request: {request}")
-            logger.info(f"incoming semantic split request - content len: {len(request.content)}, similarity type: {request.similarity_type}, threshold: {request.threshold} model:{request.model}" )
+            logger.debug(f"✂️ incoming semantic split request: {request}")
+            logger.info(f"✂️ incoming semantic split request - content len: {len(request.content)}, similarity type: {request.similarity_type}, threshold: {request.threshold} model:{request.model}" )
             semantic_response = SemanticResponse()
             splitter = SemanticSplitter(model_cache_limit=cache_limit, local_model_path=local_model_path,
                                         logger=logger)

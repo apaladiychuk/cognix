@@ -24,6 +24,7 @@ import (
 	"google.golang.org/api/option"
 )
 
+// googleDriveMIMEApplicationFile represents the MIME type for Google Drive application files.
 const (
 	googleDriveMIMEApplicationFile  = "application/vnd.google-apps"
 	googleDriveMIMEFolder           = "application/vnd.google-apps.folder"
@@ -45,6 +46,7 @@ var googleDriveExportFileType = map[string]string{
 	googleDriveMIMESpreadsheet:  model.MIMETypeXLSX,
 }
 
+// GoogleDrive represents a struct that contains properties related to Google Drive.
 type (
 	//
 	GoogleDrive struct {
@@ -63,6 +65,13 @@ type (
 	}
 )
 
+// Validate checks if the GoogleDriveParameters struct is valid.
+// It validates the `Token` field, making sure it is not nil and has the required fields.
+// If the validation fails, it returns an error.
+// Otherwise, it returns nil.
+//
+// Returns:
+// - error: an error if the validation fails, nil otherwise.
 func (p GoogleDriveParameters) Validate() error {
 	return validation.ValidateStruct(&p,
 		validation.Field(&p.Token, validation.By(func(value interface{}) error {
@@ -78,6 +87,25 @@ func (p GoogleDriveParameters) Validate() error {
 	)
 }
 
+// Execute executes the GoogleDrive method with the given parameters.
+//
+// The method takes a context.Context and a map[string]string parameter.
+// The parameter map can contain the following keys:
+//   - "file_limit": a string representing the file limit in GB (optional, default is 1)
+//   - "session_id": a string representing the session ID (optional, generated if not provided)
+//
+// The method returns a channel (*Response) which will contain the results of the execution.
+// The channel will be closed when the execution is complete.
+// The method scans the folders in the Google Drive and processes the files found.
+// If a root folder is specified in the parameters, only that folder and its subfolders are scanned.
+// Otherwise, all folders in the Google Drive are scanned.
+//
+// The method uses the fileSizeLimit parameter to restrict the size of the files to be processed.
+// The sessionID parameter is used to identify the session for logging purposes.
+//
+// The method internally calls the scanFolders method to scan the folders in the Google Drive.
+//
+// Note: The method does not return any examples, usage information, or surrounding code.
 func (c *GoogleDrive) Execute(ctx context.Context, param map[string]string) chan *Response {
 
 	var fileSizeLimit int
@@ -113,6 +141,16 @@ func (c *GoogleDrive) Execute(ctx context.Context, param map[string]string) chan
 	return c.resultCh
 }
 
+// scanFolders scans the specified folders and retrieves the child folders within each folder.
+// It calls the getFolderItems function to get the child folders of each folder.
+// If an error occurs during folder scanning, it logs an error message and continues to the next folder.
+//
+// Parameters:
+// - ctx: the context.Context object for controlling the scan operation.
+// - folders: a slice of strings representing the folders to be scanned.
+//
+// Returns:
+// - []string: a slice of strings containing the child folders found within the scanned folders.
 func (c *GoogleDrive) scanFolders(ctx context.Context, folders []string) []string {
 	nextFolders := make([]string, 0)
 	for _, folder := range folders {
@@ -126,6 +164,12 @@ func (c *GoogleDrive) scanFolders(ctx context.Context, folders []string) []strin
 	return nextFolders
 }
 
+// PrepareTask prepares and runs a task on the GoogleDrive connector.
+//
+// It takes a context, a sessionID, and a task as parameters and returns an error.
+// The task is executed by calling the RunConnector method on the task object,
+// passing a ConnectorRequest as the parameter. The ConnectorRequest includes
+// the ID of the GoogleDrive connector and a Params map containing the sessionID.
 func (c *GoogleDrive) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Task) error {
 	return task.RunConnector(ctx, &proto.ConnectorRequest{
 		Id: c.model.ID.IntPart(),
@@ -135,6 +179,8 @@ func (c *GoogleDrive) PrepareTask(ctx context.Context, sessionID uuid.UUID, task
 	})
 }
 
+// Validate checks if the file parameter is present and calls the Validate() method on the parameter
+// Returns an error if the file parameter is missing or if the parameter validation fails
 func (c *GoogleDrive) Validate() error {
 	if c.param == nil {
 		return fmt.Errorf("file parameter is required")
@@ -142,6 +188,10 @@ func (c *GoogleDrive) Validate() error {
 	return c.param.Validate()
 }
 
+// getFolderItems retrieves the items within a specified folder in Google Drive.
+// If the folderID is empty, it retrieves the items in the root folder.
+// It returns the IDs of the subfolders found within the specified folder,
+// and an error if any occurred.
 func (c *GoogleDrive) getFolderItems(ctx context.Context, folderID string) ([]string, error) {
 	var q string
 	if folderID == "" {
@@ -170,6 +220,24 @@ func (c *GoogleDrive) getFolderItems(ctx context.Context, folderID string) ([]st
 	return nextFolders, nil
 }
 
+// scanFile scans a file and processes it if it meets the necessary conditions.
+// It first checks if the file size exceeds the fileSizeLimit parameter. If it does,
+// it immediately returns without processing the file.
+// Then, it calls recognizeFiletype() to determine the MIME type and file type of the file.
+// If the file type is UNKNOWN, it also returns without processing the file.
+// Next, it retrieves the URL of the file. If there are export links available, it uses the
+// export link associated with the recognized MIME type; otherwise, it uses the web content link.
+// It then checks if the file exists in the model. If it does not, it creates a new Document object
+// and adds it to the model's DocsMap.
+// If the Document object already exists, it sets the IsExists field to true.
+// After that, it calculates the checksum of the file. If the calculated checksum is the same as
+// the Document's signature, it returns without processing the file, assuming that the file has not changed.
+// Otherwise, it updates the Document's signature.
+// Next, it generates a new filename by combining a randomly generated UUID and the original filename.
+// It creates a Response object with the necessary attributes and adds it to the result channel.
+// Finally, it downloads the file using the appropriate method based on the availability of export links
+// and sets the Response's Reader field to the download response body.
+// If there is an error during the download process, it logs the error and returns nil.
 func (c *GoogleDrive) scanFile(ctx context.Context, item *drive.File) error {
 
 	if item.Size > int64(c.fileSizeLimit) {
@@ -235,6 +303,11 @@ func (c *GoogleDrive) scanFile(ctx context.Context, item *drive.File) error {
 	c.resultCh <- response
 	return nil
 }
+
+// getFolder returns the ID of the folder specified in the GoogleDrive struct.
+// It uses a recursive approach to find the folder by splitting the folder path and querying the Google Drive API for each level.
+// The function returns an empty string and an error if the folder is not found.
+// If the folder is found, it returns the folder ID as a string.
 func (c *GoogleDrive) getFolder(ctx context.Context) (string, error) {
 	folderParts := strings.Split(c.param.Folder, "/")
 	parentID := ""
@@ -265,6 +338,8 @@ func (c *GoogleDrive) getFolder(ctx context.Context) (string, error) {
 
 }
 
+// recognizeFiletype recognizes the filetype of the given Google Drive item and returns the corresponding mimetype and filetype.
+// If the item is a Google Drive shortcut, it returns an empty string and the proto.FileType_UNKNOWN.
 func (c *GoogleDrive) recognizeFiletype(item *drive.File) (string, proto.FileType) {
 	if item.MimeType == googleDriveMIMEShortcut {
 		return "", proto.FileType_UNKNOWN
@@ -290,6 +365,19 @@ func (c *GoogleDrive) recognizeFiletype(item *drive.File) (string, proto.FileTyp
 	return "", proto.FileType_UNKNOWN
 }
 
+// NewGoogleDrive initializes a new instance of the GoogleDrive connector.
+// It takes a connector, connectorRepo, and an OAuth URL as parameters.
+// It returns a Connector and an error.
+// The function performs the following steps:
+// 1. Create a new instance of the GoogleDrive struct.
+// 2. Set the connectorRepo and OAuth client in the GoogleDrive struct.
+// 3. Configure the GoogleDrive struct with the connector's specific configuration.
+// 4. Validate the GoogleDrive struct.
+// 5. Refresh the token if necessary.
+// 6. Create a new Google Drive service client.
+// 7. Set the client in the GoogleDrive struct.
+// 8. Return the GoogleDrive struct as a Connector interface and nil error if successful.
+// If any error occurs during the execution, the function returns nil and the error.
 func NewGoogleDrive(connector *model.Connector,
 	connectorRepo repository.ConnectorRepository,
 	oauthURL string) (Connector, error) {

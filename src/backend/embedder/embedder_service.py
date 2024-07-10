@@ -1,10 +1,10 @@
 import time
 import os
 
-from lib.gen_types.embed_service_pb2_grpc import EmbedServiceServicer, add_EmbedServiceServicer_to_server
-from lib.gen_types.embed_service_pb2 import EmbedResponse, EmbedResponseItem
+from cognix_lib.gen_types.embed_service_pb2_grpc import EmbedServiceServicer, add_EmbedServiceServicer_to_server
+from cognix_lib.gen_types.embed_service_pb2 import EmbedResponse, EmbedResponseItem
 from sentence_encoder import SentenceEncoder
-from lib.helpers.device_checker import DeviceChecker
+from cognix_lib.helpers.device_checker import DeviceChecker
 import grpc
 from concurrent import futures
 import logging

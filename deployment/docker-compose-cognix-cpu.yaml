@@ -42,7 +42,7 @@ services:
     volumes:
       - ${DATA_PATH}/models:/models
     env_file:
-      - ${CONFIG_PATH}/embedder_srv.env
+      - ${CONFIG_PATH}/embedder-srv.env
     restart: always
     networks:
       - cognix-network
@@ -100,7 +100,7 @@ services:
       - "50053:50053"
     env_file:
       - ${CONFIG_PATH}/search-srv.env
-      - ${CONFIG_PATH}/embedder_cli.env
+      - ${CONFIG_PATH}/embedder-cli.env
       - ${CONFIG_PATH}/milvus_cli.env
     restart: always
     depends_on:
@@ -120,7 +120,7 @@ services:
       - ${CONFIG_PATH}/semantic-srv.env
       - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
-      - ${CONFIG_PATH}/embedder_cli.env
+      - ${CONFIG_PATH}/embedder-cli.env
       - ${CONFIG_PATH}/transformer-cli.env
       - ${CONFIG_PATH}/cockroach_cli.env
       - ${CONFIG_PATH}/minio_cli.env
@@ -175,7 +175,7 @@ services:
       - ${CONFIG_PATH}/minio_cli.env
       - ${CONFIG_PATH}/milvus_cli.env
       - ${CONFIG_PATH}/nats_cli.env
-      - ${CONFIG_PATH}/embedder_cli.env
+      - ${CONFIG_PATH}/embedder-cli.env
       - ${CONFIG_PATH}/search-cli.env
       - ${CONFIG_PATH}/.env
     depends_on:

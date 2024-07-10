@@ -2,7 +2,7 @@ import logging
 from typing import List
 
 # Ensure the Milvus_DB and ChunkedItem classes are accessible
-from lib.db.milvus_db import Milvus_DB
+from cognix_lib.db.milvus_db import Milvus_DB
 
 from lib.spider.chunked_item import ChunkedItem
 

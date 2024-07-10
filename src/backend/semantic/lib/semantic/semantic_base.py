@@ -6,13 +6,13 @@ import uuid
 
 from minio import Minio
 
-from lib.db.db_document import Document, DocumentCRUD
-from lib.db.milvus_db import Milvus_DB
-from lib.gen_types.semantic_data_pb2 import SemanticData
+from cognix_lib.db.db_document import Document, DocumentCRUD
+from cognix_lib.db.milvus_db import Milvus_DB
+from cognix_lib.gen_types.semantic_data_pb2 import SemanticData
 from dotenv import load_dotenv
 
-from lib.helpers.minio_helper_2 import MinIO_Helper
-from lib.spider.chunked_item import ChunkedItem
+from cognix_lib.helpers.minio_helper import MinIO_Helper
+from cognix_lib.spider.chunked_item import ChunkedItem
 from lib.semantic.text_splitter import TextSplitter
 from readiness_probe import ReadinessProbe
 

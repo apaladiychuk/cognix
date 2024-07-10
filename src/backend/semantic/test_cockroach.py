@@ -4,8 +4,8 @@ import os
 
 from dotenv import load_dotenv
 
-from lib.db.db_document import DocumentCRUD
-from lib.db.db_connector import ConnectorCRUD, Status
+from cognix_lib.db.db_document import DocumentCRUD
+from cognix_lib.db.db_connector import ConnectorCRUD, Status
 
 # Load environment variables from .env file
 load_dotenv()

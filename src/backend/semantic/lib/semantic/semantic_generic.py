@@ -4,8 +4,8 @@ import uuid
 
 import pymupdf4llm
 
-from lib.db.db_document import DocumentCRUD
-from lib.gen_types.semantic_data_pb2 import SemanticData
+from cognix_lib.db.db_document import DocumentCRUD
+from cognix_lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.markdown_extractor import MarkdownSectionExtractor
 from lib.semantic.semantic_base import BaseSemantic
 from lib.semantic.text_splitter import TextSplitter

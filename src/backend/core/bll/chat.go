@@ -32,7 +32,7 @@ type ChatBL interface {
 //   - personaRepo:      An instance of the PersonaRepository interface used for persona-related database operations.
 //   - embeddingModelRepo: An instance of the EmbeddingModelRepository interface used for embedding model-related
 //     database operations.
-//   - aiBuilder:        An instance of the Builder type used for managing the creation and caching of OpenAIClient instances.
+//   - aiBuilder:        An instance of the Builder type used for managing the creation and caching of Client instances.
 //   - embedding:        A client API for the EmbedService service.
 //   - milvusClinet:     An instance of the VectorDBClient interface used for interacting with the Milvus storage.
 type chatBL struct {
@@ -188,7 +188,7 @@ func (b *chatBL) CreateSession(ctx context.Context, user *model.User, param *par
 //   - personaRepo: The persona repository for accessing persona-related data.
 //   - docRepo: The document repository for accessing document-related data.
 //   - embeddingModelRepo: The embedding model repository for accessing embedding model-related data.
-//   - aiBuilder: The builder for managing OpenAIClient instances.
+//   - aiBuilder: The builder for managing Client instances.
 //   - embedding: The EmbedServiceClient for embedding operations.
 //   - milvusClinet: The VectorDBClient for Milvus operations.
 //

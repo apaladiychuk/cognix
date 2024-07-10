@@ -35,6 +35,7 @@ type Config struct {
 	RedirectURL    string `env:"REDIRECT_URL"`
 	JWTSecret      string `env:"JWT_SECRET" envDefault:"secret"`
 	JWTExpiredTime int    `env:"JWT_EXPIRED_TIME" envDefault:"60"`
+	LLMModels      string `env:"LLM_MODELS"`
 }
 
 func ReadConfig() (*Config, error) {

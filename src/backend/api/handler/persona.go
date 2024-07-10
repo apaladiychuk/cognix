@@ -3,6 +3,7 @@ package handler
 import (
 	"cognix.ch/api/v2/core/ai"
 	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
@@ -16,6 +17,7 @@ import (
 type PersonaHandler struct {
 	personaBL bll.PersonaBL
 	aiBuilder *ai.Builder
+	llmModels model.StringSlice
 }
 
 // NewPersonaHandler returns a new instance of PersonaHandler.
@@ -32,8 +34,13 @@ type PersonaHandler struct {
 // Example:
 //
 //	personaHandler := NewPersonaHandler(personaBL, aiBuilder)
-func NewPersonaHandler(personaBL bll.PersonaBL, aiBuilder *ai.Builder) *PersonaHandler {
-	return &PersonaHandler{personaBL: personaBL, aiBuilder: aiBuilder}
+func NewPersonaHandler(personaBL bll.PersonaBL,
+	aiBuilder *ai.Builder,
+	llmModels model.StringSlice,
+) *PersonaHandler {
+	return &PersonaHandler{personaBL: personaBL,
+		aiBuilder: aiBuilder,
+		llmModels: llmModels}
 }
 
 // Mount mounts PersonaHandler routes to the given route with the provided authMiddleware.
@@ -109,6 +116,9 @@ func (h *PersonaHandler) Create(c *gin.Context, identity *security.Identity) err
 	if err := server.BindJsonAndValidate(c, &param); err != nil {
 		return err
 	}
+	if !h.llmModels.InArray(param.ModelID) {
+		return utils.ErrorBadRequest.Newf("model %s is not supported", param.ModelID)
+	}
 	persona, err := h.personaBL.Create(c.Request.Context(), identity.User, &param)
 	if err != nil {
 		return err
@@ -135,6 +145,9 @@ func (h *PersonaHandler) Update(c *gin.Context, identity *security.Identity) err
 	var param parameters.PersonaParam
 	if err = server.BindJsonAndValidate(c, &param); err != nil {
 		return err
+	}
+	if !h.llmModels.InArray(param.ModelID) {
+		return utils.ErrorBadRequest.Newf("model %s is not supported", param.ModelID)
 	}
 	persona, err := h.personaBL.Update(c.Request.Context(), id, identity.User, &param)
 	if err != nil {

@@ -24,7 +24,7 @@
 # container versioning
 # er use the semantic versioning as described here https://semver.org/
 
-
+version: '3.8'
 networks:
   cognix-network:
     # external: true
@@ -42,69 +42,8 @@ services:
     volumes:
       - ${DATA_PATH}/models:/models
     env_file:
-      - ${CONFIG_PATH}/embedder-srv.env
+      - ${CONFIG_PATH}/embedder_srv.env
     restart: always
-    networks:
-      - cognix-network
-
-  voice:
-    image: gen-mind/cognix-voice:latest
-    build:
-      context: ../src/backend
-      dockerfile: voice/Dockerfile
-    volumes:
-      - ${DATA_PATH}/temp:/temp
-      - ${DATA_PATH}/models:/models
-    env_file:
-      - ${CONFIG_PATH}/voice-srv.env
-      - ${CONFIG_PATH}/nats_cli.env
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/minio_cli.env
-    restart: always
-    healthcheck:
-      test: "curl --silent --fail http://localhost:8080/healthz > /dev/null || exit 1"
-      interval: 60s
-      start_period: 10s
-      timeout: 3s
-      retries: 3
-    depends_on:
-      - nats
-      - cockroach
-      - minio
-    networks:
-      - cognix-network
-
-  transformer:
-    container_name: transformer
-    image: gen-mind/cognix-transformer:latest
-    build:
-      context: ../src/backend/transformer
-      dockerfile: Dockerfile_cpu
-    ports:
-      - "50052:50052"
-    volumes:
-      - ${DATA_PATH}/models:/models
-    env_file:
-      - ${CONFIG_PATH}/transformer-srv.env
-    restart: always
-    networks:
-      - cognix-network
-
-  search:
-    container_name: search
-    image: gen-mind/cognix-search:latest
-    build:
-      context: ../src/backend
-      dockerfile: search/Dockerfile
-    ports:
-      - "50053:50053"
-    env_file:
-      - ${CONFIG_PATH}/search-srv.env
-      - ${CONFIG_PATH}/embedder-cli.env
-      - ${CONFIG_PATH}/milvus_cli.env
-    restart: always
-    depends_on:
-      - milvus
     networks:
       - cognix-network
 
@@ -118,15 +57,14 @@ services:
       - ${DATA_PATH}/temp:/temp
     env_file:
       - ${CONFIG_PATH}/semantic-srv.env
-      - ${CONFIG_PATH}/milvus_cli.env
-      - ${CONFIG_PATH}/nats_cli.env
+      - ${CONFIG_PATH}/milvus-cli.env
+      - ${CONFIG_PATH}/nats-cli.env
       - ${CONFIG_PATH}/embedder-cli.env
-      - ${CONFIG_PATH}/transformer-cli.env
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/minio_cli.env
+      - ${CONFIG_PATH}/cockroach-cli.env
+      - ${CONFIG_PATH}/minio-cli.env
     restart: always
-#    ports:
-#      - "3434:8080"
+    ports:
+      - "3434:8080"
     healthcheck:
       test: "curl --silent --fail http://localhost:8080/healthz > /dev/null || exit 1"
       interval: 60s
@@ -152,7 +90,7 @@ services:
     environment:
       VITE_PLATFORM_API_URL: http://api:8080
     env_file:
-      - ${CONFIG_PATH}/web_srv.env
+      - ${CONFIG_PATH}/web-srv.env
     depends_on:
       - api
     restart: always
@@ -166,17 +104,16 @@ services:
       context: ${BACKEND_PATH}
       args:
         service: api
-      dockerfile: api/Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     env_file:
-      - ${CONFIG_PATH}/api_srv.env
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/minio_cli.env
-      - ${CONFIG_PATH}/milvus_cli.env
-      - ${CONFIG_PATH}/nats_cli.env
+      - ${CONFIG_PATH}/api-srv.env
+      - ${CONFIG_PATH}/cockroach-cli.env
+      - ${CONFIG_PATH}/minio-cli.env
+      - ${CONFIG_PATH}/milvus-cli.env
+      - ${CONFIG_PATH}/nats-cli.env
       - ${CONFIG_PATH}/embedder-cli.env
-      - ${CONFIG_PATH}/search-cli.env
       - ${CONFIG_PATH}/.env
     depends_on:
       - cockroach
@@ -194,12 +131,11 @@ services:
       context: ${BACKEND_PATH}
       args:
         service: orchestrator
-      dockerfile: orchestrator/Dockerfile
+      dockerfile: Dockerfile
     env_file:
-      - ${CONFIG_PATH}/orchestrator_srv.env
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/nats_cli.env
-      - ${CONFIG_PATH}/oauth_cli.env
+      - ${CONFIG_PATH}/orchestrator-srv.env
+      - ${CONFIG_PATH}/cockroach-cli.env
+      - ${CONFIG_PATH}/nats-cli.env
       - ${CONFIG_PATH}/.env
     depends_on:
       - cockroach
@@ -216,13 +152,14 @@ services:
       context: ${BACKEND_PATH}
       args:
         service: connector
-      dockerfile: connector/Dockerfile
+      dockerfile: Dockerfile
     env_file:
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/nats_cli.env
-      - ${CONFIG_PATH}/milvus_cli.env
-      - ${CONFIG_PATH}/minio_cli.env
-      - ${CONFIG_PATH}/oauth_cli.env
+      - ${CONFIG_PATH}/connector-srv.env
+      - ${CONFIG_PATH}/cockroach-cli.env
+      - ${CONFIG_PATH}/nats-cli.env
+      - ${CONFIG_PATH}/milvus-cli.env
+      - ${CONFIG_PATH}/minio-cli.env
+      - ${CONFIG_PATH}/oauth-cli.env
       - ${CONFIG_PATH}/.env
     depends_on:
       - cockroach
@@ -241,7 +178,7 @@ services:
     volumes:
       - ${MIGRATION_PATH}/versions:/versions
     env_file:
-      - ${CONFIG_PATH}/cockroach_cli.env
+      - ${CONFIG_PATH}/cockroach-cli.env
     depends_on:
       - cockroach
     networks:
@@ -288,7 +225,7 @@ services:
 
   milvus:
     container_name: milvus-standalone
-    image: milvusdb/milvus:v2.4.3
+    image: milvusdb/milvus:v2.3.0
     command: ["milvus", "run", "standalone"]
     security_opt:
       - seccomp:unconfined
@@ -296,7 +233,7 @@ services:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
     volumes:
-      # - "../src/config/milvus_srv.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
+      # - "../src/config/milvus-srv.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
       - "../data/milvus:/var/lib/milvus"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
@@ -338,8 +275,7 @@ services:
     ports:
       - "26257:26257"
       - "28080:8080"
-    # command: start-single-node --insecure
-    command: start-single-node --insecure --cache=1.5GiB --max-sql-memory=1.5GiB
+    command: start-single-node --insecure
     volumes:
       - "../data/cockroach:/cockroach/cockroach-data"
     healthcheck:
@@ -386,12 +322,124 @@ services:
       REVERSE_PROXY_UPSTREAM: 'nats:8222'
     volumes:
       # Optional config file.
-      - ${CONFIG_PATH}/nats_config.json:/srv/config.json
+      - ${CONFIG_PATH}/nats-config.json:/srv/config.json
     ports:
       - "8000:80"
 #      - target: 80
 #        published: 8000
 #        protocol: tcp
+    networks:
+      - cognix-network
+
+  nats-exporter:
+    image: natsio/prometheus-nats-exporter
+    # image: synadia/prometheus-nats-exporter
+    container_name: nats-exporter
+    hostname: nats-exporter
+    command: "-connz -varz -channelz -serverz -subz http://nats:8222"
+    ports:
+      - 7777:7777
+    expose:
+      - 7777
+    networks:
+      - cognix-network
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ${DATA_PATH}/prometheus:/etc/prometheus
+      - prom_data:/prometheus
+    expose:
+      - 9090
+    networks:
+      - cognix-network
+
+  grafana:
+    image: grafana/grafana:latest #grafana/alpine
+    container_name: grafana
+    ports:
+      - 3001:3001
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+      - GF_SERVER_HTTP_PORT=3001
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ${DATA_PATH}/grafana:/etc/grafana/provisioning/datasources
+    networks:
+      - cognix-network
+
+  loki:
+    container_name: loki
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    expose:
+      - 3100
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ${DATA_PATH}/loki:/etc/loki
+    networks:
+      - cognix-network
+
+  # 7.6.24 to work use the following versions:
+  # - promtail latest
+  # - loky 2.9.2
+  promtail:
+    container_name: promtail
+    image: grafana/promtail:latest
+    volumes:
+      - /var/log:/var/log
+      - /var/run/docker.sock:/var/run/docker.soc
+      - ${DATA_PATH}/promtail:/etc/promtail
+    command: -config.file=/etc/promtail/promtail-local-config.yaml
+    networks:
+      - cognix-network
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    container_name: cadvisor
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "8081:8080"
+    expose:
+      - 8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    networks:
+      - cognix-network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    expose:
+      - 9100
     networks:
       - cognix-network
 
@@ -402,3 +450,9 @@ volumes:
       type: none
       o: bind
       device: ../data/nats
+  prom_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../data/prometheus

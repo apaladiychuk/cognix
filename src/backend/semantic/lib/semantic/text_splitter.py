@@ -5,11 +5,11 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 import logging
 from typing import List, Tuple
 
-from lib.helpers.minio_helper_2 import MinIO_Helper
+from cognix_lib.helpers.minio_helper import MinIO_Helper
 from lib.spider.chunked_item import ChunkedItem
 
-from lib.gen_types.transformer_service_pb2 import SemanticRequest, SemanticResponse, SimilarityType
-from lib.gen_types.transformer_service_pb2_grpc import TransformerServiceStub
+from cognix_lib.gen_types.transformer_service_pb2 import SemanticRequest, SemanticResponse, SimilarityType
+from cognix_lib.gen_types.transformer_service_pb2_grpc import TransformerServiceStub
 
 
 # Load environment variables from .env file

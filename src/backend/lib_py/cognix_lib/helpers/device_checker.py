@@ -1,18 +1,9 @@
-import os
-
 import torch
 import logging
 
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
-
-
-logger = logging.getLogger(__name__)
 
 class DeviceChecker:
-    logger = logger
+    logger = logging.getLogger(__name__)
 
     @staticmethod
     def check_device():
@@ -47,7 +38,6 @@ class DeviceChecker:
         # Create data and send it to the device
         x = torch.rand(size=(3, 4)).to(device)
         # DeviceChecker.logger.info(f"Tensor on {device}: {x}")
-
 
 # # To test the device checker
 # if __name__ == "__main__":

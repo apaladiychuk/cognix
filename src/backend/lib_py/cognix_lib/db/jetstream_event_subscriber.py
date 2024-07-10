@@ -108,7 +108,7 @@ class JetStreamEventSubscriber:
                         await self.message_handler(msg)
                         self.logger.info(msg)
                 except TimeoutError:
-                    self.logger.info("waiting for incoming events..")
+                    self.logger.info("timeout..")
                     pass
         except Exception as e:
             self.logger.error(f"❌ can't connect or subscribe to {self.nats_url} {self.stream_name} {self.subject} {e}")

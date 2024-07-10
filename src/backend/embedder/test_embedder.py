@@ -1,5 +1,5 @@
-from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
-from lib.gen_types.embed_service_pb2 import EmbedRequest
+from cognix_lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
+from cognix_lib.gen_types.embed_service_pb2 import EmbedRequest
 import grpc
 
 def run():

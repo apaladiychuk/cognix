@@ -1,18 +1,7 @@
+# Ensure logging is configured before any other imports
 import logging
 import os
-import time
-from concurrent import futures
-from typing import List
-
-import grpc
 from dotenv import load_dotenv
-
-from lib2.gen_types_2.transformer_service_pb2_grpc import TransformerServiceServicer
-from lib2.gen_types_2.transformer_service_pb2 import SemanticResponse, SemanticRequest, SimilarityType
-from lib2.gen_types_2.transformer_service_pb2_grpc import add_TransformerServiceServicer_to_server
-from lib2.helpers_2.device_checker import DeviceChecker
-from semantic_splitter import SemanticSplitter
-
 
 # Load environment variables from .env file
 load_dotenv()
@@ -29,6 +18,19 @@ logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 logger.setLevel(log_level)  # Ensure the logger's level is explicitly set
 
+# Import other modules after logging configuration
+import time
+from concurrent import futures
+from typing import List
+
+import grpc
+
+from cognix_lib.gen_types.transformer_service_pb2_grpc import TransformerServiceServicer
+from cognix_lib.gen_types.transformer_service_pb2 import SemanticResponse, SemanticRequest, SimilarityType
+from cognix_lib.gen_types.transformer_service_pb2_grpc import add_TransformerServiceServicer_to_server
+from cognix_lib.helpers.device_checker import DeviceChecker
+from semantic_splitter import SemanticSplitter
+
 grpc_port = os.getenv('TRANSFORMER_GRPC_PORT', '50052')
 cache_limit: int = int(os.getenv('TRANSFORMER_MODEL_CACHE_LIMIT', 1))
 local_model_path: str = os.getenv('TRANSFORMER_LOCAL_MODEL_PATH', 'models')
@@ -39,7 +41,8 @@ class TransformerServicer(TransformerServiceServicer):
         start_time = time.time()  # Record the start time
         try:
             logger.debug(f"✂️ incoming semantic split request: {request}")
-            logger.info(f"✂️ incoming semantic split request - content len: {len(request.content)}, similarity type: {request.similarity_type}, threshold: {request.threshold} model:{request.model}" )
+            logger.info(
+                f"✂️ incoming semantic split request - content len: {len(request.content)}, similarity type: {request.similarity_type}, threshold: {request.threshold} model:{request.model}")
             semantic_response = SemanticResponse()
             splitter = SemanticSplitter(model_cache_limit=cache_limit, local_model_path=local_model_path,
                                         logger=logger)

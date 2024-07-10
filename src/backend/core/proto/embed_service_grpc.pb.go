@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type EmbedServiceClient interface {
-	GetEmbeding(ctx context.Context, in *EmbedRequest, opts ...grpc.CallOption) (*EmbedResponse, error)
+	GetEmbedding(ctx context.Context, in *EmbedRequest, opts ...grpc.CallOption) (*EmbedResponse, error)
 }
 
 type embedServiceClient struct {
@@ -33,9 +33,9 @@ func NewEmbedServiceClient(cc grpc.ClientConnInterface) EmbedServiceClient {
 	return &embedServiceClient{cc}
 }
 
-func (c *embedServiceClient) GetEmbeding(ctx context.Context, in *EmbedRequest, opts ...grpc.CallOption) (*EmbedResponse, error) {
+func (c *embedServiceClient) GetEmbedding(ctx context.Context, in *EmbedRequest, opts ...grpc.CallOption) (*EmbedResponse, error) {
 	out := new(EmbedResponse)
-	err := c.cc.Invoke(ctx, "/com.cognix.EmbedService/GetEmbeding", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/com.cognix.EmbedService/GetEmbedding", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *embedServiceClient) GetEmbeding(ctx context.Context, in *EmbedRequest, 
 // All implementations must embed UnimplementedEmbedServiceServer
 // for forward compatibility
 type EmbedServiceServer interface {
-	GetEmbeding(context.Context, *EmbedRequest) (*EmbedResponse, error)
+	GetEmbedding(context.Context, *EmbedRequest) (*EmbedResponse, error)
 	mustEmbedUnimplementedEmbedServiceServer()
 }
 
@@ -54,8 +54,8 @@ type EmbedServiceServer interface {
 type UnimplementedEmbedServiceServer struct {
 }
 
-func (UnimplementedEmbedServiceServer) GetEmbeding(context.Context, *EmbedRequest) (*EmbedResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetEmbeding not implemented")
+func (UnimplementedEmbedServiceServer) GetEmbedding(context.Context, *EmbedRequest) (*EmbedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEmbedding not implemented")
 }
 func (UnimplementedEmbedServiceServer) mustEmbedUnimplementedEmbedServiceServer() {}
 
@@ -70,20 +70,20 @@ func RegisterEmbedServiceServer(s grpc.ServiceRegistrar, srv EmbedServiceServer)
 	s.RegisterService(&EmbedService_ServiceDesc, srv)
 }
 
-func _EmbedService_GetEmbeding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _EmbedService_GetEmbedding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EmbedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EmbedServiceServer).GetEmbeding(ctx, in)
+		return srv.(EmbedServiceServer).GetEmbedding(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/com.cognix.EmbedService/GetEmbeding",
+		FullMethod: "/com.cognix.EmbedService/GetEmbedding",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EmbedServiceServer).GetEmbeding(ctx, req.(*EmbedRequest))
+		return srv.(EmbedServiceServer).GetEmbedding(ctx, req.(*EmbedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -96,8 +96,8 @@ var EmbedService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*EmbedServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetEmbeding",
-			Handler:    _EmbedService_GetEmbeding_Handler,
+			MethodName: "GetEmbedding",
+			Handler:    _EmbedService_GetEmbedding_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

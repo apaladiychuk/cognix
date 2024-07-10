@@ -9,9 +9,10 @@ from numpy import int64
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
 
 from cognix_lib.gen_types.vector_search_pb2 import SearchRequest
-from cognix_lib.gen_types.embed_service_pb2 import EmbedRequest
+from cognix_lib.gen_types.embed_service_pb2 import EmbedRequest, EmbedResponseItem
 from cognix_lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
 from cognix_lib.spider.chunked_item import ChunkedItem
+from cognix_lib.helpers.readiness_probe import ReadinessProbe
 
 # Load environment variables from .env file
 load_dotenv()
@@ -31,12 +32,8 @@ embedder_grpc_port = os.getenv("EMBEDDER_GRPC_PORT", "50051")
 
 
 class Milvus_DB:
-    def __init__(self, logger: logging.Logger):
-        # with  logging.getLogger(__name__) it was not possible properly set the log level
-        # so we ended up passing the logger instance directly
-        # self.logger = logging.getLogger(__name__)
-        self.logger = logger # logging.getLogger(__name__)
-        self.logger.debug(f"{self.__class__.__name__} logger initialized with level: {self.logger.level}")
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
         self._connect()
 
     def _connect(self):
@@ -95,7 +92,9 @@ class Milvus_DB:
             collection = Collection(name=data.collection_names[0])
             collection.load()
 
-            embedding = self.embedd(data.content, data.model_name)
+            # Call the updated embedd method with a list containing the query string
+            embedding_items = self.embedd([data.content], data.model_name)
+            embedding = list(embedding_items[0].vector)  # Extract the embedding vector
 
             result = collection.search(
                 data=[embedding],  # Embed search value
@@ -110,15 +109,11 @@ class Milvus_DB:
                 self.logger.debug("enumerating vector database results")
                 for i, hits in enumerate(result):
                     for hit in hits:
-                        sentence = hit.entity.get('sentence')
+                        sentence = hit.entity.get('content')
                         if sentence is not None:
                             self.logger.debug(
                                 f"Nearest Neighbor Number {i}: {sentence} ---- {hit.distance}\n")
                             answer += sentence
-                    # for hit in hits:
-                    #     self.logger.debug(
-                    #         f"Nearest Neighbor Number {i}: {hit.entity.get('sentence')} ---- {hit.distance}\n")
-                    #     answer += hit.entity.get('sentence')
                 self.logger.debug("end enumeration")
             return result
         except Exception as e:
@@ -130,6 +125,7 @@ class Milvus_DB:
 
     def store_chunk_list(self, chunk_list: List[ChunkedItem], collection_name: str, model_name: str,
                          model_dimension: int):
+        self.logger.info(f"🗄️storing {len(chunk_list)} entities in the vector db")
         entities = []
 
         connections.connect(
@@ -144,7 +140,7 @@ class Milvus_DB:
             FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
             FieldSchema(name="document_id", dtype=DataType.INT64),
             FieldSchema(name="parent_id", dtype=DataType.INT64),
-            FieldSchema(name="content", dtype=DataType.VARCHAR, max_length=65535),
+            FieldSchema(name="content", dtype=DataType.JSON, max_length=65535),
             FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=model_dimension),
         ]
 
@@ -159,55 +155,75 @@ class Milvus_DB:
         collection.create_index(field_name="vector", index_params=index_params)
         collection.load()
 
+        # Collect truncated contents
+        truncated_contents = []
         for item in chunk_list:
-            content_length = len(item.content.encode('utf-8'))
-            self.logger.debug(f"Original content length: {content_length}")
+            content_bytes = item.content.encode('utf-8')
+            content_length = len(content_bytes)
+            self.logger.debug(f"original content length: {content_length}")
 
-            # Check if the content exceeds milvus limit
+            # Truncate content if it exceeds the limit
             if content_length > 65535:
-                truncated_content = item.content.encode('utf-8')[:65535].decode('utf-8', 'ignore')
+                truncated_bytes = content_bytes[:65400]
+                truncated_content = truncated_bytes.decode('utf-8', 'ignore')
             else:
                 truncated_content = item.content
 
             truncated_length = len(truncated_content.encode('utf-8'))
-            self.logger.debug(f"Truncated content length: {truncated_length}")
+            self.logger.debug(f"truncated content length: {truncated_length}")
 
-            embedding = self.embedd(truncated_content, model_name)
-            json_content = {"content": truncated_content}
+            truncated_contents.append(truncated_content)
 
-            json_content_length = len(str(json_content).encode('utf-8'))
+        # Call the updated embedd method once
+        embeddings = self.embedd(truncated_contents, model_name)
+
+        for item, embedding in zip(chunk_list, embeddings):
+            json_content = {"content": embedding.content}  # embedding.content gives truncated_content
+
+            # Check JSON content length
+            json_content_bytes = str(json_content).encode('utf-8')
+            json_content_length = len(json_content_bytes)
             self.logger.debug(f"JSON content length: {json_content_length}")
+
+            # If JSON content length still exceeds the limit, truncate further
+            while json_content_length > 65535:
+                truncated_bytes = truncated_bytes[:-100]  # Remove last 100 bytes and re-check
+                truncated_content = truncated_bytes.decode('utf-8', 'ignore')
+                json_content = {"content": truncated_content}
+                json_content_bytes = str(json_content).encode('utf-8')
+                json_content_length = len(json_content_bytes)
+                self.logger.debug(f"adjusted JSON content length: {json_content_length}")
 
             entities.append({
                 "document_id": item.document_id,
                 "parent_id": item.parent_id,
                 "content": json_content,
-                "vector": embedding
+                "vector": list(embedding.vector)  # embedding.vector gives the embedding vector
             })
 
         collection.insert(entities)
         collection.flush()
-        success = True
-        self.logger.debug(f"Elements successfully inserted in collection")
+        self.logger.info(f"🗄️successfully stored {len(chunk_list)} entities in the vector db")
 
-    def embedd(self, content_to_embedd: str, model: str) -> List[float]:
+    def embedd(self, contents_to_embedd: List[str], model: str) -> List[EmbedResponseItem]:
+        ReadinessProbe().update_last_seen()
         start_time = time.time()  # Record the start time
         with grpc.insecure_channel(f"{embedder_grpc_host}:{embedder_grpc_port}",
                                    options=[
-                                       ('grpc.max_send_message_length', 100 * 1024 * 1024),  # 100 MB
-                                       ('grpc.max_receive_message_length', 100 * 1024 * 1024)  # 100 MB
+                                       ('grpc.max_send_message_length', 1024 * 1024 * 1024),  # 1 GB
+                                       ('grpc.max_receive_message_length', 1024 * 1024 * 1024)  # 1 GB
                                    ]
                                    ) as channel:
             stub = EmbedServiceStub(channel)
 
-            self.logger.debug("Calling gRPC Service GetEmbed - Unary")
+            self.logger.debug("calling gRPC Service GetEmbed - Unary")
 
-            embed_request = EmbedRequest(content=content_to_embedd, model=model)
-            embed_response = stub.GetEmbeding(embed_request)
+            embed_request = EmbedRequest(contents=contents_to_embedd, model=model)
+            embed_response = stub.GetEmbedding(embed_request)
 
-            self.logger.debug("GetEmbedding gRPC call received correctly")
+            self.logger.debug("getEmbedding gRPC call received correctly")
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
             self.logger.debug(f"⏰🤖total elapsed time to create embedding: {elapsed_time:.2f} seconds")
 
-            return list(embed_response.vector)
+            return list(embed_response.embeddings)

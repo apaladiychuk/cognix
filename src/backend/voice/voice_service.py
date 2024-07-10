@@ -200,9 +200,6 @@ async def main():
             subscriber.set_event_handler(voice_event)
             await subscriber.connect_and_subscribe()
 
-            # todo add an event to JetStreamEventSubscriber to signal that connection has been established
-            logger.info("🚀 service started successfully")
-
             while True:
                 await asyncio.sleep(1)
 

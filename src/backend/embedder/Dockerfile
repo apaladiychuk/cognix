@@ -6,7 +6,7 @@ WORKDIR /app
 ADD ./ ./
 
 # Copy the requirements.txt first to leverage Docker cache
-COPY transformer/requirements.txt /app/
+COPY embedder/requirements.txt /app/
 
 # Install dependencies and clean up
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -19,11 +19,11 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && rm -rf /root/.cache
 
 # Copy the rest of the application code
-COPY transformer /app/transformer
+COPY embedder /app/embedder
 COPY lib_py/cognix_lib /app/cognix_lib
 
 # Set the PYTHONPATH environment variable
 ENV PYTHONPATH="/app"
 
 # Command to run your application
-CMD ["python", "transformer/transformer_service.py"]
+CMD ["python", "embedder/embedder_service.py"]

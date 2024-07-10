@@ -35,8 +35,8 @@ services:
     container_name: embedder
     image: gen-mind/cognix-embedder:latest
     build:
-      context: ../src/backend/embedder
-      dockerfile: Dockerfile_cpu
+      context: ../src/backend
+      dockerfile: embedder/Dockerfile
     ports:
       - "50051:50051"
     volumes:
@@ -78,8 +78,8 @@ services:
     container_name: transformer
     image: gen-mind/cognix-transformer:latest
     build:
-      context: ../src/backend/transformer
-      dockerfile: Dockerfile_cpu
+      context: ../src/backend
+      dockerfile: transformer/Dockerfile_cpu
     ports:
       - "50052:50052"
     volumes:

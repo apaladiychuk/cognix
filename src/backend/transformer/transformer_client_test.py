@@ -1,7 +1,7 @@
-from lib2.gen_types_2.transformer_service_pb2 import SemanticRequest, SimilarityType
+from cognix_lib.gen_types.transformer_service_pb2 import SemanticRequest, SimilarityType
 import grpc
 
-from lib2.gen_types_2.transformer_service_pb2_grpc import TransformerServiceStub
+from cognix_lib.gen_types.transformer_service_pb2_grpc import TransformerServiceStub
 
 
 def run():

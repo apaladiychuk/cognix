@@ -8,12 +8,12 @@ import signal
 from dotenv import load_dotenv
 from nats.aio.msg import Msg
 
-from lib.db.db_connector import ConnectorCRUD, Status
-from lib.db.db_document import DocumentCRUD
-from lib.gen_types.semantic_data_pb2 import SemanticData
-from lib.helpers.device_checker import DeviceChecker
+from cognix_lib.db.db_connector import ConnectorCRUD, Status
+from cognix_lib.db.db_document import DocumentCRUD
+from cognix_lib.gen_types.semantic_data_pb2 import SemanticData
+from cognix_lib.helpers.device_checker import DeviceChecker
 from lib.semantic.semantic_factory import SemanticFactory
-from lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
+from cognix_lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
 from readiness_probe import ReadinessProbe
 
 load_dotenv()

@@ -44,9 +44,10 @@ FROM python:3.11.7-slim-bookworm
 
 # Set the working directory inside the container
 WORKDIR /app
+ADD ./ ./
 
 # Copy the requirements.txt first to leverage Docker cache
-COPY requirements.txt .
+COPY semantic/requirements.txt /app/
 
 # Install dependencies and clean up
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -60,14 +61,18 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && rm -rf /root/.cache
 
 # the container before this 3 lines is 107mb, after it's 982mb!!!!
-RUN pip install --no-cache-dir torch==2.3.0 --index-url https://download.pytorch.org/whl/cpu
-RUN pip install transformers==4.40.2 tqdm==4.66.4 numpy==1.26.4 scikit-learn==1.4.2 scipy==1.13.0 nltk==3.8.1 pillow==10.3.0
+#RUN pip install --no-cache-dir torch==2.3.0 --index-url https://download.pytorch.org/whl/cpu
+#RUN pip install transformers==4.40.2 tqdm==4.66.4 numpy==1.26.4 scikit-learn==1.4.2 scipy==1.13.0 nltk==3.8.1 pillow==10.3.0
 
-# Copy the rest of the embedder application code
-COPY . .
+# Copy the rest of the application code
+COPY semantic /app/semantic
+COPY lib_py/cognix_lib /app/cognix_lib
+
+# Set the PYTHONPATH environment variable
+ENV PYTHONPATH="/app"
 
 # Command to run your application
-CMD ["python", "semantic_service.py"]
+CMD ["python", "semantic/semantic_service.py"]
 
 
 

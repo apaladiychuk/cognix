@@ -61,12 +61,12 @@ services:
       - ${CONFIG_PATH}/cockroach-cli.env
       - ${CONFIG_PATH}/minio-cli.env
     restart: always
-    healthcheck:
-      test: "curl --silent --fail http://localhost:8080/healthz > /dev/null || exit 1"
-      interval: 60s
-      start_period: 10s
-      timeout: 3s
-      retries: 3
+#    healthcheck:
+#      test: "curl --silent --fail http://localhost:8080/healthz > /dev/null || exit 1"
+#      interval: 60s
+#      start_period: 10s
+#      timeout: 3s
+#      retries: 3
     depends_on:
       - nats
       - cockroach
@@ -112,8 +112,8 @@ services:
     # container_name: semantic
     image: gen-mind/cognix-semantic:latest
     build:
-      context: ../src/backend/semantic
-      dockerfile: Dockerfile
+      context: ../src/backend
+      dockerfile: semantic/Dockerfile
     volumes:
       - ${DATA_PATH}/temp:/temp
     env_file:
@@ -297,6 +297,7 @@ services:
       MINIO_ADDRESS: minio:9000
     volumes:
       # - "../src/config/milvus-srv.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
+      - ${CONFIG_PATH}/milvus-srv.yaml:/milvus/configs/milvus.yaml
       - "../data/milvus:/var/lib/milvus"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]

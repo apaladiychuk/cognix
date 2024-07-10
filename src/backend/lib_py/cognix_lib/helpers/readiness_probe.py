@@ -4,12 +4,11 @@ import logging
 import os
 from dotenv import load_dotenv
 
-# Define the logging configuration
-#logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 load_dotenv()
 readiness_time_out = int(os.getenv('READINESS_TIME_OUT', 500))
+
 
 class ReadinessProbe:
     _instance = None
@@ -65,9 +64,9 @@ class ReadinessProbe:
             self.logger.info("Initializing readiness probe server")
             server_address = ('', 8080)
             httpd = HTTPServer(server_address,
-                               lambda *args, **kwargs: self.ReadinessProbeHandler(*args, readiness_probe=self, **kwargs))
+                               lambda *args, **kwargs: self.ReadinessProbeHandler(*args, readiness_probe=self,
+                                                                                  **kwargs))
             self.logger.info(f"Readiness probe server started on {server_address}8080")
             httpd.serve_forever()
         except Exception as e:
             self.logger.error(f"❌ Readiness probe failed to start: {e}")
-

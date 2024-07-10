@@ -17,6 +17,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/fx"
 	"net/http"
+	"strings"
 )
 
 var Module = fx.Options(
@@ -37,7 +38,7 @@ var Module = fx.Options(
 		handler.NewAuthHandler,
 		handler.NewCollectorHandler,
 		handler.NewSwaggerHandler,
-		handler.NewPersonaHandler,
+		newPersonaHandler,
 		handler.NewChatHandler,
 		handler.NewEmbeddingModelHandler,
 		handler.NewTenantHandler,
@@ -49,6 +50,13 @@ var Module = fx.Options(
 		RunServer,
 	),
 )
+
+func newPersonaHandler(personaBL bll.PersonaBL,
+	aiBuilder *ai.Builder,
+	cfg *Config) *handler.PersonaHandler {
+	llmModels := strings.Split(cfg.LLMModels, ",")
+	return handler.NewPersonaHandler(personaBL, aiBuilder, llmModels)
+}
 
 func MountRoute(param MountParams) error {
 	param.AutHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)

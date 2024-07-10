@@ -3,7 +3,7 @@ package main
 import (
 	"cognix.ch/api/v2/api/handler"
 	"cognix.ch/api/v2/core/ai"
-	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
@@ -20,7 +20,7 @@ import (
 var Module = fx.Options(
 	repository.DatabaseModule,
 	repository.RepositoriesModule,
-	bll.BLLModule,
+	logic.BLLModule,
 	storage.MinioModule,
 	messaging.NatsModule,
 	ai.EmbeddingModule,

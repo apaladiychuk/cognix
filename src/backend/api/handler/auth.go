@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/parameters"
@@ -19,7 +19,7 @@ import (
 type AuthHandler struct {
 	oauthClient oauth.Proxy
 	jwtService  security.JWTService
-	authBL      bll.AuthBL
+	authBL      logic.AuthBL
 	//storage     storage.Storage
 }
 
@@ -30,7 +30,7 @@ type AuthHandler struct {
 // @return: AuthHandler instance
 func NewAuthHandler(oauthClient oauth.Proxy,
 	jwtService security.JWTService,
-	authBL bll.AuthBL,
+	authBL logic.AuthBL,
 	//storage storage.Storage,
 
 ) *AuthHandler {

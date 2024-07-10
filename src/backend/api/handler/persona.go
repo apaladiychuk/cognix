@@ -2,7 +2,7 @@ package handler
 
 import (
 	"cognix.ch/api/v2/core/ai"
-	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
@@ -14,7 +14,7 @@ import (
 
 // PersonaHandler handles operations related to personas.
 type PersonaHandler struct {
-	personaBL bll.PersonaBL
+	personaBL logic.PersonaBL
 	aiBuilder *ai.Builder
 }
 
@@ -32,7 +32,7 @@ type PersonaHandler struct {
 // Example:
 //
 //	personaHandler := NewPersonaHandler(personaBL, aiBuilder)
-func NewPersonaHandler(personaBL bll.PersonaBL, aiBuilder *ai.Builder) *PersonaHandler {
+func NewPersonaHandler(personaBL logic.PersonaBL, aiBuilder *ai.Builder) *PersonaHandler {
 	return &PersonaHandler{personaBL: personaBL, aiBuilder: aiBuilder}
 }
 

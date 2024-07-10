@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/security"
@@ -14,7 +14,7 @@ import (
 
 // ConnectorHandler represents a handler for managing connectors.
 type ConnectorHandler struct {
-	connectorBL bll.ConnectorBL
+	connectorBL logic.ConnectorBL
 }
 
 // NewCollectorHandler creates a new instance of ConnectorHandler.
@@ -24,7 +24,7 @@ type ConnectorHandler struct {
 //
 // Returns:
 // - *ConnectorHandler: a pointer to the newly created ConnectorHandler instance.
-func NewCollectorHandler(connectorBL bll.ConnectorBL) *ConnectorHandler {
+func NewCollectorHandler(connectorBL logic.ConnectorBL) *ConnectorHandler {
 	return &ConnectorHandler{
 		connectorBL: connectorBL,
 	}

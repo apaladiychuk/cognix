@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/server"
@@ -14,13 +14,13 @@ import (
 
 // ChatHandler is a handler for chat related operations.
 type ChatHandler struct {
-	chatBL bll.ChatBL
+	chatBL logic.ChatBL
 }
 
 // NewChatHandler creates a new instance of ChatHandler with the provided ChatBL
 // @param chatBL The implementation of ChatBL interface
 // @return *ChatHandler The newly created ChatHandler instance
-func NewChatHandler(chatBL bll.ChatBL) *ChatHandler {
+func NewChatHandler(chatBL logic.ChatBL) *ChatHandler {
 	return &ChatHandler{chatBL: chatBL}
 
 }

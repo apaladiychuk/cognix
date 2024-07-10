@@ -12,9 +12,9 @@ type (
 		Message string
 	}
 
-	// OpenAIClient is an interface for making requests to the OpenAI chat API.
+	// Client is an interface for making requests to the OpenAI chat API.
 	// The Request method takes a context and a message as input and returns a Response or an error.
-	OpenAIClient interface {
+	Client interface {
 		Request(ctx context.Context, message string) (*Response, error)
 	}
 
@@ -55,12 +55,12 @@ func (o *openAIClient) Request(ctx context.Context, message string) (*Response, 
 	return response, nil
 }
 
-// NewOpenAIClient is a function that creates a new instance of the OpenAIClient.
-// It takes the modelID and apiKey as input parameters and returns an instance of OpenAIClient.
+// NewOpenAIClient is a function that creates a new instance of the Client.
+// It takes the modelID and apiKey as input parameters and returns an instance of Client.
 // The function creates a new openaIClient struct with the provided modelID and apiKey.
 // It then initializes the client field with the openai.NewClient function using the apiKey.
-// Finally, it sets the modelID field with the provided modelID and returns the created struct as an OpenAIClient.
-func NewOpenAIClient(modelID, apiKey string) OpenAIClient {
+// Finally, it sets the modelID field with the provided modelID and returns the created struct as an Client.
+func NewOpenAIClient(modelID, apiKey string) Client {
 
 	return &openAIClient{
 		client:  openai.NewClient(apiKey),

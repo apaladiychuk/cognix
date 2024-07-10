@@ -19,7 +19,7 @@ import (
 // interacting with the chat repository, performing document searches, and managing vectors in a VectorDB.
 // The embedding model is used for document search and retrieval.
 type aiResponder struct {
-	aiClient       ai.OpenAIClient
+	aiClient       ai.Client
 	charRepo       repository.ChatRepository
 	searcher       ai.Searcher
 	vectorDBClinet storage.VectorDBClient
@@ -77,6 +77,9 @@ func (r *aiResponder) Send(ctx context.Context,
 	}
 
 	for _, doc := range docs {
+		if len(messageParts) > 5 {
+			break
+		}
 		messageParts = append(messageParts, doc.Content)
 		if doc.ID.IntPart() != 0 {
 			message.DocumentPairs = append(message.DocumentPairs, &model.ChatMessageDocumentPair{
@@ -189,7 +192,7 @@ func (r *aiResponder) FindDocuments(ctx context.Context,
 }
 
 // NewAIResponder creates a new AIResponder object with the given dependencies.
-// It takes an OpenAIClient, ChatRepository, Searcher, VectorDBClient, DocumentRepository,
+// It takes an Client, ChatRepository, Searcher, VectorDBClient, DocumentRepository,
 // and an embeddingModel as parameters and returns a ChatResponder object.
 // The ChatResponder object is implemented by the aiResponder struct.
 // The aiResponder struct has the following fields: aiClient, charRepo, searcher,
@@ -200,7 +203,7 @@ func (r *aiResponder) FindDocuments(ctx context.Context,
 // The NewAIResponder function initializes an aiResponder object with the provided dependencies
 // and returns it as a ChatResponder object.
 func NewAIResponder(
-	aiClient ai.OpenAIClient,
+	aiClient ai.Client,
 	charRepo repository.ChatRepository,
 	searcher ai.Searcher,
 	vectorDBClinet storage.VectorDBClient,

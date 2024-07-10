@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import lib.gen_types.embed_service_pb2 as embed__service__pb2
+import lib.gen_types.vector_search_pb2 as vector__search__pb2
 
 GRPC_GENERATED_VERSION = '1.63.0'
 GRPC_VERSION = grpc.__version__
@@ -20,7 +20,7 @@ except ImportError:
 if _version_not_supported:
     warnings.warn(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in embed_service_pb2_grpc.py depends on'
+        + f' but the generated code in vector_search_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -30,7 +30,7 @@ if _version_not_supported:
     )
 
 
-class EmbedServiceStub(object):
+class SearchServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -39,42 +39,42 @@ class EmbedServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetEmbedding = channel.unary_unary(
-                '/com.cognix.EmbedService/GetEmbedding',
-                request_serializer=embed__service__pb2.EmbedRequest.SerializeToString,
-                response_deserializer=embed__service__pb2.EmbedResponse.FromString,
+        self.VectorSearch = channel.unary_unary(
+                '/com.cognix.SearchService/VectorSearch',
+                request_serializer=vector__search__pb2.SearchRequest.SerializeToString,
+                response_deserializer=vector__search__pb2.SearchResponse.FromString,
                 _registered_method=True)
 
 
-class EmbedServiceServicer(object):
+class SearchServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetEmbedding(self, request, context):
+    def VectorSearch(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_EmbedServiceServicer_to_server(servicer, server):
+def add_SearchServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetEmbedding': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetEmbedding,
-                    request_deserializer=embed__service__pb2.EmbedRequest.FromString,
-                    response_serializer=embed__service__pb2.EmbedResponse.SerializeToString,
+            'VectorSearch': grpc.unary_unary_rpc_method_handler(
+                    servicer.VectorSearch,
+                    request_deserializer=vector__search__pb2.SearchRequest.FromString,
+                    response_serializer=vector__search__pb2.SearchResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'com.cognix.EmbedService', rpc_method_handlers)
+            'com.cognix.SearchService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class EmbedService(object):
+class SearchService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetEmbedding(request,
+    def VectorSearch(request,
             target,
             options=(),
             channel_credentials=None,
@@ -87,9 +87,9 @@ class EmbedService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/com.cognix.EmbedService/GetEmbedding',
-            embed__service__pb2.EmbedRequest.SerializeToString,
-            embed__service__pb2.EmbedResponse.FromString,
+            '/com.cognix.SearchService/VectorSearch',
+            vector__search__pb2.SearchRequest.SerializeToString,
+            vector__search__pb2.SearchResponse.FromString,
             options,
             channel_credentials,
             insecure,

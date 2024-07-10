@@ -1,16 +1,16 @@
 import logging
 import os
 import time
-from typing import List
+from typing import List, Dict
 
 import grpc
 from dotenv import load_dotenv
 from numpy import int64
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
 
-
+from lib.gen_types.vector_search_pb2 import SearchRequest
 from lib.gen_types.semantic_data_pb2 import SemanticData
-from lib.gen_types.embed_service_pb2 import EmbedRequest
+from lib.gen_types.embed_service_pb2 import EmbedRequest, EmbedResponseItem
 from lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
 from lib.spider.chunked_item import ChunkedItem
 from readiness_probe import ReadinessProbe
@@ -86,14 +86,16 @@ class Milvus_DB:
             elapsed_time = end_time - start_time
             # self.logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
 
-    def query(self, query: str, data: SemanticData) -> Collection:
+    def query(self, data: SearchRequest) -> List[List[Dict]]:
         start_time = time.time()  # Record the start time
         self.ensure_connection()
         try:
-            collection = Collection(name=data.collection_name)
+            collection = Collection(name=data.collection_names[0])
             collection.load()
 
-            embedding = self.embedd(query, data.model_name)
+            # Call the updated embedd method with a list containing the query string
+            embedding_items = self.embedd([data.content], data.model_name)
+            embedding = list(embedding_items[0].vector)  # Extract the embedding vector
 
             result = collection.search(
                 data=[embedding],  # Embed search value
@@ -108,11 +110,13 @@ class Milvus_DB:
                 self.logger.debug("enumerating vector database results")
                 for i, hits in enumerate(result):
                     for hit in hits:
-                        self.logger.debug(
-                            f"Nearest Neighbor Number {i}: {hit.entity.get('sentence')} ---- {hit.distance}\n")
-                        answer += hit.entity.get('sentence')
+                        sentence = hit.entity.get('content')
+                        if sentence is not None:
+                            self.logger.debug(
+                                f"Nearest Neighbor Number {i}: {sentence} ---- {hit.distance}\n")
+                            answer += sentence
                 self.logger.debug("end enumeration")
-            return collection
+            return result
         except Exception as e:
             self.logger.error(f"❌ {e}")
         finally:
@@ -152,6 +156,8 @@ class Milvus_DB:
         collection.create_index(field_name="vector", index_params=index_params)
         collection.load()
 
+        # Collect truncated contents
+        truncated_contents = []
         for item in chunk_list:
             content_bytes = item.content.encode('utf-8')
             content_length = len(content_bytes)
@@ -167,8 +173,13 @@ class Milvus_DB:
             truncated_length = len(truncated_content.encode('utf-8'))
             self.logger.debug(f"truncated content length: {truncated_length}")
 
-            embedding = self.embedd(truncated_content, model_name)
-            json_content = {"content": truncated_content}
+            truncated_contents.append(truncated_content)
+
+        # Call the updated embedd method once
+        embeddings = self.embedd(truncated_contents, model_name)
+
+        for item, embedding in zip(chunk_list, embeddings):
+            json_content = {"content": embedding.content}  # embedding.content gives truncated_content
 
             # Check JSON content length
             json_content_bytes = str(json_content).encode('utf-8')
@@ -188,32 +199,32 @@ class Milvus_DB:
                 "document_id": item.document_id,
                 "parent_id": item.parent_id,
                 "content": json_content,
-                "vector": embedding
+                "vector": list(embedding.vector)  # embedding.vector gives the embedding vector
             })
 
         collection.insert(entities)
         collection.flush()
         self.logger.info(f"🗄️successfully stored {len(chunk_list)} entities in the vector db")
 
-    def embedd(self, content_to_embedd: str, model: str) -> List[float]:
+    def embedd(self, contents_to_embedd: List[str], model: str) -> List[EmbedResponseItem]:
         ReadinessProbe().update_last_seen()
         start_time = time.time()  # Record the start time
         with grpc.insecure_channel(f"{embedder_grpc_host}:{embedder_grpc_port}",
                                    options=[
-                                       ('grpc.max_send_message_length', 100 * 1024 * 1024),  # 100 MB
-                                       ('grpc.max_receive_message_length', 100 * 1024 * 1024)  # 100 MB
+                                       ('grpc.max_send_message_length', 1024 * 1024 * 1024),  # 1 GB
+                                       ('grpc.max_receive_message_length', 1024 * 1024 * 1024)  # 1 GB
                                    ]
                                    ) as channel:
             stub = EmbedServiceStub(channel)
 
             self.logger.debug("calling gRPC Service GetEmbed - Unary")
 
-            embed_request = EmbedRequest(content=content_to_embedd, model=model)
-            embed_response = stub.GetEmbeding(embed_request)
+            embed_request = EmbedRequest(contents=contents_to_embedd, model=model)
+            embed_response = stub.GetEmbedding(embed_request)
 
             self.logger.debug("getEmbedding gRPC call received correctly")
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
             self.logger.debug(f"⏰🤖total elapsed time to create embedding: {elapsed_time:.2f} seconds")
 
-            return list(embed_response.vector)
+            return list(embed_response.embeddings)

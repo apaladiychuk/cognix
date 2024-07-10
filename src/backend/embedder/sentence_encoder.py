@@ -105,3 +105,8 @@ class SentenceEncoder:
         """
         model: SentenceTransformer = cls._get_model(model_name)
         return model.encode(text).tolist()
+
+    @classmethod
+    def embed_batch(cls, texts: List[str], model_name: str) -> List[List[float]]:
+        model: SentenceTransformer = cls._get_model(model_name)
+        return [embedding.tolist() for embedding in model.encode(texts, batch_size=len(texts))]

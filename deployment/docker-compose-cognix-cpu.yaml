@@ -57,9 +57,9 @@ services:
       - ${DATA_PATH}/models:/models
     env_file:
       - ${CONFIG_PATH}/voice-srv.env
-      - ${CONFIG_PATH}/nats_cli.env
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/minio_cli.env
+      - ${CONFIG_PATH}/nats-cli.env
+      - ${CONFIG_PATH}/cockroach-cli.env
+      - ${CONFIG_PATH}/minio-cli.env
     restart: always
     healthcheck:
       test: "curl --silent --fail http://localhost:8080/healthz > /dev/null || exit 1"
@@ -101,7 +101,7 @@ services:
     env_file:
       - ${CONFIG_PATH}/search-srv.env
       - ${CONFIG_PATH}/embedder-cli.env
-      - ${CONFIG_PATH}/milvus_cli.env
+      - ${CONFIG_PATH}/milvus-cli.env
     restart: always
     depends_on:
       - milvus
@@ -118,12 +118,12 @@ services:
       - ${DATA_PATH}/temp:/temp
     env_file:
       - ${CONFIG_PATH}/semantic-srv.env
-      - ${CONFIG_PATH}/milvus_cli.env
-      - ${CONFIG_PATH}/nats_cli.env
+      - ${CONFIG_PATH}/milvus-cli.env
+      - ${CONFIG_PATH}/nats-cli.env
       - ${CONFIG_PATH}/embedder-cli.env
       - ${CONFIG_PATH}/transformer-cli.env
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/minio_cli.env
+      - ${CONFIG_PATH}/cockroach-cli.env
+      - ${CONFIG_PATH}/minio-cli.env
     restart: always
 #    ports:
 #      - "3434:8080"
@@ -170,11 +170,11 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - ${CONFIG_PATH}/api_srv.env
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/minio_cli.env
-      - ${CONFIG_PATH}/milvus_cli.env
-      - ${CONFIG_PATH}/nats_cli.env
+      - ${CONFIG_PATH}/api-srv.env
+      - ${CONFIG_PATH}/cockroach-cli.env
+      - ${CONFIG_PATH}/minio-cli.env
+      - ${CONFIG_PATH}/milvus-cli.env
+      - ${CONFIG_PATH}/nats-cli.env
       - ${CONFIG_PATH}/embedder-cli.env
       - ${CONFIG_PATH}/search-cli.env
       - ${CONFIG_PATH}/.env
@@ -196,10 +196,10 @@ services:
         service: orchestrator
       dockerfile: orchestrator/Dockerfile
     env_file:
-      - ${CONFIG_PATH}/orchestrator_srv.env
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/nats_cli.env
-      - ${CONFIG_PATH}/oauth_cli.env
+      - ${CONFIG_PATH}/orchestrator-srv.env
+      - ${CONFIG_PATH}/cockroach-cli.env
+      - ${CONFIG_PATH}/nats-cli.env
+      - ${CONFIG_PATH}/oauth-cli.env
       - ${CONFIG_PATH}/.env
     depends_on:
       - cockroach
@@ -218,11 +218,11 @@ services:
         service: connector
       dockerfile: connector/Dockerfile
     env_file:
-      - ${CONFIG_PATH}/cockroach_cli.env
-      - ${CONFIG_PATH}/nats_cli.env
-      - ${CONFIG_PATH}/milvus_cli.env
-      - ${CONFIG_PATH}/minio_cli.env
-      - ${CONFIG_PATH}/oauth_cli.env
+      - ${CONFIG_PATH}/cockroach-cli.env
+      - ${CONFIG_PATH}/nats-cli.env
+      - ${CONFIG_PATH}/milvus-cli.env
+      - ${CONFIG_PATH}/minio-cli.env
+      - ${CONFIG_PATH}/oauth-cli.env
       - ${CONFIG_PATH}/.env
     depends_on:
       - cockroach
@@ -241,7 +241,7 @@ services:
     volumes:
       - ${MIGRATION_PATH}/versions:/versions
     env_file:
-      - ${CONFIG_PATH}/cockroach_cli.env
+      - ${CONFIG_PATH}/cockroach-cli.env
     depends_on:
       - cockroach
     networks:
@@ -296,7 +296,7 @@ services:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
     volumes:
-      # - "../src/config/milvus_srv.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
+      # - "../src/config/milvus-srv.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
       - "../data/milvus:/var/lib/milvus"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
@@ -386,7 +386,7 @@ services:
       REVERSE_PROXY_UPSTREAM: 'nats:8222'
     volumes:
       # Optional config file.
-      - ${CONFIG_PATH}/nats_config.json:/srv/config.json
+      - ${CONFIG_PATH}/nats-config.json:/srv/config.json
     ports:
       - "8000:80"
 #      - target: 80

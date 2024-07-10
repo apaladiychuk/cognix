@@ -1,10 +1,8 @@
 import asyncio
 import logging
 import os
-import uuid
 
 from dotenv import load_dotenv
-from sqlalchemy import func
 
 from lib.db.db_document import DocumentCRUD
 from lib.db.db_connector import ConnectorCRUD, Status
@@ -86,7 +84,7 @@ async def main():
 
     connector = connector_crud.select_connector(document.connector_id)
     logger.info(f"Selected connector: {connector}")
-    connector_crud.update_connector(connector.id, last_attempt_status=Status.SCAN_COMPLETED_SUCCESSFULLY)
+    connector_crud.update_connector(connector.id, last_attempt_status=Status.COMPLETED_SUCCESSFULLY)
     connector = connector_crud.select_connector(document.connector_id)
     logger.info(f"Selected connector: {connector}")
 

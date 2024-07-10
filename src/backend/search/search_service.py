@@ -52,7 +52,7 @@ class SearchServicer(SearchServiceServicer):
                 request.model_name = "paraphrase-multilingual-mpnet-base-v2"
 
             search_response = SearchResponse()
-            milvus = Milvus_DB(logger)
+            milvus = Milvus_DB()
 
             result: List[List[Dict]] = milvus.query(data=request)
             if result is not None:

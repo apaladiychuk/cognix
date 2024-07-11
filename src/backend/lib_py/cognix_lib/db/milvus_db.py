@@ -2,9 +2,10 @@ import logging
 import os
 import time
 from typing import List, Dict
-
 import grpc
 from dotenv import load_dotenv
+load_dotenv()
+
 from numpy import int64
 from pymilvus import connections, utility, FieldSchema, CollectionSchema, DataType, Collection
 
@@ -14,8 +15,7 @@ from cognix_lib.gen_types.embed_service_pb2_grpc import EmbedServiceStub
 from cognix_lib.spider.chunked_item import ChunkedItem
 from cognix_lib.helpers.readiness_probe import ReadinessProbe
 
-# Load environment variables from .env file
-load_dotenv()
+
 
 # Get nats url from env
 milvus_alias = os.getenv("MILVUS_ALIAS", 'default')
@@ -32,9 +32,15 @@ embedder_grpc_port = os.getenv("EMBEDDER_GRPC_PORT", "50051")
 
 
 class Milvus_DB:
-    def __init__(self):
+    def __init__(self, log_level: int = None):
         self.logger = logging.getLogger(self.__class__.__name__)
+
+        if log_level is not None:
+            self.logger.setLevel(log_level)
+        else:
+            self.logger.setLevel(logging.INFO)  # Default log level
         self._connect()
+
 
     def _connect(self):
         try:
@@ -45,7 +51,7 @@ class Milvus_DB:
                 user=milvus_user,
                 password=milvus_pass
             )
-            # self.logger.info("Connected to Milvus")
+            self.logger.info("Connected to Milvus")
         except Exception as e:
             self.logger.error(f"❌ Failed to connect to Milvus: {e}")
 
@@ -101,20 +107,34 @@ class Milvus_DB:
                 anns_field="vector",  # Search across embeddings
                 param={"metric_type": f"{milvus_metric_type}", "params": {"ef": 64}},
                 limit=10,  # Limit to top_k results per search
-                output_fields=["content"]
+                output_fields=["id", "content", "document_id", "parent_id"]
             )
+
+            # Add logging to check if results are present
+            if not result:
+                self.logger.debug("No results returned from Milvus")
+            else:
+                self.logger.debug(f"Number of results returned: {len(result[0])}")
 
             if self.logger.level == logging.DEBUG:
                 answer = ""
                 self.logger.debug("enumerating vector database results")
                 for i, hits in enumerate(result):
-                    for hit in hits:
-                        sentence = hit.entity.get('content')
-                        if sentence is not None:
+                    self.logger.debug(f"Processing result {i}")
+                    for j, hit in enumerate(hits):
+                        self.logger.debug(f"Processing hit {j} in result {i}")
+                        id = hit.entity.get('id')
+                        parent_id = hit.entity.get('parent_id')
+                        content = hit.entity.get('content')
+                        document_id = hit.entity.get('document_id')
+                        self.logger.debug(f"id: {id},document_id: {document_id}, parent_id: {parent_id}")
+                        if content is not None and document_id is not None:
+                            content_str = str(content)  # Convert the content to a string
+                            document_id_str = str(document_id)  # Convert document_id to a string
                             self.logger.debug(
-                                f"Nearest Neighbor Number {i}: {sentence} ---- {hit.distance}\n")
-                            answer += sentence
-                self.logger.debug("end enumeration")
+                                f"Nearest Neighbor Number {j} in result {i}: {content_str} ---- {hit.distance}\n")
+                            answer += content_str
+            self.logger.debug("end enumeration")
             return result
         except Exception as e:
             self.logger.error(f"❌ {e}")

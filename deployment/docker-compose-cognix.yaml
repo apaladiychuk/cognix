@@ -297,7 +297,7 @@ services:
       MINIO_ADDRESS: minio:9000
     volumes:
       # - "../src/config/milvus-srv.yaml:/milvus/configs/milvus.yaml"  # to pass config to milvus
-      - ${CONFIG_PATH}/milvus-srv.yaml:/milvus/configs/milvus.yaml
+      # - ${CONFIG_PATH}/milvus-srv.yaml:/milvus/configs/milvus.yaml
       - "../data/milvus:/var/lib/milvus"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]

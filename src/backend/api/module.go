@@ -49,7 +49,7 @@ var Module = fx.Options(
 	),
 )
 
-func newPersonaHandler(personaBL bll.PersonaBL,
+func newPersonaHandler(personaBL logic.PersonaBL,
 	aiBuilder *ai.Builder,
 	cfg *Config) *handler.PersonaHandler {
 	llmModels := strings.Split(cfg.LLMModels, ",")

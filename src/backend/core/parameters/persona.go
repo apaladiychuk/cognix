@@ -1,14 +1,8 @@
 package parameters
 
 import (
-	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/sashabaranov/go-openai"
 )
-
-var SupportedModels = map[string]bool{
-	openai.GPT3Dot5Turbo: true,
-}
 
 type PersonaParam struct {
 	Name            string            `json:"name"`
@@ -31,12 +25,6 @@ type StarterMessage struct {
 func (v PersonaParam) Validate() error {
 	return validation.ValidateStruct(&v,
 		validation.Field(&v.Name, validation.Required),
-		validation.Field(&v.ModelID, validation.Required,
-			validation.By(func(value interface{}) error {
-				if _, ok := SupportedModels[v.ModelID]; !ok {
-					return fmt.Errorf("model %s not supported", v.ModelID)
-				}
-				return nil
-			})),
+		validation.Field(&v.ModelID, validation.Required),
 		validation.Field(&v.APIKey, validation.Required))
 }

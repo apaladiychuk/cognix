@@ -5,8 +5,8 @@ from urllib.parse import urlparse, parse_qs
 
 from youtube_transcript_api import YouTubeTranscriptApi
 
-from lib.db.db_document import DocumentCRUD
-from lib.gen_types.semantic_data_pb2 import SemanticData
+from cognix_lib.db.db_document import DocumentCRUD
+from cognix_lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.semantic_base import BaseSemantic
 from lib.semantic.text_splitter import TextSplitter
 from lib.spider.chunked_item import ChunkedItem

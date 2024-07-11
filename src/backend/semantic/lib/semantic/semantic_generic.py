@@ -4,8 +4,8 @@ import uuid
 
 import pymupdf4llm
 
-from lib.db.db_document import DocumentCRUD
-from lib.gen_types.semantic_data_pb2 import SemanticData
+from cognix_lib.db.db_document import DocumentCRUD
+from cognix_lib.gen_types.semantic_data_pb2 import SemanticData
 from lib.semantic.markdown_extractor import MarkdownSectionExtractor
 from lib.semantic.semantic_base import BaseSemantic
 from lib.semantic.text_splitter import TextSplitter
@@ -29,9 +29,9 @@ class GenericSemantic(BaseSemantic):
             if os.path.exists(downloaded_file_path):
                 file_type = os.path.splitext(downloaded_file_path)[1]
                 file_size = os.path.getsize(downloaded_file_path)
-                self.logger.info(f"analyzing a {file_type} file, size: {file_size / 1024:.2f} KB")
+                self.logger.info(f"🔬 analyzing a {file_type} file, size: {file_size / 1024:.2f} KB")
             else:
-                raise FileNotFoundError(f"File {downloaded_file_path} does not exist.")
+                raise FileNotFoundError(f"file {downloaded_file_path} does not exist.")
 
             # Check if the file is a Markdown file
             if file_type == '.md':

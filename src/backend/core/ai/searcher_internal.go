@@ -20,9 +20,9 @@ func (i *InternalSearcher) FindDocuments(ctx context.Context, userID, tenantID u
 	if err != nil {
 		return nil, err
 	}
-	response, err := embedding.GetEmbeding(ctx, &proto.EmbedRequest{
-		Content: message,
-		Model:   embeddingModel,
+	response, err := embedding.GetEmbedding(ctx, &proto.EmbedRequest{
+		Contents: []string{message},
+		Model:    embeddingModel,
 	})
 	if err != nil {
 		zap.S().Errorf("embeding service %s ", err.Error())
@@ -31,7 +31,10 @@ func (i *InternalSearcher) FindDocuments(ctx context.Context, userID, tenantID u
 	var result []*SearcherResponse
 
 	for _, collectionName := range collectionNames {
-		docs, err := i.vectorDB.Load(ctx, collectionName, response.GetVector())
+		if response.GetEmbeddings() == nil || len(response.GetEmbeddings()) == 0 {
+			continue
+		}
+		docs, err := i.vectorDB.Load(ctx, collectionName, response.GetEmbeddings()[0].GetVector())
 		if err != nil {
 			zap.S().Errorf("error loading document from vector database :%s", err.Error())
 			continue

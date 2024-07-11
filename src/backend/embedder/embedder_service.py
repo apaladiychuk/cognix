@@ -1,10 +1,10 @@
 import time
 import os
 
-from lib.gen_types.embed_service_pb2_grpc import EmbedServiceServicer, add_EmbedServiceServicer_to_server
-from lib.gen_types.embed_service_pb2 import EmbedResponse
+from cognix_lib.gen_types.embed_service_pb2_grpc import EmbedServiceServicer, add_EmbedServiceServicer_to_server
+from cognix_lib.gen_types.embed_service_pb2 import EmbedResponse, EmbedResponseItem
 from sentence_encoder import SentenceEncoder
-from lib.helpers.device_checker import DeviceChecker
+from cognix_lib.helpers.device_checker import DeviceChecker
 import grpc
 from concurrent import futures
 import logging
@@ -14,31 +14,38 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get log level from env 
-log_level_str = os.getenv('LOG_LEVEL', 'ERROR').upper()
+log_level_str = os.getenv('EMBEDDER_LOG_LEVEL', 'INFO').upper()
 log_level = getattr(logging, log_level_str, logging.INFO)
 
 # Get log format from env 
-log_format = os.getenv('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_format = os.getenv('EMBEDDER_LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
 logger = logging.getLogger(__name__)
 
 # Get gRPC port from environment variable
-grpc_port = os.getenv('GRPC_PORT', '50051')
+grpc_port = os.getenv('EMBEDDER_GRPC_PORT', '50051')
 
 
 class EmbedServicer(EmbedServiceServicer):
-    def GetEmbeding(self, request, context):
+    def GetEmbedding(self, request, context):
         start_time = time.time()  # Record the start time
         try:
-            logger.info(f"incoming embedd request: {request}")
+            logger.info(f"📱incoming embedd request: for {len(request.contents)} entities")
+            logger.debug(f"📱incoming embedd request: {request}")
             embed_response = EmbedResponse()
 
-            encoded_data = SentenceEncoder.embed(text=request.content, model_name=request.model)
+            # encoded_data = SentenceEncoder.embed(text=request.content, model_name=request.model)
+            # embed_response.vector.extend(encoded_data)
 
-            # assign the vector variable the response
-            embed_response.vector.extend(encoded_data)
+            # Process each content in the request
+            encoded_data = SentenceEncoder.embed_batch(texts=request.contents, model_name=request.model)
+
+            for content, vector in zip(request.contents, encoded_data):
+                response_item = EmbedResponseItem(content=content, vector=vector)
+                embed_response.embeddings.append(response_item)
+
             logger.info("embedd request successfully processed")
             return embed_response
         except Exception as e:
@@ -47,14 +54,14 @@ class EmbedServicer(EmbedServiceServicer):
         finally:
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
-            logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
+            logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds to embedd  {len(request.contents)} entities")
 
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(),
                          options=[
-                             ('grpc.max_send_message_length', 100 * 1024 * 1024),  # 100 MB
-                             ('grpc.max_receive_message_length', 100 * 1024 * 1024)  # 100 MB
+                             ('grpc.max_send_message_length', 1024 * 1024 * 1024),  # 1 GB
+                             ('grpc.max_receive_message_length', 1024 * 1024 * 1024)  # 1 GB
                          ]
                          )
 

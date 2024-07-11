@@ -1,5 +1,23 @@
+# Ensure logging is configured before any other imports
 import logging
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get log level from env
+log_level_str = os.getenv('SEARCH_LOG_LEVEL', 'INFO').upper()
+log_level = getattr(logging, log_level_str, logging.DEBUG)
+
+# Get log format from env
+log_format = os.getenv('SEARCH_LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
+
+# Configure logging
+logging.basicConfig(level=log_level, format=log_format)
+logger = logging.getLogger(__name__)
+logger.setLevel(log_level)  # Ensure the logger's level is explicitly set
+
 import time
 from concurrent import futures
 from typing import List, Dict
@@ -15,24 +33,7 @@ from cognix_lib.db.milvus_db import Milvus_DB
 from pymilvus import Collection
 
 
-# Load environment variables from .env file
-load_dotenv()
 
-# Get log level from env
-log_level_str = os.getenv('SEARCH_LOG_LEVEL', 'INFO').upper()
-log_level = getattr(logging, log_level_str, logging.DEBUG)
-
-# Get log format from env
-log_format = os.getenv('SEARCH_LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
-
-# Configure logging
-# logging.basicConfig(level=log_level, format=log_format)
-# logger = logging.getLogger()
-# logger.setLevel(log_level)
-# Configure logging
-logging.basicConfig(level=log_level, format=log_format)
-logger = logging.getLogger(__name__)
-logger.setLevel(log_level)
 
 
 grpc_port = os.getenv('SEARCH_GRPC_PORT', '50053')
@@ -43,6 +44,7 @@ local_model_path: str = os.getenv('SEARCH_LOCAL_MODEL_PATH', 'models')
 class SearchServicer(SearchServiceServicer):
     def VectorSearch(self, request: SearchRequest, context) -> SearchResponse:
         start_time = time.time()  # Record the start time
+        search_response = SearchResponse()
         try:
             logger.debug(f"incoming search request: {request}")
             logger.info(f"incoming search request")
@@ -51,16 +53,15 @@ class SearchServicer(SearchServiceServicer):
                 logger.error(f"❌ no model name has been passed!")
                 request.model_name = "paraphrase-multilingual-mpnet-base-v2"
 
-            search_response = SearchResponse()
-            milvus = Milvus_DB(logger)
+            milvus = Milvus_DB(logger.level)
 
             result: List[List[Dict]] = milvus.query(data=request)
             if result is not None:
                 # Enumerate the result and populate search_response
                 for hits in result:
                     for hit in hits:
-                        content = hit.get("content")
-                        document_id = hit.get("id")  # Ensure this is the correct key for document ID
+                        content = hit.entity.get("content")
+                        document_id = hit.entity.get("document_id")
                         if content and document_id:
                             # Ensure types are correct
                             try:
@@ -75,7 +76,7 @@ class SearchServicer(SearchServiceServicer):
                                 logger.error(f"Type conversion error: {ve}")
 
             logger.info(f"search request successfully processed")
-            return search_response
+
         except Exception as e:
             logger.exception(e)
             raise grpc.RpcError(f"❌ failed to process request: {str(e)}")
@@ -83,6 +84,7 @@ class SearchServicer(SearchServiceServicer):
             end_time = time.time()  # Record the end time
             elapsed_time = end_time - start_time
             logger.info(f"⏰ total elapsed time: {elapsed_time:.2f} seconds")
+            return search_response
 
 
 def serve():

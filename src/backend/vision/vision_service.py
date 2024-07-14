@@ -4,13 +4,12 @@ import logging
 import os
 import threading
 import time
-import datetime
 from dotenv import load_dotenv
 from nats.aio.msg import Msg
 
 from cognix_lib.db.db_connector import ConnectorCRUD, Status
 from cognix_lib.db.db_document import DocumentCRUD
-from cognix_lib.gen_types.voice_data_pb2 import VoiceData
+from cognix_lib.gen_types.vision_data_pb2 import VisionData
 from cognix_lib.gen_types.semantic_data_pb2 import SemanticData
 from cognix_lib.db.jetstream_event_subscriber import JetStreamEventSubscriber
 from cognix_lib.helpers.readiness_probe import ReadinessProbe
@@ -18,7 +17,7 @@ from cognix_lib.helpers.device_checker import DeviceChecker
 from cognix_lib.helpers.minio_helper import MinIO_Helper
 from cognix_lib.db.jetstream_publisher import JetStreamPublisher
 from cognix_lib.gen_types.file_type_pb2 import FileType
-from voice_to_text import VoiceToText
+from vision_analysis import Vision  # Hypothetical image analysis class
 
 #endregion
 
@@ -27,25 +26,25 @@ from voice_to_text import VoiceToText
 load_dotenv()
 
 # get log level from env
-log_level_str = os.getenv('VOICE_LOG_LEVEL', 'ERROR').upper()
+log_level_str = os.getenv('VISION_LOG_LEVEL', 'ERROR').upper()
 log_level = getattr(logging, log_level_str, logging.INFO)
 # get log format from env
-log_format = os.getenv('VOICE_LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
+log_format = os.getenv('VISION_LOG_FORMAT', '%(asctime)s - %(levelname)s - %(name)s - %(funcName)s - %(message)s')
 # Configure logging
 logging.basicConfig(level=log_level, format=log_format)
 
 logger = logging.getLogger(__name__)
 logger.info(f"Logging configured with level {log_level_str} and format {log_format}")
 
-# loading from env env
+# loading from env
 nats_url = os.getenv('NATS_CLIENT_URL', 'nats://127.0.0.1:4222')
 nats_connect_timeout = int(os.getenv('NATS_CLIENT_CONNECT_TIMEOUT', '30'))
 nats_reconnect_time_wait = int(os.getenv('NATS_CLIENT_RECONNECT_TIME_WAIT', '30'))
 nats_max_reconnect_attempts = int(os.getenv('NATS_CLIENT_MAX_RECONNECT_ATTEMPTS', '3'))
-voice_stream_name = os.getenv('NATS_CLIENT_VOICE_STREAM_NAME', 'voice')
-voice_stream_subject = os.getenv('NATS_CLIENT_VOICE_STREAM_SUBJECT', 'voice_activity')
-voice_ack_wait = int(os.getenv('NATS_CLIENT_VOICE_ACK_WAIT', '3600'))  # seconds
-voice_max_deliver = int(os.getenv('NATS_CLIENT_VOICE_MAX_DELIVER', '3'))
+vision_stream_name = os.getenv('NATS_CLIENT_VISION_STREAM_NAME', 'vision')
+vision_stream_subject = os.getenv('NATS_CLIENT_VISION_STREAM_SUBJECT', 'vision_activity')
+vision_ack_wait = int(os.getenv('NATS_CLIENT_VISION_ACK_WAIT', '3600'))  # seconds
+vision_max_deliver = int(os.getenv('NATS_CLIENT_VISION_MAX_DELIVER', '3'))
 
 semantic_stream_name = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_NAME', 'semantic')
 semantic_stream_subject = os.getenv('NATS_CLIENT_SEMANTIC_STREAM_SUBJECT', 'semantic_activity')
@@ -57,36 +56,35 @@ minio_endpoint = os.getenv('MINIO_ENDPOINT', "minio:9000")
 minio_access_key = os.getenv('MINIO_ACCESS_KEY', "minioadmin")
 minio_secret_key = os.getenv('MINIO_SECRET_ACCESS_KEY', "minioadmin")
 minio_use_ssl = os.getenv('MINIO_USE_SSL', 'false').lower() == 'true'
-temp_path = os.getenv('VOICE_LOCAL_TEMP_PATH', "../temp")
-model_path = os.getenv('VOICE_LOCAL_MODEL_PATH', '../../../data/models')
+temp_path = os.getenv('VISION_LOCAL_TEMP_PATH', "../temp")
+model_path = os.getenv('VISION_LOCAL_MODEL_PATH', '../../../data/models')
 
 
 #endregion
 
 # Define the event handler function
-async def voice_event(msg: Msg):
+async def vision_event(msg: Msg):
     start_time = time.time()  # Record the start time
     connector_id = 0
     entities_analyzed = 0
     try:
-        logger.info("🔥 starting speech to text analysis..")
+        logger.info("🔥 starting image analysis..")
         # Deserialize the message
-        voice_data = VoiceData()
-        voice_data.ParseFromString(msg.data)
-        logger.info(f"message: \n {voice_data}")
+        vision_data = VisionData()
+        vision_data.ParseFromString(msg.data)
+        logger.info(f"message: \n {vision_data}")
 
-        if voice_data.model_name == "":
-            logger.error(f"❌ no model nameeeeeeee")
-            voice_data.model_name = "paraphrase-multilingual-mpnet-base-v2"
-            voice_data.model_dimension = 768
+        if vision_data.model_name == "":
+            logger.error(f"❌ no model name provided")
+            vision_data.model_name = "default-image-model"
+            vision_data.model_dimension = 1024
             logger.warning(f"😱 Adding model name and dimension manually remove this code ASAP")
 
         # verify document id is valid otherwise we cannot process the message
-        if voice_data.connector_id <= 0:
-            logger.error(f"❌ failed to process voice data error: connector_id must value must be positive")
+        if vision_data.connector_id <= 0:
+            logger.error(f"❌ failed to process vision data error: connector_id must be positive")
         else:
-
-            downloaded_file_path = MinIO_Helper.download(url=voice_data.url, temp_path=temp_path,
+            downloaded_file_path = MinIO_Helper.download(url=vision_data.url, temp_path=temp_path,
                                                          minio_endpoint=minio_endpoint,
                                                          minio_access_key=minio_access_key,
                                                          minio_secret_key=minio_secret_key,
@@ -100,25 +98,18 @@ async def voice_event(msg: Msg):
             else:
                 raise FileNotFoundError(f"File {downloaded_file_path} does not exist.")
 
-            # model_name = "openai/whisper-large-v3"
             logging.warning("😱 model and cache limit hardcoded!")
-            model_name = "openai/whisper-large-v3"
-            vtt = VoiceToText(model_cache_limit=1, local_model_path=model_path)
-            transcription = vtt.extract_text(downloaded_file_path, model_name)
+            model_name = "default-image-model"
+            ia = Vision(model_cache_limit=1, local_model_path=model_path)
+            analysis_results = ia.analyze_image(downloaded_file_path, model_name)
 
-            # Save the transcription to a Markdown file and storing in MinIO
-            # todo: we shall extract bucket name from semantic_data.url minio:<bucket-name>:<file-name>
-            # passing empty atm and it will be auto generated
-            minio_url = MinIO_Helper.upload_string_to_md(content=transcription,
-                                                         url=voice_data.url,
-                                                         minio_endpoint=minio_endpoint,
-                                                         minio_access_key=minio_access_key,
-                                                         minio_secret_key=minio_secret_key,
-                                                         minio_use_ssl=minio_use_ssl)
-
-            # (self, subject: str, stream_name: str, nats_url: str,
-            # nats_reconnect_time_wait: int,
-            # nats_connect_timeout: int, nats_max_reconnect_attempts:int):
+            # Save the analysis results to a JSON file and store in MinIO
+            minio_url = MinIO_Helper.upload_string_to_md(content=analysis_results,
+                                                           url=vision_data.url,
+                                                           minio_endpoint=minio_endpoint,
+                                                           minio_access_key=minio_access_key,
+                                                           minio_secret_key=minio_secret_key,
+                                                           minio_use_ssl=minio_use_ssl)
 
             # sending message to semantic
             publisher = JetStreamPublisher(subject=semantic_stream_subject,
@@ -130,13 +121,13 @@ async def voice_event(msg: Msg):
             await publisher.connect()
             semantic_data_to_send = SemanticData(
                 url=minio_url,
-                document_id=voice_data.document_id,
+                document_id=vision_data.document_id,
                 url_recursive=False,
-                connector_id=voice_data.connector_id,
-                file_type=FileType.MD,
-                collection_name=voice_data.collection_name,
-                model_name=voice_data.model_name,
-                model_dimension=voice_data.model_dimension)
+                connector_id=vision_data.connector_id,
+                file_type=FileType.JSON,
+                collection_name=vision_data.collection_name,
+                model_name=vision_data.model_name,
+                model_dimension=vision_data.model_dimension)
             await publisher.publish(semantic_data_to_send)
 
             await publisher.close()
@@ -146,18 +137,7 @@ async def voice_event(msg: Msg):
         logger.info(f"👍 message acknowledged successfully, total entities stored {entities_analyzed}")
     except Exception as e:
         error_message = str(e) if e else "Unknown error occurred"
-        logger.error(f"❌ failed to process voice data error: {error_message}")
-        # if msg:  # Ensure msg is not None before awaiting
-        #     await msg.nak()
-        # try:
-        #     if connector_id != 0:
-        #         connector_crud = ConnectorCRUD(cockroach_url)
-        #         connector_crud.update_connector(connector_id,
-        #                                         status=Status.COMPLETED_WITH_ERRORS,
-        #                                         last_update=datetime.datetime.utcnow())
-        # except Exception as e:
-        #     error_message = str(e) if e else "Unknown error occurred"
-        #     logger.error(f"❌ failed to process semantic data error: {error_message}")
+        logger.error(f"❌ failed to process vision data error: {error_message}")
     finally:
         end_time = time.time()  # Record the end time
         elapsed_time = end_time - start_time
@@ -187,17 +167,17 @@ async def main():
             # subscribing to jet stream
             subscriber = JetStreamEventSubscriber(
                 nats_url=nats_url,
-                stream_name=voice_stream_name,
-                subject=voice_stream_subject,
+                stream_name=vision_stream_name,
+                subject=vision_stream_subject,
                 connect_timeout=nats_connect_timeout,
                 reconnect_time_wait=nats_reconnect_time_wait,
                 max_reconnect_attempts=nats_max_reconnect_attempts,
-                ack_wait=voice_ack_wait,
-                max_deliver=voice_max_deliver,
-                proto_message_type=VoiceData
+                ack_wait=vision_ack_wait,
+                max_deliver=vision_max_deliver,
+                proto_message_type=VisionData
             )
 
-            subscriber.set_event_handler(voice_event)
+            subscriber.set_event_handler(vision_event)
             await subscriber.connect_and_subscribe()
 
             while True:

@@ -16,7 +16,7 @@ CogniX is a RAG (Retrieval-Augmented Generation) system capable of transforming 
 To quickly bring a product to market, we are focusing on two key aspects:
 
 - 🔍 **Semantic Search for Business:** A plug-in for business applications like Teams, Slack, and SharePoint, providing efficient search functionality directly within these tools. The first implementation will be for Microsoft Teams.
-- 🤖 **AI Chatbot:** A versatile chatbot that can be integrated into any website, capable of handling customer support and various other topics as instructed.
+- 🤖 **AI Chatbot:** A versatile chatbot that can be integrated into any website, capable of talking about the site's products or services, handling customer support and various other topics as instructed.
 
 ## `Future Vision`
 

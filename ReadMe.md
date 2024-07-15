@@ -2,59 +2,33 @@
 
 # `CogniX`
 
-
-
-![Static Badge](https://img.shields.io/badge/mission-augment_humans_with_AI-orange)
-<br />
-![GitHub top language](https://img.shields.io/github/languages/top/gen-mind/cognix)
 ![GitHub last commit](https://img.shields.io/github/last-commit/gen-mind/cognix)
-
+<br />
 [![Join our community on Slack](https://img.shields.io/badge/Join%20our%20community%20on%20Slack-Invite-brightgreen)](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg)
 
-
-[Join our community on Slack](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg)
-
-## `What's CogniX`
-Our mission is to augment humans with AI.
+</div>
 
 ## `What's CogniX`
-AI can be difficult to use, CogniX fills the gap that there is between humans and AI.
-And it augments it with all your knowledge on the palm of your hand.
 
-Imagine to be an engineer, facing an issue on the system.
-Now it would be nice to quickly find my notes and related manuals to solve the issue....
-Probably you spent more time chasing your notes than actually solving the issue :) 
+CogniX is a RAG (Retrieval-Augmented Generation) system capable of transforming various industries by leveraging AI. While RAG systems can handle complex tasks across sectors such as telecommunications, banking, healthcare, retail, and utilities, developing comprehensive solutions for these areas is time-consuming.
 
-A teacher preparing lessons and exams for the week, or the semester 
+## `Initial Focus`
 
-Well with CogniX you can just type in: 
-- I need to solve 
+To quickly bring a product to market, we are focusing on two key aspects:
 
-being able to access information on your manuals, personal notes, 
+- 🔍 **Semantic Search for Business:** A plug-in for business applications like Teams, Slack, and SharePoint, providing efficient search functionality directly within these tools. The first implementation will be for Microsoft Teams.
+- 🤖 **AI Chatbot:** A versatile chatbot that can be integrated into any website, capable of handling customer support and various other topics as instructed.
 
+## `Future Vision`
 
-## `Setup`
-Copy file config/.env.example to config/.env
+Gian and Michael, the co-founders, are conducting interviews with CXOs and decision-makers to identify market needs and refine our offerings. As we progress, CogniX will evolve to address more complex use cases and expand its impact across various industries.
 
-Declare env variables in config/.env
-  
+For more detailed information, visit the [CogniX Documentation](https://docs.cognix.ch/).
 
-### `Run docker container` 
+## `Where We Are At`
 
-```azure
+Watch the video to quickly get a glimpse of where we are and what we are doing next.
 
-  docker compose up -d cockroach
-  docker compose up migration     
-  docker compose up -d api 
-```
+[![Watch the video](https://img.youtube.com/vi/artdJFEdjqw/0.jpg)](https://www.youtube.com/watch?v=artdJFEdjqw)
 
 
-
-## `License` 
-
-This project is dual-licensed:
-
-- **Non-Commercial Use**: Licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0). See the [LICENSE](license) file for details.
-- **Commercial Use**: Commercial licenses are available. Please see the [COMMERCIAL_LICENSE](license) file for details and contact [Your Contact Information] to discuss terms.
-
-For more information, visit [Cognix](https://www.cognix.ch).

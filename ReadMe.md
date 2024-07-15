@@ -30,8 +30,8 @@ Watch the video to quickly get a glimpse of where we are and what we are doing n
 
 [![Watch the video](https://img.youtube.com/vi/artdJFEdjqw/0.jpg)](https://www.youtube.com/watch?v=artdJFEdjqw)
 
-## `Our Main Focus`
-Our main focus at the moment is to convert any sort of knowledge in textual format so that it can be fed into a vector database. With this in mind, we are working on:
+## `Converting knowledge to textual format 
+A crucial aspect of any RAG is to convert any sort of knowledge in textual format so that it can be fed into a vector database. With this in mind, we are working on:
 - Connecting various data sources
 - Extracting textual information from an increasing number of file types
 

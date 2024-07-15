@@ -3,7 +3,9 @@ package server
 import (
 	"cognix.ch/api/v2/core/security"
 	"cognix.ch/api/v2/core/utils"
+	"github.com/gin-contrib/cors"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
 	"net/http"
 
@@ -158,4 +160,17 @@ func BindJsonAndValidate(c *gin.Context, data interface{}) error {
 		}
 	}
 	return nil
+}
+
+func NewRouter() *gin.Engine {
+	router := gin.Default()
+	router.Use(otelgin.Middleware("service-name"))
+	corsConfig := cors.DefaultConfig()
+
+	corsConfig.CustomSchemas = cors.DefaultSchemas
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowCredentials = true
+	corsConfig.AllowWildcard = true
+	router.Use(cors.New(corsConfig))
+	return router
 }

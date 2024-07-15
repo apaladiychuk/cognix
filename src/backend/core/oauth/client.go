@@ -51,10 +51,15 @@ type (
 // supported provider, an error is returned. If the provider is supported, it creates
 // an instance of the provider with the specified configuration and returns it.
 // The returned provider implements the Proxy interface.
-func NewProvider(name string, cfg *Config) (Proxy, error) {
+func NewProvider(name string, cfg *Config, redirectURL string) (Proxy, error) {
 	switch name {
 	case ProviderMicrosoft:
 		return NewMicrosoft(cfg.Microsoft), nil
+	case ProviderGoogle:
+		if redirectURL == "" {
+			redirectURL = cfg.Google.RedirectURL
+		}
+		return NewGoogleProvider(cfg.Google, redirectURL), nil
 	}
 	return nil, fmt.Errorf("unknown provider: %s", name)
 }

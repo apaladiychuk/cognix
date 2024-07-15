@@ -18,10 +18,20 @@ const (
 	oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 )
 
+var googleAuthScopes = []string{
+	"https://www.googleapis.com/auth/userinfo.email",
+	"https://www.googleapis.com/auth/userinfo.profile",
+}
+var googleDriveScopes []string = []string{"https://www.googleapis.com/auth/drive.readonly",
+	"https://www.googleapis.com/auth/drive.metadata.readonly",
+	"https://www.googleapis.com/auth/drive.activity.readonly",
+}
+
 // GoogleConfig represents the configuration for Google OAuth service.
 type GoogleConfig struct {
 	GoogleClientID string `env:"GOOGLE_CLIENT_ID"`
 	GoogleSecret   string `env:"GOOGLE_SECRET"`
+	RedirectURL    string `env:"OAUTH_REDIRECT_URL" envDefault:"https://rag.cognix.ch/api/oauth"`
 }
 
 // googleProvider represents a provider implementation for Google OAuth client.
@@ -46,8 +56,7 @@ func NewGoogleProvider(cfg *GoogleConfig, redirectURL string) Proxy {
 			ClientSecret: cfg.GoogleSecret,
 			Endpoint:     google.Endpoint,
 			RedirectURL:  fmt.Sprintf("%s/google/callback", redirectURL),
-			Scopes: []string{"https://www.googleapis.com/auth/userinfo.email",
-				"https://www.googleapis.com/auth/userinfo.profile"},
+			Scopes:       append(googleAuthScopes, googleDriveScopes...),
 		},
 	}
 }
@@ -61,9 +70,10 @@ func NewGoogleProvider(cfg *GoogleConfig, redirectURL string) Proxy {
 // The ApprovalForce value is passed as the second argument to the AuthCodeURL method.
 // The generated URL is returned along with any potential error that may occur.
 func (g *googleProvider) GetAuthURL(ctx context.Context, redirectURL, state string) (string, error) {
-	g.config.RedirectURL = fmt.Sprintf("%s/google/callback", redirectURL)
+	g.config.RedirectURL = fmt.Sprintf("%s", redirectURL)
 
 	return g.config.AuthCodeURL(state,
+		oauth2.AccessTypeOffline,
 		oauth2.ApprovalForce), nil
 }
 
@@ -89,7 +99,7 @@ func (g *googleProvider) ExchangeCode(ctx context.Context, code string) (*Identi
 	}
 	data.AccessToken = token.AccessToken
 	data.RefreshToken = token.RefreshToken
-
+	data.Token = token
 	return &data, nil
 }
 
@@ -102,5 +112,5 @@ func (g *googleProvider) ExchangeCode(ctx context.Context, code string) (*Identi
 // - *oauth2.Token: The refreshed OAuth2 token
 // - error: Any error that occurred during the token refreshing process
 func (g *googleProvider) RefreshToken(token *oauth2.Token) (*oauth2.Token, error) {
-	return token, nil
+	return g.config.TokenSource(context.Background(), token).Token()
 }

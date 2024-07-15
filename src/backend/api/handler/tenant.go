@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/security"
@@ -14,14 +14,14 @@ import (
 
 // TenantHandler  handles authentication endpoints
 type TenantHandler struct {
-	tenantBL bll.TenantBL
+	tenantBL logic.TenantBL
 }
 
 // NewTenantHandler create new TenantHandler instance
 // without duplicating the declaration code
 // @param TenantBL tenant business logic interface
 // @return *TenantHandler the new TenantHandler instance
-func NewTenantHandler(TenantBL bll.TenantBL) *TenantHandler {
+func NewTenantHandler(TenantBL logic.TenantBL) *TenantHandler {
 	return &TenantHandler{
 		tenantBL: TenantBL,
 	}

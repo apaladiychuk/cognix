@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/proto"
 	"cognix.ch/api/v2/core/repository"
+	"cognix.ch/api/v2/core/utils"
 	"context"
 	"fmt"
 	_ "github.com/AzureAD/microsoft-authentication-library-for-go/apps/confidential"
@@ -21,19 +22,17 @@ import (
 )
 
 // These constants represent the URLs and headers used for interacting with Microsoft Graph API.
-// 'authorizationHeader' represents the header key used for authorization.
 // 'apiBase' represents the base URL for Graph API.
 // 'getFilesURL' represents the URL for retrieving files from a special folder.
 // 'getDrive' represents the URL for retrieving files and folders in the root of the drive.
 // 'getFolderChild' represents the URL for retrieving files and folders in a specific folder.
 // 'createSharedLink' represents the URL for creating a shared link for a file resource.
 const (
-	authorizationHeader = "Authorization"
-	apiBase             = "https://graph.microsoft.com/v2.0"
-	getFilesURL         = "/me/drive/special/%s/children"
-	getDrive            = "https://graph.microsoft.com/v1.0/me/drive/root/children"
-	getFolderChild      = "https://graph.microsoft.com/v1.0/me/drive/items/%s/children"
-	createSharedLink    = "https://graph.microsoft.com/v1.0/me/drive/items/%s/createLink"
+	apiBase          = "https://graph.microsoft.com/v2.0"
+	getFilesURL      = "/me/drive/special/%s/children"
+	getDrive         = "https://graph.microsoft.com/v1.0/me/drive/root/children"
+	getFolderChild   = "https://graph.microsoft.com/v1.0/me/drive/items/%s/children"
+	createSharedLink = "https://graph.microsoft.com/v1.0/me/drive/items/%s/createLink"
 )
 
 // OneDrive is a struct that represents a type for connecting to OneDrive.
@@ -209,7 +208,7 @@ func NewOneDrive(connector *model.Connector,
 
 	conn.client = resty.New().
 		SetTimeout(time.Minute).
-		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
+		SetHeader(utils.AuthorizationHeader, fmt.Sprintf("%s %s",
 			conn.param.Token.TokenType,
 			conn.param.Token.AccessToken))
 	return &conn, nil

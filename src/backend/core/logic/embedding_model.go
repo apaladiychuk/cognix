@@ -1,4 +1,4 @@
-package bll
+package logic
 
 import (
 	"cognix.ch/api/v2/core/model"

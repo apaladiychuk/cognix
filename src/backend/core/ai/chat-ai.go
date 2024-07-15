@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-resty/resty/v2"
-	"go.uber.org/zap"
 	"time"
 )
 
@@ -50,8 +49,6 @@ func (c *ChatAI) Request(ctx context.Context, message string) (*Response, error)
 				Content: message,
 			}},
 	}
-
-	zap.S().Infof("send request to LLM %s ", fmt.Sprintf("%s%s", c.client.BaseURL, chatCompletionURL))
 	response, err := c.client.R().SetHeader("Authorization", fmt.Sprintf("Bearer %s", c.apiKey)).SetBody(request).Post(chatCompletionURL)
 	if err = utils.WrapRestyError(response, err); err != nil {
 		return nil, err

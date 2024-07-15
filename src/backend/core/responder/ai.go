@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/storage"
+	"cognix.ch/api/v2/core/utils"
 	"context"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -167,7 +168,7 @@ func (r *aiResponder) FindDocuments(ctx context.Context,
 
 		resDocument.Link = dbDoc.OriginalURL
 		if resDocument.Link == "" {
-			resDocument.Link = dbDoc.URL
+			resDocument.Link = utils.OriginalFileName(dbDoc.URL)
 		}
 		resDocument.DocumentID = dbDoc.SourceID
 		if !dbDoc.LastUpdate.IsZero() {

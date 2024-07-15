@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/security"
@@ -14,7 +14,7 @@ import (
 
 // EmbeddingModelHandler handles HTTP requests related to embedding models.
 type EmbeddingModelHandler struct {
-	embeddingModelBL bll.EmbeddingModelBL
+	embeddingModelBL logic.EmbeddingModelBL
 }
 
 // NewEmbeddingModelHandler creates a new instance of EmbeddingModelHandler.
@@ -25,7 +25,7 @@ type EmbeddingModelHandler struct {
 //
 // Returns:
 // - *EmbeddingModelHandler: a new instance of EmbeddingModelHandler.
-func NewEmbeddingModelHandler(embeddingModelBL bll.EmbeddingModelBL) *EmbeddingModelHandler {
+func NewEmbeddingModelHandler(embeddingModelBL logic.EmbeddingModelBL) *EmbeddingModelHandler {
 	return &EmbeddingModelHandler{embeddingModelBL: embeddingModelBL}
 }
 

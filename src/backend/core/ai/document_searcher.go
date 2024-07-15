@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"go.uber.org/zap"
 )
 
 // SearcherConfig is a configuration struct for the searcher module.
@@ -53,7 +52,6 @@ func NewSearcher(
 	vectorDB storage.VectorDBClient,
 	embeddGRPCBuilder *GRPCEmbeddingBuilder,
 ) (Searcher, error) {
-	zap.S().Debugf("searcher type %s", searcherType)
 	switch searcherType {
 	case VectorSearchInternal:
 		return &InternalSearcher{

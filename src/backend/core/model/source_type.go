@@ -44,7 +44,7 @@ var (
 	sourceTypeFileDescription        = SourceTypeDescription{SourceTypeFile, "File", true}
 	sourceTypeWEBDescription         = SourceTypeDescription{SourceTypeWEB, "Web", true}
 	sourceTypeSlackDescription       = SourceTypeDescription{SourceTypeSlack, "Slack", false}
-	sourceTypeGoogleDriveDescription = SourceTypeDescription{SourceTypeGoogleDrive, "Google Drive", false}
+	sourceTypeGoogleDriveDescription = SourceTypeDescription{SourceTypeGoogleDrive, "Google Drive", true}
 	sourceTypeGmailDescription       = SourceTypeDescription{SourceTypeGMAIL, "Gmail", false}
 	sourceTypeSharepointDescription  = SourceTypeDescription{SourceTypeSharepoint, "Sharepoint", false}
 	sourceTypeOneDriveDescription    = SourceTypeDescription{SourceTypeOneDrive, "OneDrive", true}

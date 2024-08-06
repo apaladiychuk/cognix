@@ -94,13 +94,8 @@ type (
 	}
 )
 
-// ValidateStruct validates the fields of the MSTeamParameters struct.
-// The validation rules are:
-//   - p.Token must not be nil
-//   - p.Token.AccessToken, p.Token.RefreshToken, and p.Token.TokenType must not be empty
-//
-// If any of the validation rules fail, an appropriate error message is returned.
-// Otherwise, nil is returned.
+// Validate checks if the MSTeamParameters struct is valid.
+// It returns an error if the token is missing or has incorrect values.
 func (p MSTeamParameters) Validate() error {
 	return validation.ValidateStruct(&p,
 		validation.Field(&p.Token, validation.By(func(value interface{}) error {
@@ -162,7 +157,7 @@ func (c *MSTeams) PrepareTask(ctx context.Context, sessionID uuid.UUID, task Tas
 // and parameters. If an error occurs during the execution, an error message will be logged, and the result channel
 // will be closed. The function finally returns the result channel for the caller to receive the response objects.
 func (c *MSTeams) Execute(ctx context.Context, param map[string]string) chan *Response {
-	c.resultCh = make(chan *Response)
+
 	var fileSizeLimit int
 	if size, ok := param[model.ParamFileLimit]; ok {
 		fileSizeLimit, _ = strconv.Atoi(size)
@@ -755,7 +750,7 @@ func NewMSTeams(connector *model.Connector,
 	}
 	conn.client = resty.New().
 		SetTimeout(time.Minute).
-		SetHeader(authorizationHeader, fmt.Sprintf("%s %s",
+		SetHeader(utils.AuthorizationHeader, fmt.Sprintf("%s %s",
 			conn.param.Token.TokenType,
 			conn.param.Token.AccessToken))
 	return &conn, nil

@@ -3,48 +3,51 @@ package model
 import "cognix.ch/api/v2/core/proto"
 
 const (
-	MIMEURL = "url"
+	MIMEURL      = "url"
+	MIMETypeXLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	MIMETypePPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+	MIMETypeDOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 )
 
 // SupportedMimeTypes is a map that associates MIME types with proto.FileType values.
 // It is used to determine the file type based on the MIME type.
 var SupportedMimeTypes = map[string]proto.FileType{
-	MIMEURL: proto.FileType_URL,
-	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": proto.FileType_XLSX,
-	"application/vnd.ms-excel": proto.FileType_XLS,
-	"application/vnd.openxmlformats-officedocument.wordprocessingml.document": proto.FileType_DOCX,
-	"application/msword": proto.FileType_DOC,
-	"application/pdf":    proto.FileType_PDF,
-	"text/plain":         proto.FileType_TXT,
-	"application/vnd.openxmlformats-officedocument.presentationml.presentation": proto.FileType_PPTX,
-	"application/vnd.ms-powerpoint":                                             proto.FileType_PPT,
-	"application/vnd.ms-xpsdocument":                                            proto.FileType_XPS,
-	"application/oxps":                                                          proto.FileType_XPS,
-	"application/epub+zip":                                                      proto.FileType_EPUB,
-	"application/hwp+zip":                                                       proto.FileType_HWPX,
-	"text/markdown":                                                             proto.FileType_MD,
-	"application/x-mobipocket-ebook":                                            proto.FileType_MOBI,
-	"application/fb2":                                                           proto.FileType_FB2,
-	"audio/mpeg":                                                                proto.FileType_MP3,
-	"video/mpeg":                                                                proto.FileType_MPEG,
-	"video/mp4":                                                                 proto.FileType_MP4,
-	"video/mpga":                                                                proto.FileType_MPGA,
-	"audio/wav":                                                                 proto.FileType_WAV,
-	"video/webm":                                                                proto.FileType_WEBM,
-	"video/mov":                                                                 proto.FileType_MOV,
-	"video/m4a":                                                                 proto.FileType_M4A,
+	MIMEURL:                          proto.FileType_URL,
+	MIMETypeXLSX:                     proto.FileType_XLSX,
+	"application/vnd.ms-excel":       proto.FileType_XLS,
+	MIMETypeDOCX:                     proto.FileType_DOCX,
+	"application/msword":             proto.FileType_DOC,
+	"application/pdf":                proto.FileType_PDF,
+	"text/plain":                     proto.FileType_TXT,
+	MIMETypePPTX:                     proto.FileType_PPTX,
+	"application/vnd.ms-powerpoint":  proto.FileType_PPT,
+	"application/vnd.ms-xpsdocument": proto.FileType_XPS,
+	"application/oxps":               proto.FileType_XPS,
+	"application/epub+zip":           proto.FileType_EPUB,
+	"application/hwp+zip":            proto.FileType_HWPX,
+	"text/markdown":                  proto.FileType_MD,
+	"application/x-mobipocket-ebook": proto.FileType_MOBI,
+	"application/fb2":                proto.FileType_FB2,
+	"audio/mpeg":                     proto.FileType_MP3,
+	"video/mpeg":                     proto.FileType_MPEG,
+	"video/mp4":                      proto.FileType_MP4,
+	"video/mpga":                     proto.FileType_MPGA,
+	"audio/wav":                      proto.FileType_WAV,
+	"video/webm":                     proto.FileType_WEBM,
+	"video/mov":                      proto.FileType_MOV,
+	"video/m4a":                      proto.FileType_M4A,
 }
 
 // SupportedExtensions is a map that associates file extensions with their corresponding MIME types.
 // It is used to determine the MIME type based on the file extension.
 var SupportedExtensions = map[string]string{
 	"PDF":  "application/pdf",
-	"XLSX": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	"XLSX": MIMETypeXLSX,
 	"XLS":  "application/vnd.ms-excel",
-	"DOCX": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	"DOCX": MIMETypeDOCX,
 	"DOC":  "application/msword",
 	"PPT":  "application/vnd.ms-powerpoint",
-	"PPTX": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+	"PPTX": MIMETypePPTX,
 	"MD":   "text/markdown",
 	"HWPX": "application/hwp+zip",
 	"MOBI": "application/x-mobipocket-ebook",

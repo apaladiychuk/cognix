@@ -5,6 +5,7 @@ import (
 	"cognix.ch/api/v2/core/parameters"
 	"cognix.ch/api/v2/core/server"
 	"cognix.ch/api/v2/core/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 	"net/http"
@@ -47,11 +48,11 @@ func (h *OAuthHandler) GetUrl(c *gin.Context) error {
 		return utils.ErrorBadRequest.Wrap(err, "wrong redirect url")
 	}
 
-	oauthClient, err := oauth.NewProvider(provider, h.oauthConfig)
+	oauthClient, err := oauth.NewProvider(provider, h.oauthConfig, param.RedirectURL)
 	if err != nil {
 		return utils.Internal.Wrap(err, "unknown provider")
 	}
-	url, err := oauthClient.GetAuthURL(c.Request.Context(), param.RedirectURL, "")
+	url, err := oauthClient.GetAuthURL(c.Request.Context(), fmt.Sprintf("%s/api/oauth/%s/callback", param.RedirectURL, provider), "")
 	if err != nil {
 		return err
 	}
@@ -70,7 +71,7 @@ func (h *OAuthHandler) Callback(c *gin.Context) error {
 		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
 	}
 
-	oauthClient, err := oauth.NewProvider(provider, h.oauthConfig)
+	oauthClient, err := oauth.NewProvider(provider, h.oauthConfig, query["redirect_url"])
 	if err != nil {
 		return utils.Internal.Wrap(err, "unknown provider")
 	}
@@ -92,7 +93,7 @@ func (h *OAuthHandler) Refresh(c *gin.Context) error {
 	if err := c.BindJSON(&token); err != nil {
 		return utils.ErrorBadRequest.Wrap(err, "wrong payload")
 	}
-	oauthClient, err := oauth.NewProvider(provider, h.oauthConfig)
+	oauthClient, err := oauth.NewProvider(provider, h.oauthConfig, "")
 	if err != nil {
 		return utils.Internal.Wrap(err, "unknown provider")
 	}

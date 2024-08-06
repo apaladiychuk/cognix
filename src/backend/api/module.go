@@ -3,7 +3,7 @@ package main
 import (
 	"cognix.ch/api/v2/api/handler"
 	"cognix.ch/api/v2/core/ai"
-	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
@@ -11,10 +11,8 @@ import (
 	"cognix.ch/api/v2/core/server"
 	"cognix.ch/api/v2/core/storage"
 	"fmt"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/fx"
 	"net/http"
 	"strings"
@@ -23,13 +21,13 @@ import (
 var Module = fx.Options(
 	repository.DatabaseModule,
 	repository.RepositoriesModule,
-	bll.BLLModule,
+	logic.BLLModule,
 	storage.MinioModule,
 	messaging.NatsModule,
 	ai.EmbeddingModule,
 	storage.MilvusModule,
 	fx.Provide(ReadConfig,
-		NewRouter,
+		server.NewRouter,
 		newGoogleOauthProvider,
 		newJWTService,
 		//newStorage,
@@ -51,7 +49,7 @@ var Module = fx.Options(
 	),
 )
 
-func newPersonaHandler(personaBL bll.PersonaBL,
+func newPersonaHandler(personaBL logic.PersonaBL,
 	aiBuilder *ai.Builder,
 	cfg *Config) *handler.PersonaHandler {
 	llmModels := strings.Split(cfg.LLMModels, ",")
@@ -83,18 +81,6 @@ func newJWTService(cfg *Config) security.JWTService {
 //	}
 func newOauthHandler(cfg *Config) *handler.OAuthHandler {
 	return handler.NewOAuthHandler(cfg.OAuth)
-}
-func NewRouter() *gin.Engine {
-	router := gin.Default()
-	router.Use(otelgin.Middleware("service-name"))
-	corsConfig := cors.DefaultConfig()
-
-	corsConfig.CustomSchemas = cors.DefaultSchemas
-	corsConfig.AllowAllOrigins = true
-	corsConfig.AllowCredentials = true
-	corsConfig.AllowWildcard = true
-	router.Use(cors.New(corsConfig))
-	return router
 }
 
 func RunServer(cfg *Config, router *gin.Engine) {

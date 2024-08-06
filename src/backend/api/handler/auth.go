@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"cognix.ch/api/v2/core/bll"
+	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/model"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/parameters"
@@ -19,7 +19,7 @@ import (
 type AuthHandler struct {
 	oauthClient oauth.Proxy
 	jwtService  security.JWTService
-	authBL      bll.AuthBL
+	authBL      logic.AuthBL
 	//storage     storage.Storage
 }
 
@@ -30,7 +30,7 @@ type AuthHandler struct {
 // @return: AuthHandler instance
 func NewAuthHandler(oauthClient oauth.Proxy,
 	jwtService security.JWTService,
-	authBL bll.AuthBL,
+	authBL logic.AuthBL,
 	//storage storage.Storage,
 
 ) *AuthHandler {
@@ -72,7 +72,7 @@ func (h *AuthHandler) SignIn(c *gin.Context) error {
 		return utils.Internal.Wrap(err, "can not marshal payload")
 	}
 	state := base64.URLEncoding.EncodeToString(buf)
-	url, err := h.oauthClient.GetAuthURL(c.Request.Context(), param.RedirectURL, state)
+	url, err := h.oauthClient.GetAuthURL(c.Request.Context(), param.RedirectURL+"/google/callback", state)
 	if err != nil {
 		return err
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"cognix.ch/api/v2/api/handler"
+	"cognix.ch/api/v2/core/configmap"
 	"cognix.ch/api/v2/core/oauth"
 	"cognix.ch/api/v2/core/repository"
 	"cognix.ch/api/v2/core/server"
@@ -24,11 +25,13 @@ type MountParams struct {
 	TenantHandler         *handler.TenantHandler
 	DocumentHandler       *handler.DocumentHandler
 	OAuthHandler          *handler.OAuthHandler
+	ConfigMapHandler      *handler.ConfigMapHandler
 }
 
 type Config struct {
 	DB             *repository.Config
 	OAuth          *oauth.Config
+	ConfigMap      *configmap.Config
 	Debug          bool   `env:"DEBUG" envDefault:"false"`
 	Port           int    `env:"PORT" envDefault:"8080"`
 	StoragePath    string `env:"STORAGE_PATH"`
@@ -40,7 +43,8 @@ type Config struct {
 
 func ReadConfig() (*Config, error) {
 	cfg := &Config{
-		DB: &repository.Config{},
+		DB:        &repository.Config{},
+		ConfigMap: &configmap.Config{},
 		OAuth: &oauth.Config{
 			Microsoft: &oauth.MicrosoftConfig{},
 			Google:    &oauth.GoogleConfig{},

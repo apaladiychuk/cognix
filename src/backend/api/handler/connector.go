@@ -31,8 +31,8 @@ func NewCollectorHandler(connectorBL logic.ConnectorBL) *ConnectorHandler {
 }
 
 // Mount mounts the ConnectorHandler routes to the specified gin.Engine
-// @param route the gin.Engine to mount the routes to
-// @param authMiddleware the authentication middleware to use
+// route the gin.Engine to mount the routes to
+// authMiddleware the authentication middleware to use
 func (h *ConnectorHandler) Mount(route *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := route.Group("/api/manage/connector")
 	handler.Use(authMiddleware)

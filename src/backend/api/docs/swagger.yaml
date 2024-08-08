@@ -123,6 +123,8 @@ definitions:
         type: number
       last_update:
         $ref: '#/definitions/pg.NullTime'
+      original_url:
+        type: string
       parent_id:
         $ref: '#/definitions/decimal.NullDecimal'
       signature:
@@ -360,6 +362,13 @@ definitions:
       role:
         type: string
     type: object
+  parameters.ConfigMapValue:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
   parameters.CreateChatMessageRequest:
     properties:
       chat_session_id:
@@ -479,6 +488,21 @@ definitions:
       time.Time:
         type: string
     type: object
+  proto.ConfigMapRecord:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
+  server.JsonResponse:
+    properties:
+      data: {}
+      error:
+        type: string
+      status:
+        type: integer
+    type: object
   uuid.NullUUID:
     properties:
       uuid:
@@ -494,6 +518,84 @@ info:
   title: Cognix API
   version: "1.0"
 paths:
+  /api/config-map/{name}:
+    get:
+      description: returns list of values from given config map name
+      operationId: configmap_get_config_map
+      parameters:
+      - description: name of config map
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/proto.ConfigMapRecord'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: returns list of values from given config map name
+      tags:
+      - ConfigMap
+    post:
+      description: create or update value in config map
+      operationId: configmap_save_config_map
+      parameters:
+      - description: name of config map
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: payload
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/parameters.ConfigMapValue'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.JsonResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: create or update value in config map
+      tags:
+      - ConfigMap
+  /api/config-map/{name}/{key}:
+    delete:
+      description: deletes value from config map
+      operationId: configmap_delete_config_map
+      parameters:
+      - description: name of config map
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: key of config map
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.JsonResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: deletes value from config map
+      tags:
+      - ConfigMap
   /auth/google/login:
     get:
       description: login using google auth

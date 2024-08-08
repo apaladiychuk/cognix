@@ -24,10 +24,6 @@ type AuthHandler struct {
 }
 
 // NewAuthHandler initializes a new instance of AuthHandler
-// @param oauthClient: OAuth proxy implementation
-// @param jwtService: JWT service implementation
-// @param authBL: Authentication business logic
-// @return: AuthHandler instance
 func NewAuthHandler(oauthClient oauth.Proxy,
 	jwtService security.JWTService,
 	authBL logic.AuthBL,

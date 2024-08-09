@@ -14,8 +14,13 @@ CogniX is now transformed into an AI-powered chatbot solution, leveraging Retrie
 A versatile chatbot that can be integrated into any website, capable of 
 - **Talking about the site's products or services**
 - **Handling customer support**
-- **Can book an appointment**
 - **Custom topics as instructed**
+
+Able to:
+- **Book an appointment**
+- **Create a ticket**
+- **Connect to a real agent**
+
 
 For detailed documentation and setup guides, visit [CogniX Docs](https://docs.cognix.ch/).
 If you're not familiar with RAG (retrieval-augmented generation), watch [this video](https://www.youtube.com/watch?v=u47GtXwePms).

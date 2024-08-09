@@ -70,8 +70,3 @@ If you have any ideas on how to expand our capabilities, feel free to join our S
 
 ## `Funding`
 In our [pitch deck video](https://www.youtube.com/watch?v=grWGugrkxew), we mentioned that we are seeking $1 million in funding for a 9% equity stake in the company. This investment will be crucial, with roughly 80% allocated for project development and 20% for marketing and sales. We are looking for venture capital and also considering crowdfunding. If you're interested, you can support us by purchasing a portion of this 9% stake.
-
-## `Contributing`
-We need help in various areas, including web development for integration, AI improvement, and Kubernetes/CICD pipelines. 
-If you have the skills and passion, we offer both stock and monetary compensation. 
-This is a great opportunity to join us on this exciting journey. 

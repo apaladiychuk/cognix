@@ -1,22 +1,23 @@
 <div align="center">
 
-# `CogniX`
+# 🤖 `CogniX AI Chatbot` 🤖
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/gen-mind/cognix)
 [![join our community on Slack](https://img.shields.io/badge/Join%20our%20community%20on%20Slack-Invite-orange)](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg)
 
 </div>
 
-## `What's CogniX`
+CogniX is now transformed into an AI-powered chatbot solution, leveraging Retrieval-Augmented Generation (RAG) technology. This evolution allows you to deploy intelligent chatbots for sales, support, and customer engagement with minimal setup.
+<br />
 
-CogniX is a RAG (Retrieval-Augmented Generation) system capable of transforming various industries by leveraging AI. While RAG systems can handle complex tasks across sectors such as telecommunications, banking, healthcare, retail, and utilities, developing comprehensive solutions for these areas is time-consuming.
+# `Features`
+A versatile chatbot that can be integrated into any website, capable of 
+- **Talking about the site's products or services**
+- **Handling customer support**
+- **Custom topics as instructed**
 
-## `Initial Focus`
+For detailed documentation and setup guides, visit [CogniX Docs](https://docs.cognix.ch/).
 
-To quickly bring a product to market, we are focusing on two key aspects:
-
-- 🔍 **Semantic Search for Business:** A plug-in for business applications like Teams, Slack, and SharePoint, providing efficient search functionality directly within these tools. The first implementation will be for Microsoft Teams.
-- 🤖 **AI Chatbot:** A versatile chatbot that can be integrated into any website, capable of talking about the site's products or services, handling customer support and various other topics as instructed.
 
 ## `Future Vision`
 
@@ -29,6 +30,20 @@ For more detailed information, visit the [CogniX Documentation](https://docs.cog
 Watch the video to quickly get a glimpse of where we are and what we are doing next.
 
 [![Watch the video](https://img.youtube.com/vi/artdJFEdjqw/0.jpg)](https://www.youtube.com/watch?v=artdJFEdjqw)
+
+
+## `Contributing`
+We need help in various areas, including web development (React), AI improvement, and Kubernetes/CICD pipelines.
+
+We are specifically looking for developers skilled in: 
+- React
+- Go
+- Python
+- DevOps 
+If you want to dedicate part of your time to help us create an innovative solution, you will be compensated with equity, which you can redeem once we secure early-stage funding.
+
+This is a great opportunity to join us on this exciting journey.
+Feel free to join our Slack [here](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg).
 
 ## `Converting knowledge to textual format`
 A crucial aspect of any RAG is to convert any sort of knowledge in textual format so that it can be fed into a vector database. With this in mind, we are working on:
@@ -60,4 +75,3 @@ In our [pitch deck video](https://www.youtube.com/watch?v=grWGugrkxew), we menti
 We need help in various areas, including web development for integration, AI improvement, and Kubernetes/CICD pipelines. 
 If you have the skills and passion, we offer both stock and monetary compensation. 
 This is a great opportunity to join us on this exciting journey. 
-Feel free to join our Slack [here](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg).

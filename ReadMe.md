@@ -32,11 +32,14 @@ We are specifically looking for developers skilled in:
 - React
 - Go
 - Python
-- DevOps 
-If you want to dedicate part of your time to help us create an innovative solution, you will be compensated with equity, which you can redeem once we secure early-stage funding.
+- DevOps
 
-This is a great opportunity to join us on this exciting journey.
-Feel free to join our Slack [here](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg).
+If you want to dedicate part of your time to help us create an innovative solution, you will be compensated with equity, which you can redeem once we secure early-stage funding.
+<br />
+<P />
+And think we’re a good fit for each other, we’re eager to discuss a co-founder position. 
+<br />This is a great opportunity to join us on this exciting journey.
+<br />  [Join our Slack](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg).
 
 ## `Where We Are At`
 

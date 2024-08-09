@@ -14,23 +14,11 @@ CogniX is now transformed into an AI-powered chatbot solution, leveraging Retrie
 A versatile chatbot that can be integrated into any website, capable of 
 - **Talking about the site's products or services**
 - **Handling customer support**
+- **Can book an appointment**
 - **Custom topics as instructed**
 
 For detailed documentation and setup guides, visit [CogniX Docs](https://docs.cognix.ch/).
-
-
-## `Future Vision`
-
-Gian and Michael, the co-founders, are conducting interviews with CXOs and decision-makers to identify market needs and refine our offerings. As we progress, CogniX will evolve to address more complex use cases and expand its impact across various industries.
-
-For more detailed information, visit the [CogniX Documentation](https://docs.cognix.ch/).
-
-## `Where We Are At`
-
-Watch the video to quickly get a glimpse of where we are and what we are doing next.
-
-[![Watch the video](https://img.youtube.com/vi/artdJFEdjqw/0.jpg)](https://www.youtube.com/watch?v=artdJFEdjqw)
-
+If you're not familiar with RAG (retrieval-augmented generation), watch [this video](https://www.youtube.com/watch?v=u47GtXwePms).
 
 ## `Contributing`
 We need help in various areas, including web development (React), AI improvement, and Kubernetes/CICD pipelines.
@@ -45,28 +33,31 @@ If you want to dedicate part of your time to help us create an innovative soluti
 This is a great opportunity to join us on this exciting journey.
 Feel free to join our Slack [here](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg).
 
-## `Converting knowledge to textual format`
-A crucial aspect of any RAG is to convert any sort of knowledge in textual format so that it can be fed into a vector database. With this in mind, we are working on:
-- Connecting various data sources
-- Extracting textual information from an increasing number of file types
+## `Where We Are At`
 
-We have already developed connectors for:
-- Google Drive
-- OneDrive
-- Microsoft Teams chat and Teams, including files
-- Websites
-- YouTube videos
+Watch the video to quickly get a glimpse of where we are and what we are doing next.
 
-We can extract textual data from video, audio, images, and the most common file extensions:
-- Documents: PDF, XPS, TXT, DOCX, DOC, XLSX, XLS, PPTX, PPT, HWPX, EPUB, MOBI, FB2, CBZ, MD
-- URLs: URL, YT
-- Audio/Video: MP4, MP3, MPEG, MPGA, M4A, WAV, WEBM, MOV
-- Images: JPEG, JPG, PNG, BMP, GIF, TIFF, TIF, WEBP, PPM, PGM, PBM
+[![Watch the video](https://img.youtube.com/vi/artdJFEdjqw/0.jpg)](https://www.youtube.com/watch?v=artdJFEdjqw)
 
-If you have any ideas on how to expand our capabilities, feel free to join our Slack community.
+## `What we need to do next`
+- Finalize the UI, and fix all bugs related to the UI
+- Create a generic chatbot plugin that will connect CogniX API task here
+- Create a chatbot pug-in for WordPress 
+- All UI work here
+- All Back end work, here
+- All  DevOps work here
+- Fix all bugs
+
+
 ## `Documentation`
 - User documentation at [rag.cognix.ch](https://rag.cognix.ch)
 - Technical documentation in this repo at [GitHub](https://github.com/gen-mind/cognix/tree/develop/docs)
 
 ## `Funding`
 In our [pitch deck video](https://www.youtube.com/watch?v=grWGugrkxew), we mentioned that we are seeking $1 million in funding for a 9% equity stake in the company. This investment will be crucial, with roughly 80% allocated for project development and 20% for marketing and sales. We are looking for venture capital and also considering crowdfunding. If you're interested, you can support us by purchasing a portion of this 9% stake.
+
+## `Future Vision`
+
+Gian and Michael, the co-founders, are conducting interviews with CXOs and decision-makers to identify market needs and refine our offerings. As we progress, CogniX will evolve to address more complex use cases and expand its impact across various industries.
+
+For more detailed information, visit the [CogniX Documentation](https://docs.cognix.ch/).

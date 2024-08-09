@@ -3,6 +3,7 @@ package main
 import (
 	"cognix.ch/api/v2/api/handler"
 	"cognix.ch/api/v2/core/ai"
+	"cognix.ch/api/v2/core/configmap"
 	"cognix.ch/api/v2/core/logic"
 	"cognix.ch/api/v2/core/messaging"
 	"cognix.ch/api/v2/core/oauth"
@@ -30,7 +31,7 @@ var Module = fx.Options(
 		server.NewRouter,
 		newGoogleOauthProvider,
 		newJWTService,
-		//newStorage,
+		newConfigMapClient,
 		ai.NewBuilder,
 		server.NewAuthMiddleware,
 		handler.NewAuthHandler,
@@ -41,6 +42,7 @@ var Module = fx.Options(
 		handler.NewEmbeddingModelHandler,
 		handler.NewTenantHandler,
 		handler.NewDocumentHandler,
+		handler.NewConfigMapHandler,
 		newOauthHandler,
 	),
 	fx.Invoke(
@@ -65,6 +67,7 @@ func MountRoute(param MountParams) error {
 	param.EmbeddingModelHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.TenantHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.DocumentHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
+	param.ConfigMapHandler.Mount(param.Router, param.AuthMiddleware.RequireAuth)
 	param.OAuthHandler.Mount(param.Router)
 	return nil
 }
@@ -83,6 +86,9 @@ func newOauthHandler(cfg *Config) *handler.OAuthHandler {
 	return handler.NewOAuthHandler(cfg.OAuth)
 }
 
+func newConfigMapClient(cfg *Config) *configmap.ClientBuilder {
+	return configmap.NewClientBuilder(cfg.ConfigMap)
+}
 func RunServer(cfg *Config, router *gin.Engine) {
 	srv := http.Server{}
 	srv.Addr = fmt.Sprintf("0.0.0.0:%d", cfg.Port)

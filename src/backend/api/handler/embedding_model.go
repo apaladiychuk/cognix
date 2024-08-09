@@ -30,8 +30,8 @@ func NewEmbeddingModelHandler(embeddingModelBL logic.EmbeddingModelBL) *Embeddin
 }
 
 // Mount mounts the routes related to embedding models on the given router.
-// @param router: The Gin router to mount the routes on.
-// @param authMiddleware: The authentication middleware to apply to the routes.
+// router: The Gin router to mount the routes on.
+// authMiddleware: The authentication middleware to apply to the routes.
 func (h *EmbeddingModelHandler) Mount(router *gin.Engine, authMiddleware gin.HandlerFunc) {
 	handler := router.Group("/api/manage/embedding_models").Use(authMiddleware)
 	handler.GET("/", server.HandlerErrorFuncAuth(h.GetAll))

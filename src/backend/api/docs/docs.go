@@ -18,6 +18,128 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/config-map/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "returns list of values from given config map name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ConfigMap"
+                ],
+                "summary": "returns list of values from given config map name",
+                "operationId": "configmap_get_config_map",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name of config map",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/proto.ConfigMapRecord"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "create or update value in config map",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ConfigMap"
+                ],
+                "summary": "create or update value in config map",
+                "operationId": "configmap_save_config_map",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name of config map",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "payload",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/parameters.ConfigMapValue"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.JsonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/config-map/{name}/{key}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "deletes value from config map",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ConfigMap"
+                ],
+                "summary": "deletes value from config map",
+                "operationId": "configmap_delete_config_map",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "name of config map",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "key of config map",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.JsonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/google/login": {
             "get": {
                 "description": "login using google auth",
@@ -1141,6 +1263,9 @@ const docTemplate = `{
                 "last_update": {
                     "$ref": "#/definitions/pg.NullTime"
                 },
+                "original_url": {
+                    "type": "string"
+                },
                 "parent_id": {
                     "$ref": "#/definitions/decimal.NullDecimal"
                 },
@@ -1474,6 +1599,17 @@ const docTemplate = `{
                 }
             }
         },
+        "parameters.ConfigMapValue": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "parameters.CreateChatMessageRequest": {
             "type": "object",
             "properties": {
@@ -1654,6 +1790,29 @@ const docTemplate = `{
             "properties": {
                 "time.Time": {
                     "type": "string"
+                }
+            }
+        },
+        "proto.ConfigMapRecord": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.JsonResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
                 }
             }
         },

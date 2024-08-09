@@ -204,6 +204,7 @@ services:
       - ${CONFIG_PATH}/nats-cli.env
       - ${CONFIG_PATH}/embedder-cli.env
       - ${CONFIG_PATH}/search-cli.env
+      - ${CONFIG_PATH}/configmap-cli.env
       - ${CONFIG_PATH}/.env
     depends_on:
       - cockroach
@@ -211,6 +212,23 @@ services:
       - milvus
       - nats
     restart: always
+    networks:
+      - cognix-network
+
+  configmap:
+    container_name: configmap
+    image: gen-mind/cognix-configmap:latest
+    build:
+      context: ${BACKEND_PATH}
+      args:
+        service: configmap
+      dockerfile: configmap/Dockerfile
+    env_file:
+      - ${CONFIG_PATH}/configmap-srv.env
+      - ${CONFIG_PATH}/configmap-cli.env
+    restart: always
+    volumes:
+      - ${CONFIG_PATH}:/configmap
     networks:
       - cognix-network
 

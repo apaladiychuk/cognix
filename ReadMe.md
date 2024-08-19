@@ -1,3 +1,5 @@
+
+
 <div align="center">
 
 # 🤖 `CogniX AI Chatbot` 🤖
@@ -6,21 +8,28 @@
 [![join our community on Slack](https://img.shields.io/badge/Join%20our%20community%20on%20Slack-Invite-orange)](https://join.slack.com/t/cognixgroup/shared_invite/zt-2kbtcnys6-ZW3IjxeE~ZozZ8if6m0NWg)
 
 </div>
+Hey there! We're Gian and Michael,  We’re excited to have you here!
 
-CogniX is now transformed into an AI-powered chatbot solution, leveraging Retrieval-Augmented Generation (RAG) technology. This evolution allows you to deploy intelligent chatbots for sales, support, and customer engagement with minimal setup.
+
+CogniX is an AI-powered chatbot solution, leveraging Retrieval-Augmented Generation (RAG) technology. This evolution allows you to deploy intelligent chatbots for sales, support, and customer engagement with minimal setup.
 <br />
+
+
+
 
 # `Features`
 A versatile chatbot that can be integrated into any website, capable of 
 - **Talking about the site's products or services**
 - **Handling customer support**
-- **Custom topics as instructed**
+- **Talk about custom topics as instructed**
 
 Able to:
 - **Book an appointment**
 - **Collect leads**
 - **Create a ticket**
 - **Connect to a real agent**
+- **Knows about the order status**
+- **Send an email**
 
 
 For detailed documentation and setup guides, visit [CogniX Docs](https://docs.cognix.ch/).

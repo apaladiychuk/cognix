@@ -22,6 +22,10 @@ A versatile chatbot that can be integrated into any website, capable of
 - **Talking about the site's products or services**
 - **Handling customer support**
 - **Talk about custom topics as instructed**
+- **It can be instructed instructed via easy to setup connectors:**
+ - - **All the info on your site (crawler)**
+  - - **Your Google Drive**
+  - - **Your One Drive**
 
 Able to:
 - **Book an appointment**

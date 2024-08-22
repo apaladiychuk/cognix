@@ -16,10 +16,6 @@ CogniX is an AI code generator that creates entire features or extensive code bl
 
 
 
-Here's a revised version tailored for an AI code generator:
-
----
-
 ## `Features`
 
 An advanced AI code generator that can integrate seamlessly with your development environment, offering capabilities such as:
@@ -88,7 +84,3 @@ In our [pitch deck video](https://www.youtube.com/watch?v=grWGugrkxew), we menti
 Gian and Michael, the co-founders, are conducting interviews with CXOs and decision-makers to identify market needs and refine our offerings. As we progress, CogniX will evolve to address more complex use cases and expand its impact across various industries.
 
 For more detailed information, visit the [CogniX Documentation](https://docs.cognix.ch/).
-
---- 
-
-This version aligns with the shift from a chatbot to an AI code generator, emphasizing its integration with development environments and the ability to automate extensive coding tasks.

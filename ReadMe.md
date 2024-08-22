@@ -11,7 +11,7 @@
 Hey there! We're Gian and Michael,  We’re excited to have you here!
 
 
-An AI code generator that creates entire features or extensive code blocks by analyzing your existing codebase. It mimics your project's style, rules, and patterns, ensuring new code aligns seamlessly with your standards—automatically generating front-end, back-end, database, and more based on your prompts.
+CogniX is an AI code generator that creates entire features or extensive code blocks by analyzing your existing codebase. It mimics your project's style, rules, and patterns, ensuring new code aligns seamlessly with your standards—automatically generating front-end, back-end, database, and more based on your prompts.
 <br />
 
 
